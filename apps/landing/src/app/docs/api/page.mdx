@@ -9,7 +9,7 @@ export const metadata = {
 
 <br />
 
-Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust를 지원합니다.
+Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust, .NET을 지원합니다.
 
 모든 함수는 표현 방식만 다를 뿐 사용법과 함수명은 같습니다.
 
@@ -64,6 +64,17 @@ Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust를 지원합니다
           color: 'var(--text)',
         }}
       >
+        C# 함수
+      </th>
+      <th
+        style={{
+          padding: '12px',
+          textAlign: 'left',
+          borderBottom: '2px solid #ddd',
+          backgroundColor: 'var(--containerBackground)',
+          color: 'var(--text)',
+        }}
+      >
         설명
       </th>
     </tr>
@@ -77,6 +88,14 @@ Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust를 지원합니다
         }}
       >
         encode
+      </td>
+      <td
+        style={{
+          padding: '12px',
+          borderBottom: '1px solid #ddd',
+        }}
+      >
+        Encode
       </td>
       <td
         style={{
@@ -134,6 +153,14 @@ Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust를 지원합니다
           borderBottom: '1px solid #ddd',
         }}
       >
+        EncodeToUnicode
+      </td>
+      <td
+        style={{
+          padding: '12px',
+          borderBottom: '1px solid #ddd',
+        }}
+      >
         문자열을 유니코드 점자로 변환합니다.
       </td>
     </tr>
@@ -161,6 +188,14 @@ Braillify 는 Node.js(Wasm for Web) 와 Python 그리고 Rust를 지원합니다
         }}
       >
         encode_to_braille_font
+      </td>
+      <td
+        style={{
+          padding: '12px',
+          borderBottom: '1px solid #ddd',
+        }}
+      >
+        EncodeToBrailleFont
       </td>
       <td
         style={{
