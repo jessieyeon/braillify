@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
-    "test": "cargo tarpaulin --out xml --out stdout -- --skip test_by_testcase && vitest test --run && cd py-test && uv run pytest __init__.py",
+    "test": "cargo tarpaulin --out xml --out stdout -- --skip test_by_testcase && bun test --coverage && cd py-test && uv run pytest __init__.py",
     "preinstall": "uv sync && (cargo install wasm-pack || node -e \"process.exit(0)\") && (pip install maturin || \"process.exit(0)\")",
     "build": "cargo build --release -p braillify && bun -F braillify build && cd packages/python && maturin build --release --out dist",
     "build:landing": "bun run build && (cargo test test_by_testcase || node -e \"process.exit(0)\") && bun -F landing build",
@@ -18,16 +18,11 @@
     "apps/landing"
   ],
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@vitest/coverage-v8": "^4.0.12",
+    "@types/node": "^25.5.0",
     "braillify": "workspace:*",
     "eslint-plugin-devup": "^2.0.17",
     "oxlint": "^1.55",
-    "vite-plugin-wasm": "^3.5.0",
-    "vitest": "^4.0.12"
+    "@types/bun": "^1.3"
   },
-  "author": "devfive",
-  "resolutions": {
-    "vite": "^6"
-  }
+  "author": "devfive"
 }

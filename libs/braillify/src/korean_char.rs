@@ -52,7 +52,9 @@ pub fn encode_korean_char(korean: &KoreanChar) -> Result<Vec<u8>, String> {
             result.extend(encode_jungsong(korean.jung)?);
             result.extend(encode_jongseong(jong)?);
         }
-    } else if let Ok(code) = char_shortcut::encode_char_shortcut(build_char(cho0, korean.jung, None)) {
+    } else if let Ok(code) =
+        char_shortcut::encode_char_shortcut(build_char(cho0, korean.jung, None))
+    {
         result.extend(code);
     } else {
         // shortcut 이 없으므로 초성 중성, 모두 결합

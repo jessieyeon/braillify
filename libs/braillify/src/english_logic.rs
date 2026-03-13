@@ -3,16 +3,57 @@ use crate::{symbol_shortcut, utils};
 /// 규칙 33~35에서 종료표(⠲)를 생략해야 하는 기호 모음.
 /// 기호 앞뒤에서는 로마자 종료표를 생략한다.
 pub(crate) fn should_skip_terminator_for_symbol(symbol: char) -> bool {
-    matches!(symbol, '.' | '?'| '!'| '…'| '⋯'| '"'| '\''| '”'| '’'| '」'| '』'
-            | '〉'| '》'| '('| ')'| ']'| '}'| ','| ':'| ';'| '―')
+    matches!(
+        symbol,
+        '.' | '?'
+            | '!'
+            | '…'
+            | '⋯'
+            | '"'
+            | '\''
+            | '”'
+            | '’'
+            | '」'
+            | '』'
+            | '〉'
+            | '》'
+            | '('
+            | ')'
+            | ']'
+            | '}'
+            | ','
+            | ':'
+            | ';'
+            | '―'
+    )
 }
 
 /// 종료표를 생략한 뒤에도 연속표(⠐)로 이어야 하는 기호 모음.
 /// 여는 괄호 '(' 는 새 영어 구간을 열게 되므로 제외한다.
 /// 종료표를 생략했지만 이어지는 로마자에 연속표를 붙여야 하는지 판단한다.
 pub(crate) fn should_request_continuation(symbol: char) -> bool {
-    matches!(symbol, '.' | '?'| '!'| '…'| '⋯'| '"'| '\''| '”'| '’'| '」'| '』'| '〉'
-            | '》'| ')'| ']'| '}'| ','| ':'| ';'| '―')
+    matches!(
+        symbol,
+        '.' | '?'
+            | '!'
+            | '…'
+            | '⋯'
+            | '"'
+            | '\''
+            | '”'
+            | '’'
+            | '」'
+            | '』'
+            | '〉'
+            | '》'
+            | ')'
+            | ']'
+            | '}'
+            | ','
+            | ':'
+            | ';'
+            | '―'
+    )
 }
 
 /// 제33항 [다만] : '/', '-', '~' 앞에는 종료표를 강제로 붙인다.
@@ -194,7 +235,13 @@ mod tests {
     fn should_render_symbol_as_english_for_parentheses() {
         let opener: Vec<char> = "(Hello".chars().collect();
         assert!(should_render_symbol_as_english(
-            true, false, &[], '(', &opener, 0, &[]
+            true,
+            false,
+            &[],
+            '(',
+            &opener,
+            0,
+            &[]
         ));
 
         let korean_before: Vec<char> = "가(".chars().collect();
@@ -209,7 +256,13 @@ mod tests {
         ));
 
         assert!(!should_render_symbol_as_english(
-            false, false, &[], '(', &opener, 0, &[]
+            false,
+            false,
+            &[],
+            '(',
+            &opener,
+            0,
+            &[]
         ));
     }
 

@@ -16,7 +16,10 @@ fn encode_number_string(s: &str, part_name: &str) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
     for c in s.chars() {
         if !c.is_ascii_digit() {
-            return Err(format!("Invalid {} part (non-ascii digit): {}", part_name, c));
+            return Err(format!(
+                "Invalid {} part (non-ascii digit): {}",
+                part_name, c
+            ));
         }
         result.extend(crate::number::encode_number(c));
     }
@@ -42,7 +45,11 @@ pub fn encode_fraction_in_context(numerator: &str, denominator: &str) -> Result<
     Ok(result)
 }
 
-pub fn encode_mixed_fraction(whole: &str, numerator: &str, denominator: &str) -> Result<Vec<u8>, String> {
+pub fn encode_mixed_fraction(
+    whole: &str,
+    numerator: &str,
+    denominator: &str,
+) -> Result<Vec<u8>, String> {
     let mut result = vec![60];
     result.extend(encode_number_string(whole, "whole number")?);
     result.extend(encode_fraction(numerator, denominator)?);
@@ -65,19 +72,23 @@ fn normalize_digit(c: char) -> Option<char> {
     }
 }
 
-fn read_braced_content(
-    iter: &mut std::iter::Peekable<std::str::Chars>
-) -> Option<String> {
+fn read_braced_content(iter: &mut std::iter::Peekable<std::str::Chars>) -> Option<String> {
     consume_whitespace(iter);
-    
-    if iter.next()? != '{' { return None; }
+
+    if iter.next()? != '{' {
+        return None;
+    }
 
     let mut content = String::new();
     while let Some(c) = iter.peek() {
         match c {
             '}' => {
                 iter.next();
-                return if content.is_empty() { None } else { Some(content) };
+                return if content.is_empty() {
+                    None
+                } else {
+                    Some(content)
+                };
             }
             _ if c.is_whitespace() => {
                 iter.next();
@@ -98,7 +109,9 @@ fn read_braced_content(
 pub fn parse_latex_fraction(s: &str) -> Option<(Option<String>, String, String)> {
     let mut iter = s.trim().chars().peekable();
 
-    if iter.next()? != '$' { return None; }
+    if iter.next()? != '$' {
+        return None;
+    }
 
     consume_whitespace(&mut iter);
 
@@ -107,15 +120,20 @@ pub fn parse_latex_fraction(s: &str) -> Option<(Option<String>, String, String)>
         whole_part_str.push(digit);
         iter.next();
     }
-    let whole_part = if whole_part_str.is_empty() { None } else { Some(whole_part_str) };
+    let whole_part = if whole_part_str.is_empty() {
+        None
+    } else {
+        Some(whole_part_str)
+    };
 
     consume_whitespace(&mut iter);
-    
-    if iter.next() != Some('\\') ||
-       iter.next() != Some('f') ||
-       iter.next() != Some('r') ||
-       iter.next() != Some('a') ||
-       iter.next() != Some('c') {
+
+    if iter.next() != Some('\\')
+        || iter.next() != Some('f')
+        || iter.next() != Some('r')
+        || iter.next() != Some('a')
+        || iter.next() != Some('c')
+    {
         return None;
     }
 
@@ -123,11 +141,13 @@ pub fn parse_latex_fraction(s: &str) -> Option<(Option<String>, String, String)>
     let denominator = read_braced_content(&mut iter)?;
 
     consume_whitespace(&mut iter);
-    
-    if iter.next()? != '$' { return None; }
+
+    if iter.next()? != '$' {
+        return None;
+    }
 
     consume_whitespace(&mut iter);
-    
+
     if iter.next().is_some() {
         return None;
     }
@@ -154,10 +174,10 @@ fn parse_decomposed_fraction(decomposed: &str) -> Option<(String, String)> {
             return None;
         }
         if !num_str.chars().all(|c| c.is_ascii_digit()) {
-            return None; 
+            return None;
         }
         if !den_str.chars().all(|c| c.is_ascii_digit()) {
-            return None; 
+            return None;
         }
         Some((num_str.to_string(), den_str.to_string()))
     } else {
@@ -166,9 +186,8 @@ fn parse_decomposed_fraction(decomposed: &str) -> Option<(String, String)> {
 }
 
 pub fn is_unicode_fraction(c: char) -> bool {
-  parse_unicode_fraction(c).is_some()
+    parse_unicode_fraction(c).is_some()
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -324,13 +343,19 @@ mod tests {
     #[test]
     fn test_parse_latex_fraction_mixed() {
         let result = parse_latex_fraction("$3\\frac{1}{6}$");
-        assert_eq!(result, Some((Some("3".to_string()), "1".to_string(), "6".to_string())));
+        assert_eq!(
+            result,
+            Some((Some("3".to_string()), "1".to_string(), "6".to_string()))
+        );
     }
 
     #[test]
     fn test_parse_latex_fraction_mixed_double_digit() {
         let result = parse_latex_fraction("$12\\frac{34}{56}$");
-        assert_eq!(result, Some((Some("12".to_string()), "34".to_string(), "56".to_string())));
+        assert_eq!(
+            result,
+            Some((Some("12".to_string()), "34".to_string(), "56".to_string()))
+        );
     }
 
     #[test]
@@ -360,7 +385,10 @@ mod tests {
     #[test]
     fn test_parse_latex_fraction_mixed_with_superscript() {
         let result = parse_latex_fraction("$³\\frac{¹}{⁶}$");
-        assert_eq!(result, Some((Some("3".to_string()), "1".to_string(), "6".to_string())));
+        assert_eq!(
+            result,
+            Some((Some("3".to_string()), "1".to_string(), "6".to_string()))
+        );
     }
 
     #[test]
@@ -380,7 +408,10 @@ mod tests {
 
     #[test]
     fn test_parse_latex_fraction_wrong_command() {
-        assert_eq!(parse_latex_fraction("$\\frac{3}{4}$"), Some((None, "3".to_string(), "4".to_string())));
+        assert_eq!(
+            parse_latex_fraction("$\\frac{3}{4}$"),
+            Some((None, "3".to_string(), "4".to_string()))
+        );
         assert_eq!(parse_latex_fraction("$\\fracx{3}{4}$"), None);
     }
 
@@ -431,21 +462,66 @@ mod tests {
 
     #[test]
     fn test_parse_unicode_fraction_common() {
-        assert_eq!(parse_unicode_fraction('½'), Some(("1".to_string(), "2".to_string())));
-        assert_eq!(parse_unicode_fraction('⅓'), Some(("1".to_string(), "3".to_string())));
-        assert_eq!(parse_unicode_fraction('⅔'), Some(("2".to_string(), "3".to_string())));
-        assert_eq!(parse_unicode_fraction('¼'), Some(("1".to_string(), "4".to_string())));
-        assert_eq!(parse_unicode_fraction('¾'), Some(("3".to_string(), "4".to_string())));
-        assert_eq!(parse_unicode_fraction('⅕'), Some(("1".to_string(), "5".to_string())));
-        assert_eq!(parse_unicode_fraction('⅖'), Some(("2".to_string(), "5".to_string())));
-        assert_eq!(parse_unicode_fraction('⅗'), Some(("3".to_string(), "5".to_string())));
-        assert_eq!(parse_unicode_fraction('⅘'), Some(("4".to_string(), "5".to_string())));
-        assert_eq!(parse_unicode_fraction('⅙'), Some(("1".to_string(), "6".to_string())));
-        assert_eq!(parse_unicode_fraction('⅚'), Some(("5".to_string(), "6".to_string())));
-        assert_eq!(parse_unicode_fraction('⅛'), Some(("1".to_string(), "8".to_string())));
-        assert_eq!(parse_unicode_fraction('⅜'), Some(("3".to_string(), "8".to_string())));
-        assert_eq!(parse_unicode_fraction('⅝'), Some(("5".to_string(), "8".to_string())));
-        assert_eq!(parse_unicode_fraction('⅞'), Some(("7".to_string(), "8".to_string())));
+        assert_eq!(
+            parse_unicode_fraction('½'),
+            Some(("1".to_string(), "2".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅓'),
+            Some(("1".to_string(), "3".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅔'),
+            Some(("2".to_string(), "3".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('¼'),
+            Some(("1".to_string(), "4".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('¾'),
+            Some(("3".to_string(), "4".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅕'),
+            Some(("1".to_string(), "5".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅖'),
+            Some(("2".to_string(), "5".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅗'),
+            Some(("3".to_string(), "5".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅘'),
+            Some(("4".to_string(), "5".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅙'),
+            Some(("1".to_string(), "6".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅚'),
+            Some(("5".to_string(), "6".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅛'),
+            Some(("1".to_string(), "8".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅜'),
+            Some(("3".to_string(), "8".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅝'),
+            Some(("5".to_string(), "8".to_string()))
+        );
+        assert_eq!(
+            parse_unicode_fraction('⅞'),
+            Some(("7".to_string(), "8".to_string()))
+        );
     }
 
     #[test]
@@ -492,19 +568,19 @@ mod tests {
     fn test_parse_unicode_fraction_slash_only() {
         assert_eq!(parse_decomposed_fraction(&FRACTION_SLASH.to_string()), None);
     }
-    
+
     #[test]
     fn test_parse_unicode_fraction_non_ascii_digit_numerator() {
         let non_ascii_case = format!("a{}1", FRACTION_SLASH);
         assert_eq!(parse_decomposed_fraction(&non_ascii_case), None);
     }
-    
+
     #[test]
     fn test_parse_unicode_fraction_non_ascii_digit_denominator() {
         let non_ascii_case = format!("1{}b", FRACTION_SLASH);
         assert_eq!(parse_decomposed_fraction(&non_ascii_case), None);
     }
-    
+
     #[test]
     fn test_parse_unicode_fraction_multi_slash() {
         let multi_slash_case = format!("1{}2{}3", FRACTION_SLASH, FRACTION_SLASH);

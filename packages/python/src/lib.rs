@@ -1,4 +1,3 @@
-
 use braillify as braillify_core;
 use braillify::cli::run_cli;
 use pyo3::exceptions::PyValueError;

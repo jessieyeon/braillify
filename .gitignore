@@ -15,3 +15,5 @@ codecov.*
 ._.DS_Store 
 **/.DS_Store 
 **/._.DS_Store
+.claude
+CLAUDE.md
