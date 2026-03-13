@@ -24,13 +24,13 @@ unicode-normalization = "0.1.25"
 [dev-dependencies]
 csv = "1.4.0"
 serde_json = "^1"
-proptest = "1.9"
+proptest = "1.10"
 assert_cmd = "2"
 predicates = "3"
 escargot = "0.5.15"
 
 [target.'cfg(windows)'.build-dependencies]
-embed-manifest = "1.0"
+embed-manifest = "1.5"
 
 [features]
 default = ["cli"]

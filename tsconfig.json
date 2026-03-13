@@ -20,9 +20,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "types": [
-      "vitest/globals"
-    ],
     "paths": {
       "@/*": [
         "./src/*"

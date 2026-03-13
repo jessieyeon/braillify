@@ -1,8 +1,8 @@
 use jauem::choseong::encode_choseong;
 use moeum::jungsong::encode_jungsong;
-use utils::has_choseong_o;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use utils::has_choseong_o;
 
 use crate::{
     char_struct::CharType,
@@ -13,10 +13,8 @@ use crate::{
     split::split_korean_jauem,
 };
 
-static FRACTION_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r#"^(\d+)\/(\d+)"#)
-        .expect("Failed to compile FRACTION_REGEX")
-});
+static FRACTION_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"^(\d+)\/(\d+)"#).expect("Failed to compile FRACTION_REGEX"));
 
 mod char_shortcut;
 mod char_struct;
@@ -24,6 +22,7 @@ mod char_struct;
 pub mod cli;
 mod english;
 mod english_logic;
+mod fraction;
 mod jauem;
 mod korean_char;
 mod korean_part;
@@ -37,7 +36,6 @@ mod symbol_shortcut;
 mod unicode;
 mod utils;
 mod word_shortcut;
-mod fraction;
 
 pub struct Encoder {
     is_english: bool,
@@ -103,9 +101,7 @@ impl Encoder {
         result: &mut Vec<u8>,
     ) -> Result<(), String> {
         // 제53항 가운뎃점으로 쓴 줄임표(…… , …)는 ⠠⠠⠠으로, 마침표로 쓴 줄임표(...... , ...)는 ⠲⠲⠲으로 적는다.
-        let normalized_word = word
-            .replace("......", "...")
-            .replace("……", "…");
+        let normalized_word = word.replace("......", "...").replace("……", "…");
         let word = normalized_word.as_str();
 
         if word.starts_with('$') && word.ends_with('$') {
@@ -162,7 +158,7 @@ impl Encoder {
                     result.push(32);
                     result.push(32);
                 } else if word_len >= 2 {
-                    // 28항 [붙임] 로마자가 한 글자만 대문자일 때에는 대문자 기호표 ⠠을 그 앞에 적고, 
+                    // 28항 [붙임] 로마자가 한 글자만 대문자일 때에는 대문자 기호표 ⠠을 그 앞에 적고,
                     // 단어 전체가 대문자이거나 두 글자 이상 연속해서 대문자일 때에는 대문자 단어표 ⠠⠠을 그 앞에 적는다.
                     // 세 개 이상의 연속된 단어가 모두 대문자일 때에는 첫 단어
                     // 앞에 대문자 구절표 ⠠⠠⠠을 적고, 마지막 단어 뒤에 대문자 종료표 ⠠⠄을 적는다.
@@ -388,40 +384,43 @@ impl Encoder {
                                 let match_len = captures[0].len();
                                 let k = i + match_len;
 
-                                let is_date_or_range = 
-                                    (numerator.len() > 1 || denominator.len() > 1) ||
-                                    (k < word_len && word_chars[k] == '/') ||
-                                    (k < word_len && word_chars[k] == '~');
-                                
+                                let is_date_or_range = (numerator.len() > 1
+                                    || denominator.len() > 1)
+                                    || (k < word_len && word_chars[k] == '/')
+                                    || (k < word_len && word_chars[k] == '~');
+
                                 if !is_date_or_range {
-                                    result.extend(fraction::encode_fraction_in_context(numerator, denominator)?);
-                                    *skip_count = match_len - 1; 
+                                    result.extend(fraction::encode_fraction_in_context(
+                                        numerator,
+                                        denominator,
+                                    )?);
+                                    *skip_count = match_len - 1;
                                     is_number = true;
                                     continue;
                                 }
                             }
-                             // 제43항 숫자 사이에 마침표, 쉼표, 연결표가 붙어 나올 때에는 뒤의 숫자에 수표를 적지 않는다.
+                            // 제43항 숫자 사이에 마침표, 쉼표, 연결표가 붙어 나올 때에는 뒤의 숫자에 수표를 적지 않는다.
                             if !(i > 0 && ['.', ','].contains(&word_chars[i - 1])) {
                                 // 제40항 숫자는 수표 ⠼을 앞세워 다음과 같이 적는다.
                                 result.push(60);
                                 // 제61항 작은따옴표(')가 숫자 앞에 올 때는 수표와 작은따옴표를 함께 사용
-                                if i > 0 && (word_chars[i - 1] == '\'' || word_chars[i - 1] == '\u{2019}') {
+                                if i > 0
+                                    && (word_chars[i - 1] == '\''
+                                        || word_chars[i - 1] == '\u{2019}')
+                                {
                                     result.push(4); // ⠄
                                 }
                             }
                             is_number = true;
-                        }      
+                        }
                         result.extend(number::encode_number(c));
-                    },
+                    }
                     CharType::Fraction(c) => {
                         if let Some((num_str, den_str)) = fraction::parse_unicode_fraction(c) {
-                            result.extend(fraction::encode_fraction(
-                                &num_str,
-                                &den_str
-                            )?);
-                            is_number = true; 
+                            result.extend(fraction::encode_fraction(&num_str, &den_str)?);
+                            is_number = true;
                         }
-                    },
+                    }
                     CharType::Symbol(c) => {
                         let mut use_english_symbol = english_logic::should_render_symbol_as_english(
                             self.english_indicator,
@@ -506,7 +505,10 @@ impl Encoder {
                                 }
                                 result.push(7);
                                 *skip_count = count - 1;
-                            } else if (c == '\'' || c == '\u{2019}') && i + 1 < word_len && word_chars[i + 1].is_ascii_digit() {
+                            } else if (c == '\'' || c == '\u{2019}')
+                                && i + 1 < word_len
+                                && word_chars[i + 1].is_ascii_digit()
+                            {
                                 // 제61항 작은따옴표(')가 숫자 앞에 올 때는 숫자 처리에서 함께 처리하므로 건너뛴다
                                 continue;
                             } else if c == '*' {
@@ -677,7 +679,7 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
     encoder.encode(text, &mut result)?;
     encoder.finish(&mut result)?;
-    
+
     // 제60항 별표(*)는 앞뒤를 한 칸씩 띄어 쓴다
     // 별표가 단독 단어로 포함된 텍스트의 마지막에 공백 추가
     let words: Vec<&str> = text.split(' ').filter(|word| !word.is_empty()).collect();
@@ -685,7 +687,7 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
     if has_asterisk_as_word {
         result.push(0); // 별표가 단독 단어로 포함된 텍스트의 마지막에 공백 추가
     }
-    
+
     Ok(result)
 }
 
@@ -864,7 +866,11 @@ mod test {
             .position(|window| window == slash)
             .unwrap();
         assert!(slash_pos > 0);
-        assert_eq!(result[slash_pos - 1], 50, "forced symbol should add terminator");
+        assert_eq!(
+            result[slash_pos - 1],
+            50,
+            "forced symbol should add terminator"
+        );
 
         let mut encoder = Encoder::new(true);
         let mut result = Vec::new();
@@ -895,9 +901,7 @@ mod test {
             .unwrap();
         let comma = symbol_shortcut::encode_char_symbol_shortcut(',').unwrap();
         assert!(
-            result
-                .windows(comma.len())
-                .any(|window| window == comma),
+            result.windows(comma.len()).any(|window| window == comma),
             "comma before Korean should use Korean punctuation mapping"
         );
 

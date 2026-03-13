@@ -19,7 +19,7 @@ braillify/
 ├── apps/landing/          # Next.js 16 docs site (@devup-ui)
 ├── test_cases/            # CSV rule test cases (61 files)
 ├── test_case_inputs/      # Input-only test CSVs
-├── __tests__/             # Vitest JS integration tests
+├── __tests__/             # Bun JS integration tests
 ├── py-test/               # Pytest Python tests
 └── braillove-case-collector/  # Windows automation tool
 ```
@@ -53,7 +53,7 @@ braillify/
 - `strict: true`, `moduleResolution: bundler`
 - `@/*` path alias to `./src/*`
 - ESLint: `eslint-plugin-devup` recommended config
-- Vitest with `vite-plugin-wasm` for WASM tests
+- Bun test with a preload plugin for WASM tests
 
 ### Python
 
@@ -77,7 +77,7 @@ bun install
 # Build all packages
 bun run build
 
-# Run all tests (Rust coverage + Vitest + Pytest)
+# Run all tests (Rust coverage + Bun test + Pytest)
 bun run test
 
 # Build landing site (requires test_status.json from test run)

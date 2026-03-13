@@ -1,4 +1,7 @@
-use crate::{math_symbol_shortcut::is_math_symbol_char, symbol_shortcut::is_symbol_char, fraction::is_unicode_fraction};
+use crate::{
+    fraction::is_unicode_fraction, math_symbol_shortcut::is_math_symbol_char,
+    symbol_shortcut::is_symbol_char,
+};
 
 /// Character in Korean
 #[derive(Debug)]
@@ -58,7 +61,7 @@ pub enum CharType {
     Number(char),
     Symbol(char),
     MathSymbol(char),
-    Fraction(char), 
+    Fraction(char),
     Space(char),
 }
 
@@ -76,7 +79,7 @@ impl CharType {
         if is_math_symbol_char(c) {
             return Ok(Self::MathSymbol(c));
         }
-        if is_unicode_fraction(c) { 
+        if is_unicode_fraction(c) {
             return Ok(Self::Fraction(c));
         }
         let code = c as u32;
@@ -116,7 +119,7 @@ mod test {
         ));
         assert!(matches!(CharType::new(' ').unwrap(), CharType::Space(' ')));
         assert!(matches!(
-            CharType::new('½').unwrap(), 
+            CharType::new('½').unwrap(),
             CharType::Fraction('½')
         ));
     }

@@ -3,7 +3,7 @@ import type { MDXComponents } from 'mdx/types'
 import { Code } from './components/Code'
 
 const _components = {
-  code({ node, inline, className, children, ...props }: any) {
+  code({ node:_, inline, className, children, ...props }: any) {
     const match = /language-(\w+)/.exec(className || '')
     return !inline && match ? (
       <Code
