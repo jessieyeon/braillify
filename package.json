@@ -5,8 +5,8 @@
   "description": "Braillify is a library for converting text to braille.",
   "type": "module",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
     "test": "cargo tarpaulin --out xml --out stdout -- --skip test_by_testcase && vitest test --run && cd py-test && uv run pytest __init__.py",
     "preinstall": "uv sync && (cargo install wasm-pack || node -e \"process.exit(0)\") && (pip install maturin || \"process.exit(0)\")",
     "build": "cargo build --release -p braillify && bun -F braillify build && cd packages/python && maturin build --release --out dist",
@@ -21,8 +21,8 @@
     "@types/node": "^24.10.1",
     "@vitest/coverage-v8": "^4.0.12",
     "braillify": "workspace:*",
-    "eslint": "^9.39.1",
-    "eslint-plugin-devup": "^2.0.11",
+    "eslint-plugin-devup": "^2.0.17",
+    "oxlint": "^1.55",
     "vite-plugin-wasm": "^3.5.0",
     "vitest": "^4.0.12"
   },
