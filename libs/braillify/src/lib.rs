@@ -967,7 +967,7 @@ mod test {
         let mut file_stats = std::collections::BTreeMap::new();
         let files = dir
             .map(|entry| entry.unwrap().path())
-            .filter(|path| path.extension().unwrap_or_default() == "csv")
+            .filter(|path| path.extension().unwrap_or_default() == "json")
             .collect::<Vec<_>>();
 
         // read rule_map.json
@@ -997,28 +997,42 @@ mod test {
         }
 
         for path in files {
-            let file = File::open(&path).unwrap();
+            let content = std::fs::read_to_string(&path).unwrap();
             let filename = path.file_name().unwrap().to_string_lossy();
-            let reader = csv::ReaderBuilder::new()
-                .has_headers(false)
-                .from_reader(file);
+            let records: Vec<serde_json::Value> = serde_json::from_str(&content)
+                .unwrap_or_else(|e| panic!("JSON 파일을 읽는 중 오류 발생: {} in {}", e, filename));
 
             let mut file_total = 0;
             let mut file_failed = 0;
             // input, expected, actual, is_success
             let mut test_status: Vec<(String, String, String, bool)> = Vec::new();
 
-            for (line_num, result) in reader.into_records().enumerate() {
+            for (line_num, record) in records.iter().enumerate() {
                 total += 1;
                 file_total += 1;
-                let error = format!(
-                    "CSV 레코드를 읽는 중 오류 발생: {:?} at {} in {}",
-                    result, line_num, filename
-                );
-                let record = result.expect(&error);
-                let input = &record[0];
+                let input = record["input"].as_str().unwrap_or_else(|| {
+                    panic!(
+                        "'input' 필드를 읽는 중 오류 발생: at {} in {}",
+                        line_num, filename
+                    )
+                });
                 // 테스트 케이스 파일의 숫자 코드에서 앞뒤 공백 제거 후 비교
-                let expected = record[2].trim().replace(" ", "⠀");
+                let expected = record["expected"]
+                    .as_str()
+                    .unwrap_or_else(|| {
+                        panic!(
+                            "'expected' 필드를 읽는 중 오류 발생: at {} in {}",
+                            line_num, filename
+                        )
+                    })
+                    .trim()
+                    .replace(" ", "⠀");
+                let unicode_braille = record["unicode"].as_str().unwrap_or_else(|| {
+                    panic!(
+                        "'unicode' 필드를 읽는 중 오류 발생: at {} in {}",
+                        line_num, filename
+                    )
+                });
                 match encode(input) {
                     Ok(actual) => {
                         let braille_expected = actual
@@ -1036,15 +1050,15 @@ mod test {
                                 expected.to_string(),
                                 actual_str.clone(),
                                 braille_expected.clone(),
-                                record[3].to_string(),
+                                unicode_braille.to_string(),
                             ));
                         }
 
                         test_status.push((
                             input.to_string(),
-                            record[3].to_string(),
+                            unicode_braille.to_string(),
                             braille_expected.clone(),
-                            record[3].to_string() == braille_expected,
+                            unicode_braille == braille_expected,
                         ));
                     }
                     Err(e) => {
@@ -1058,12 +1072,12 @@ mod test {
                             expected.to_string(),
                             "".to_string(),
                             e.to_string(),
-                            record[3].to_string(),
+                            unicode_braille.to_string(),
                         ));
 
                         test_status.push((
                             input.to_string(),
-                            record[3].to_string(),
+                            unicode_braille.to_string(),
                             e.to_string(),
                             false,
                         ));

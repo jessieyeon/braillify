@@ -1,0 +1,62 @@
+[
+  {
+    "input": "품삯",
+    "internal": "dm5la'",
+    "expected": "251334714",
+    "unicode": "⠙⠍⠢⠇⠁⠄"
+  },
+  {
+    "input": "앉다",
+    "internal": "<3ki",
+    "expected": "3518510",
+    "unicode": "⠣⠒⠅⠊"
+  },
+  {
+    "input": "않다",
+    "internal": "<30i",
+    "expected": "35185210",
+    "unicode": "⠣⠒⠴⠊"
+  },
+  {
+    "input": "읽다",
+    "internal": "o1ai",
+    "expected": "212110",
+    "unicode": "⠕⠂⠁⠊"
+  },
+  {
+    "input": "옮기다",
+    "internal": "u15@oi",
+    "expected": "3723482110",
+    "unicode": "⠥⠂⠢⠈⠕⠊"
+  },
+  {
+    "input": "얇다",
+    "internal": ">1bi",
+    "expected": "282310",
+    "unicode": "⠜⠂⠃⠊"
+  },
+  {
+    "input": "외곬",
+    "internal": "y@u1'",
+    "expected": "6183724",
+    "unicode": "⠽⠈⠥⠂⠄"
+  },
+  {
+    "input": "핥다",
+    "internal": "j18i",
+    "expected": "2623810",
+    "unicode": "⠚⠂⠦⠊"
+  },
+  {
+    "input": "옳다",
+    "internal": "u10i",
+    "expected": "3725210",
+    "unicode": "⠥⠂⠴⠊"
+  },
+  {
+    "input": "없다",
+    "internal": "sb'i",
+    "expected": "143410",
+    "unicode": "⠎⠃⠄⠊"
+  }
+]

@@ -1,6 +1,6 @@
 import time
+import json
 from pywinauto.application import Application
-import csv
 
 pattern = " a1b'k2l`cif/msp\"e3h9o6r^djg>ntq,*5<-u8v.%[$+x!&;:4\\0z7(_?w]#y)="
 braille = "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿"
@@ -49,48 +49,59 @@ def main():
             file_name = os.path.splitext(os.path.basename(test_file))[0]
 
             # output 파일명을 생성합니다
-            output_file = f"../test_cases/{file_name}.csv"
+            output_path = f"../test_cases/{file_name}.json"
 
-            with open(output_file, "w", encoding="utf-8") as output_file:
-                writer = csv.writer(output_file)
-                with open(test_file, "r", encoding="utf-8") as file:
-                    for row in file.readlines():
-                        row = row.strip()
-                        time.sleep(0.3)
-                        pane.type_keys(
-                            row.replace(" ", "{SPACE}")
-                            .replace("(", "{(}")
-                            .replace(")", "{)}"),
-                            pause=0.05,
-                        )
+            entries = []
+            with open(test_file, "r", encoding="utf-8") as file:
+                for row in file.readlines():
+                    row = row.strip()
+                    if not row:
+                        continue
+                    time.sleep(0.3)
+                    pane.type_keys(
+                        row.replace(" ", "{SPACE}")
+                        .replace("(", "{(}")
+                        .replace(")", "{)}"),
+                        pause=0.05,
+                    )
 
-                        time.sleep(0.3)
+                    time.sleep(0.3)
 
-                        # output 에서 read text 가져오기
-                        output_text = output.get_value()
-                        output_num = ""
-                        output_braille = ""
-                        for i in range(len(output_text)):
-                            if output_text[i] in pattern:
-                                output_num += str(pattern.index(output_text[i]))
-                                output_braille += braille[pattern.index(output_text[i])]
+                    # output 에서 read text 가져오기
+                    output_text = output.get_value()
+                    output_num = ""
+                    output_braille = ""
+                    for i in range(len(output_text)):
+                        if output_text[i] in pattern:
+                            output_num += str(pattern.index(output_text[i]))
+                            output_braille += braille[pattern.index(output_text[i])]
+                        else:
+                            if output_text[i] == "@":
+                                output_num += "8"
+                                output_braille += braille[8]
+                            elif output_text[i] == "|":
+                                output_num += "51"
+                                output_braille += braille[51]
                             else:
-                                if output_text[i] == "@":
-                                    output_num += "8"
-                                    output_braille += braille[8]
-                                elif output_text[i] == "|":
-                                    output_num += "51"
-                                    output_braille += braille[51]
-                                else:
-                                    raise Exception(f"오류: {output_text[i]}")
+                                raise Exception(f"오류: {output_text[i]}")
 
-                        main_window.set_focus()
-                        time.sleep(0.3)
-                        writer.writerow([row, output_text, output_num, output_braille])
+                    main_window.set_focus()
+                    time.sleep(0.3)
+                    entries.append(
+                        {
+                            "input": row,
+                            "internal": output_text,
+                            "expected": output_num,
+                            "unicode": output_braille,
+                        }
+                    )
 
-                        pane.type_keys("{BACKSPACE}" * len(row))
-                        while output.get_value() != "":
-                            pane.type_keys("{BACKSPACE}")
+                    pane.type_keys("{BACKSPACE}" * len(row))
+                    while output.get_value() != "":
+                        pane.type_keys("{BACKSPACE}")
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(entries, f, ensure_ascii=False, indent=2)
 
         print("완료")
     except Exception as e:

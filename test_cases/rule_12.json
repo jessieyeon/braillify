@@ -1,0 +1,26 @@
+[
+  {
+    "input": "야애",
+    "internal": ">-r",
+    "expected": "283623",
+    "unicode": "⠜⠤⠗"
+  },
+  {
+    "input": "소화액",
+    "internal": ",ujv-ra",
+    "expected": "3237263936231",
+    "unicode": "⠠⠥⠚⠧⠤⠗⠁"
+  },
+  {
+    "input": "수액",
+    "internal": ",m-ra",
+    "expected": "321336231",
+    "unicode": "⠠⠍⠤⠗⠁"
+  },
+  {
+    "input": "파워앰프",
+    "internal": "d<p-r5d[",
+    "expected": "2535153623342542",
+    "unicode": "⠙⠣⠏⠤⠗⠢⠙⠪"
+  }
+]
