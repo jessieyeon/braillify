@@ -1,5 +1,4 @@
 import time
-import csv
 import os
 import glob
 import json
@@ -43,7 +42,7 @@ def main():
         pane = main_window.child_window(control_type="Pane", title="작업 영역")
         output_edit = main_window.child_window(control_type="Edit", title="")
 
-        test_case_files = sorted(glob.glob("../test_cases/*.csv"))
+        test_case_files = sorted(glob.glob("../test_cases/*.json"))
         if not test_case_files:
             print("No test case files found in ../test_cases/")
             return
@@ -62,13 +61,10 @@ def main():
             file_passed = 0
 
             with open(test_file, "r", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if not row or len(row) < 4:
-                        continue
-
-                    korean_input = row[0].strip()
-                    expected_unicode = row[-1].strip()
+                records = json.load(f)
+                for row in records:
+                    korean_input = row["input"].strip()
+                    expected_unicode = row["unicode"].strip()
 
                     if not korean_input or not expected_unicode:
                         continue

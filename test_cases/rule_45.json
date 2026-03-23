@@ -1,0 +1,44 @@
+[
+  {
+    "input": "+",
+    "internal": "5",
+    "expected": "34",
+    "unicode": "⠢"
+  },
+  {
+    "input": "−",
+    "internal": "9",
+    "expected": "20",
+    "unicode": "⠔"
+  },
+  {
+    "input": "×",
+    "internal": "*",
+    "expected": "33",
+    "unicode": "⠡"
+  },
+  {
+    "input": "÷",
+    "internal": "//",
+    "expected": "1212",
+    "unicode": "⠌⠌"
+  },
+  {
+    "input": "=",
+    "internal": "33",
+    "expected": "1818",
+    "unicode": "⠒⠒"
+  },
+  {
+    "input": ">",
+    "internal": "55",
+    "expected": "3434",
+    "unicode": "⠢⠢"
+  },
+  {
+    "input": "<",
+    "internal": "99",
+    "expected": "2020",
+    "unicode": "⠔⠔"
+  }
+]
