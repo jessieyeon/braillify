@@ -16,7 +16,7 @@ struct Cli {
 pub fn run_cli(mut args: Vec<String>) -> Result<()> {
     if args.len() == 1 && !std::io::stdin().is_terminal() {
         let mut buffer = vec![];
-        io::stdin().read(&mut buffer)?;
+        io::stdin().read_to_end(&mut buffer)?;
         if !buffer.is_empty() {
             args.push(String::from_utf8(buffer)?);
         }

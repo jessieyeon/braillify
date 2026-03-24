@@ -62,6 +62,7 @@ pub enum CharType {
     Symbol(char),
     MathSymbol(char),
     Fraction(char),
+    CombiningMark,
     Space(char),
 }
 
@@ -83,6 +84,12 @@ impl CharType {
             return Ok(Self::Fraction(c));
         }
         let code = c as u32;
+        if code == 0x0307 {
+            return Ok(Self::CombiningMark);
+        }
+        if code == 0x030A {
+            return Ok(Self::CombiningMark);
+        }
         if (0x3131..=0x3163).contains(&code) {
             return Ok(Self::KoreanPart(c));
         }
@@ -158,6 +165,7 @@ mod test {
                 CharType::Fraction(ch) => {
                     assert!(is_unicode_fraction(ch));
                 }
+                CharType::CombiningMark => {}
             }
         }
     }

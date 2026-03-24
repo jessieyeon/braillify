@@ -17,3 +17,4 @@ codecov.*
 **/._.DS_Store
 .claude
 CLAUDE.md
+.omc

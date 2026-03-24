@@ -1,0 +1,94 @@
+//! 제58항 — 빠짐표(□)가 여러 개 붙어 나올 때에는 ⠸과 ⠶ 사이에
+//! ⠶을 묵자의 개수만큼 적어 나타낸다.
+//!
+//! Blank marks (□) are encoded as: prefix ⠸(56) + count×⠶(54) + suffix ⠇(7).
+//! Consecutive □ characters are consumed and encoded as a single group.
+//!
+//! Reference: 2024 Korean Braille Standard, Chapter 6, Section 13, Article 58
+
+use crate::char_struct::CharType;
+use crate::rules::RuleMeta;
+use crate::rules::context::RuleContext;
+use crate::rules::traits::{BrailleRule, Phase, RuleResult};
+
+pub static META: RuleMeta = RuleMeta {
+    section: "58",
+    subsection: None,
+    name: "blank_marks",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.58",
+    description: "Blank marks □: prefix ⠸ + count × ⠶ + suffix ⠇",
+};
+
+const BLANK_MARK: char = '□';
+const PREFIX: u8 = 56; // ⠸
+const MARK: u8 = 54; // ⠶
+const SUFFIX: u8 = 7; // ⠇
+
+/// Plugin struct for the rule engine.
+///
+/// Handles blank mark (□) encoding. Counts consecutive □ characters,
+/// emits the grouped encoding, and sets skip_count to skip the consumed chars.
+pub struct Rule58;
+
+impl BrailleRule for Rule58 {
+    fn meta(&self) -> &'static RuleMeta {
+        &META
+    }
+
+    fn phase(&self) -> Phase {
+        Phase::CoreEncoding
+    }
+
+    fn priority(&self) -> u16 {
+        400 // Before rule_49 (500) — intercept □ before generic symbol encoding
+    }
+
+    fn matches(&self, ctx: &RuleContext) -> bool {
+        matches!(ctx.char_type, CharType::Symbol(c) if *c == BLANK_MARK)
+    }
+
+    fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
+        // Count consecutive □ characters
+        let count = ctx.word_chars[ctx.index..]
+            .iter()
+            .take_while(|&&c| c == BLANK_MARK)
+            .count();
+
+        ctx.emit(PREFIX);
+        for _ in 0..count {
+            ctx.emit(MARK);
+        }
+        ctx.emit(SUFFIX);
+
+        // Skip the remaining □ characters (current one is already processed)
+        if count > 1 {
+            *ctx.skip_count = count - 1;
+        }
+        Ok(RuleResult::Consumed)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn single_blank_mark() {
+        // □ → ⠸⠶⠇
+        let result = crate::encode_to_unicode("□").unwrap();
+        assert_eq!(result, "⠸⠶⠇");
+    }
+
+    #[test]
+    fn multiple_blank_marks() {
+        // □□□ → ⠸⠶⠶⠶⠇
+        let result = crate::encode_to_unicode("□□□").unwrap();
+        assert_eq!(result, "⠸⠶⠶⠶⠇");
+    }
+
+    #[test]
+    fn meta_is_correct() {
+        assert_eq!(META.section, "58");
+        assert_eq!(META.name, "blank_marks");
+    }
+}
