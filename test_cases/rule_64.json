@@ -1,0 +1,38 @@
+[
+  {
+    "input": "①",
+    "internal": "#1",
+    "expected": "592",
+    "unicode": "⠻⠂"
+  },
+  {
+    "input": "②",
+    "internal": "#2",
+    "expected": "596",
+    "unicode": "⠻⠆"
+  },
+  {
+    "input": "㉮",
+    "internal": "7$7",
+    "expected": "534353",
+    "unicode": "⠵⠫⠵"
+  },
+  {
+    "input": "㉠",
+    "internal": "7=a7",
+    "expected": "5362153",
+    "unicode": "⠵⠾⠁⠵"
+  },
+  {
+    "input": "ⓐ",
+    "internal": "70a7",
+    "expected": "5452154",
+    "unicode": "⠶⠴⠁⠶"
+  },
+  {
+    "input": "① ㄱ, ㄴ ② ㄱ, ㄷ",
+    "internal": "#1`=a\"`=3``#2`=a\"`=9",
+    "expected": "592062116062180059606211606220",
+    "unicode": "⠻⠂⠀⠾⠁⠐⠀⠾⠒⠀⠀⠻⠆⠀⠾⠁⠐⠀⠾⠔"
+  }
+]

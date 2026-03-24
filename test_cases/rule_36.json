@@ -1,0 +1,32 @@
+[
+  {
+    "input": "I",
+    "internal": "0,i4",
+    "expected": "52321050",
+    "unicode": "⠴⠠⠊⠲"
+  },
+  {
+    "input": "II",
+    "internal": "0,,ii4",
+    "expected": "523232101050",
+    "unicode": "⠴⠠⠠⠊⠊⠲"
+  },
+  {
+    "input": "V",
+    "internal": "0,v4",
+    "expected": "52323950",
+    "unicode": "⠴⠠⠧⠲"
+  },
+  {
+    "input": "i",
+    "internal": "0i4",
+    "expected": "521050",
+    "unicode": "⠴⠊⠲"
+  },
+  {
+    "input": "x",
+    "internal": "0x4",
+    "expected": "524550",
+    "unicode": "⠴⠭⠲"
+  }
+]

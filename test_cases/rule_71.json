@@ -1,0 +1,50 @@
+[
+  {
+    "input": "@",
+    "internal": "@a",
+    "expected": "81",
+    "unicode": "⠈⠁"
+  },
+  {
+    "input": "^",
+    "internal": "@5",
+    "expected": "834",
+    "unicode": "⠈⠢"
+  },
+  {
+    "input": "#",
+    "internal": "_?",
+    "expected": "5556",
+    "unicode": "⠷⠸"
+  },
+  {
+    "input": "_",
+    "internal": "_-",
+    "expected": "5536",
+    "unicode": "⠷⠤"
+  },
+  {
+    "input": "\\",
+    "internal": "_*",
+    "expected": "5533",
+    "unicode": "⠷⠡"
+  },
+  {
+    "input": "|",
+    "internal": "_\\",
+    "expected": "5651",
+    "unicode": "⠸⠳"
+  },
+  {
+    "input": "&",
+    "internal": "@&",
+    "expected": "847",
+    "unicode": "⠈⠯"
+  },
+  {
+    "input": "저자 | 홍길동",
+    "internal": ".s.`_|`j=@o1i=",
+    "expected": "401440055510266282121062",
+    "unicode": "⠨⠎⠨⠀⠷⠳⠀⠚⠾⠈⠕⠂⠊⠾"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "input": "α or β",
+    "internal": ".a`or`.b",
+    "expected": "401021230403",
+    "unicode": "⠨⠁⠀⠕⠗⠀⠨⠃"
+  },
+  {
+    "input": "μm",
+    "internal": ".mm",
+    "expected": "401313",
+    "unicode": "⠨⠍⠍"
+  },
+  {
+    "input": "ΔΕΛΦΟΙ",
+    "internal": ",,.d.e.l.f.o.i",
+    "expected": "323240254017407401140214010",
+    "unicode": "⠠⠠⠨⠙⠨⠑⠨⠇⠨⠋⠨⠕⠨⠊"
+  }
+]

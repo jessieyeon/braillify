@@ -1,0 +1,26 @@
+[
+  {
+    "input": "￦100,000",
+    "internal": "0@w#ajj1jjj",
+    "expected": "5285860126262262626",
+    "unicode": "⠴⠈⠺⠼⠁⠚⠚⠂⠚⠚⠚"
+  },
+  {
+    "input": "$50",
+    "internal": "0@s#ej",
+    "expected": "52814601726",
+    "unicode": "⠴⠈⠎⠼⠑⠚"
+  },
+  {
+    "input": "25￠",
+    "internal": "#be0@c",
+    "expected": "603175289",
+    "unicode": "⠼⠃⠑⠴⠈⠉"
+  },
+  {
+    "input": "￡88",
+    "internal": "0@l#hh",
+    "expected": "5287601919",
+    "unicode": "⠴⠈⠇⠼⠓⠓"
+  }
+]
