@@ -1,0 +1,26 @@
+[
+  {
+    "input": "8!",
+    "internal": "#h6",
+    "expected": "601922",
+    "unicode": "⠼⠓⠖"
+  },
+  {
+    "input": "n!",
+    "internal": "n6",
+    "expected": "2922",
+    "unicode": "⠝⠖"
+  },
+  {
+    "input": "₃P₁",
+    "internal": ",p8#c`#a0",
+    "expected": "321538609060152",
+    "unicode": "⠠⠏⠦⠼⠉⠀⠼⠁⠴"
+  },
+  {
+    "input": "₃C₂",
+    "internal": ",c8#c`#b0",
+    "expected": "32938609060352",
+    "unicode": "⠠⠉⠦⠼⠉⠀⠼⠃⠴"
+  }
+]

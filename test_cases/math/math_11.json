@@ -1,0 +1,14 @@
+[
+  {
+    "input": "ax+b=0",
+    "internal": "ax5b33#j",
+    "expected": "14534318186026",
+    "unicode": "⠁⠭⠢⠃⠒⠒⠼⠚"
+  },
+  {
+    "input": "3ab",
+    "internal": "#c\"ab",
+    "expected": "6091613",
+    "unicode": "⠼⠉⠐⠁⠃"
+  }
+]

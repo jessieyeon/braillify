@@ -1,0 +1,14 @@
+[
+  {
+    "input": "aRb",
+    "internal": "a,rb",
+    "expected": "132233",
+    "unicode": "⠁⠠⠗⠃"
+  },
+  {
+    "input": "a~b",
+    "internal": "a@9b",
+    "expected": "18203",
+    "unicode": "⠁⠈⠔⠃"
+  }
+]

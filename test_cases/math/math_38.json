@@ -1,0 +1,8 @@
+[
+  {
+    "input": "AB↔",
+    "internal": "[3o,,ab",
+    "expected": "421821323213",
+    "unicode": "⠪⠒⠕⠠⠠⠁⠃"
+  }
+]

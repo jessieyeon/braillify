@@ -1,0 +1,8 @@
+[
+  {
+    "input": "∇f",
+    "internal": "_%f",
+    "expected": "564111",
+    "unicode": "⠸⠩⠋"
+  }
+]

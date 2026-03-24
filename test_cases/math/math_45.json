@@ -1,0 +1,14 @@
+[
+  {
+    "input": "y=f(x)",
+    "internal": "y33f8x0",
+    "expected": "61181811384552",
+    "unicode": "⠽⠒⠒⠋⠦⠭⠴"
+  },
+  {
+    "input": "f(x-1)",
+    "internal": "f8x9#a0",
+    "expected": "1138452060152",
+    "unicode": "⠋⠦⠭⠔⠼⠁⠴"
+  }
+]

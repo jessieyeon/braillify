@@ -1,0 +1,14 @@
+[
+  {
+    "input": "y′=dy/dx",
+    "internal": "y-33dx/dy",
+    "expected": "613618182545122561",
+    "unicode": "⠽⠤⠒⠒⠙⠭⠌⠙⠽"
+  },
+  {
+    "input": "f′(x)",
+    "internal": "f-8x0",
+    "expected": "1136384552",
+    "unicode": "⠋⠤⠦⠭⠴"
+  }
+]

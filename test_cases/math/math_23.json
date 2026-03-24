@@ -1,0 +1,8 @@
+[
+  {
+    "input": "x̄",
+    "internal": "x@c",
+    "expected": "4589",
+    "unicode": "⠭⠈⠉"
+  }
+]

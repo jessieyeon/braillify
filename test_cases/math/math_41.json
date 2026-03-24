@@ -1,0 +1,8 @@
+[
+  {
+    "input": "AB⊥DE",
+    "internal": ",,ab0',,de",
+    "expected": "32321352432322517",
+    "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑"
+  }
+]

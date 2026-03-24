@@ -1,0 +1,14 @@
+[
+  {
+    "input": "x₂",
+    "internal": "x;#b",
+    "expected": "4548603",
+    "unicode": "⠭⠰⠼⠃"
+  },
+  {
+    "input": "aₙ",
+    "internal": "a;n",
+    "expected": "14829",
+    "unicode": "⠁⠰⠝"
+  }
+]

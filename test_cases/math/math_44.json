@@ -1,0 +1,8 @@
+[
+  {
+    "input": "AB∥CD",
+    "internal": ",,ab;2,,cd",
+    "expected": "3232134863232925",
+    "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙"
+  }
+]

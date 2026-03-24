@@ -1,0 +1,8 @@
+[
+  {
+    "input": "{aₙ}",
+    "internal": "7a;n7",
+    "expected": "541482954",
+    "unicode": "⠶⠁⠰⠝⠶"
+  }
+]

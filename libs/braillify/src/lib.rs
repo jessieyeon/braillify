@@ -212,7 +212,7 @@ mod test {
         input: &'a str,
     ) -> Option<(Cow<'a, str>, Vec<FormattingSpan>)> {
         match (file_stem, line_num) {
-            ("rule_49", 58) => Some((
+            ("korean/rule_49", 58) => Some((
                 Cow::Borrowed(input),
                 vec![
                     FormattingSpan {
@@ -225,32 +225,32 @@ mod test {
                     },
                 ],
             )),
-            ("rule_56", 1) => {
+            ("korean/rule_56", 1) => {
                 let (cleaned, spans) = detect_emphasis_from_combining_dot(input);
                 Some((Cow::Owned(cleaned), spans))
             }
-            ("rule_56", 2) => Some((
+            ("korean/rule_56", 2) => Some((
                 Cow::Borrowed(input),
                 vec![FormattingSpan {
                     range: find_nth_range(input, "아닌", 0),
                     kind: FormattingKind::Emphasis,
                 }],
             )),
-            ("rule_56", 3) => Some((
+            ("korean/rule_56", 3) => Some((
                 Cow::Borrowed(input),
                 vec![FormattingSpan {
                     range: find_nth_range(input, "수도", 0),
                     kind: FormattingKind::Bold,
                 }],
             )),
-            ("rule_56", 4) => Some((
+            ("korean/rule_56", 4) => Some((
                 Cow::Borrowed(input),
                 vec![FormattingSpan {
                     range: find_nth_range(input, "전라북도 전주", 0),
                     kind: FormattingKind::Custom1,
                 }],
             )),
-            ("rule_56", 5) => Some((
+            ("korean/rule_56", 5) => Some((
                 Cow::Borrowed(input),
                 vec![FormattingSpan {
                     range: find_nth_range(input, "15,000원", 0),
@@ -274,18 +274,18 @@ mod test {
 
     fn formatting_case_matches(file_stem: &str, line_num: usize, actual_unicode: &str) -> bool {
         match (file_stem, line_num) {
-            ("rule_49", 58) => {
+            ("korean/rule_49", 58) => {
                 actual_unicode.matches("⠠⠤").count() == 2
                     && actual_unicode.matches("⠤⠄").count() == 2
             }
-            ("rule_56", 1) => {
+            ("korean/rule_56", 1) => {
                 actual_unicode.matches("⠠⠤").count() == 2
                     && actual_unicode.matches("⠤⠄").count() == 2
             }
-            ("rule_56", 2) => actual_unicode.contains("⠠⠤⠣⠉⠟⠤⠄"),
-            ("rule_56", 3) => actual_unicode.contains("⠰⠤⠠⠍⠊⠥⠤⠆"),
-            ("rule_56", 4) => actual_unicode.contains("⠐⠤") && actual_unicode.contains("⠤⠂"),
-            ("rule_56", 5) => actual_unicode.contains("⠈⠤⠼⠁⠑⠂⠚⠚⠚⠏⠒⠤⠁"),
+            ("korean/rule_56", 2) => actual_unicode.contains("⠠⠤⠣⠉⠟⠤⠄"),
+            ("korean/rule_56", 3) => actual_unicode.contains("⠰⠤⠠⠍⠊⠥⠤⠆"),
+            ("korean/rule_56", 4) => actual_unicode.contains("⠐⠤") && actual_unicode.contains("⠤⠂"),
+            ("korean/rule_56", 5) => actual_unicode.contains("⠈⠤⠼⠁⠑⠂⠚⠚⠚⠏⠒⠤⠁"),
             _ => false,
         }
     }
@@ -509,10 +509,36 @@ mod test {
         assert!(err.is_err());
     }
 
+    /// Recursively scan test_cases/ subdirectories, returning (path, key) pairs.
+    /// Key format: "subdir/file_stem" (e.g., "korean/rule_1", "math/math_1").
+    fn collect_test_files() -> Vec<(std::path::PathBuf, String)> {
+        let test_cases_dir =
+            std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases"));
+        let mut files = Vec::new();
+        for entry in std::fs::read_dir(test_cases_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.is_dir() {
+                let subdir = path.file_name().unwrap().to_string_lossy().to_string();
+                for sub_entry in std::fs::read_dir(&path).unwrap() {
+                    let sub_entry = sub_entry.unwrap();
+                    let sub_path = sub_entry.path();
+                    if sub_path.extension().unwrap_or_default() == "json" {
+                        let stem =
+                            sub_path.file_stem().unwrap().to_string_lossy().to_string();
+                        let key = format!("{}/{}", subdir, stem);
+                        files.push((sub_path, key));
+                    }
+                }
+            }
+        }
+        files.sort_by(|a, b| a.1.cmp(&b.1));
+        files
+    }
+
     #[test]
     pub fn test_by_testcase() {
-        let test_cases_dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases");
-        let dir = std::fs::read_dir(test_cases_dir).unwrap();
+        let files = collect_test_files();
         let mut total = 0;
         let mut failed = 0;
         let mut unexpected_failed = 0;
@@ -520,10 +546,6 @@ mod test {
         let mut file_stats = std::collections::BTreeMap::new();
         let known_set: std::collections::HashSet<(&str, usize)> =
             KNOWN_FAILURES.iter().copied().collect();
-        let files = dir
-            .map(|entry| entry.unwrap().path())
-            .filter(|path| path.extension().unwrap_or_default() == "json")
-            .collect::<Vec<_>>();
 
         // read rule_map.json
         let rule_map: HashMap<String, HashMap<String, String>> = serde_json::from_str(
@@ -533,27 +555,19 @@ mod test {
         .unwrap();
 
         let rule_map_keys: std::collections::HashSet<String> = rule_map.keys().cloned().collect();
-        let file_keys: std::collections::HashSet<_> = files
-            .iter()
-            .map(|path| {
-                path.file_name()
-                    .unwrap()
-                    .to_string_lossy()
-                    .split('.')
-                    .next()
-                    .unwrap()
-                    .to_string()
-            })
-            .collect();
+        let file_keys: std::collections::HashSet<_> =
+            files.iter().map(|(_, key)| key.clone()).collect();
         let missing_keys = rule_map_keys.difference(&file_keys).collect::<Vec<_>>();
         let extra_keys = file_keys.difference(&rule_map_keys).collect::<Vec<_>>();
         if !missing_keys.is_empty() || !extra_keys.is_empty() {
-            panic!("rule_map.json 파일이 올바르지 않습니다.");
+            panic!(
+                "rule_map.json 파일이 올바르지 않습니다. missing: {:?}, extra: {:?}",
+                missing_keys, extra_keys
+            );
         }
 
-        for path in files {
-            let content = std::fs::read_to_string(&path).unwrap();
-            let file_stem = path.file_stem().unwrap().to_string_lossy().to_string();
+        for (path, file_stem) in &files {
+            let content = std::fs::read_to_string(path).unwrap();
             let filename = path.file_name().unwrap().to_string_lossy();
             let records: Vec<serde_json::Value> = serde_json::from_str(&content)
                 .unwrap_or_else(|e| panic!("JSON 파일을 읽는 중 오류 발생: {} in {}", e, filename));
@@ -671,7 +685,7 @@ mod test {
                 }
             }
             file_stats.insert(
-                path.file_stem().unwrap().to_string_lossy().to_string(),
+                file_stem.clone(),
                 (file_total, file_failed, test_status),
             );
         }
@@ -821,20 +835,14 @@ mod test {
     /// Non-panicking accuracy report — run with `cargo test test_accuracy_report -- --nocapture`
     #[test]
     fn test_accuracy_report() {
-        let test_cases_dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases");
-        let dir = std::fs::read_dir(test_cases_dir).unwrap();
-        let files: Vec<_> = dir
-            .map(|e| e.unwrap().path())
-            .filter(|p| p.extension().unwrap_or_default() == "json")
-            .collect();
+        let files = collect_test_files();
 
         let mut total = 0usize;
         let mut passed = 0usize;
         let mut per_file: Vec<(String, usize, usize)> = Vec::new();
 
-        for path in &files {
+        for (path, filename) in &files {
             let content = std::fs::read_to_string(path).unwrap();
-            let filename = path.file_stem().unwrap().to_string_lossy().to_string();
             let records: Vec<serde_json::Value> = serde_json::from_str(&content).unwrap();
             let mut file_total = 0;
             let mut file_passed = 0;
@@ -859,7 +867,7 @@ mod test {
                     }
                 }
             }
-            per_file.push((filename, file_total, file_passed));
+            per_file.push((filename.clone(), file_total, file_passed));
         }
 
         per_file.sort();
@@ -901,12 +909,7 @@ mod test {
     /// - If a previously-failing case now passes → IMPROVEMENT (reported, test still passes)
     #[test]
     fn test_no_regression() {
-        let test_cases_dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases");
-        let dir = std::fs::read_dir(test_cases_dir).unwrap();
-        let files: Vec<_> = dir
-            .map(|e| e.unwrap().path())
-            .filter(|p| p.extension().unwrap_or_default() == "json")
-            .collect();
+        let files = collect_test_files();
 
         let known_set: std::collections::HashSet<(&str, usize)> =
             KNOWN_FAILURES.iter().copied().collect();
@@ -914,9 +917,8 @@ mod test {
         let mut regressions: Vec<(String, usize, String)> = Vec::new();
         let mut improvements: Vec<(String, usize, String)> = Vec::new();
 
-        for path in &files {
+        for (path, filename) in &files {
             let content = std::fs::read_to_string(path).unwrap();
-            let filename = path.file_stem().unwrap().to_string_lossy().to_string();
             let records: Vec<serde_json::Value> = serde_json::from_str(&content).unwrap();
 
             for (idx, record) in records.iter().enumerate() {

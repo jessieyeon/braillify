@@ -1,0 +1,8 @@
+[
+  {
+    "input": "f ≃ g",
+    "internal": "f`@93`g",
+    "expected": "11082018027",
+    "unicode": "⠋⠀⠈⠔⠒⠀⠛"
+  }
+]

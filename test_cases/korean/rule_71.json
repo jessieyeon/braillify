@@ -14,20 +14,20 @@
   {
     "input": "#",
     "internal": "_?",
-    "expected": "5556",
-    "unicode": "⠷⠸"
+    "expected": "5657",
+    "unicode": "⠸⠹"
   },
   {
     "input": "_",
     "internal": "_-",
-    "expected": "5536",
-    "unicode": "⠷⠤"
+    "expected": "5636",
+    "unicode": "⠸⠤"
   },
   {
     "input": "\\",
     "internal": "_*",
-    "expected": "5533",
-    "unicode": "⠷⠡"
+    "expected": "5633",
+    "unicode": "⠸⠡"
   },
   {
     "input": "|",
@@ -44,7 +44,7 @@
   {
     "input": "저자 | 홍길동",
     "internal": ".s.`_|`j=@o1i=",
-    "expected": "401440055510266282121062",
-    "unicode": "⠨⠎⠨⠀⠷⠳⠀⠚⠾⠈⠕⠂⠊⠾"
+    "expected": "401440056510266382121063",
+    "unicode": "⠨⠎⠨⠀⠸⠳⠀⠚⠿⠈⠕⠂⠊⠿"
   }
 ]

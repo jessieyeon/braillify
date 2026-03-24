@@ -1,350 +1,614 @@
 {
-  "rule_1": {
+  "korean/rule_1": {
     "title": "1항",
     "description": "기본 자음자 14개가 첫소리로 쓰일 때에는 다음과 같이 적는다."
   },
-  "rule_1_b1": {
+  "korean/rule_1_b1": {
     "title": "1항 다만",
     "description": "‘ㅇ’이 첫소리로 쓰일 때에는 점자로 이를 표기하지 않는다."
   },
-  "rule_2": {
+  "korean/rule_2": {
     "title": "2항",
     "description": "된소리 글자 ‘ㄲ, ㄸ, ㅃ, ㅆ, ㅉ’이 첫소리로 쓰일 때에는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’ 앞에 된소리표 ⠠을 적어 나타낸다."
   },
-  "rule_3": {
+  "korean/rule_3": {
     "title": "3항",
     "description": "기본 자음자 14개가 받침으로 쓰일 때에는 다음과 같이 적는다."
   },
-  "rule_4": {
+  "korean/rule_4": {
     "title": "4항",
     "description": "쌍받침 ‘ㄲ’은 ⠁⠁으로 적고, 쌍받침 ‘ㅆ’은 약자인 ⠌으로 적는다."
   },
-  "rule_5": {
+  "korean/rule_5": {
     "title": "5항",
     "description": "겹받침은 각 받침 글자를 어울러 다음과 같이 적는다."
   },
-  "rule_6": {
+  "korean/rule_6": {
     "title": "6항",
     "description": "기본 모음자 10개는 다음과 같이 적는다."
   },
-  "rule_7": {
+  "korean/rule_7": {
     "title": "7항",
     "description": "그 밖의 모음자 11개는 다음과 같이 적는다."
   },
-  "rule_8": {
+  "korean/rule_8": {
     "title": "8항",
     "description": "자음자나 모음자가 단독으로 쓰일 때에는 해당 글자 앞에 온표 =을 적어 나타내며, 자음자는 받침으로 적는다."
   },
-  "rule_9": {
+  "korean/rule_9": {
     "title": "9항",
     "description": "한글의 자음자가 번호로 쓰일 때에는 온표를 앞세워 받침으로 적는다."
   },
-  "rule_10": {
+  "korean/rule_10": {
     "title": "10항",
     "description": "단독으로 쓰인 자음자가 단어에 붙어 나올 때에는 ⠸을 앞세워 받침으로 적는다."
   },
-  "rule_11": {
+  "korean/rule_11": {
     "title": "11항",
     "description": "모음자에 ‘예’가 붙어 나올 때에는 그 사이에 구분표 ⠤을 적어 나타낸다."
   },
-  "rule_11_b1": {
+  "korean/rule_11_b1": {
     "title": "11항 다만",
     "description": "그 사이에서 줄이 바뀔 때에는 구분표를 적지 않는다."
   },
-  "rule_12": {
+  "korean/rule_12": {
     "title": "12항",
     "description": "‘ㅑ, ㅘ, ㅜ, ㅝ’에 ‘애’가 붙어 나올 때에는 두 모음자 사이에 구분표 ⠤을 적어 나타낸다."
   },
-  "rule_12_b1": {
+  "korean/rule_12_b1": {
     "title": "12항 다만",
     "description": "그 사이에서 줄이 바뀔 때에는 구분표를 적지 않는다."
   },
-  "rule_13": {
+  "korean/rule_13": {
     "title": "13항",
     "description": "다음 글자들은 약자를 사용하여 적는다."
   },
-  "rule_14": {
+  "korean/rule_14": {
     "title": "14항",
     "description": "‘나, 다, 마, 바, 자, 카, 타, 파, 하’에 모음이 붙어 나올 때에는 약자를 사용하지 않는다."
   },
-  "rule_14_b1": {
+  "korean/rule_14_b1": {
     "title": "14항 다만",
     "description": "그 사이에서 줄이 바뀔 때에는 약자를 사용하여 적는다."
   },
-  "rule_15": {
+  "korean/rule_15": {
     "title": "15항",
     "description": "다음 글자들은 약자를 사용하여 적는다."
   },
-  "rule_16": {
+  "korean/rule_16": {
     "title": "16항",
     "description": "‘까, 싸, 껏’을 적을 때에는 ‘가, 사, 것’의 약자 앞에 된소리표를 적어 나타낸다."
   },
-  "rule_17": {
+  "korean/rule_17": {
     "title": "17항",
     "description": "‘성, 썽, 정, 쩡, 청’을 적을 때에는 ‘ㅅ, ㅆ, ㅈ, ㅉ, ㅊ’ 다음에 ‘영’의 약자 ⠻을 적어 나타낸다."
   },
-  "rule_18": {
+  "korean/rule_18": {
     "title": "18항",
     "description": "다음 단어들은 약어를 사용하여 적는다."
   },
-  "rule_18_b1": {
+  "korean/rule_18_b1": {
     "title": "18항 다만",
     "description": "약어 앞에 다른 글자가 붙어 나올 때에는 약어를 사용하지 않는다."
   },
-  "rule_19": {
+  "korean/rule_19": {
     "title": "19항",
     "description": "자음자 가운데 옛 글자는 옛 글자표를 앞세워 적는다."
   },
-  "rule_20": {
+  "korean/rule_20": {
     "title": "20항",
     "description": "연서로 만들어진 옛 자음자는 옛 글자표를 앞세워 적는다."
   },
-  "rule_21": {
+  "korean/rule_21": {
     "title": "21항",
     "description": "각자 병서로 만들어진 옛 자음자는 옛 글자표를 앞세워 적는다."
   },
-  "rule_22": {
+  "korean/rule_22": {
     "title": "22항",
     "description": "합용 병서로 만들어진 옛 자음자가 첫소리로 쓰일 때에는 옛 글자표를 앞세워 각 자음자를 어울러 적는다."
   },
-  "rule_23": {
+  "korean/rule_23": {
     "title": "23항",
     "description": "단독으로 쓰인 자음자가 단어의 중간이나 끝에 붙어 나올 때에는 _을 앞세워 받침으로 적는다."
   },
-  "rule_24": {
+  "korean/rule_24": {
     "title": "24항",
     "description": "옛 자음자가 포함된 글자에 모음 'ㅏ'가 나올 때에는 'ㅏ'를 생략하지 않는다."
   },
-  "rule_25": {
+  "korean/rule_25": {
     "title": "25항",
     "description": "옛 모음자는 다음과 같이 적는다."
   },
-  "rule_26": {
+  "korean/rule_26": {
     "title": "26항",
     "description": "단독으로 쓰인 '딴이(ㅣ)'는 _o으로 적는다."
   },
-  "rule_27": {
+  "korean/rule_27": {
     "title": "27항",
     "description": "방점은 다음과 같이 적는다."
   },
-  "rule_28": {
+  "korean/rule_28": {
     "title": "28항",
     "description": "로마자는 ｢통일영어점자 규정｣에 따라 다음과 같이 적는다."
   },
-  "rule_29": {
+  "korean/rule_29": {
     "title": "29항",
     "description": "국어 문장 안에 로마자가 나올 때에는 그 앞에 로마자표 ⠴을 적고 그 뒤에 로마자 종료표 ⠲을 적는다. 이때 로마자가 둘 이상 연이어 나오면 첫 로마자 앞에 로마자표를 적고 마지막 로마자 뒤에 로마자 종료표를 적는다."
   },
-  "rule_30": {
+  "korean/rule_30": {
     "title": "30항",
     "description": "그리스 문자는 ｢통일영어점자 규정｣에 따라 적는다."
   },
-  "rule_31": {
+  "korean/rule_31": {
     "title": "31항",
     "description": "국어 문장 안에 그리스 문자가 나올 때에는 그 앞에 로마자표를 적고 그 뒤에 로마자 종료표를 적는다."
   },
-  "rule_32": {
+  "korean/rule_32": {
     "title": "32항",
     "description": "로마자표와 로마자 종료표 사이의 표기는 ｢통일영어점자 규정｣에 따라 적는다."
   },
-  "rule_33": {
+  "korean/rule_33": {
     "title": "33항",
     "description": "｢통일영어점자 규정｣과 ｢한글 점자｣의 점형이 다른 문장 부호(, : ; ―)가 로마자와 한글 사이에 나올 때에는 로마자 종료표를 적지 않고 문장 부호는 「한글 점자」에 따라 적는다."
   },
-  "rule_33_b1": {
+  "korean/rule_33_b1": {
     "title": "33항 다만",
     "description": "｢통일영어점자 규정｣과 ｢한글 점자｣의 점형이 같은 문장 부호 중에서 ‘. ? !...’는 문장 부호 뒤에 로마자 종료표를 적지 않고, ‘/ - ~’는 문장 부호 앞에 로마자 종료표를 적는다."
   },
-  "rule_34": {
+  "korean/rule_34": {
     "title": "34항",
     "description": "로마자가 따옴표나 괄호 등으로 묶일 때에는 로마자 종료표를 적지 않는다."
   },
-  "rule_35": {
+  "korean/rule_35": {
     "title": "35항",
     "description": "로마자와 숫자가 이어 나올 때에는 로마자 종료표를 적지 않는다."
   },
-  "rule_36": {
+  "korean/rule_36": {
     "title": "36항",
     "description": "로마 숫자는 해당 로마자를 사용하여 적는다."
   },
-  "rule_37": {
+  "korean/rule_37": {
     "title": "37항",
     "description": "다음 영어 단어 앞에 로마자표가 올 때에는 단어 약자를 쓰지 않고 알파벳과 묶음 약자를 사용하여 풀어 적는다."
   },
-  "rule_38": {
+  "korean/rule_38": {
     "title": "38항",
     "description": "발음 기호를 표기할 때에는 국제음성기호 점자 규정 변환표를 사용하여 적는다."
   },
-  "rule_39": {
+  "korean/rule_39": {
     "title": "39항",
     "description": "로마자가 주된 문장 안에 한글이 나올 때에는 한글표와 한글 종료표 사이에 한글을 묶어 나타낸다."
   },
-  "rule_40": {
+  "korean/rule_40": {
     "title": "40항",
     "description": "숫자는 수표 ⠼을 앞세워 다음과 같이 적는다."
   },
-  "rule_41": {
+  "korean/rule_41": {
     "title": "41항",
     "description": "숫자 사이에 붙어 나오는 쉼표와 자릿점은 ⠂으로 적는다."
   },
-  "rule_42": {
+  "korean/rule_42": {
     "title": "42항",
     "description": "일곱 자리 이상의 긴 숫자를 두 줄에 나누어 적을 때에는 위 줄 끝에 연결표 ⠠을 적고, 아래 줄의 첫머리에는 수표를 다시 적지 않는다. 이때 아래 줄에는 세 자리 이상의 숫자가 나와야 한다."
   },
-  "rule_43": {
+  "korean/rule_43": {
     "title": "43항",
     "description": "숫자 사이에 마침표, 쉼표, 연결표가 붙어 나올 때에는 뒤의 숫자에 수표를 적지 않는다."
   },
-  "rule_43_b1": {
+  "korean/rule_43_b1": {
     "title": "43항 다만",
     "description": "그 밖의 다른 기호가 숫자 사이에 붙어 나올 때에는 수표를 다시 적는다."
   },
-  "rule_44": {
+  "korean/rule_44": {
     "title": "44항",
     "description": "숫자 뒤에 이어 나오는 한글의 띄어쓰기는 묵자를 따른다."
   },
-  "rule_44_b1": {
+  "korean/rule_44_b1": {
     "title": "44항 다만",
     "description": "숫자와 혼동되는 ‘ㄴ, ㄷ, ㅁ, ㅋ, ㅌ, ㅍ, ㅎ’의 첫소리 글자와 ‘운’의 약자는 숫자 뒤에 붙어 나오더라도 숫자와 한글을 띄어 쓴다."
   },
-  "rule_45": {
+  "korean/rule_45": {
     "title": "45항",
     "description": "연산 기호와 비교 기호는 다음과 같이 적는다."
   },
-  "rule_46": {
+  "korean/rule_46": {
     "title": "46항",
     "description": "연산 기호와 비교 기호가 한글 사이에 나올 때에는 기호의 앞뒤를 한 칸씩 띄어 쓴다."
   },
-  "rule_47": {
+  "korean/rule_47": {
     "title": "47항",
     "description": "분수는 분수표 ⠌을 사용하여 분모, 분수표, 분자 순으로 적고, 대분수는 정수와 분수를 붙여 적는다. 분수를 표시하는 빗금(/)은 ⠸⠌으로 적고, 순서는 묵자를 따른다."
   },
-  "rule_48": {
+  "korean/rule_48": {
     "title": "48항",
     "description": "소수점은 ⠲으로 적는다."
   },
-  "rule_49": {
+  "korean/rule_49": {
     "title": "49항",
     "description": "문장 부호는 다음과 같이 적는다."
   },
-  "rule_50": {
+  "korean/rule_50": {
     "title": "50항",
     "description": "가운뎃점은 앞뒤를 모두 붙여 적으며, 줄 끝에는 올 수 있고 줄 첫머리에는 올 수 없다."
   },
-  "rule_51": {
+  "korean/rule_51": {
     "title": "51항",
     "description": "쌍점의 앞은 붙여 쓰고 뒤는 한 칸 띄어 쓴다."
   },
-  "rule_51_b1": {
+  "korean/rule_51_b1": {
     "title": "51항 다만1",
     "description": "쌍점 뒤에 붙어 나오는 숫자에는 수표를 다시 적는다."
   },
-  "rule_51_b2": {
+  "korean/rule_51_b2": {
     "title": "51항 다만2",
     "description": "쌍점을 사용하여 시와 분, 장과 절 등을 구별하거나 둘 이상을 대비할 때에는 쌍점의 앞뒤를 붙여 쓴다."
   },
-  "rule_52": {
+  "korean/rule_52": {
     "title": "52항",
     "description": "빗금이 두 개 연이어 나올 때에는 ⠸⠌⠸⠌으로 적는다."
   },
-  "rule_53": {
+  "korean/rule_53": {
     "title": "53항",
     "description": "가운뎃점으로 쓴 줄임표(…… , …)는 ⠠⠠⠠으로, 마침표로 쓴 줄임표(...... , ...)는 ⠲⠲⠲으로 적는다."
   },
-  "rule_53_b1": {
+  "korean/rule_53_b1": {
     "title": "53항 다만",
     "description": "줄임표 점의 개수를 분명히 밝혀야 할 때에는 ⠠이나 ⠲을 묵자의 개수만큼 적는다."
   },
-  "rule_54": {
+  "korean/rule_54": {
     "title": "54항",
     "description": "여는 따옴표와 여는 괄호 뒤, 닫는 따옴표와 닫는 괄호 앞은 붙여 쓴다."
   },
-  "rule_55": {
+  "korean/rule_55": {
     "title": "55항",
     "description": "빗금, 줄표, 물결표는 줄의 끝이나 첫머리에 올 수 있다."
   },
-  "rule_55_b1": {
+  "korean/rule_55_b1": {
     "title": "55항 다만",
     "description": "접사나 어미를 나타내는 붙임표와 생략된 말 대신에 쓴 물결표는 줄의 끝이나 첫머리에 홀로 적지 않고 해당 앞말이나 뒷말과 함께 줄을 바꿔 적는다."
   },
-  "rule_56": {
+  "korean/rule_56": {
     "title": "56항",
     "description": "드러냄표(　̊ )나 밑줄( )로 강조된 글자체는 ⠠⠤⠀⠤⠄으로, 굵은 글자로 강조된 글자체는 ⠰⠤⠀⠤⠆으로 묶어 나타낸다."
   },
-  "rule_57": {
+  "korean/rule_57": {
     "title": "57항",
     "description": "숨김표가 여러 개 붙어 나올 때에는 ⠸과 ⠇ 사이에 해당 숨김표의 점형을 묵자의 개수만큼 적어 나타낸다."
   },
-  "rule_58": {
+  "korean/rule_58": {
     "title": "58항",
     "description": "빠짐표가 여러 개 붙어 나올 때에는 ⠸과 ⠇ 사이에 ⠶을 묵자의 개수만큼 적어 나타낸다."
   },
-  "rule_59": {
+  "korean/rule_59": {
     "title": "59항",
     "description": "쌍반점(;)은 ⠰⠆으로 적으며, 앞은 붙여 쓰고 뒤는 한 칸 띄어 쓴다."
   },
-  "rule_60": {
+  "korean/rule_60": {
     "title": "60항",
     "description": "별표(*)와 참고표(※)는 ⠐⠔ 으로 적고, 앞뒤를 한 칸씩 띄어 쓴다."
   },
-  "rule_61": {
+  "korean/rule_61": {
     "title": "61항",
     "description": "아포스트로피(’)는 '으로 적는다."
   },
-  "rule_62": {
+  "korean/rule_62": {
     "title": "62항",
     "description": "상동 기호(〃)는 00으로 적는다."
   },
-  "rule_63": {
+  "korean/rule_63": {
     "title": "63항",
     "description": "긴소리표(ː)는 ,'으로 적고, 앞뒤를 붙여 쓴다."
   },
-  "rule_64": {
+  "korean/rule_64": {
     "title": "64항",
     "description": "동그라미 숫자는 수표 뒤에 숫자의 점형을 한 단 내려 적고, 그 밖의 동그라미 문자와 네모 문자는 묶어 나타낸다."
   },
-  "rule_65": {
+  "korean/rule_65": {
     "title": "65항",
     "description": "화폐 기호는 0을 앞세워 적는다."
   },
-  "rule_66": {
+  "korean/rule_66": {
     "title": "66항",
     "description": "점역자가 묵자에 없는 내용을 삽입할 때에는 해당 내용을 점역자 주표로 묶어 나타낸다."
   },
-  "rule_67": {
+  "korean/rule_67": {
     "title": "67항",
     "description": "묵자에 표기된 점형은 해당 점형 앞에 점형표를 적어 나타내며, 뒤는 한 칸 띄어 쓴다."
   },
-  "rule_68": {
+  "korean/rule_68": {
     "title": "68항",
     "description": "위 첨자는 ^ 뒤에, 아래 첨자는 ; 뒤에 첨자의 내용을 적어 나타낸다."
   },
-  "rule_69": {
+  "korean/rule_69": {
     "title": "69항",
     "description": "로마자로 쓰인 단위 기호는 앞에 로마자표를, 뒤에 로마자 종료표를 적는다."
   },
-  "rule_70": {
+  "korean/rule_70": {
     "title": "70항",
     "description": "화살표는 정해진 기호로 적고, 앞뒤를 한 칸씩 띄어 쓴다."
   },
-  "rule_71": {
+  "korean/rule_71": {
     "title": "71항",
     "description": "자주 쓰이는 기호는 정해진 기호로 적어 나타낸다."
   },
-  "rule_72": {
+  "korean/rule_72": {
     "title": "72항",
     "description": "글머리 기호는 정해진 기호로 적어 나타낸다."
   },
-  "rule_73": {
+  "korean/rule_73": {
     "title": "73항",
     "description": "채워 넣어야 할 빈칸은 정해진 기호로 적어 나타낸다."
   },
-  "rule_74": {
+  "korean/rule_74": {
     "title": "74항",
     "description": "컴퓨터 점자는 통일영어점자 규정에 따라 적는다."
   },
-  "sentence": {
+  "korean/sentence": {
     "title": "문장",
     "description": "테스트를 위한 문장"
+  },
+  "math/math_1": {
+    "title": "수학 제1항",
+    "description": "숫자는 「한글 점자」 제40항에 따라 수표 ⠼을 앞세워 적는다."
+  },
+  "math/math_2": {
+    "title": "수학 제2항",
+    "description": "점으로 표현된 곱셈 기호는 ⠐으로 적는다."
+  },
+  "math/math_3": {
+    "title": "수학 제3항",
+    "description": "등호(=)는 ⠶⠶으로 적는다."
+  },
+  "math/math_4": {
+    "title": "수학 제4항",
+    "description": "부등호는 다음과 같이 적는다. 같지않다(≠) ⠨⠶⠶, 보다크다(>) ⠔⠔, 보다작다(<) ⠢⠢, 크거나같다(≥) ⠶⠶, 작거나같다(≤) ⠶⠶"
+  },
+  "math/math_5": {
+    "title": "수학 제2항~제4항",
+    "description": "사칙연산 기호: 덧셈표(+) ⠐, 뺄셈표(-) ⠤, 곱셈표(×) ⠰, 나눗셈표(÷) ⠌⠌와 비교 기호 종합 예시"
+  },
+  "math/math_6": {
+    "title": "수학 제6항",
+    "description": "괄호와 묶음 괄호는 다음과 같이 적는다. 소괄호 ⠦ ⠴, 중괄호 ⠶ ⠶, 대괄호 ⠠⠶ ⠠⠴"
+  },
+  "math/math_7": {
+    "title": "수학 제7항",
+    "description": "분수는 분모, 분수표, 분자의 순서로 적고 분수표(—)는 ⠌으로 적는다."
+  },
+  "math/math_8": {
+    "title": "수학 제8항",
+    "description": "소수점(.)은 ⠲으로 적는다."
+  },
+  "math/math_9": {
+    "title": "수학 제9항",
+    "description": "비(:)는 ⠐⠂으로 적는다."
+  },
+  "math/math_10": {
+    "title": "수학 제10항",
+    "description": "화살표는 다음과 같이 적는다. 오른쪽(→) ⠶⠕, 왼쪽(←) ⠪⠶, 양쪽(↔) ⠪⠶⠕"
+  },
+  "math/math_11": {
+    "title": "수학 제11항",
+    "description": "수식과 수학적 표기는 앞뒤를 두 칸씩 띄어 쓴다."
+  },
+  "math/math_12": {
+    "title": "수학 제12항",
+    "description": "수식에 사용하는 로마자는 로마자표 ⠴을 적지 않고 수식의 앞뒤를 두 칸씩 띄어 쓴다."
+  },
+  "math/math_13": {
+    "title": "수학 제13항",
+    "description": "그리스 문자는 「한글 점자」 제30항에 따라 적는다."
+  },
+  "math/math_14": {
+    "title": "수학 제14항",
+    "description": "로마 숫자는 「한글 점자」 제36항에 따라 적는다."
+  },
+  "math/math_15": {
+    "title": "수학 제15항",
+    "description": "일반연산 기호는 다음과 같이 적되, 기호의 앞뒤를 한 칸씩 띄어 쓴다. ⊕ ⠸⠔, ⊖ ⠸⠢, ⊗ ⠸⠰"
+  },
+  "math/math_16": {
+    "title": "수학 제16항",
+    "description": "진법의 수는 아래첨자로 소괄호 ⠦ ⠴ 안에 숫자를 적는다."
+  },
+  "math/math_17": {
+    "title": "수학 제17항",
+    "description": "프라임(′)은 ⠤으로 적는다."
+  },
+  "math/math_18": {
+    "title": "수학 제18항",
+    "description": "지수는 위첨자 기호 ⠬을 적고, 첨자를 구성하는 수, 문자 또는 수식을 적는다."
+  },
+  "math/math_19": {
+    "title": "수학 제19항",
+    "description": "아래첨자는 아래첨자 기호 ⠰을 적고, 첨자를 구성하는 수, 문자 또는 수식을 적는다."
+  },
+  "math/math_20": {
+    "title": "수학 제20항",
+    "description": "근삿값 기호(≒)는 ⠐⠶⠶으로 적는다."
+  },
+  "math/math_21": {
+    "title": "수학 제21항",
+    "description": "절댓값 기호(| |)는 ⠳ ⠳으로 적는다."
+  },
+  "math/math_22": {
+    "title": "수학 제22항",
+    "description": "근호(√)는 ⠜으로 적는다."
+  },
+  "math/math_23": {
+    "title": "수학 제23항",
+    "description": "가로바(̄)와 밑줄(_)은 다음과 같이 적는다."
+  },
+  "math/math_24": {
+    "title": "수학 제24항",
+    "description": "수열({aₙ})은 ⠶⠁⠰⠝⠶으로 적는다."
+  },
+  "math/math_25": {
+    "title": "수학 제25항",
+    "description": "총합(Σ)은 ⠠⠨⠎으로 적되, 범위의 시작은 ⠰으로 하고 끝은 한 칸을 띄어 쓴다."
+  },
+  "math/math_26": {
+    "title": "수학 제26항",
+    "description": "행렬은 ⠦ ⠴으로, 행렬식은 ⠳ ⠳으로 묶되, 개행 기호는 ⠜으로 적는다."
+  },
+  "math/math_27": {
+    "title": "수학 제27항",
+    "description": "나누어떨어진다(|)는 ⠳으로, 나누어떨어지지않는다(∤)는 ⠨⠳으로 적는다."
+  },
+  "math/math_28": {
+    "title": "수학 제28항",
+    "description": "노름(norm)(‖ ‖)은 ⠳⠳ ⠳⠳으로 적는다."
+  },
+  "math/math_29": {
+    "title": "수학 제29항",
+    "description": "이중물결(≈)은 ⠐⠢⠐⠢으로 적되, 그 앞뒤를 한 칸씩 띄어 쓴다."
+  },
+  "math/math_30": {
+    "title": "수학 제30항",
+    "description": "이중물결 아래 줄(≊)은 ⠐⠢⠐⠢⠶으로 적되, 그 앞뒤를 한 칸씩 띄어 쓴다."
+  },
+  "math/math_31": {
+    "title": "수학 제31항",
+    "description": "물결 아래 줄(≃)은 ⠐⠢⠶으로 적되, 그 앞뒤를 한 칸씩 띄어 쓴다."
+  },
+  "math/math_32": {
+    "title": "수학 제32항",
+    "description": "물결아래등호(≅)는 ⠐⠢⠶⠶으로 적되, 그 앞뒤를 한 칸씩 띄어 쓴다."
+  },
+  "math/math_33": {
+    "title": "수학 제33항",
+    "description": "정규부분군은 다음과 같이 적는다. ▷ ⠸⠜, ◁ ⠸⠪"
+  },
+  "math/math_34": {
+    "title": "수학 제34항",
+    "description": "관계 기호는 다음과 같이 적는다. R ⠠⠗, ~ ⠐⠢"
+  },
+  "math/math_35": {
+    "title": "수학 제35항~제39항",
+    "description": "선분 ⠐⠉, 호 ⠐⠪, 직선 ⠪⠶⠕, 반직선 ⠶⠕, 각(∠) ⠫으로 적는다."
+  },
+  "math/math_36": {
+    "title": "수학 제36항",
+    "description": "선분(̄)은 ⠐⠉으로 적는다."
+  },
+  "math/math_37": {
+    "title": "수학 제37항",
+    "description": "호(⌢)는 ⠐⠪으로 적는다."
+  },
+  "math/math_38": {
+    "title": "수학 제38항",
+    "description": "직선(↔)은 ⠪⠶⠕으로 적는다."
+  },
+  "math/math_39": {
+    "title": "수학 제39항",
+    "description": "반직선(→)은 ⠶⠕으로 적는다."
+  },
+  "math/math_40": {
+    "title": "수학 제40항",
+    "description": "삼각형(△)은 ⠸⠬으로, 사각형(□)은 ⠸⠶으로 적는다."
+  },
+  "math/math_41": {
+    "title": "수학 제41항",
+    "description": "수직(⊥)은 ⠴⠄으로 적는다."
+  },
+  "math/math_42": {
+    "title": "수학 제42항",
+    "description": "닮음(∽)은 ⠠⠄으로 적는다."
+  },
+  "math/math_43": {
+    "title": "수학 제43항",
+    "description": "합동(≡)은 ⠶⠶으로 적는다."
+  },
+  "math/math_44": {
+    "title": "수학 제44항",
+    "description": "평행(⫽)은 ⠰⠆으로 적는다."
+  },
+  "math/math_45": {
+    "title": "수학 제45항",
+    "description": "함수는 다음과 같이 적는다. y=f(x), f(x-1) 등"
+  },
+  "math/math_46": {
+    "title": "수학 제46항",
+    "description": "로그는 다음과 같이 적는다. 밑이 숫자일 경우 ⠠을 적고 수표 없이 내려 적는다."
+  },
+  "math/math_47": {
+    "title": "수학 제47항",
+    "description": "삼각함수는 다음과 같이 적는다. 사인(sin) ⠖⠎, 코사인(cos) ⠖⠉, 탄젠트(tan) ⠖⠞"
+  },
+  "math/math_48": {
+    "title": "수학 제48항",
+    "description": "역삼각함수는 다음과 같이 적는다. arcsin, sin⁻¹"
+  },
+  "math/math_49": {
+    "title": "수학 제49항",
+    "description": "쌍곡선함수는 다음과 같이 적는다. sinh, cosh, tanh"
+  },
+  "math/math_50": {
+    "title": "수학 제50항",
+    "description": "무한대(∞)는 ⠿으로 적는다."
+  },
+  "math/math_51": {
+    "title": "수학 제51항",
+    "description": "극한 기호 lim는 ⠇⠊⠍으로 적은 다음 범위의 시작(변수), 화살표, 점근값의 순으로 적는다."
+  },
+  "math/math_52": {
+    "title": "수학 제52항",
+    "description": "변화율(Δy/Δx)은 ⠠⠙⠭⠌⠠⠙⠽으로 적는다."
+  },
+  "math/math_53": {
+    "title": "수학 제53항",
+    "description": "도함수는 다음과 같이 적는다. y′=dy/dx, f′(x)"
+  },
+  "math/math_54": {
+    "title": "수학 제54항",
+    "description": "편도함수(∂)는 ⠫으로 적는다."
+  },
+  "math/math_55": {
+    "title": "수학 제55항",
+    "description": "델연산자(∇)는 ⠸⠩으로 적는다."
+  },
+  "math/math_56": {
+    "title": "수학 제56항",
+    "description": "부정적분은 ⠮으로 적는다."
+  },
+  "math/math_57": {
+    "title": "수학 제57항",
+    "description": "정적분은 적분 범위를 ⠰으로 시작하고 아래끝, 위끝, 본 식의 순으로 적는다."
+  },
+  "math/math_58": {
+    "title": "수학 제58항",
+    "description": "이중적분(∬)은 ⠮⠮으로 적되, 영역은 ⠰으로 적는다."
+  },
+  "math/math_59": {
+    "title": "수학 제59항",
+    "description": "선적분(∮)은 ⠐으로 적는다."
+  },
+  "math/math_60": {
+    "title": "수학 제60항",
+    "description": "집합과 관련된 기호: 원소(∈) ⠖, 부분집합(⊂) ⠖⠂, 공집합(∅) ⠨⠋, 합집합(∪) ⠬, 교집합(∩) ⠩"
+  },
+  "math/math_61": {
+    "title": "수학 제61항",
+    "description": "명제를 나타내는 기호: 부정(~) ⠐⠢, 조건문(→) ⠶⠕, 항진명제(⇒) ⠶⠶⠕, 논리곱(∧) ⠫, 논리합(∨) ⠬"
+  },
+  "math/math_62": {
+    "title": "수학 제62항",
+    "description": "경우의 수: 계승(!) ⠖, 순열 ⠠⠏(⠝ ⠗), 조합 ⠠⠉(⠝ ⠗)으로 적는다."
+  },
+  "math/math_63": {
+    "title": "수학 제63항",
+    "description": "조건부확률(|)은 ⠳으로 적는다."
+  },
+  "math/math_64": {
+    "title": "수학 제64항",
+    "description": "햇(̂)은 ⠐⠐⠔으로 적되, 단위 벡터 기호로도 사용한다."
+  },
+  "math/math_65": {
+    "title": "수학 제65항",
+    "description": "그러므로(∴)는 ⠠⠰으로, 왜냐하면(∵)은 ⠐⠌으로 적고, 그 앞뒤를 두 칸씩 띄어 쓴다."
+  },
+  "math/math_66": {
+    "title": "수학 제66항",
+    "description": "한 수식이 두 줄 이상 이어질 경우에는 사칙연산, 등호, 분수표 뒤에서 줄바꿈을 한다."
   }
 }

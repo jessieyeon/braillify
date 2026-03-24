@@ -1,0 +1,26 @@
+[
+  {
+    "input": "8²",
+    "internal": "#h^#b",
+    "expected": "601924603",
+    "unicode": "⠼⠓⠘⠼⠃"
+  },
+  {
+    "input": "c²",
+    "internal": "c^#b",
+    "expected": "924603",
+    "unicode": "⠉⠘⠼⠃"
+  },
+  {
+    "input": "(-3)³",
+    "internal": "89#c0^#c",
+    "expected": "38206095224609",
+    "unicode": "⠦⠔⠼⠉⠴⠘⠼⠉"
+  },
+  {
+    "input": "x⁻¹",
+    "internal": "x^9#a",
+    "expected": "452420601",
+    "unicode": "⠭⠘⠔⠼⠁"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "input": "a∈M",
+    "internal": "a6,m",
+    "expected": "1223213",
+    "unicode": "⠁⠖⠠⠍"
+  },
+  {
+    "input": "A∋x",
+    "internal": ",a4x",
+    "expected": "3215045",
+    "unicode": "⠠⠁⠲⠭"
+  },
+  {
+    "input": "a∉A",
+    "internal": "a.6,a",
+    "expected": "14022321",
+    "unicode": "⠁⠨⠖⠠⠁"
+  },
+  {
+    "input": "{1, 2, 3}",
+    "internal": "7#a\"`#b\"`#c7",
+    "expected": "5460116060316060954",
+    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶"
+  },
+  {
+    "input": "B⊂A",
+    "internal": ",b61,a",
+    "expected": "323222321",
+    "unicode": "⠠⠃⠖⠂⠠⠁"
+  },
+  {
+    "input": "A⊃B",
+    "internal": ",a\"4,b",
+    "expected": "3211650323",
+    "unicode": "⠠⠁⠐⠲⠠⠃"
+  },
+  {
+    "input": "A∩B=∅",
+    "internal": ",a`%`,b33.f",
+    "expected": "321041032318184011",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋"
+  },
+  {
+    "input": "A∪B",
+    "internal": ",a`+`,b",
+    "expected": "3210440323",
+    "unicode": "⠠⠁⠀⠬⠀⠠⠃"
+  },
+  {
+    "input": "Aᶜ=U-A",
+    "internal": ",a^c33,u9,a",
+    "expected": "3212491818323720321",
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁"
+  }
+]

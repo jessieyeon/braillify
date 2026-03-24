@@ -19,41 +19,43 @@ impl Encoder {
         let mut rule_engine = rules::engine::RuleEngine::new();
 
         // ── Preprocessing ────────────────────────────────
-        rule_engine.register(Box::new(rules::rule_53::Rule53));
+        rule_engine.register(Box::new(rules::korean::rule_53::Rule53));
 
         // ── WordShortcut ─────────────────────────────────
-        rule_engine.register(Box::new(rules::rule_18::Rule18));
+        rule_engine.register(Box::new(rules::korean::rule_18::Rule18));
 
         // ── ModeManagement ───────────────────────────────
-        rule_engine.register(Box::new(rules::rule_29::Rule29));
+        rule_engine.register(Box::new(rules::korean::rule_29::Rule29));
 
         // ── CoreEncoding ─────────────────────────────────
-        rule_engine.register(Box::new(rules::rule_44::Rule44));
-        rule_engine.register(Box::new(rules::rule_16::Rule16));
-        rule_engine.register(Box::new(rules::rule_14::Rule14));
-        rule_engine.register(Box::new(rules::rule_13::Rule13));
-        rule_engine.register(Box::new(rules::rule_korean::RuleKorean));
-        rule_engine.register(Box::new(rules::rule_28::Rule28));
-        rule_engine.register(Box::new(rules::rule_40::Rule40));
-        rule_engine.register(Box::new(rules::rule_8::Rule8));
-        rule_engine.register(Box::new(rules::rule_2::Rule2));
-        rule_engine.register(Box::new(rules::rule_1::Rule1));
-        rule_engine.register(Box::new(rules::rule_3::Rule3));
-        rule_engine.register(Box::new(rules::rule_english_symbol::RuleEnglishSymbol));
-        rule_engine.register(Box::new(rules::rule_61::Rule61));
-        rule_engine.register(Box::new(rules::rule_41::Rule41));
-        rule_engine.register(Box::new(rules::rule_56::Rule56));
-        rule_engine.register(Box::new(rules::rule_57::Rule57));
-        rule_engine.register(Box::new(rules::rule_58::Rule58));
-        rule_engine.register(Box::new(rules::rule_60::Rule60));
-        rule_engine.register(Box::new(rules::rule_49::Rule49));
-        rule_engine.register(Box::new(rules::rule_space::RuleSpace));
-        rule_engine.register(Box::new(rules::rule_math::RuleMath));
-        rule_engine.register(Box::new(rules::rule_fraction::RuleFraction));
+        rule_engine.register(Box::new(rules::korean::rule_44::Rule44));
+        rule_engine.register(Box::new(rules::korean::rule_16::Rule16));
+        rule_engine.register(Box::new(rules::korean::rule_14::Rule14));
+        rule_engine.register(Box::new(rules::korean::rule_13::Rule13));
+        rule_engine.register(Box::new(rules::korean::rule_korean::RuleKorean));
+        rule_engine.register(Box::new(rules::korean::rule_28::Rule28));
+        rule_engine.register(Box::new(rules::korean::rule_40::Rule40));
+        rule_engine.register(Box::new(rules::korean::rule_8::Rule8));
+        rule_engine.register(Box::new(rules::korean::rule_2::Rule2));
+        rule_engine.register(Box::new(rules::korean::rule_1::Rule1));
+        rule_engine.register(Box::new(rules::korean::rule_3::Rule3));
+        rule_engine.register(Box::new(
+            rules::korean::rule_english_symbol::RuleEnglishSymbol,
+        ));
+        rule_engine.register(Box::new(rules::korean::rule_61::Rule61));
+        rule_engine.register(Box::new(rules::korean::rule_41::Rule41));
+        rule_engine.register(Box::new(rules::korean::rule_56::Rule56));
+        rule_engine.register(Box::new(rules::korean::rule_57::Rule57));
+        rule_engine.register(Box::new(rules::korean::rule_58::Rule58));
+        rule_engine.register(Box::new(rules::korean::rule_60::Rule60));
+        rule_engine.register(Box::new(rules::korean::rule_49::Rule49));
+        rule_engine.register(Box::new(rules::korean::rule_space::RuleSpace));
+        rule_engine.register(Box::new(rules::korean::rule_math::RuleMath));
+        rule_engine.register(Box::new(rules::korean::rule_fraction::RuleFraction));
 
         // ── InterCharacter ───────────────────────────────
-        rule_engine.register(Box::new(rules::rule_11::Rule11));
-        rule_engine.register(Box::new(rules::rule_12::Rule12));
+        rule_engine.register(Box::new(rules::korean::rule_11::Rule11));
+        rule_engine.register(Box::new(rules::korean::rule_12::Rule12));
 
         let mut token_engine = rules::token_engine::TokenRuleEngine::new();
         token_engine.register(Box::new(

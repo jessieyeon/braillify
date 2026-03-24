@@ -422,7 +422,7 @@ mod tests {
     use std::borrow::Cow;
 
     use crate::encode;
-    use crate::rules::rule_1::Rule1;
+    use crate::rules::korean::rule_1::Rule1;
     use crate::utils;
 
     use super::*;
@@ -435,35 +435,35 @@ mod tests {
 
     fn make_char_engine() -> RuleEngine {
         let mut engine = RuleEngine::new();
-        engine.register(Box::new(crate::rules::rule_53::Rule53));
-        engine.register(Box::new(crate::rules::rule_18::Rule18));
-        engine.register(Box::new(crate::rules::rule_29::Rule29));
-        engine.register(Box::new(crate::rules::rule_44::Rule44));
-        engine.register(Box::new(crate::rules::rule_16::Rule16));
-        engine.register(Box::new(crate::rules::rule_14::Rule14));
-        engine.register(Box::new(crate::rules::rule_13::Rule13));
-        engine.register(Box::new(crate::rules::rule_korean::RuleKorean));
-        engine.register(Box::new(crate::rules::rule_28::Rule28));
-        engine.register(Box::new(crate::rules::rule_40::Rule40));
-        engine.register(Box::new(crate::rules::rule_8::Rule8));
+        engine.register(Box::new(crate::rules::korean::rule_53::Rule53));
+        engine.register(Box::new(crate::rules::korean::rule_18::Rule18));
+        engine.register(Box::new(crate::rules::korean::rule_29::Rule29));
+        engine.register(Box::new(crate::rules::korean::rule_44::Rule44));
+        engine.register(Box::new(crate::rules::korean::rule_16::Rule16));
+        engine.register(Box::new(crate::rules::korean::rule_14::Rule14));
+        engine.register(Box::new(crate::rules::korean::rule_13::Rule13));
+        engine.register(Box::new(crate::rules::korean::rule_korean::RuleKorean));
+        engine.register(Box::new(crate::rules::korean::rule_28::Rule28));
+        engine.register(Box::new(crate::rules::korean::rule_40::Rule40));
+        engine.register(Box::new(crate::rules::korean::rule_8::Rule8));
         engine.register(Box::new(Rule1));
-        engine.register(Box::new(crate::rules::rule_2::Rule2));
-        engine.register(Box::new(crate::rules::rule_3::Rule3));
+        engine.register(Box::new(crate::rules::korean::rule_2::Rule2));
+        engine.register(Box::new(crate::rules::korean::rule_3::Rule3));
         engine.register(Box::new(
-            crate::rules::rule_english_symbol::RuleEnglishSymbol,
+            crate::rules::korean::rule_english_symbol::RuleEnglishSymbol,
         ));
-        engine.register(Box::new(crate::rules::rule_61::Rule61));
-        engine.register(Box::new(crate::rules::rule_41::Rule41));
-        engine.register(Box::new(crate::rules::rule_56::Rule56));
-        engine.register(Box::new(crate::rules::rule_57::Rule57));
-        engine.register(Box::new(crate::rules::rule_58::Rule58));
-        engine.register(Box::new(crate::rules::rule_60::Rule60));
-        engine.register(Box::new(crate::rules::rule_49::Rule49));
-        engine.register(Box::new(crate::rules::rule_space::RuleSpace));
-        engine.register(Box::new(crate::rules::rule_math::RuleMath));
-        engine.register(Box::new(crate::rules::rule_fraction::RuleFraction));
-        engine.register(Box::new(crate::rules::rule_11::Rule11));
-        engine.register(Box::new(crate::rules::rule_12::Rule12));
+        engine.register(Box::new(crate::rules::korean::rule_61::Rule61));
+        engine.register(Box::new(crate::rules::korean::rule_41::Rule41));
+        engine.register(Box::new(crate::rules::korean::rule_56::Rule56));
+        engine.register(Box::new(crate::rules::korean::rule_57::Rule57));
+        engine.register(Box::new(crate::rules::korean::rule_58::Rule58));
+        engine.register(Box::new(crate::rules::korean::rule_60::Rule60));
+        engine.register(Box::new(crate::rules::korean::rule_49::Rule49));
+        engine.register(Box::new(crate::rules::korean::rule_space::RuleSpace));
+        engine.register(Box::new(crate::rules::korean::rule_math::RuleMath));
+        engine.register(Box::new(crate::rules::korean::rule_fraction::RuleFraction));
+        engine.register(Box::new(crate::rules::korean::rule_11::Rule11));
+        engine.register(Box::new(crate::rules::korean::rule_12::Rule12));
         engine
     }
 

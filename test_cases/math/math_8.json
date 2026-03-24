@@ -1,0 +1,14 @@
+[
+  {
+    "input": "0.17",
+    "internal": "#j4ag",
+    "expected": "602650127",
+    "unicode": "⠼⠚⠲⠁⠛"
+  },
+  {
+    "input": ".47",
+    "internal": "#4dg",
+    "expected": "60502527",
+    "unicode": "⠼⠲⠙⠛"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "input": "3/4",
+    "internal": "#d/#c",
+    "expected": "602512609",
+    "unicode": "⠼⠙⠌⠼⠉"
+  },
+  {
+    "input": "3⅙",
+    "internal": "#c#f/#a",
+    "expected": "609601112601",
+    "unicode": "⠼⠉⠼⠋⠌⠼⠁"
+  },
+  {
+    "input": "2/3",
+    "internal": "#b_/#c",
+    "expected": "6035612609",
+    "unicode": "⠼⠃⠸⠌⠼⠉"
+  }
+]

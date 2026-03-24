@@ -1,0 +1,20 @@
+[
+  {
+    "input": "sinhx",
+    "internal": "6shx",
+    "expected": "22141945",
+    "unicode": "⠖⠎⠓⠭"
+  },
+  {
+    "input": "coshx",
+    "internal": "6chx",
+    "expected": "2291945",
+    "unicode": "⠖⠉⠓⠭"
+  },
+  {
+    "input": "tanhx",
+    "internal": "6thx",
+    "expected": "22301945",
+    "unicode": "⠖⠞⠓⠭"
+  }
+]

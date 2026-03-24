@@ -1,0 +1,14 @@
+[
+  {
+    "input": "G ▷ N",
+    "internal": ",g`_>`,n",
+    "expected": "32270562803229",
+    "unicode": "⠠⠛⠀⠸⠜⠀⠠⠝"
+  },
+  {
+    "input": "N ◁ G",
+    "internal": ",n`_<`,g",
+    "expected": "32290563503227",
+    "unicode": "⠠⠝⠀⠸⠣⠀⠠⠛"
+  }
+]

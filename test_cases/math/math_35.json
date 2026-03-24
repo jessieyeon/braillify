@@ -1,0 +1,8 @@
+[
+  {
+    "input": "∠ABC",
+    "internal": "?,,abc",
+    "expected": "573232139",
+    "unicode": "⠹⠠⠠⠁⠃⠉"
+  }
+]

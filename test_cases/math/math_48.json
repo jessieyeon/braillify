@@ -1,0 +1,14 @@
+[
+  {
+    "input": "arcsinA",
+    "internal": "arc6s,a",
+    "expected": "12392214321",
+    "unicode": "⠁⠗⠉⠖⠎⠠⠁"
+  },
+  {
+    "input": "sin⁻¹A",
+    "internal": "6s^9#a,a",
+    "expected": "22142420601321",
+    "unicode": "⠖⠎⠘⠔⠼⠁⠠⠁"
+  }
+]

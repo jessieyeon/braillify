@@ -1,0 +1,14 @@
+[
+  {
+    "input": "△ABC",
+    "internal": "_+,,abc",
+    "expected": "56443232139",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉"
+  },
+  {
+    "input": "□ABCD",
+    "internal": "_7,,abcd",
+    "expected": "5654323213925",
+    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙"
+  }
+]

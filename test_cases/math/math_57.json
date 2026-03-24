@@ -1,0 +1,8 @@
+[
+  {
+    "input": "∫(a,b) f(x)dx",
+    "internal": "!;a`b`f8x0dx",
+    "expected": "46481030113845522545",
+    "unicode": "⠮⠰⠁⠀⠃⠀⠋⠦⠭⠴⠙⠭"
+  }
+]

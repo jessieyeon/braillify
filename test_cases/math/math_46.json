@@ -1,0 +1,26 @@
+[
+  {
+    "input": "log₅2",
+    "internal": "_,5#b",
+    "expected": "563234603",
+    "unicode": "⠸⠠⠢⠼⠃"
+  },
+  {
+    "input": "log2",
+    "internal": "_#b",
+    "expected": "56603",
+    "unicode": "⠸⠼⠃"
+  },
+  {
+    "input": "logₐn",
+    "internal": "_;an",
+    "expected": "5648129",
+    "unicode": "⠸⠰⠁⠝"
+  },
+  {
+    "input": "lnx=log_ex",
+    "internal": "lnx33_;ex",
+    "expected": "72945181856481745",
+    "unicode": "⠇⠝⠭⠒⠒⠸⠰⠑⠭"
+  }
+]

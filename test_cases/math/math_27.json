@@ -1,0 +1,14 @@
+[
+  {
+    "input": "4|8",
+    "internal": "#d\\#h",
+    "expected": "6025516019",
+    "unicode": "⠼⠙⠳⠼⠓"
+  },
+  {
+    "input": "2∤3",
+    "internal": "#b.\\#c",
+    "expected": "6034051609",
+    "unicode": "⠼⠃⠨⠳⠼⠉"
+  }
+]

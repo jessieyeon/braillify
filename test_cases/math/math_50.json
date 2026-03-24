@@ -1,0 +1,14 @@
+[
+  {
+    "input": "n → ∞",
+    "internal": "n`3o`=",
+    "expected": "2901821063",
+    "unicode": "⠝⠀⠒⠕⠀⠿"
+  },
+  {
+    "input": "-∞",
+    "internal": "9=",
+    "expected": "2063",
+    "unicode": "⠔⠿"
+  }
+]

@@ -1,0 +1,8 @@
+[
+  {
+    "input": "√2",
+    "internal": ">#b",
+    "expected": "28603",
+    "unicode": "⠜⠼⠃"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "input": "a",
+    "internal": "a",
+    "expected": "1",
+    "unicode": "⠁"
+  },
+  {
+    "input": "x",
+    "internal": "x",
+    "expected": "45",
+    "unicode": "⠭"
+  },
+  {
+    "input": "z",
+    "internal": "z",
+    "expected": "53",
+    "unicode": "⠵"
+  }
+]

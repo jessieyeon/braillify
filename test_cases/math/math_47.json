@@ -1,0 +1,20 @@
+[
+  {
+    "input": "sin3x",
+    "internal": "6s(#cx)",
+    "expected": "2214556094562",
+    "unicode": "⠖⠎⠷⠼⠉⠭⠾"
+  },
+  {
+    "input": "2cosx",
+    "internal": "#b6cx",
+    "expected": "60322945",
+    "unicode": "⠼⠃⠖⠉⠭"
+  },
+  {
+    "input": "sin²x+cos²x=1",
+    "internal": "6s^#bx56c^#bx33#a",
+    "expected": "221424603453422924603451818601",
+    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁"
+  }
+]

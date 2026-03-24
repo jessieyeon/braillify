@@ -1,0 +1,26 @@
+[
+  {
+    "input": "37+25",
+    "internal": "#cg5#be",
+    "expected": "609273460317",
+    "unicode": "⠼⠉⠛⠢⠼⠃⠑"
+  },
+  {
+    "input": "23-18",
+    "internal": "#bc9#ah",
+    "expected": "60392060119",
+    "unicode": "⠼⠃⠉⠔⠼⠁⠓"
+  },
+  {
+    "input": "13×3",
+    "internal": "#ac*#c",
+    "expected": "601933609",
+    "unicode": "⠼⠁⠉⠡⠼⠉"
+  },
+  {
+    "input": "72÷8",
+    "internal": "#gb//#h",
+    "expected": "6027312126019",
+    "unicode": "⠼⠛⠃⠌⠌⠼⠓"
+  }
+]

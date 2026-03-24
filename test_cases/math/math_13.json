@@ -1,0 +1,38 @@
+[
+  {
+    "input": "α",
+    "internal": ".a",
+    "expected": "401",
+    "unicode": "⠨⠁"
+  },
+  {
+    "input": "β",
+    "internal": ".b",
+    "expected": "403",
+    "unicode": "⠨⠃"
+  },
+  {
+    "input": "π",
+    "internal": ".p",
+    "expected": "4015",
+    "unicode": "⠨⠏"
+  },
+  {
+    "input": "θ",
+    "internal": ".?",
+    "expected": "4057",
+    "unicode": "⠨⠹"
+  },
+  {
+    "input": "σ",
+    "internal": ".s",
+    "expected": "4014",
+    "unicode": "⠨⠎"
+  },
+  {
+    "input": "ω",
+    "internal": ".w",
+    "expected": "4058",
+    "unicode": "⠨⠺"
+  }
+]

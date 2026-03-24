@@ -1,0 +1,32 @@
+[
+  {
+    "input": "y≠0",
+    "internal": "y.33#j",
+    "expected": "614018186026",
+    "unicode": "⠽⠨⠒⠒⠼⠚"
+  },
+  {
+    "input": "a>b",
+    "internal": "a55b",
+    "expected": "134343",
+    "unicode": "⠁⠢⠢⠃"
+  },
+  {
+    "input": "x<0",
+    "internal": "x99#j",
+    "expected": "4520206026",
+    "unicode": "⠭⠔⠔⠼⠚"
+  },
+  {
+    "input": "x≥5",
+    "internal": "x44#e",
+    "expected": "4550506017",
+    "unicode": "⠭⠲⠲⠼⠑"
+  },
+  {
+    "input": "x≤0",
+    "internal": "x66#j",
+    "expected": "4522226026",
+    "unicode": "⠭⠖⠖⠼⠚"
+  }
+]

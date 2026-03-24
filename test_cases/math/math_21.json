@@ -1,0 +1,8 @@
+[
+  {
+    "input": "|x|",
+    "internal": "\\x\\",
+    "expected": "514551",
+    "unicode": "⠳⠭⠳"
+  }
+]
