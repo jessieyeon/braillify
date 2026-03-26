@@ -52,5 +52,41 @@
     "internal": ".5x`p8x0",
     "expected": "403445015384552",
     "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴"
+  },
+  {
+    "input": "P∨¬P",
+    "internal": ",p`#`@9,p",
+    "expected": "3215060082032150",
+    "unicode": "⠠⠏⠀⠼⠀⠈⠔⠠⠏"
+  },
+  {
+    "input": "p ⇏ q",
+    "internal": "p`.33o`q",
+    "expected": "15040181821031",
+    "unicode": "⠏⠀⠨⠒⠒⠕⠀⠟"
+  },
+  {
+    "input": "p ⇄ q",
+    "internal": "p`[7o`q",
+    "expected": "15054182103100",
+    "unicode": "⠏⠀⠶⠒⠕⠀⠟"
+  },
+  {
+    "input": "p ↓ q",
+    "internal": "p`^3o`q",
+    "expected": "150241821031",
+    "unicode": "⠏⠀⠘⠒⠕⠀⠟"
+  },
+  {
+    "input": "p ↑ q",
+    "internal": "p`;3o`q",
+    "expected": "150481821031",
+    "unicode": "⠏⠀⠰⠒⠕⠀⠟"
+  },
+  {
+    "input": "∄x",
+    "internal": "..5x",
+    "expected": "4040344500",
+    "unicode": "⠨⠨⠢⠭"
   }
 ]

@@ -10,5 +10,23 @@
     "internal": "#c\"ab",
     "expected": "6091613",
     "unicode": "⠼⠉⠐⠁⠃"
+  },
+  {
+    "input": "y=f(x)",
+    "internal": "y33f8x0",
+    "expected": "611818113845452",
+    "unicode": "⠽⠒⠒⠋⠦⠭⠴"
+  },
+  {
+    "input": "f(x-1)",
+    "internal": "f8x9#a0",
+    "expected": "113845206015252",
+    "unicode": "⠋⠦⠭⠔⠼⠁⠴"
+  },
+  {
+    "input": "y=f⁻¹(x)",
+    "internal": "y33f^9#a8x0",
+    "expected": "6118181157206013845452",
+    "unicode": "⠽⠒⠒⠋⠬⠔⠼⠁⠦⠭⠴"
   }
 ]

@@ -4,5 +4,11 @@
     "internal": "\\x\\",
     "expected": "514551",
     "unicode": "⠳⠭⠳"
+  },
+  {
+    "input": "|2x+7|-8",
+    "internal": "\\#bx5#g\\9#h",
+    "expected": "51603453460275120601900",
+    "unicode": "⠳⠼⠃⠭⠢⠼⠛⠳⠔⠼⠓"
   }
 ]

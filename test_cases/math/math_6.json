@@ -16,5 +16,17 @@
     "internal": "y33('x,)",
     "expected": "611818554453262",
     "unicode": "⠽⠒⠒⠷⠄⠭⠠⠾"
+  },
+  {
+    "input": "√(xy)",
+    "internal": ">(xy)",
+    "expected": "28554561362",
+    "unicode": "⠜⠷⠭⠽⠾"
+  },
+  {
+    "input": "sin(x/6)",
+    "internal": "6s(#f/x)",
+    "expected": "221455601112455262",
+    "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾"
   }
 ]

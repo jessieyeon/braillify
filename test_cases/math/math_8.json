@@ -10,5 +10,29 @@
     "internal": "#4dg",
     "expected": "60502527",
     "unicode": "⠼⠲⠙⠛"
+  },
+  {
+    "input": "0.6̇",
+    "internal": "#j4@f",
+    "expected": "602650811",
+    "unicode": "⠼⠚⠲⠈⠋"
+  },
+  {
+    "input": "0.739̇",
+    "internal": "#j4g@ci",
+    "expected": "6026502789110",
+    "unicode": "⠼⠚⠲⠛⠈⠉⠊"
+  },
+  {
+    "input": "0.123̇",
+    "internal": "#j4@abc",
+    "expected": "60265081393",
+    "unicode": "⠼⠚⠲⠈⠁⠃⠉"
+  },
+  {
+    "input": ".9̇",
+    "internal": "#4@i",
+    "expected": "6050810",
+    "unicode": "⠼⠲⠈⠊"
   }
 ]

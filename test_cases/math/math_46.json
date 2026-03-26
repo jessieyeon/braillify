@@ -22,5 +22,23 @@
     "internal": "lnx33_;ex",
     "expected": "72945181856481745",
     "unicode": "⠇⠝⠭⠒⠒⠸⠰⠑⠭"
+  },
+  {
+    "input": "2log7",
+    "internal": "#b_#g",
+    "expected": "603566027",
+    "unicode": "⠼⠃⠸⠼⠛"
+  },
+  {
+    "input": "log(x+1)",
+    "internal": "_(x5#a)",
+    "expected": "56554534601622",
+    "unicode": "⠸⠷⠭⠢⠼⠁⠾"
+  },
+  {
+    "input": "log_e(2+h)",
+    "internal": "_;e8#b5h0",
+    "expected": "564817386034191952",
+    "unicode": "⠸⠰⠑⠦⠼⠃⠢⠓⠴"
   }
 ]

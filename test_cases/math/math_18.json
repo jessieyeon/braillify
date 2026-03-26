@@ -22,5 +22,29 @@
     "internal": "x^9#a",
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁"
+  },
+  {
+    "input": "aᵏ",
+    "internal": "a^k",
+    "expected": "1245",
+    "unicode": "⠁⠘⠅"
+  },
+  {
+    "input": "x⁷⁺⁹",
+    "internal": "x^(#g5#i)",
+    "expected": "452455602734601062",
+    "unicode": "⠭⠘⠷⠼⠛⠢⠼⠊⠾"
+  },
+  {
+    "input": "a³ᵐ⁺²ⁿ",
+    "internal": "a^(#cm5#bn)",
+    "expected": "1245560913343460329562",
+    "unicode": "⠁⠘⠷⠼⠉⠍⠢⠼⠃⠝⠾"
+  },
+  {
+    "input": "x⁰·³",
+    "internal": "x^#j4c",
+    "expected": "45246026509",
+    "unicode": "⠭⠘⠼⠚⠲⠉"
   }
 ]

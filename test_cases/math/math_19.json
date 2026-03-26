@@ -10,5 +10,29 @@
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝"
+  },
+  {
+    "input": "aₙ₊₃",
+    "internal": "a;(n5#c)",
+    "expected": "14855293460962",
+    "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾"
+  },
+  {
+    "input": "aₘ₊ₙ",
+    "internal": "a;(m5n)",
+    "expected": "148551334296200",
+    "unicode": "⠁⠰⠷⠍⠢⠝⠾"
+  },
+  {
+    "input": "x₀.₅",
+    "internal": "x;#j4e",
+    "expected": "454860265017",
+    "unicode": "⠭⠰⠼⠚⠲⠑"
+  },
+  {
+    "input": "S₂ₐ",
+    "internal": ",s;(#b\"a)",
+    "expected": "32144855603161622",
+    "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾"
   }
 ]

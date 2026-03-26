@@ -16,5 +16,29 @@
     "internal": "6s^#bx56c^#bx33#a",
     "expected": "221424603453422924603451818601",
     "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁"
+  },
+  {
+    "input": "sin(xy)",
+    "internal": "6s(xy)",
+    "expected": "2214554561622",
+    "unicode": "⠖⠎⠷⠭⠽⠾"
+  },
+  {
+    "input": "sin(x/6)",
+    "internal": "6s(#f/x)",
+    "expected": "2214556011124562",
+    "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾"
+  },
+  {
+    "input": "sin³x",
+    "internal": "6s^#cx",
+    "expected": "2214246094500",
+    "unicode": "⠖⠎⠘⠼⠉⠭"
+  },
+  {
+    "input": "sinx³",
+    "internal": "6sx^#c",
+    "expected": "221445246009",
+    "unicode": "⠖⠎⠭⠘⠼⠉"
   }
 ]

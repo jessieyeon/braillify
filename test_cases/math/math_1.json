@@ -22,5 +22,11 @@
     "internal": "#gb//#h",
     "expected": "6027312126019",
     "unicode": "⠼⠛⠃⠌⠌⠼⠓"
+  },
+  {
+    "input": "5,700,000",
+    "internal": "#e1gjj1jjj",
+    "expected": "6017627262626262626",
+    "unicode": "⠼⠑⠂⠛⠚⠚⠂⠚⠚⠚"
   }
 ]

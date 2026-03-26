@@ -4,5 +4,29 @@
     "internal": ">#b",
     "expected": "28603",
     "unicode": "⠜⠼⠃"
+  },
+  {
+    "input": "³√x³",
+    "internal": "#c]x^#c",
+    "expected": "6095945246009",
+    "unicode": "⠼⠉⠻⠭⠘⠼⠉"
+  },
+  {
+    "input": "⁵√32",
+    "internal": "#e]#cb",
+    "expected": "601759609300",
+    "unicode": "⠼⠑⠻⠼⠉⠃"
+  },
+  {
+    "input": "ᵐ√n",
+    "internal": "m]n",
+    "expected": "135929",
+    "unicode": "⠍⠻⠝"
+  },
+  {
+    "input": "√(xy)",
+    "internal": ">(xy)",
+    "expected": "285545616200",
+    "unicode": "⠜⠷⠭⠽⠾"
   }
 ]

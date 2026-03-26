@@ -58,5 +58,29 @@
     "internal": "#j",
     "expected": "6026",
     "unicode": "⠼⠚"
+  },
+  {
+    "input": "10",
+    "internal": "#aj",
+    "expected": "60126",
+    "unicode": "⠼⠁⠚"
+  },
+  {
+    "input": "99",
+    "internal": "#ii",
+    "expected": "601010",
+    "unicode": "⠼⠊⠊"
+  },
+  {
+    "input": "375",
+    "internal": "#cge",
+    "expected": "6092717",
+    "unicode": "⠼⠉⠛⠑"
+  },
+  {
+    "input": "100",
+    "internal": "#ajj",
+    "expected": "6012626",
+    "unicode": "⠼⠁⠚⠚"
   }
 ]

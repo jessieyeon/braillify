@@ -1,8 +1,8 @@
 [
   {
-    "input": "때",
-    "internal": "\"^,ir",
-    "expected": "1624321023",
-    "unicode": "⠐⠘⠠⠊⠗"
+    "input": "리더라",
+    "internal": "\"^@[\"ois\"<",
+    "expected": "1624842162110141635",
+    "unicode": "⠐⠘⠈⠪⠐⠕⠊⠎⠐⠣"
   }
 ]

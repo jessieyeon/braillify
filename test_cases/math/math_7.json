@@ -16,5 +16,29 @@
     "internal": "#b_/#c",
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉"
+  },
+  {
+    "input": "x+y̲",
+    "internal": "x5y/#a",
+    "expected": "4534611126601",
+    "unicode": "⠭⠢⠽⠌⠼⠁"
+  },
+  {
+    "input": "1̲/(x+y)",
+    "internal": "(x5y)/#a",
+    "expected": "554534611260126601",
+    "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁"
+  },
+  {
+    "input": "1̲/(ab)",
+    "internal": "(ab)/#a",
+    "expected": "55131362126601",
+    "unicode": "⠷⠁⠃⠾⠌⠼⠁"
+  },
+  {
+    "input": "ab̲/5",
+    "internal": "#e/(ab)",
+    "expected": "601712551336132",
+    "unicode": "⠼⠑⠌⠷⠁⠃⠾"
   }
 ]

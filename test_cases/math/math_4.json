@@ -28,5 +28,47 @@
     "internal": "x66#j",
     "expected": "4522226026",
     "unicode": "⠭⠖⠖⠼⠚"
+  },
+  {
+    "input": "x≯0",
+    "internal": "x.55#j",
+    "expected": "454034346026",
+    "unicode": "⠭⠨⠢⠢⠼⠚"
+  },
+  {
+    "input": "x≮y",
+    "internal": "x.99y",
+    "expected": "45402020611",
+    "unicode": "⠭⠨⠔⠔⠽"
+  },
+  {
+    "input": "-1<x<3",
+    "internal": "9#a99x99#c",
+    "expected": "2060120204520206009",
+    "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉"
+  },
+  {
+    "input": "-5<x<-2",
+    "internal": "9#e99x99#b",
+    "expected": "2060172045202060203",
+    "unicode": "⠔⠼⠑⠔⠔⠭⠔⠔⠼⠃"
+  },
+  {
+    "input": "x≱y",
+    "internal": "x.44y",
+    "expected": "45405050611",
+    "unicode": "⠭⠨⠲⠲⠽"
+  },
+  {
+    "input": "x≰y",
+    "internal": "x.66y",
+    "expected": "45402222611",
+    "unicode": "⠭⠨⠖⠖⠽"
+  },
+  {
+    "input": "-1≤sinx≤1",
+    "internal": "9#a666sx66#a",
+    "expected": "20601222221114452222601",
+    "unicode": "⠔⠼⠁⠖⠖⠼⠋⠎⠭⠖⠖⠼⠁"
   }
 ]

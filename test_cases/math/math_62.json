@@ -22,5 +22,29 @@
     "internal": ",c8#c`#b0",
     "expected": "32938609060352",
     "unicode": "⠠⠉⠦⠼⠉⠀⠼⠃⠴"
+  },
+  {
+    "input": "x!",
+    "internal": "x6",
+    "expected": "4522",
+    "unicode": "⠭⠖"
+  },
+  {
+    "input": "(7+4)!",
+    "internal": "8#g5#d06",
+    "expected": "38602734602552220",
+    "unicode": "⠦⠼⠛⠢⠼⠙⠴⠖"
+  },
+  {
+    "input": "(3n)!",
+    "internal": "8#cn06",
+    "expected": "38609292952220",
+    "unicode": "⠦⠼⠉⠝⠴⠖"
+  },
+  {
+    "input": "5!/3!",
+    "internal": "#c6/#e6",
+    "expected": "609221260172200",
+    "unicode": "⠼⠉⠖⠌⠼⠑⠖"
   }
 ]
