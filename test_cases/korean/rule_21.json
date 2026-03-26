@@ -1,18 +1,21 @@
 [
   {
     "input": "다니라",
+    "note": "닿는다",
     "internal": "i\"cc\"#co\"<",
     "expected": "10169916609211635",
     "unicode": "⠊⠐⠉⠉⠐⠼⠉⠕⠐⠣"
   },
   {
     "input": "",
+    "note": "하여금",
     "internal": "j\"#r\"gg:",
     "expected": "2616602316272749",
     "unicode": "⠚⠐⠼⠗⠐⠛⠛⠱"
   },
   {
     "input": "도",
+    "note": "도리어",
     "internal": "iu\"\"#\"jj:",
     "expected": "103716166016262649",
     "unicode": "⠊⠥⠐⠐⠼⠐⠚⠚⠱"

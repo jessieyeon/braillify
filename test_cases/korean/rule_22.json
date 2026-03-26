@@ -1,8 +1,86 @@
 [
   {
     "input": "리더라",
+    "note": "감싸더라, 보호하더라",
     "internal": "\"^@[\"ois\"<",
     "expected": "1624842162110141635",
     "unicode": "⠐⠘⠈⠪⠐⠕⠊⠎⠐⠣"
+  },
+  {
+    "input": "디시니",
+    "note": "뜻이시니",
+    "internal": "\"^I[IO,OCO",
+    "expected": "1624104210213221921",
+    "unicode": "⠐⠘⠊⠪⠊⠕⠠⠕⠉⠕"
+  },
+  {
+    "input": "호",
+    "note": "싸우는",
+    "internal": "\"^,<juc\"#3",
+    "expected": "1624323526379166018",
+    "unicode": "⠐⠘⠠⠣⠚⠥⠉⠐⠼⠒"
+  },
+  {
+    "input": "",
+    "note": "짝",
+    "internal": "\"^.<a",
+    "expected": "162440351",
+    "unicode": "⠐⠘⠨⠣⠁"
+  },
+  {
+    "input": "디며",
+    "note": "터지며",
+    "internal": "\"^hsioe:",
+    "expected": "1624191410211749",
+    "unicode": "⠐⠘⠓⠎⠊⠕⠑⠱"
+  },
+  {
+    "input": "",
+    "note": "틈",
+    "internal": "\"^,@[5",
+    "expected": "16243284234",
+    "unicode": "⠐⠘⠠⠈⠪⠢"
+  },
+  {
+    "input": "",
+    "note": "때, 시각",
+    "internal": "\"^,ir",
+    "expected": "1624321023",
+    "unicode": "⠐⠘⠠⠊⠗"
+  },
+  {
+    "input": "디여",
+    "note": "꺼져서, 무너져서",
+    "internal": "\",@sio:",
+    "expected": "1632814102149",
+    "unicode": "⠐⠠⠈⠎⠊⠕⠱"
+  },
+  {
+    "input": "",
+    "note": "사나이",
+    "internal": "\",c<j\"#r",
+    "expected": "163293526166023",
+    "unicode": "⠐⠠⠉⠣⠚⠐⠼⠗"
+  },
+  {
+    "input": "",
+    "note": "딸",
+    "internal": "\",i\"#1",
+    "expected": "16321016602",
+    "unicode": "⠐⠠⠊⠐⠼⠂"
+  },
+  {
+    "input": "나모",
+    "note": "뽕나무",
+    "internal": "\",^u\"4ceu",
+    "expected": "16322437165091737",
+    "unicode": "⠐⠠⠘⠥⠐⠲⠉⠑⠥"
+  },
+  {
+    "input": "여디고",
+    "note": "째어지고",
+    "internal": "\",.w:io@u",
+    "expected": "16324058491021837",
+    "unicode": "⠐⠠⠨⠺⠱⠊⠕⠈⠥"
   }
 ]
