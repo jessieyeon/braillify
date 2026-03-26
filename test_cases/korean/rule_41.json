@@ -1,7 +1,7 @@
 [
   {
     "input": "9,375명",
-    "internal": "#i1cge e]",
+    "internal": "#i1cge`e}",
     "expected": "601029271701759",
     "unicode": "⠼⠊⠂⠉⠛⠑⠀⠑⠻"
   },
@@ -13,7 +13,7 @@
   },
   {
     "input": "창세기 12,1-9",
-    "internal": ";<7,n@o #ab1a-#i",
+    "internal": ";<7,n@o`#ab1a-#i",
     "expected": "48355432298210601321366010",
     "unicode": "⠰⠣⠶⠠⠝⠈⠕⠀⠼⠁⠃⠂⠁⠤⠼⠊"
   }

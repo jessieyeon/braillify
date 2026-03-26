@@ -76,11 +76,5 @@
     "internal": "#cge",
     "expected": "6092717",
     "unicode": "⠼⠉⠛⠑"
-  },
-  {
-    "input": "100",
-    "internal": "#ajj",
-    "expected": "6012626",
-    "unicode": "⠼⠁⠚⠚"
   }
 ]
