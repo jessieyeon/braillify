@@ -1,203 +1,174 @@
 [
   {
     "input": "but",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "but",
     "expected": "33730",
     "unicode": "⠃⠥⠞"
   },
   {
     "input": "can",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "can",
     "expected": "9129",
     "unicode": "⠉⠁⠝"
   },
   {
     "input": "do",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "do",
     "expected": "2521",
     "unicode": "⠙⠕"
   },
   {
     "input": "every",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "\"ey",
     "expected": "161761",
     "unicode": "⠐⠑⠽"
   },
   {
     "input": "from",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "from",
     "expected": "11232113",
     "unicode": "⠋⠗⠕⠍"
   },
   {
     "input": "go",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "go",
     "expected": "2721",
     "unicode": "⠛⠕"
   },
   {
     "input": "have",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "have",
     "expected": "1913917",
     "unicode": "⠓⠁⠧⠑"
   },
   {
     "input": "just",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "ju/",
     "expected": "263712",
     "unicode": "⠚⠥⠌"
   },
   {
     "input": "knowledge",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "\"kl$ge",
     "expected": "1657432717",
     "unicode": "⠐⠅⠇⠫⠛⠑"
   },
   {
     "input": "like",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "like",
     "expected": "710517",
     "unicode": "⠇⠊⠅⠑"
   },
   {
     "input": "more",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "more",
     "expected": "13212317",
     "unicode": "⠍⠕⠗⠑"
   },
   {
     "input": "not",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "not",
     "expected": "292130",
     "unicode": "⠝⠕⠞"
   },
   {
     "input": "people",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "people",
     "expected": "15172115717",
     "unicode": "⠏⠑⠕⠏⠇⠑"
   },
   {
     "input": "quite",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "quite",
     "expected": "3137103017",
     "unicode": "⠟⠥⠊⠞⠑"
   },
   {
     "input": "rather",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "ra!r",
     "expected": "2314623",
     "unicode": "⠗⠁⠮⠗"
   },
   {
     "input": "so",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "so",
     "expected": "1421",
     "unicode": "⠎⠕"
   },
   {
     "input": "that",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "?at",
     "expected": "57130",
     "unicode": "⠹⠁⠞"
   },
   {
     "input": "us",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "us",
     "expected": "3714",
     "unicode": "⠥⠎"
   },
   {
     "input": "very",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "v}y",
     "expected": "395961",
     "unicode": "⠧⠻⠽"
   },
   {
     "input": "will",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "will",
     "expected": "581077",
     "unicode": "⠺⠊⠇⠇"
   },
   {
     "input": "it",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "it",
     "expected": "1030",
     "unicode": "⠊⠞"
   },
   {
     "input": "you",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "y\\",
     "expected": "6151",
     "unicode": "⠽⠳"
   },
   {
     "input": "as",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "as",
     "expected": "114",
     "unicode": "⠁⠎"
   },
   {
     "input": "be",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "be",
     "expected": "317",
     "unicode": "⠃⠑"
   },
   {
     "input": "enough",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "5\\<",
     "expected": "345135",
     "unicode": "⠢⠳⠣"
   },
   {
     "input": "his",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "his",
     "expected": "191014",
     "unicode": "⠓⠊⠎"
   },
   {
     "input": "in",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "in",
     "expected": "1029",
     "unicode": "⠊⠝"
   },
   {
     "input": "was",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "was",
     "expected": "58114",
     "unicode": "⠺⠁⠎"
   },
   {
     "input": "were",
-    "note": "로마자표 뒤 단어 약자 미사용",
     "internal": "w}e",
     "expected": "585917",
     "unicode": "⠺⠻⠑"
