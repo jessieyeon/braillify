@@ -1,5 +1,47 @@
 [
   {
+    "input": "￦",
+    "internal": "0@w",
+    "expected": "52858",
+    "unicode": "⠴⠈⠺"
+  },
+  {
+    "input": "$",
+    "internal": "0@s",
+    "expected": "52814",
+    "unicode": "⠴⠈⠎"
+  },
+  {
+    "input": "￠",
+    "internal": "0@C",
+    "expected": "5289",
+    "unicode": "⠴⠈⠉"
+  },
+  {
+    "input": "€",
+    "internal": "0@e",
+    "expected": "52817",
+    "unicode": "⠴⠈⠑"
+  },
+  {
+    "input": "￡",
+    "internal": "0@l",
+    "expected": "5287",
+    "unicode": "⠴⠈⠇"
+  },
+  {
+    "input": "₣",
+    "internal": "0@f",
+    "expected": "52811",
+    "unicode": "⠴⠈⠋"
+  },
+  {
+    "input": "￥",
+    "internal": "0@y",
+    "expected": "52861",
+    "unicode": "⠴⠈⠽"
+  },
+  {
     "input": "￦100,000",
     "internal": "0@w#ajj1jjj",
     "expected": "5285860126262262626",
@@ -22,5 +64,17 @@
     "internal": "0@l#hh",
     "expected": "5287601919",
     "unicode": "⠴⠈⠇⠼⠓⠓"
+  },
+  {
+    "input": "$1는 100￠이다.",
+    "internal": "0@s#a`cz`#ajj0@c`oi4",
+    "expected": "5281460109530601262652890211050",
+    "unicode": "⠴⠈⠎⠼⠁⠀⠉⠵⠀⠼⠁⠚⠚⠴⠈⠉⠀⠕⠊⠲"
+  },
+  {
+    "input": "€는 유럽 연합의 화폐 단위를 나타내는 기호이다.",
+    "internal": "0@e`cz`%\"sb`*jbw`jvd/`i3mr\"!`chcrcz`@ojuoi4",
+    "expected": "52817095304116143033263580263925120101813231646091992395308212637211050",
+    "unicode": "⠴⠈⠑⠀⠉⠵⠀⠩⠐⠎⠃⠀⠡⠚⠃⠺⠀⠚⠧⠙⠌⠀⠊⠒⠍⠗⠐⠮⠀⠉⠓⠉⠗⠉⠵⠀⠈⠕⠚⠥⠕⠊⠲"
   }
 ]
