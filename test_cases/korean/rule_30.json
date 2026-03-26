@@ -203,11 +203,137 @@
     "unicode": "⠠⠨⠙"
   },
   {
+    "input": "Ε",
+    "note": "엡실론 대문자",
+    "internal": ",.e",
+    "expected": "324017",
+    "unicode": "⠠⠨⠑"
+  },
+  {
+    "input": "Ζ",
+    "note": "제타 대문자",
+    "internal": ",.z",
+    "expected": "324053",
+    "unicode": "⠠⠨⠵"
+  },
+  {
+    "input": "Η",
+    "note": "에타 대문자",
+    "internal": ",.:",
+    "expected": "324049",
+    "unicode": "⠠⠨⠱"
+  },
+  {
+    "input": "Θ",
+    "note": "세타 대문자",
+    "internal": ",.?",
+    "expected": "324057",
+    "unicode": "⠠⠨⠹"
+  },
+  {
+    "input": "Ι",
+    "note": "요타 대문자",
+    "internal": ",.i",
+    "expected": "324010",
+    "unicode": "⠠⠨⠊"
+  },
+  {
+    "input": "Κ",
+    "note": "카파 대문자",
+    "internal": ",.k",
+    "expected": "32405",
+    "unicode": "⠠⠨⠅"
+  },
+  {
+    "input": "Λ",
+    "note": "람다 대문자",
+    "internal": ",.l",
+    "expected": "32407",
+    "unicode": "⠠⠨⠇"
+  },
+  {
+    "input": "Μ",
+    "note": "뮤 대문자",
+    "internal": ",.m",
+    "expected": "324013",
+    "unicode": "⠠⠨⠍"
+  },
+  {
+    "input": "Ν",
+    "note": "뉴 대문자",
+    "internal": ",.n",
+    "expected": "324029",
+    "unicode": "⠠⠨⠝"
+  },
+  {
+    "input": "Ξ",
+    "note": "크시 대문자",
+    "internal": ",.x",
+    "expected": "324045",
+    "unicode": "⠠⠨⠭"
+  },
+  {
+    "input": "Ο",
+    "note": "오미크론 대문자",
+    "internal": ",.o",
+    "expected": "324021",
+    "unicode": "⠠⠨⠕"
+  },
+  {
+    "input": "Π",
+    "note": "파이 대문자",
+    "internal": ",.p",
+    "expected": "324015",
+    "unicode": "⠠⠨⠏"
+  },
+  {
+    "input": "Ρ",
+    "note": "로 대문자",
+    "internal": ",.r",
+    "expected": "324023",
+    "unicode": "⠠⠨⠗"
+  },
+  {
     "input": "Σ",
     "note": "시그마 대문자",
     "internal": ",.s",
     "expected": "324014",
     "unicode": "⠠⠨⠎"
+  },
+  {
+    "input": "Τ",
+    "note": "타우 대문자",
+    "internal": ",.t",
+    "expected": "324030",
+    "unicode": "⠠⠨⠞"
+  },
+  {
+    "input": "Υ",
+    "note": "입실론 대문자",
+    "internal": ",.u",
+    "expected": "324037",
+    "unicode": "⠠⠨⠥"
+  },
+  {
+    "input": "Φ",
+    "note": "피 대문자",
+    "internal": ",.f",
+    "expected": "324011",
+    "unicode": "⠠⠨⠋"
+  },
+  {
+    "input": "Χ",
+    "note": "키 대문자",
+    "internal": ",.&",
+    "expected": "324047",
+    "unicode": "⠠⠨⠯"
+  },
+  {
+    "input": "Ψ",
+    "note": "프시 대문자",
+    "internal": ",.y",
+    "expected": "324061",
+    "unicode": "⠠⠨⠽"
   },
   {
     "input": "Ω",
