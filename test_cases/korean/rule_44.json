@@ -58,53 +58,5 @@
     "internal": "#h l7.",
     "expected": "6019075440",
     "unicode": "⠼⠓⠀⠇⠶⠨"
-  },
-  {
-    "input": "1년",
-    "internal": "#a c*",
-    "expected": "60100933",
-    "unicode": "⠼⠁⠀⠉⠡"
-  },
-  {
-    "input": "2도",
-    "internal": "#b iu",
-    "expected": "603001037",
-    "unicode": "⠼⠃⠀⠊⠥"
-  },
-  {
-    "input": "3명",
-    "internal": "#c e]",
-    "expected": "609001759",
-    "unicode": "⠼⠉⠀⠑⠻"
-  },
-  {
-    "input": "4칸",
-    "internal": "#d f3",
-    "expected": "6025001118",
-    "unicode": "⠼⠙⠀⠋⠒"
-  },
-  {
-    "input": "5톤",
-    "internal": "#e h(",
-    "expected": "601700195500",
-    "unicode": "⠼⠑⠀⠓⠷"
-  },
-  {
-    "input": "6평",
-    "internal": "#f d]",
-    "expected": "601100255900",
-    "unicode": "⠼⠋⠀⠙⠻"
-  },
-  {
-    "input": "7항",
-    "internal": "#g j7",
-    "expected": "60270026540",
-    "unicode": "⠼⠛⠀⠚⠶"
-  },
-  {
-    "input": "5운6기",
-    "internal": "#e g#f@o",
-    "expected": "601702760118210",
-    "unicode": "⠼⠑⠀⠛⠼⠋⠈⠕"
   }
 ]

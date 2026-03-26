@@ -25,7 +25,7 @@
   },
   {
     "input": "3·1 운동",
-    "internal": "#c\"2#a gi=",
+    "internal": "#c\"2#a`gi=",
     "expected": "6091666010271063",
     "unicode": "⠼⠉⠐⠆⠼⠁⠀⠛⠊⠿"
   },
