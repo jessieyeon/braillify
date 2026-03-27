@@ -1,5 +1,40 @@
 [
   {
+    "input": "→",
+    "note": "오른쪽 화살표",
+    "internal": "3o",
+    "expected": "1821",
+    "unicode": "⠒⠕"
+  },
+  {
+    "input": "←",
+    "note": "왼쪽 화살표",
+    "internal": "[3",
+    "expected": "4218",
+    "unicode": "⠪⠒"
+  },
+  {
+    "input": "↔",
+    "note": "양쪽 화살표",
+    "internal": "[3o",
+    "expected": "421821",
+    "unicode": "⠪⠒⠕"
+  },
+  {
+    "input": "↓",
+    "note": "아래쪽 화살표",
+    "internal": "^3o",
+    "expected": "241821",
+    "unicode": "⠘⠒⠕"
+  },
+  {
+    "input": "↑",
+    "note": "위쪽 화살표",
+    "internal": ";3o",
+    "expected": "481821",
+    "unicode": "⠰⠒⠕"
+  },
+  {
     "input": "부산 → 서울",
     "internal": "~ml3`3o`,s&",
     "expected": "2413718018210321447",
