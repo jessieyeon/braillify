@@ -1,50 +1,92 @@
 [
   {
     "input": "@",
+    "note": "골뱅이 기호",
     "internal": "@a",
     "expected": "81",
     "unicode": "⠈⠁"
   },
   {
     "input": "^",
+    "note": "캐럿",
     "internal": "@5",
     "expected": "834",
     "unicode": "⠈⠢"
   },
   {
     "input": "#",
+    "note": "숫자 기호",
     "internal": "_?",
     "expected": "5657",
     "unicode": "⠸⠹"
   },
   {
     "input": "_",
+    "note": "아래선",
     "internal": "_-",
     "expected": "5636",
     "unicode": "⠸⠤"
   },
   {
     "input": "\\",
+    "note": "역빗금",
     "internal": "_*",
     "expected": "5633",
     "unicode": "⠸⠡"
   },
   {
     "input": "|",
+    "note": "세로선",
     "internal": "_\\",
     "expected": "5651",
     "unicode": "⠸⠳"
   },
   {
     "input": "&",
+    "note": "앰퍼샌드",
     "internal": "@&",
     "expected": "847",
     "unicode": "⠈⠯"
   },
   {
-    "input": "저자 | 홍길동",
-    "internal": ".s.`_|`j=@o1i=",
-    "expected": "401440056510266382121063",
-    "unicode": "⠨⠎⠨⠀⠸⠳⠀⠚⠿⠈⠕⠂⠊⠿"
+    "input": "§",
+    "note": "섹션 기호",
+    "internal": "@&",
+    "expected": "2414",
+    "unicode": "⠘⠎"
+  },
+  {
+    "input": "¶",
+    "note": "문단 기호",
+    "internal": "^p",
+    "expected": "2415",
+    "unicode": "⠘⠏"
+  },
+  {
+    "input": "©",
+    "note": "저작권 기호",
+    "internal": "^c",
+    "expected": "249",
+    "unicode": "⠘⠉"
+  },
+  {
+    "input": "®",
+    "note": "등록록 상표",
+    "internal": "^r",
+    "expected": "2423",
+    "unicode": "⠘⠗"
+  },
+  {
+    "input": "™",
+    "note": "상표 기호",
+    "internal": "^t",
+    "expected": "2430",
+    "unicode": "⠘⠞"
+  },
+  {
+    "input": "인터넷에서 누군가에게 답장을 쓸 때 사용자 이름 앞에 @를 쓴다.",
+    "internal": "qhscn'n,s`cm@g$n@n`ib.7!`,,!`,ir`l+7.`o\"{5`<4n`@a\"!`,,zi4",
+    "expected": "311914929429321409138274329829010340544603232460321023074454400211642340355029081164603232531050",
+    "unicode": "⠟⠓⠎⠉⠝⠄⠝⠠⠎⠀⠉⠍⠈⠛⠫⠝⠈⠝⠀⠊⠃⠨⠶⠮⠀⠠⠠⠮⠀⠠⠊⠗⠀⠇⠬⠶⠨⠀⠕⠐⠪⠢⠀⠣⠲⠝⠀⠈⠁⠐⠮⠀⠠⠠⠵⠊⠲"
   }
 ]
