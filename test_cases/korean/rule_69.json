@@ -61,8 +61,108 @@
   },
   {
     "input": "%",
+    "note": "퍼센트",
     "internal": "0p",
     "expected": "5215",
     "unicode": "⠴⠏"
+  },
+  {
+    "input": "%p",
+    "note": "퍼센트포인트",
+    "internal": "0pp",
+    "expected": "521515",
+    "unicode": "⠴⠏⠏"
+  },
+  {
+    "input": "‰",
+    "note": "퍼밀",
+    "internal": "0pm",
+    "expected": "521513",
+    "unicode": "⠴⠏⠍"
+  },
+  {
+    "input": "%ile",
+    "note": "퍼센타일",
+    "internal": "0pt",
+    "expected": "521530",
+    "unicode": "⠴⠏⠞"
+  },
+  {
+    "input": "°",
+    "note": "도",
+    "internal": "0d",
+    "expected": "5225",
+    "unicode": "⠴⠙"
+  },
+  {
+    "input": "℃",
+    "note": "섭씨온도",
+    "internal": "0d,c",
+    "expected": "5225329",
+    "unicode": "⠴⠙⠠⠉"
+  },
+  {
+    "input": "℉",
+    "note": "화씨온도",
+    "internal": "0d,f",
+    "expected": "52253211",
+    "unicode": "⠴⠙⠠⠋"
+  },
+  {
+    "input": "′",
+    "note": "분, 피트",
+    "internal": "0-",
+    "expected": "5236",
+    "unicode": "⠴⠤"
+  },
+  {
+    "input": "″",
+    "note": "초, 인치",
+    "internal": "0--",
+    "expected": "523636",
+    "unicode": "⠴⠤⠤"
+  },
+  {
+    "input": "Å",
+    "note": "옹스트롬",
+    "internal": "0*",
+    "expected": "5233",
+    "unicode": "⠴⠡"
+  },
+  {
+    "input": "5 %와 6 %의 차이는 1 %p다.",
+    "internal": "#e`0p`v`#f`0p`w`;<ocz`#a`0pp`i4",
+    "expected": "601705215039060110521505804835219530601052151501050",
+    "unicode": "⠼⠑⠀⠴⠏⠀⠧⠀⠼⠋⠀⠴⠏⠀⠺⠀⠰⠣⠕⠉⠵⠀⠼⠁⠀⠴⠏⠏⠀⠊⠲"
+  },
+  {
+    "input": "연 강수량의 10%에 해당한다.",
+    "internal": "*`$7,m\">7w`#aj0p`n`jri7j3i4",
+    "expected": "3304354321316285458060126521502902623105426181050",
+    "unicode": "⠡⠀⠫⠶⠠⠍⠐⠜⠶⠺⠀⠼⠁⠚⠴⠏⠀⠝⠀⠚⠗⠊⠶⠚⠒⠊⠲"
+  },
+  {
+    "input": "직각은 90°이다.",
+    "internal": ".oa$az`#ij0d`oi4",
+    "expected": "4021143153060102652250211050",
+    "unicode": "⠨⠕⠁⠫⠁⠵⠀⠼⠊⠚⠴⠙⠀⠕⠊⠲"
+  },
+  {
+    "input": "물은 100 ℃에서 끓는다.",
+    "internal": "e&z`#ajj`0d,c`n,s`,@!0czi4",
+    "expected": "17475306012626052253290293214032846529531050",
+    "unicode": "⠑⠯⠵⠀⠼⠁⠚⠚⠀⠴⠙⠠⠉⠀⠝⠠⠎⠀⠠⠈⠮⠴⠉⠵⠊⠲"
+  },
+  {
+    "input": "80 ㎞/시",
+    "internal": "#hj`0km4_/,o",
+    "expected": "6019260525135056123221",
+    "unicode": "⠼⠓⠚⠀⠴⠅⠍⠲⠸⠌⠠⠕"
+  },
+  {
+    "input": "80킬로미터/h",
+    "internal": "#hj`fo1\"ueohs_/0h4",
+    "expected": "6019260112121637172119145612521950",
+    "unicode": "⠼⠓⠚⠀⠋⠕⠂⠐⠥⠑⠕⠓⠎⠸⠌⠴⠓⠲"
   }
 ]
