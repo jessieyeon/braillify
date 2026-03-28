@@ -6,6 +6,12 @@
     "unicode": "⠼⠙⠌⠼⠉"
   },
   {
+    "input": "¾",
+    "internal": "#d/#c",
+    "expected": "602512609",
+    "unicode": "⠼⠙⠌⠼⠉"
+  },
+  {
     "input": "$\\frac{3}{4}$",
     "internal": "#d/#c",
     "expected": "602512609",
@@ -26,10 +32,17 @@
     "note": "LaTeX"
   },
   {
-    "input": "$3\\frac{1}{6}$",
+    "input": "3⅙",
     "internal": "#c#f/#a",
     "expected": "609601112601",
     "unicode": "⠼⠉⠼⠋⠌⠼⠁"
+  },
+  {
+    "input": "$3\\frac{1}{6}$",
+    "internal": "#c#f/#a",
+    "expected": "609601112601",
+    "unicode": "⠼⠉⠼⠋⠌⠼⠁",
+    "note": "LaTeX"
   },
   {
     "input": "학생들 가운데 $\\frac{3}{5}$은 피자를 주문했고, $\\frac{2}{5}$는 햄버거를 주문했다.",

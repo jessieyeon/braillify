@@ -25,7 +25,7 @@
     "unicode": "⠔⠿"
   },
   {
-    "input": "$\\-\\infty$",
+    "input": "$-\\infty$",
     "internal": "9=",
     "expected": "2063",
     "unicode": "⠔⠿",

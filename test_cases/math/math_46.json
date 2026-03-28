@@ -98,6 +98,7 @@
     "input": "$\\log_a(V/U)$",
     "internal": "_;A(V/U)",
     "expected": "564815539123762",
-    "unicode": "⠸⠰⠁⠷⠧⠌⠥⠾"
+    "unicode": "⠸⠰⠁⠷⠧⠌⠥⠾",
+    "note": "LaTeX"
   }
 ]

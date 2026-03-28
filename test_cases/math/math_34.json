@@ -12,15 +12,17 @@
     "unicode": "⠁⠈⠔⠃"
   },
   {
-    "input": "$\\a \\not\\mathrel{R} b$",
+    "input": "$a \\not\\mathrel{R} b$",
     "internal": "a.,Rb",
     "expected": "14032233",
-    "unicode": "⠁⠨⠠⠗⠃"
+    "unicode": "⠁⠨⠠⠗⠃",
+    "note": "LaTeX"
   },
   {
-    "input": "$\\a \\not\\sim b$",
+    "input": "$a \\not\\sim b$",
     "internal": "a.@9b",
     "expected": "1408203",
-    "unicode": "⠁⠨⠈⠔⠃"
+    "unicode": "⠁⠨⠈⠔⠃",
+    "note": "LaTeX"
   }
 ]

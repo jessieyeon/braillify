@@ -25,7 +25,7 @@
     "unicode": "⠽⠤⠤⠒⠒⠙⠭⠘⠼⠃⠌⠙⠘⠼⠃⠽"
   },
   {
-    "input": "$\\y''=d^2x/d^2y$",
+    "input": "$y''=d^2x/d^2y$",
     "note": "LaTeX",
     "internal": "y--33dx^#b/d^#by",
     "expected": "613636181825452460312252460361",
@@ -52,7 +52,7 @@
     "unicode": "⠙⠘⠼⠃⠽⠒⠒⠋⠤⠤⠦⠭⠴⠙⠭⠘⠼⠃"
   },
   {
-    "input": "$\\d^2y=f''(x)dx^2$",
+    "input": "$d^2y=f''(x)dx^2$",
     "note": "LaTeX",
     "internal": "d^#by33f--8x0dx^#b",
     "expected": "2524603611818113636384552254524603",
@@ -65,7 +65,7 @@
     "unicode": "⠽⠤⠤⠤⠒⠒⠙⠭⠘⠼⠉⠌⠙⠘⠼⠉⠽"
   },
   {
-    "input": "$\\y'''=d^3x/d^3y$",
+    "input": "$y'''=d^3x/d^3y$",
     "note": "LaTeX",
     "internal": "y---33dx^#c/d^#cy",
     "expected": "61363636181825452460912252460961",
@@ -78,7 +78,7 @@
     "unicode": "⠽⠘⠦⠼⠙⠴⠒⠒⠙⠭⠘⠼⠙⠌⠙⠘⠼⠙⠽"
   },
   {
-    "input": "$\\y^4=d^4x/d^4y$",
+    "input": "$y^4=d^4x/d^4y$",
     "note": "LaTeX",
     "internal": "y^8#d033dx^#d/d^#dy",
     "expected": "61243860255218182545246025122524602561",
@@ -91,7 +91,7 @@
     "unicode": "⠽⠘⠦⠝⠴⠒⠒⠙⠭⠘⠝⠌⠙⠘⠝⠽"
   },
   {
-    "input": "$\\y^n=d^nx/d^ny$",
+    "input": "$y^n=d^nx/d^ny$",
     "note": "LaTeX",
     "internal": "y^8n033dx^n/d^ny",
     "expected": "61243829521818254524291225242961",

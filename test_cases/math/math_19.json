@@ -6,7 +6,7 @@
     "unicode": "⠭⠰⠼⠃"
   },
   {
-    "input": "$\\x_2$",
+    "input": "$x_2$",
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
@@ -19,7 +19,7 @@
     "unicode": "⠭⠰⠼⠃"
   },
   {
-    "input": "$\\x_{2}$",
+    "input": "$x_{2}$",
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
@@ -32,7 +32,7 @@
     "unicode": "⠁⠰⠝"
   },
   {
-    "input": "$\\a_n$",
+    "input": "$a_n$",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
@@ -45,7 +45,7 @@
     "unicode": "⠁⠰⠝"
   },
   {
-    "input": "$\\a_{n}$",
+    "input": "$a_{n}$",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
@@ -58,7 +58,7 @@
     "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾"
   },
   {
-    "input": "$\\a_{n+3}$",
+    "input": "$a_{n+3}$",
     "internal": "a;(n5#c)",
     "expected": "14855293460962",
     "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾",
@@ -71,7 +71,7 @@
     "unicode": "⠁⠰⠷⠍⠢⠝⠾"
   },
   {
-    "input": "$\\a_{m+n}$",
+    "input": "$a_{m+n}$",
     "internal": "a;(m5n)",
     "expected": "1485513342962",
     "unicode": "⠁⠰⠷⠍⠢⠝⠾",
@@ -84,7 +84,7 @@
     "unicode": "⠭⠰⠼⠚⠲⠑"
   },
   {
-    "input": "$\\x_0._5$",
+    "input": "$x_{0.5}$",
     "internal": "x;#j4e",
     "expected": "454860265017",
     "unicode": "⠭⠰⠼⠚⠲⠑",
@@ -97,7 +97,7 @@
     "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾"
   },
   {
-    "input": "$\\S_{2a}$",
+    "input": "$S_{2a}$",
     "internal": ",s;(#b\"a)",
     "expected": "3214485560316162",
     "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾",

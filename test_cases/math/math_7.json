@@ -6,6 +6,12 @@
     "unicode": "⠼⠙⠌⠼⠉"
   },
   {
+    "input": "¾",
+    "internal": "#d/#c",
+    "expected": "602512609",
+    "unicode": "⠼⠙⠌⠼⠉"
+  },
+  {
     "input": "$\\frac{3}{4}$",
     "internal": "#d/#c",
     "expected": "602512609",
@@ -19,7 +25,7 @@
     "unicode": "⠼⠉⠼⠋⠌⠼⠁"
   },
   {
-    "input": "$\\3\\frac{1}{6}$",
+    "input": "$3\\frac{1}{6}$",
     "internal": "#c#f/#a",
     "expected": "609601112601",
     "unicode": "⠼⠉⠼⠋⠌⠼⠁",
@@ -38,6 +44,12 @@
     "unicode": "⠼⠃⠸⠌⠼⠉"
   },
   {
+    "input": "⅔",
+    "internal": "#b_/#c",
+    "expected": "6035612609",
+    "unicode": "⠼⠃⠸⠌⠼⠉"
+  },
+  {
     "input": "$\\frac{2}{3}$",
     "internal": "#b_/#c",
     "expected": "6035612609",
@@ -51,7 +63,7 @@
     "unicode": "⠭⠢⠽⠌⠼⠁"
   },
   {
-    "input": "$\\x+\\underline{y}$",
+    "input": "$x+\\underline{y}$",
     "internal": "x5y/#a",
     "expected": "45346112601",
     "unicode": "⠭⠢⠽⠌⠼⠁",
@@ -90,7 +102,7 @@
     "unicode": "⠼⠑⠌⠷⠁⠃⠾"
   },
   {
-    "input": "$\\a\\underline{b}/5$",
+    "input": "$a\\underline{b}/5$",
     "internal": "#e/(ab)",
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾",

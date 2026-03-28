@@ -12,7 +12,7 @@
     "unicode": "⠽⠨⠒⠒⠼⠚"
   },
   {
-    "input": "$\\y \\neq 0$",
+    "input": "$y \\neq 0$",
     "internal": "y.33#j",
     "expected": "614018186026",
     "unicode": "⠽⠨⠒⠒⠼⠚",
@@ -31,7 +31,7 @@
     "unicode": "⠁⠢⠢⠃"
   },
   {
-    "input": "$\\a > b$",
+    "input": "$a > b$",
     "internal": "a55b",
     "expected": "134343",
     "unicode": "⠁⠢⠢⠃",
@@ -62,7 +62,7 @@
     "unicode": "⠭⠔⠔⠼⠚"
   },
   {
-    "input": "$\\x < 0$",
+    "input": "$x < 0$",
     "internal": "x99#j",
     "expected": "4520206026",
     "unicode": "⠭⠔⠔⠼⠚",
@@ -75,7 +75,7 @@
     "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉"
   },
   {
-    "input": "$\\-1 < x < 3$",
+    "input": "$-1 < x < 3$",
     "internal": "9#a99x99#c",
     "expected": "206012020452020609",
     "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉",
@@ -118,7 +118,7 @@
     "unicode": "⠭⠲⠲⠼⠑"
   },
   {
-    "input": "$\\x \\geq 5$",
+    "input": "$x \\geq 5$",
     "internal": "x44#e",
     "expected": "4550506017",
     "unicode": "⠭⠲⠲⠼⠑",
@@ -155,7 +155,7 @@
     "unicode": "⠭⠖⠖⠼⠚"
   },
   {
-    "input": "$\\x \\leq 0$",
+    "input": "$x \\leq 0$",
     "internal": "x66#j",
     "expected": "4522226026",
     "unicode": "⠭⠖⠖⠼⠚",
@@ -168,7 +168,7 @@
     "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁"
   },
   {
-    "input": "$\\-1 \\leq \\sin x \\leq 1$",
+    "input": "$-1 \\leq \\sin x \\leq 1$",
     "internal": "9#a666sx66#a",
     "expected": "2060122222214452222601",
     "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁",

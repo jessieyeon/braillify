@@ -19,7 +19,7 @@
     "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉"
   },
   {
-    "input": "$\\(a+bi\\overline{)}$",
+    "input": "$\\overline{(a+bi)}$",
     "note": "LaTeX",
     "internal": "(a5bi)@c",
     "expected": "551343106289",

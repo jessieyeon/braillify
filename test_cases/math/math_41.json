@@ -9,6 +9,7 @@
     "input": "$AB \\perp DE$",
     "internal": ",,AB0',,DE",
     "expected": "32321352432322517",
-    "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑"
+    "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑",
+    "note": "LaTeX"
   }
 ]

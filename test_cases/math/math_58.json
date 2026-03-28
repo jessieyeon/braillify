@@ -15,6 +15,7 @@
     "input": "$\\int_a^b \\int_c^d f(r) dr d\\theta$",
     "internal": "!;A`B`!;C`D`F8R0DRD.?",
     "expected": "46481030464890250113823522523254057",
-    "unicode": "⠮⠰⠁⠀⠃⠀⠮⠰⠉⠀⠙⠀⠋⠦⠗⠴⠙⠗⠙⠨⠹"
+    "unicode": "⠮⠰⠁⠀⠃⠀⠮⠰⠉⠀⠙⠀⠋⠦⠗⠴⠙⠗⠙⠨⠹",
+    "note": "LaTeX"
   }
 ]

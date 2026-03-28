@@ -25,7 +25,7 @@
     "unicode": "⠼⠉⠖⠎⠘⠔⠼⠁⠭"
   },
   {
-    "input": "$\\3sin^{-1}x$",
+    "input": "$3sin^{-1}x$",
     "note": "LaTeX",
     "internal": "#c6s^9#ax",
     "expected": "6092214242060145",
