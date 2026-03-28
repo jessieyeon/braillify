@@ -3,29 +3,29 @@
     "input": "¬P",
     "note": "부정 ¬P",
     "internal": "@9P",
-    "expected": "",
-    "unicode": ""
+    "expected": "82015",
+    "unicode": "⠈⠔⠏"
   },
   {
     "input": "P↔Q",
     "note": "쌍조건문 P↔Q",
     "internal": "P`[3O`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "150421821031",
+    "unicode": "⠏⠀⠪⠒⠕⠀⠟"
   },
   {
     "input": "P⇔Q",
     "note": "필요충분 P⇔Q",
     "internal": "P`[33O`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "15042181821031",
+    "unicode": "⠏⠀⠪⠒⠒⠕⠀⠟"
   },
   {
     "input": "P⇄Q",
     "note": "동치명제 P⇄Q",
     "internal": "P`[7O`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "150425421031",
+    "unicode": "⠏⠀⠪⠶⠕⠀⠟"
   },
   {
     "input": "∧",
@@ -57,22 +57,34 @@
     "input": "P∨Q",
     "note": "논리합 P∨Q (예제)",
     "internal": "P`#`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "15060031",
+    "unicode": "⠏⠀⠼⠀⠟"
+  },
+  {
+    "input": "⊻",
+    "internal": "#-",
+    "expected": "6036",
+    "unicode": "⠼⠤"
+  },
+  {
+    "input": "P ⊻ Q",
+    "internal": "P`#-`Q",
+    "expected": "1506036031",
+    "unicode": "⠏⠀⠼⠤⠀⠟"
   },
   {
     "input": "P↓Q",
     "note": "부정논리합 P↓Q",
     "internal": "P`^3O`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "150241821031",
+    "unicode": "⠏⠀⠘⠒⠕⠀⠟"
   },
   {
     "input": "P↑Q",
     "note": "부정논리곱 P↑Q",
     "internal": "P`;3o`Q",
-    "expected": "",
-    "unicode": ""
+    "expected": "150481821031",
+    "unicode": "⠏⠀⠰⠒⠕⠀⠟"
   },
   {
     "input": "∀",
@@ -104,8 +116,8 @@
     "input": "∃x P(x)",
     "note": "존재 ∃x P(x)",
     "internal": ".5X`P8X0",
-    "expected": "",
-    "unicode": ""
+    "expected": "403445015384552",
+    "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴"
   },
   {
     "input": "∄",
@@ -124,8 +136,8 @@
     "input": "∄x",
     "note": "존재하지않는 ∄x",
     "internal": "..5X",
-    "expected": "",
-    "unicode": ""
+    "expected": "40403445",
+    "unicode": "⠨⠨⠢⠭"
   },
   {
     "input": "p → q",
@@ -209,7 +221,7 @@
     "input": "∀x P(x)",
     "note": "모든 ∀x P(x)",
     "internal": ".'X`P8X0",
-    "expected": "",
-    "unicode": ""
+    "expected": "40445015384552",
+    "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴"
   }
 ]

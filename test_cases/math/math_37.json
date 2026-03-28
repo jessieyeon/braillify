@@ -1,8 +1,8 @@
 [
   {
-    "input": "AB⌢",
-    "internal": "@[,,ab",
-    "expected": "842323213",
-    "unicode": "⠈⠪⠠⠠⠁⠃"
+    "input": "$\\overleftrightarrow{AB}$",
+    "internal": "[3O,,AB",
+    "expected": "421821323213",
+    "unicode": "⠪⠒⠕⠠⠠⠁⠃"
   }
 ]

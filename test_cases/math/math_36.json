@@ -6,9 +6,9 @@
     "unicode": "⠈⠪"
   },
   {
-    "input": "AB̄",
-    "internal": "@c,,ab",
-    "expected": "89323213",
-    "unicode": "⠈⠉⠠⠠⠁⠃"
+    "input": "$\\overset{\\frown}{AB}$",
+    "internal": "@[,,AB",
+    "expected": "842323213",
+    "unicode": "⠈⠪⠠⠠⠁⠃"
   }
 ]

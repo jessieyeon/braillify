@@ -33,8 +33,8 @@
     "input": "ℵ",
     "note": "알레프 ℵ",
     "internal": "RF",
-    "expected": "",
-    "unicode": ""
+    "expected": "2311",
+    "unicode": "⠗⠋"
   },
   {
     "input": "c=2^(ℵ₀)",
@@ -56,5 +56,11 @@
     "internal": "a@44",
     "expected": "185050",
     "unicode": "⠁⠈⠲⠲"
+  },
+  {
+    "input": "＃A",
+    "internal": "_?8,a0",
+    "expected": "56573832152",
+    "unicode": "⠸⠹⠦⠠⠁⠴"
   }
 ]

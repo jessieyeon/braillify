@@ -6,8 +6,8 @@
     "unicode": "⠰⠆"
   },
   {
-    "input": "AB∥CD",
-    "internal": ",,ab;2,,cd",
+    "input": "$AB \\parallel CD$",
+    "internal": ",,AB;2,,CD",
     "expected": "3232134863232925",
     "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙"
   }

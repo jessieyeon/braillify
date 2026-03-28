@@ -12,6 +12,12 @@
     "unicode": "⠖⠉"
   },
   {
+    "input": "2cosx",
+    "internal": "#b6cx",
+    "expected": "60322945",
+    "unicode": "⠼⠃⠖⠉⠭"
+  },
+  {
     "input": "tan",
     "internal": "6t",
     "expected": "2230",

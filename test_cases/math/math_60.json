@@ -15,8 +15,8 @@
   {
     "input": "A∈M",
     "internal": "A6,M",
-    "expected": "",
-    "unicode": ""
+    "expected": "1223213",
+    "unicode": "⠁⠖⠠⠍"
   },
   {
     "input": "∋",
@@ -40,8 +40,8 @@
   {
     "input": "A∉A",
     "internal": "A.6,A",
-    "expected": "",
-    "unicode": ""
+    "expected": "14022321",
+    "unicode": "⠁⠨⠖⠠⠁"
   },
   {
     "input": "⊂",
@@ -59,8 +59,8 @@
   {
     "input": "B⊂A",
     "internal": ",B61,A",
-    "expected": "",
-    "unicode": ""
+    "expected": "323222321",
+    "unicode": "⠠⠃⠖⠂⠠⠁"
   },
   {
     "input": "⊃",
@@ -78,8 +78,8 @@
   {
     "input": "A⊃B",
     "internal": ",A\"4,B",
-    "expected": "",
-    "unicode": ""
+    "expected": "3211650323",
+    "unicode": "⠠⠁⠐⠲⠠⠃"
   },
   {
     "input": "⊄",
@@ -136,8 +136,8 @@
     "input": "Aᶜ=U-A",
     "note": "여집합 Aᶜ=U-A",
     "internal": ",A^c33,U9,A",
-    "expected": "",
-    "unicode": ""
+    "expected": "3212491818323720321",
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁"
   },
   {
     "input": "a∉A",
@@ -214,7 +214,7 @@
   {
     "input": "A⊄M",
     "internal": ",A.61,M",
-    "expected": "",
-    "unicode": ""
+    "expected": "321402223213",
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍"
   }
 ]

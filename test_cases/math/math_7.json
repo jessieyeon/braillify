@@ -1,11 +1,5 @@
 [
   {
-    "input": "",
-    "internal": "",
-    "expected": "12",
-    "unicode": "⠌"
-  },
-  {
     "input": "3/4",
     "internal": "#d/#c",
     "expected": "602512609",

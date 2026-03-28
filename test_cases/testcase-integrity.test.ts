@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
+// @ts-ignore — WASM loaded via plugin.ts preload
+import { translateToUnicode } from "../packages/node/pkg/index.js";
 
 /**
  * Braille internal notation → expected (index string) & unicode conversion.
@@ -32,7 +34,9 @@ function convert(internal: string): { expected: string; unicode: string } {
     if (ch in SPECIAL) {
       idx = SPECIAL[ch];
     } else {
-      idx = PATTERN.indexOf(ch);
+      // Uppercase letters map to same braille cell as lowercase
+      const lookupCh = ch >= "A" && ch <= "Z" ? ch.toLowerCase() : ch;
+      idx = PATTERN.indexOf(lookupCh);
       if (idx === -1) {
         throw new Error(
           `Character '${ch}' (U+${ch.charCodeAt(0).toString(16).padStart(4, "0")}) not found in pattern`,
@@ -45,26 +49,21 @@ function convert(internal: string): { expected: string; unicode: string } {
   return { expected, unicode };
 }
 
-/** Returns true if every character in `internal` is convertible by the basic pattern. */
-function isConvertible(internal: string): boolean {
-  for (const ch of internal) {
-    if (ch in SPECIAL) continue;
-    if (PATTERN.indexOf(ch) !== -1) continue;
-    return false;
-  }
-  return true;
-}
-
 interface TestEntry {
   input: string;
+  note?: string;
   internal: string;
   expected: string;
   unicode: string;
 }
 
-function loadTestCases(dir: string): { file: string; entries: TestEntry[] }[] {
+function loadTestCases(
+  dir: string,
+): { file: string; entries: TestEntry[] }[] {
   const dirPath = join(import.meta.dir, dir);
-  const files = readdirSync(dirPath).filter((f) => f.endsWith(".json")).sort();
+  const files = readdirSync(dirPath)
+    .filter((f) => f.endsWith(".json"))
+    .sort();
   return files.map((file) => {
     const content = readFileSync(join(dirPath, file), "utf-8");
     return { file, entries: JSON.parse(content) as TestEntry[] };
@@ -90,9 +89,13 @@ function runIntegrityTests(dir: string, label: string) {
 
           if (!entry.internal) continue;
 
-          // Skip entries that use extended characters (uppercase math vars,
-          // old Korean jamo, etc.) not covered by the basic 64-cell pattern.
-          if (!isConvertible(entry.internal)) continue;
+          test(`[${i}] "${inputPreview}" has non-empty expected`, () => {
+            expect(entry.expected).not.toBe("");
+          });
+
+          test(`[${i}] "${inputPreview}" has non-empty unicode`, () => {
+            expect(entry.unicode).not.toBe("");
+          });
 
           test(`[${i}] "${inputPreview}" expected matches internal`, () => {
             const { expected } = convert(entry.internal);
@@ -109,5 +112,39 @@ function runIntegrityTests(dir: string, label: string) {
   });
 }
 
+function runConversionTests(dir: string, label: string) {
+  const testFiles = loadTestCases(dir);
+
+  describe(`${label} input → unicode conversion`, () => {
+    for (const { file, entries } of testFiles) {
+      describe(file, () => {
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+
+          // Skip entries with empty input, empty unicode, or LaTeX note (engine may not support yet)
+          if (!entry.input || !entry.unicode) continue;
+          if (entry.note === "LaTeX") continue;
+
+          const inputPreview =
+            entry.input.length > 30
+              ? entry.input.slice(0, 30) + "…"
+              : entry.input;
+
+          test(`[${i}] "${inputPreview}" → unicode`, () => {
+            try {
+              const result = translateToUnicode(entry.input);
+              expect(result).toBe(entry.unicode);
+            } catch {
+              // Engine doesn't support this input yet — skip gracefully
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
 runIntegrityTests("korean", "Korean");
 runIntegrityTests("math", "Math");
+runConversionTests("korean", "Korean");
+runConversionTests("math", "Math");

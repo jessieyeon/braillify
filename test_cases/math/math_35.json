@@ -1,14 +1,14 @@
 [
   {
-    "input": "∠",
-    "internal": "?",
-    "expected": "57",
-    "unicode": "⠹"
+    "input": "$\\overline{AB}$",
+    "internal": "@c,,AB",
+    "expected": "89323213",
+    "unicode": "⠈⠉⠠⠠⠁⠃"
   },
   {
-    "input": "∠ABC",
-    "internal": "?,,abc",
-    "expected": "573232139",
-    "unicode": "⠹⠠⠠⠁⠃⠉"
+    "input": "$\\overline{A'B'}$",
+    "internal": "@c,,A-B-",
+    "expected": "893232136336",
+    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤"
   }
 ]

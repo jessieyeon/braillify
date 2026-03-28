@@ -6,57 +6,43 @@
     "unicode": "⠸⠬"
   },
   {
+    "input": "$\\triangle ABC$",
+    "internal": "_+,,ABC",
+    "expected": "56443232139",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉"
+  },
+  {
     "input": "□",
     "internal": "_7",
     "expected": "5654",
     "unicode": "⠸⠶"
   },
   {
-    "input": "△ABC",
-    "internal": "_+,,abc",
-    "expected": "56443232139",
-    "unicode": "⠸⠬⠠⠠⠁⠃⠉"
-  },
-  {
-    "input": "□ABCD",
-    "internal": "_7,,abcd",
+    "input": "$\\square ABCD$",
+    "internal": "_7,,ABCD",
     "expected": "5654323213925",
     "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙"
   },
   {
-    "input": "△ABC≡△DEF",
-    "internal": "_+,,abc77_+,,def",
-    "expected": "56443232139545456443232251711",
-    "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋"
+    "input": "⌂",
+    "internal": "_[K",
+    "expected": "56425",
+    "unicode": "⠸⠪⠅"
   },
   {
-    "input": "AB∥CD",
-    "internal": ",,ab;2,,cd",
-    "expected": "3232134863232925",
-    "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙"
+    "input": "⎔",
+    "internal": "_[O",
+    "expected": "564221",
+    "unicode": "⠸⠪⠕"
   },
   {
-    "input": "△ABC",
-    "internal": "_+,,ABC",
-    "expected": "",
-    "unicode": ""
-  },
-  {
-    "input": "□ABCD",
-    "internal": "_7,,ABCD",
-    "expected": "",
-    "unicode": ""
-  },
-  {
-    "input": "⬠",
-    "note": "오각형",
+    "input": "",
     "internal": "_/*",
     "expected": "561233",
     "unicode": "⠸⠌⠡"
   },
   {
-    "input": "⬡",
-    "note": "육각형",
+    "input": "▱",
     "internal": "_//",
     "expected": "561212",
     "unicode": "⠸⠌⠌"
