@@ -25,10 +25,24 @@
     "unicode": "⠼⠉⠻⠭⠘⠼⠉"
   },
   {
+    "input": "$\\^3√x^3$",
+    "internal": "#c]x^#c",
+    "expected": "609594524609",
+    "unicode": "⠼⠉⠻⠭⠘⠼⠉",
+    "note": "LaTeX"
+  },
+  {
     "input": "⁵√32",
     "internal": "#e]#cb",
     "expected": "6017596093",
     "unicode": "⠼⠑⠻⠼⠉⠃"
+  },
+  {
+    "input": "$\\^5√32$",
+    "internal": "#e]#cb",
+    "expected": "6017596093",
+    "unicode": "⠼⠑⠻⠼⠉⠃",
+    "note": "LaTeX"
   },
   {
     "input": "ᵐ√n",
@@ -51,7 +65,13 @@
   },
   {
     "input": "ᵐⁿ√y",
-    "note": "mn제곱근 y",
+    "internal": "(mn)]y",
+    "expected": "551329625961",
+    "unicode": "⠷⠍⠝⠾⠻⠽"
+  },
+  {
+    "input": "$\\^{mn}√y$",
+    "note": "LaTeX",
     "internal": "(mn)]y",
     "expected": "551329625961",
     "unicode": "⠷⠍⠝⠾⠻⠽"

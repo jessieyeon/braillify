@@ -38,21 +38,39 @@
   },
   {
     "input": "c=2^(ℵ₀)",
-    "note": "알레프 예제",
+    "internal": "c33#b^(rf;#j)",
+    "expected": "918186032455231148602662",
+    "unicode": "⠉⠒⠒⠼⠃⠘⠷⠗⠋⠰⠼⠚⠾"
+  },
+  {
+    "input": "$\\c=2^(ℵ_0)$",
+    "note": "LaTeX",
     "internal": "c33#b^(rf;#j)",
     "expected": "918186032455231148602662",
     "unicode": "⠉⠒⠒⠼⠃⠘⠷⠗⠋⠰⠼⠚⠾"
   },
   {
     "input": "ả",
-    "note": "문자 위 기호 (단일점)",
+    "internal": "a@@9",
+    "expected": "18820",
+    "unicode": "⠁⠈⠈⠔"
+  },
+  {
+    "input": "$\\mathring{a}$",
+    "note": "LaTeX",
     "internal": "a@@9",
     "expected": "18820",
     "unicode": "⠁⠈⠈⠔"
   },
   {
     "input": "ä",
-    "note": "문자 위 기호 (이중점)",
+    "internal": "a@44",
+    "expected": "185050",
+    "unicode": "⠁⠈⠲⠲"
+  },
+  {
+    "input": "$\\ddot{a}$",
+    "note": "LaTeX",
     "internal": "a@44",
     "expected": "185050",
     "unicode": "⠁⠈⠲⠲"

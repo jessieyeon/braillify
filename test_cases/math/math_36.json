@@ -6,9 +6,16 @@
     "unicode": "⠈⠪"
   },
   {
-    "input": "$\\overset{\\frown}{AB}$",
+    "input": "⌢AB",
     "internal": "@[,,AB",
     "expected": "842323213",
     "unicode": "⠈⠪⠠⠠⠁⠃"
+  },
+  {
+    "input": "$\\overset{\\frown}{AB}$",
+    "internal": "@[,,AB",
+    "expected": "842323213",
+    "unicode": "⠈⠪⠠⠠⠁⠃",
+    "note": "LaTeX"
   }
 ]

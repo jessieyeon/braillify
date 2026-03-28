@@ -6,6 +6,13 @@
     "unicode": "⠸⠠⠢⠼⠃"
   },
   {
+    "input": "$\\log_52$",
+    "internal": "_,5#b",
+    "expected": "563234603",
+    "unicode": "⠸⠠⠢⠼⠃",
+    "note": "LaTeX"
+  },
+  {
     "input": "log2",
     "internal": "_#b",
     "expected": "56603",
@@ -16,6 +23,13 @@
     "internal": "_;an",
     "expected": "5648129",
     "unicode": "⠸⠰⠁⠝"
+  },
+  {
+    "input": "$\\log_an$",
+    "internal": "_;an",
+    "expected": "5648129",
+    "unicode": "⠸⠰⠁⠝",
+    "note": "LaTeX"
   },
   {
     "input": "lnx=log_ex",
@@ -43,14 +57,26 @@
   },
   {
     "input": "log₍₃/₁₎9",
-    "note": "log 밑 3/1",
+    "internal": "_;(#c/#a)#i",
+    "expected": "56485560912601626010",
+    "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊"
+  },
+  {
+    "input": "$\\log_{(3}/_{1)}9$",
+    "note": "LaTeX",
     "internal": "_;(#c/#a)#i",
     "expected": "56485560912601626010",
     "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊"
   },
   {
     "input": "log₍₀.₂₎n",
-    "note": "log 밑 0.2",
+    "internal": "_;(#j4b),n",
+    "expected": "5648556026503623229",
+    "unicode": "⠸⠰⠷⠼⠚⠲⠃⠾⠠⠝"
+  },
+  {
+    "input": "$\\log_{(0}._{2)}n$",
+    "note": "LaTeX",
     "internal": "_;(#j4b),n",
     "expected": "5648556026503623229",
     "unicode": "⠸⠰⠷⠼⠚⠲⠃⠾⠠⠝"
@@ -60,5 +86,18 @@
     "internal": "_,2(8x5#a0)",
     "expected": "56326553845346015262",
     "unicode": "⠸⠠⠆⠷⠦⠭⠢⠼⠁⠴⠾"
+  },
+  {
+    "input": "$\\log_2(x+1)$",
+    "internal": "_,2(8x5#a0)",
+    "expected": "56326553845346015262",
+    "unicode": "⠸⠠⠆⠷⠦⠭⠢⠼⠁⠴⠾",
+    "note": "LaTeX"
+  },
+  {
+    "input": "$\\log_a(V/U)$",
+    "internal": "_;A(V/U)",
+    "expected": "564815539123762",
+    "unicode": "⠸⠰⠁⠷⠧⠌⠥⠾"
   }
 ]

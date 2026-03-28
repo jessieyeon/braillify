@@ -19,6 +19,13 @@
     "unicode": "⠼⠉⠼⠋⠌⠼⠁"
   },
   {
+    "input": "$\\3\\frac{1}{6}$",
+    "internal": "#c#f/#a",
+    "expected": "609601112601",
+    "unicode": "⠼⠉⠼⠋⠌⠼⠁",
+    "note": "LaTeX"
+  },
+  {
     "input": "/",
     "internal": "_/",
     "expected": "5612",
@@ -44,10 +51,24 @@
     "unicode": "⠭⠢⠽⠌⠼⠁"
   },
   {
+    "input": "$\\x+\\underline{y}$",
+    "internal": "x5y/#a",
+    "expected": "45346112601",
+    "unicode": "⠭⠢⠽⠌⠼⠁",
+    "note": "LaTeX"
+  },
+  {
     "input": "1̲/(x+y)",
     "internal": "(x5y)/#a",
     "expected": "554534616212601",
     "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁"
+  },
+  {
+    "input": "$\\underline{1}/(x+y)$",
+    "internal": "(x5y)/#a",
+    "expected": "554534616212601",
+    "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁",
+    "note": "LaTeX"
   },
   {
     "input": "1̲/(ab)",
@@ -56,10 +77,24 @@
     "unicode": "⠷⠁⠃⠾⠌⠼⠁"
   },
   {
+    "input": "$\\underline{1}/(ab)$",
+    "internal": "(ab)/#a",
+    "expected": "55136212601",
+    "unicode": "⠷⠁⠃⠾⠌⠼⠁",
+    "note": "LaTeX"
+  },
+  {
     "input": "ab̲/5",
     "internal": "#e/(ab)",
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾"
+  },
+  {
+    "input": "$\\a\\underline{b}/5$",
+    "internal": "#e/(ab)",
+    "expected": "601712551362",
+    "unicode": "⠼⠑⠌⠷⠁⠃⠾",
+    "note": "LaTeX"
   },
   {
     "input": "2^(3/(x+1))",

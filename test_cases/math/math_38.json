@@ -1,14 +1,28 @@
 [
   {
-    "input": "$\\overrightarrow{AB}$",
+    "input": "→AB",
     "internal": "3O,,AB",
     "expected": "1821323213",
     "unicode": "⠒⠕⠠⠠⠁⠃"
   },
   {
-    "input": "$\\vec{A}=(A_1, A_2, A_3)$",
+    "input": "$\\overrightarrow{AB}$",
+    "internal": "3O,,AB",
+    "expected": "1821323213",
+    "unicode": "⠒⠕⠠⠠⠁⠃",
+    "note": "LaTeX"
+  },
+  {
+    "input": "→A=(A₁,A₂,A₃)",
     "internal": "3O,A338,A;#a\"`,A;#b\"`,A;#c0",
     "expected": "182132118183832148601160321486031603214860952",
     "unicode": "⠒⠕⠠⠁⠒⠒⠦⠠⠁⠰⠼⠁⠐⠀⠠⠁⠰⠼⠃⠐⠀⠠⠁⠰⠼⠉⠴"
+  },
+  {
+    "input": "$\\vec{A}=(A_1, A_2, A_3)$",
+    "internal": "3O,A338,A;#a\"`,A;#b\"`,A;#c0",
+    "expected": "182132118183832148601160321486031603214860952",
+    "unicode": "⠒⠕⠠⠁⠒⠒⠦⠠⠁⠰⠼⠁⠐⠀⠠⠁⠰⠼⠃⠐⠀⠠⠁⠰⠼⠉⠴",
+    "note": "LaTeX"
   }
 ]

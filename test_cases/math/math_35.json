@@ -1,14 +1,28 @@
 [
   {
-    "input": "$\\overline{AB}$",
+    "input": "̅AB",
     "internal": "@c,,AB",
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃"
   },
   {
-    "input": "$\\overline{A'B'}$",
+    "input": "$\\overline{AB}$",
+    "internal": "@c,,AB",
+    "expected": "89323213",
+    "unicode": "⠈⠉⠠⠠⠁⠃",
+    "note": "LaTeX"
+  },
+  {
+    "input": "A′B′̅",
     "internal": "@c,,A-B-",
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤"
+  },
+  {
+    "input": "$\\overline{A'B'}$",
+    "internal": "@c,,A-B-",
+    "expected": "893232136336",
+    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
+    "note": "LaTeX"
   }
 ]

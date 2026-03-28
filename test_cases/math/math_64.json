@@ -1,8 +1,27 @@
 [
   {
+    "input": "̂",
+    "internal": "@@5",
+    "expected": "8834",
+    "unicode": "⠈⠈⠢"
+  },
+  {
     "input": "p̂",
     "internal": "p@@5",
     "expected": "158834",
     "unicode": "⠏⠈⠈⠢"
+  },
+  {
+    "input": "$\\hat{p}$",
+    "internal": "p@@5",
+    "expected": "158834",
+    "unicode": "⠏⠈⠈⠢",
+    "note": "LaTeX"
+  },
+  {
+    "input": "$\\hat{S}(\\hat{p})=\\sqrt{V(\\hat{p})}$",
+    "internal": ".S8p@@5033>,V8p@@50",
+    "expected": "4014381588345218182832393815883452",
+    "unicode": "⠨⠎⠦⠏⠈⠈⠢⠴⠒⠒⠜⠠⠧⠦⠏⠈⠈⠢⠴"
   }
 ]

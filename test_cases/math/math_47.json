@@ -54,6 +54,13 @@
     "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁"
   },
   {
+    "input": "$\\sin^2x+cos^2x=1$",
+    "internal": "6s^#bx56c^#bx33#a",
+    "expected": "221424603453422924603451818601",
+    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
+    "note": "LaTeX"
+  },
+  {
     "input": "sin(xy)",
     "internal": "6s(xy)",
     "expected": "221455456162",
@@ -72,9 +79,23 @@
     "unicode": "⠖⠎⠘⠼⠉⠭"
   },
   {
+    "input": "$\\sin^3x$",
+    "internal": "6s^#cx",
+    "expected": "22142460945",
+    "unicode": "⠖⠎⠘⠼⠉⠭",
+    "note": "LaTeX"
+  },
+  {
     "input": "sinx³",
     "internal": "6sx^#c",
     "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉"
+  },
+  {
+    "input": "$\\sinx^3$",
+    "internal": "6sx^#c",
+    "expected": "22144524609",
+    "unicode": "⠖⠎⠭⠘⠼⠉",
+    "note": "LaTeX"
   }
 ]

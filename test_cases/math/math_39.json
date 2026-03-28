@@ -6,9 +6,16 @@
     "unicode": "⠹"
   },
   {
-    "input": "$\\angle ABC$",
+    "input": "∠ABC",
     "internal": "?,,ABC",
     "expected": "573232139",
     "unicode": "⠹⠠⠠⠁⠃⠉"
+  },
+  {
+    "input": "$\\angle ABC$",
+    "internal": "?,,ABC",
+    "expected": "573232139",
+    "unicode": "⠹⠠⠠⠁⠃⠉",
+    "note": "LaTeX"
   }
 ]

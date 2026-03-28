@@ -12,10 +12,24 @@
     "unicode": "⠴⠠⠁⠘⠢⠢"
   },
   {
+    "input": "$\\A^{++}$",
+    "internal": "0,a^55",
+    "expected": "52321243434",
+    "unicode": "⠴⠠⠁⠘⠢⠢",
+    "note": "LaTeX"
+  },
+  {
     "input": "B₆",
     "internal": "0,b;#f",
     "expected": "52323486011",
     "unicode": "⠴⠠⠃⠰⠼⠋"
+  },
+  {
+    "input": "$\\B_6$",
+    "internal": "0,b;#f",
+    "expected": "52323486011",
+    "unicode": "⠴⠠⠃⠰⠼⠋",
+    "note": "LaTeX"
   },
   {
     "input": "10,000㎡는 1㏊이다",

@@ -6,10 +6,36 @@
     "unicode": "⠼⠓⠘⠼⠃"
   },
   {
+    "input": "$\\8^2$",
+    "internal": "#h^#b",
+    "expected": "601924603",
+    "unicode": "⠼⠓⠘⠼⠃",
+    "note": "LaTeX"
+  },
+  {
+    "input": "8²",
+    "internal": "#h^#b",
+    "expected": "601924603",
+    "unicode": "⠼⠓⠘⠼⠃"
+  },
+  {
     "input": "$\\8^{2}$",
     "internal": "#h^#b",
     "expected": "601924603",
     "unicode": "⠼⠓⠘⠼⠃",
+    "note": "LaTeX"
+  },
+  {
+    "input": "c²",
+    "internal": "c^#b",
+    "expected": "924603",
+    "unicode": "⠉⠘⠼⠃"
+  },
+  {
+    "input": "$\\c^2$",
+    "internal": "c^#b",
+    "expected": "924603",
+    "unicode": "⠉⠘⠼⠃",
     "note": "LaTeX"
   },
   {
@@ -30,6 +56,26 @@
     "internal": "89#c0^#c",
     "expected": "38206095224609",
     "unicode": "⠦⠔⠼⠉⠴⠘⠼⠉"
+  },
+  {
+    "input": "$\\(-3)^3$",
+    "internal": "89#c0^#c",
+    "expected": "38206095224609",
+    "unicode": "⠦⠔⠼⠉⠴⠘⠼⠉",
+    "note": "LaTeX"
+  },
+  {
+    "input": "x⁻¹",
+    "internal": "x^9#a",
+    "expected": "452420601",
+    "unicode": "⠭⠘⠔⠼⠁"
+  },
+  {
+    "input": "$\\x^{-1}$",
+    "internal": "x^9#a",
+    "expected": "452420601",
+    "unicode": "⠭⠘⠔⠼⠁",
+    "note": "LaTeX"
   },
   {
     "input": "x⁻¹",
@@ -57,10 +103,24 @@
     "unicode": "⠭⠘⠷⠼⠛⠢⠼⠊⠾"
   },
   {
+    "input": "$\\x^{7+9}$",
+    "internal": "x^(#g5#i)",
+    "expected": "452455602734601062",
+    "unicode": "⠭⠘⠷⠼⠛⠢⠼⠊⠾",
+    "note": "LaTeX"
+  },
+  {
     "input": "a³ᵐ⁺²ⁿ",
     "internal": "a^(#cm5#bn)",
     "expected": "1245560913346032962",
     "unicode": "⠁⠘⠷⠼⠉⠍⠢⠼⠃⠝⠾"
+  },
+  {
+    "input": "$\\a^{3m+2n}$",
+    "internal": "a^(#cm5#bn)",
+    "expected": "1245560913346032962",
+    "unicode": "⠁⠘⠷⠼⠉⠍⠢⠼⠃⠝⠾",
+    "note": "LaTeX"
   },
   {
     "input": "x⁰·³",
@@ -69,8 +129,21 @@
     "unicode": "⠭⠘⠼⠚⠲⠉"
   },
   {
+    "input": "$\\x^0·^3$",
+    "internal": "x^#j4c",
+    "expected": "45246026509",
+    "unicode": "⠭⠘⠼⠚⠲⠉",
+    "note": "LaTeX"
+  },
+  {
     "input": "2²⁽ᵐ⁺ⁿ⁾",
-    "note": "2^(2(m+n))",
+    "internal": "#b^(#b8m5n0)",
+    "expected": "6032455603381334295262",
+    "unicode": "⠼⠃⠘⠷⠼⠃⠦⠍⠢⠝⠴⠾"
+  },
+  {
+    "input": "$\\2^{2(m+n)}$",
+    "note": "LaTeX",
     "internal": "#b^(#b8m5n0)",
     "expected": "6032455603381334295262",
     "unicode": "⠼⠃⠘⠷⠼⠃⠦⠍⠢⠝⠴⠾"
@@ -84,7 +157,13 @@
   },
   {
     "input": "3⁴⁄¹",
-    "note": "3^(4/1)",
+    "internal": "#c^(#d/#a)",
+    "expected": "609245560251260162",
+    "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾"
+  },
+  {
+    "input": "$\\3^4⁄^1$",
+    "note": "LaTeX",
     "internal": "#c^(#d/#a)",
     "expected": "609245560251260162",
     "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾"

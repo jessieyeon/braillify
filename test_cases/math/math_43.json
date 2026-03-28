@@ -6,9 +6,16 @@
     "unicode": "⠶⠶"
   },
   {
-    "input": "$\\triangle ABC \\equiv \\triangle DEF$",
+    "input": "△ABC≡△DEF",
     "internal": "_+,,ABC77_+,,DEF",
     "expected": "56443232139545456443232251711",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋"
+  },
+  {
+    "input": "$\\triangle ABC \\equiv \\triangle DEF$",
+    "internal": "_+,,ABC77_+,,DEF",
+    "expected": "56443232139545456443232251711",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋",
+    "note": "LaTeX"
   }
 ]

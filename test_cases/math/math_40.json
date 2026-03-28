@@ -6,10 +6,17 @@
     "unicode": "⠸⠬"
   },
   {
-    "input": "$\\triangle ABC$",
+    "input": "△ABC",
     "internal": "_+,,ABC",
     "expected": "56443232139",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉"
+  },
+  {
+    "input": "$\\triangle ABC$",
+    "internal": "_+,,ABC",
+    "expected": "56443232139",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉",
+    "note": "LaTeX"
   },
   {
     "input": "□",
@@ -18,10 +25,17 @@
     "unicode": "⠸⠶"
   },
   {
-    "input": "$\\square ABCD$",
+    "input": "□ABCD",
     "internal": "_7,,ABCD",
     "expected": "5654323213925",
     "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙"
+  },
+  {
+    "input": "$\\square ABCD$",
+    "internal": "_7,,ABCD",
+    "expected": "5654323213925",
+    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
+    "note": "LaTeX"
   },
   {
     "input": "⌂",

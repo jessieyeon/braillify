@@ -1,15 +1,29 @@
 [
   {
-    "input": "$\\frac{3}{4}$",
+    "input": "3/4",
     "internal": "#d/#c",
     "expected": "602512609",
     "unicode": "⠼⠙⠌⠼⠉"
+  },
+  {
+    "input": "$\\frac{3}{4}$",
+    "internal": "#d/#c",
+    "expected": "602512609",
+    "unicode": "⠼⠙⠌⠼⠉",
+    "note": "LaTeX"
   },
   {
     "input": "⅔",
     "internal": "#c/#b",
     "expected": "60912603",
     "unicode": "⠼⠉⠌⠼⠃"
+  },
+  {
+    "input": "$\\frac{2}{3}$",
+    "internal": "#c/#b",
+    "expected": "60912603",
+    "unicode": "⠼⠉⠌⠼⠃",
+    "note": "LaTeX"
   },
   {
     "input": "$3\\frac{1}{6}$",

@@ -10,5 +10,17 @@
     "internal": "a@9b",
     "expected": "18203",
     "unicode": "⠁⠈⠔⠃"
+  },
+  {
+    "input": "$\\a \\not\\mathrel{R} b$",
+    "internal": "a.,Rb",
+    "expected": "14032233",
+    "unicode": "⠁⠨⠠⠗⠃"
+  },
+  {
+    "input": "$\\a \\not\\sim b$",
+    "internal": "a.@9b",
+    "expected": "1408203",
+    "unicode": "⠁⠨⠈⠔⠃"
   }
 ]
