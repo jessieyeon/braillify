@@ -74,8 +74,8 @@
   {
     "input": "ix",
     "internal": "0ix4",
-    "expected": "524550",
-    "unicode": "⠴⠭⠲"
+    "expected": "52104550",
+    "unicode": "⠴⠊⠭⠲"
   },
   {
     "input": "x",

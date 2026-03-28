@@ -1,5 +1,11 @@
 [
   {
+    "input": "∫",
+    "internal": "!",
+    "expected": "46",
+    "unicode": "⠮"
+  },
+  {
     "input": "∫f(x)dx=F(x)+C",
     "internal": "!f8x0dx33,f8x05,c",
     "expected": "461138455225451818321138455234329",

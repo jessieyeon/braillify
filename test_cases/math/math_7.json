@@ -1,5 +1,11 @@
 [
   {
+    "input": "",
+    "internal": "",
+    "expected": "12",
+    "unicode": "⠌"
+  },
+  {
     "input": "3/4",
     "internal": "#d/#c",
     "expected": "602512609",
@@ -12,6 +18,12 @@
     "unicode": "⠼⠉⠼⠋⠌⠼⠁"
   },
   {
+    "input": "/",
+    "internal": "_/",
+    "expected": "5612",
+    "unicode": "⠸⠌"
+  },
+  {
     "input": "2/3",
     "internal": "#b_/#c",
     "expected": "6035612609",
@@ -20,25 +32,25 @@
   {
     "input": "x+y̲",
     "internal": "x5y/#a",
-    "expected": "4534611126601",
+    "expected": "45346112601",
     "unicode": "⠭⠢⠽⠌⠼⠁"
   },
   {
     "input": "1̲/(x+y)",
     "internal": "(x5y)/#a",
-    "expected": "554534611260126601",
+    "expected": "554534616212601",
     "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁"
   },
   {
     "input": "1̲/(ab)",
     "internal": "(ab)/#a",
-    "expected": "55131362126601",
+    "expected": "55136212601",
     "unicode": "⠷⠁⠃⠾⠌⠼⠁"
   },
   {
     "input": "ab̲/5",
     "internal": "#e/(ab)",
-    "expected": "601712551336132",
+    "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾"
   }
 ]

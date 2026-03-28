@@ -1,5 +1,11 @@
 [
   {
+    "input": "∞",
+    "internal": "=",
+    "expected": "63",
+    "unicode": "⠿"
+  },
+  {
     "input": "n → ∞",
     "internal": "n`3o`=",
     "expected": "2901821063",

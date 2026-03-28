@@ -1,5 +1,11 @@
 [
   {
+    "input": "√",
+    "internal": ">",
+    "expected": "28",
+    "unicode": "⠜"
+  },
+  {
     "input": "√2",
     "internal": ">#b",
     "expected": "28603",
@@ -8,13 +14,13 @@
   {
     "input": "³√x³",
     "internal": "#c]x^#c",
-    "expected": "6095945246009",
+    "expected": "609594524609",
     "unicode": "⠼⠉⠻⠭⠘⠼⠉"
   },
   {
     "input": "⁵√32",
     "internal": "#e]#cb",
-    "expected": "601759609300",
+    "expected": "6017596093",
     "unicode": "⠼⠑⠻⠼⠉⠃"
   },
   {
@@ -26,7 +32,7 @@
   {
     "input": "√(xy)",
     "internal": ">(xy)",
-    "expected": "285545616200",
+    "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾"
   }
 ]

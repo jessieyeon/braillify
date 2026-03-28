@@ -1,5 +1,11 @@
 [
   {
+    "input": "≃",
+    "internal": "@93",
+    "expected": "82018",
+    "unicode": "⠈⠔⠒"
+  },
+  {
     "input": "f ≃ g",
     "internal": "f`@93`g",
     "expected": "11082018027",

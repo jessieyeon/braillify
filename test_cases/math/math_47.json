@@ -20,7 +20,7 @@
   {
     "input": "sin(xy)",
     "internal": "6s(xy)",
-    "expected": "2214554561622",
+    "expected": "221455456162",
     "unicode": "⠖⠎⠷⠭⠽⠾"
   },
   {
@@ -32,13 +32,13 @@
   {
     "input": "sin³x",
     "internal": "6s^#cx",
-    "expected": "2214246094500",
+    "expected": "22142460945",
     "unicode": "⠖⠎⠘⠼⠉⠭"
   },
   {
     "input": "sinx³",
     "internal": "6sx^#c",
-    "expected": "221445246009",
+    "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉"
   }
 ]

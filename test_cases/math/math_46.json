@@ -32,13 +32,13 @@
   {
     "input": "log(x+1)",
     "internal": "_(x5#a)",
-    "expected": "56554534601622",
+    "expected": "5655453460162",
     "unicode": "⠸⠷⠭⠢⠼⠁⠾"
   },
   {
     "input": "log_e(2+h)",
     "internal": "_;e8#b5h0",
-    "expected": "564817386034191952",
+    "expected": "56481738603341952",
     "unicode": "⠸⠰⠑⠦⠼⠃⠢⠓⠴"
   }
 ]

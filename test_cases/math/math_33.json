@@ -1,5 +1,17 @@
 [
   {
+    "input": "▷",
+    "internal": "_>",
+    "expected": "5628",
+    "unicode": "⠸⠜"
+  },
+  {
+    "input": "◁",
+    "internal": "_<",
+    "expected": "5635",
+    "unicode": "⠸⠣"
+  },
+  {
     "input": "G ▷ N",
     "internal": ",g`_>`,n",
     "expected": "32270562803229",

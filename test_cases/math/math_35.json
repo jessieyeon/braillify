@@ -1,5 +1,11 @@
 [
   {
+    "input": "∠",
+    "internal": "?",
+    "expected": "57",
+    "unicode": "⠹"
+  },
+  {
     "input": "∠ABC",
     "internal": "?,,abc",
     "expected": "573232139",

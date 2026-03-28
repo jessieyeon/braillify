@@ -1,5 +1,11 @@
 [
   {
+    "input": "∽",
+    "internal": ",'",
+    "expected": "324",
+    "unicode": "⠠⠄"
+  },
+  {
     "input": "△ABC∽△A′B′C′",
     "internal": "_+,,abc,'_+,,a-b-c-",
     "expected": "5644323213932456443232136336936",

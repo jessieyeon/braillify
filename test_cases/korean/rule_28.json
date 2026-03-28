@@ -7,15 +7,15 @@
   },
   {
     "input": "A",
-    "internal": ",a4",
+    "internal": ",a",
     "expected": "321",
     "unicode": "⠠⠁"
   },
   {
     "input": "b",
     "internal": "0b",
-    "expected": "3",
-    "unicode": "⠃"
+    "expected": "523",
+    "unicode": "⠴⠃"
   },
   {
     "input": "B",
@@ -85,7 +85,7 @@
   },
   {
     "input": "h",
-    "internal": "0h",
+    "internal": "h",
     "expected": "19",
     "unicode": "⠓"
   },
@@ -163,7 +163,7 @@
   },
   {
     "input": "N",
-    "internal": ",n4",
+    "internal": ",n",
     "expected": "3229",
     "unicode": "⠠⠝"
   },

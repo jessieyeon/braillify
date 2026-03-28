@@ -1,5 +1,11 @@
 [
   {
+    "input": "′",
+    "internal": "-",
+    "expected": "36",
+    "unicode": "⠤"
+  },
+  {
     "input": "x′",
     "internal": "x-",
     "expected": "4536",

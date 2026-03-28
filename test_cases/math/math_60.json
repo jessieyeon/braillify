@@ -1,15 +1,63 @@
 [
   {
-    "input": "a∈M",
-    "internal": "a6,m",
-    "expected": "1223213",
-    "unicode": "⠁⠖⠠⠍"
+    "input": "∈",
+    "internal": "6",
+    "expected": "22",
+    "unicode": "⠖"
   },
   {
-    "input": "A∋x",
-    "internal": ",a4x",
-    "expected": "3215045",
-    "unicode": "⠠⠁⠲⠭"
+    "input": "∋",
+    "internal": "4",
+    "expected": "50",
+    "unicode": "⠲"
+  },
+  {
+    "input": "∉",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖"
+  },
+  {
+    "input": "⊂",
+    "internal": "61",
+    "expected": "222",
+    "unicode": "⠖⠂"
+  },
+  {
+    "input": "⊃",
+    "internal": "\"4",
+    "expected": "1650",
+    "unicode": "⠐⠲"
+  },
+  {
+    "input": "⊄",
+    "internal": ".61",
+    "expected": "40222",
+    "unicode": "⠨⠖⠂"
+  },
+  {
+    "input": "⊅",
+    "internal": ".\"4",
+    "expected": "401650",
+    "unicode": "⠨⠐⠲"
+  },
+  {
+    "input": "∅",
+    "internal": ".f",
+    "expected": "4011",
+    "unicode": "⠨⠋"
+  },
+  {
+    "input": "∪",
+    "internal": "+",
+    "expected": "44",
+    "unicode": "⠬"
+  },
+  {
+    "input": "∩",
+    "internal": "%",
+    "expected": "41",
+    "unicode": "⠩"
   },
   {
     "input": "a∉A",
@@ -56,7 +104,7 @@
   {
     "input": "A∩B",
     "internal": ",a`%`,b",
-    "expected": "321041032300",
+    "expected": "3210410323",
     "unicode": "⠠⠁⠀⠩⠀⠠⠃"
   },
   {
@@ -68,19 +116,19 @@
   {
     "input": "{x|x는정수}",
     "internal": "7x\\`0x4cz`.],m7",
-    "expected": "5445510045509540218140375400",
-    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠍⠥⠶"
+    "expected": "544551052455095304059321354",
+    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶"
   },
   {
     "input": "A⊄M",
     "internal": ",a.61,m",
-    "expected": "321402221321300",
+    "expected": "321402223213",
     "unicode": "⠠⠁⠨⠖⠂⠠⠍"
   },
   {
     "input": "M⊅A",
     "internal": ",m.\"4,a",
-    "expected": "32134016503210",
+    "expected": "3213401650321",
     "unicode": "⠠⠍⠨⠐⠲⠠⠁"
   }
 ]

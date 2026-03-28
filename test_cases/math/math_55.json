@@ -1,5 +1,11 @@
 [
   {
+    "input": "∇",
+    "internal": "_%",
+    "expected": "5641",
+    "unicode": "⠸⠩"
+  },
+  {
     "input": "∇f",
     "internal": "_%f",
     "expected": "564111",

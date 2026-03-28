@@ -1,5 +1,11 @@
 [
   {
+    "input": ".",
+    "internal": "4",
+    "expected": "50",
+    "unicode": "⠲"
+  },
+  {
     "input": "0.17",
     "internal": "#j4ag",
     "expected": "602650127",
@@ -20,13 +26,13 @@
   {
     "input": "0.739̇",
     "internal": "#j4g@ci",
-    "expected": "6026502789110",
+    "expected": "602650278910",
     "unicode": "⠼⠚⠲⠛⠈⠉⠊"
   },
   {
     "input": "0.123̇",
     "internal": "#j4@abc",
-    "expected": "60265081393",
+    "expected": "6026508139",
     "unicode": "⠼⠚⠲⠈⠁⠃⠉"
   },
   {

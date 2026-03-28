@@ -1,9 +1,33 @@
 [
   {
-    "input": "~p",
-    "internal": "@9p",
-    "expected": "82015",
-    "unicode": "⠈⠔⠏"
+    "input": "∧",
+    "internal": "?",
+    "expected": "57",
+    "unicode": "⠹"
+  },
+  {
+    "input": "∨",
+    "internal": "#",
+    "expected": "60",
+    "unicode": "⠼"
+  },
+  {
+    "input": "∀",
+    "internal": ".'",
+    "expected": "404",
+    "unicode": "⠨⠄"
+  },
+  {
+    "input": "∃",
+    "internal": ".5",
+    "expected": "4034",
+    "unicode": "⠨⠢"
+  },
+  {
+    "input": "∄",
+    "internal": "..5",
+    "expected": "404034",
+    "unicode": "⠨⠨⠢"
   },
   {
     "input": "p → q",
@@ -56,7 +80,7 @@
   {
     "input": "P∨¬P",
     "internal": ",p`#`@9,p",
-    "expected": "3215060082032150",
+    "expected": "321506008203215",
     "unicode": "⠠⠏⠀⠼⠀⠈⠔⠠⠏"
   },
   {
@@ -68,8 +92,8 @@
   {
     "input": "p ⇄ q",
     "internal": "p`[7o`q",
-    "expected": "15054182103100",
-    "unicode": "⠏⠀⠶⠒⠕⠀⠟"
+    "expected": "150425421031",
+    "unicode": "⠏⠀⠪⠶⠕⠀⠟"
   },
   {
     "input": "p ↓ q",
@@ -82,11 +106,5 @@
     "internal": "p`;3o`q",
     "expected": "150481821031",
     "unicode": "⠏⠀⠰⠒⠕⠀⠟"
-  },
-  {
-    "input": "∄x",
-    "internal": "..5x",
-    "expected": "4040344500",
-    "unicode": "⠨⠨⠢⠭"
   }
 ]

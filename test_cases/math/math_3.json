@@ -1,5 +1,11 @@
 [
   {
+    "input": "=",
+    "internal": "33",
+    "expected": "1818",
+    "unicode": "⠒⠒"
+  },
+  {
     "input": "32+24=56",
     "internal": "#cb5#bd33#ef",
     "expected": "609334603251818601711",

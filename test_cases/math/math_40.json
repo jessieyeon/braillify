@@ -1,5 +1,17 @@
 [
   {
+    "input": "△",
+    "internal": "_+",
+    "expected": "5644",
+    "unicode": "⠸⠬"
+  },
+  {
+    "input": "□",
+    "internal": "_7",
+    "expected": "5654",
+    "unicode": "⠸⠶"
+  },
+  {
     "input": "△ABC",
     "internal": "_+,,abc",
     "expected": "56443232139",
@@ -14,13 +26,13 @@
   {
     "input": "△ABC≡△DEF",
     "internal": "_+,,abc77_+,,def",
-    "expected": "564432321395454564432322517110",
+    "expected": "56443232139545456443232251711",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋"
   },
   {
     "input": "AB∥CD",
     "internal": ",,ab;2,,cd",
-    "expected": "32321348232329025",
+    "expected": "3232134863232925",
     "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙"
   }
 ]

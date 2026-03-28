@@ -1,5 +1,17 @@
 [
   {
+    "input": "|",
+    "internal": "\\",
+    "expected": "51",
+    "unicode": "⠳"
+  },
+  {
+    "input": "∤",
+    "internal": ".\\",
+    "expected": "4051",
+    "unicode": "⠨⠳"
+  },
+  {
     "input": "4|8",
     "internal": "#d\\#h",
     "expected": "6025516019",

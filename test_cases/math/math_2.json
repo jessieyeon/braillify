@@ -1,8 +1,68 @@
 [
   {
+    "input": "+",
+    "internal": "5",
+    "expected": "34",
+    "unicode": "⠢"
+  },
+  {
+    "input": "−",
+    "internal": "9",
+    "expected": "20",
+    "unicode": "⠔"
+  },
+  {
+    "input": "×",
+    "internal": "*",
+    "expected": "33",
+    "unicode": "⠡"
+  },
+  {
+    "input": "÷",
+    "internal": "//",
+    "expected": "1212",
+    "unicode": "⠌⠌"
+  },
+  {
+    "input": "37+25",
+    "internal": "#cg5#be",
+    "expected": "609273460317",
+    "unicode": "⠼⠉⠛⠢⠼⠃⠑"
+  },
+  {
+    "input": "23−18",
+    "internal": "#bc9#ah",
+    "expected": "60392060119",
+    "unicode": "⠼⠃⠉⠔⠼⠁⠓"
+  },
+  {
+    "input": "13×3",
+    "internal": "#ac*#c",
+    "expected": "601933609",
+    "unicode": "⠼⠁⠉⠡⠼⠉"
+  },
+  {
+    "input": "72÷8",
+    "internal": "#gb//#h",
+    "expected": "6027312126019",
+    "unicode": "⠼⠛⠃⠌⠌⠼⠓"
+  },
+  {
+    "input": "·",
+    "internal": "\"",
+    "expected": "16",
+    "unicode": "⠐"
+  },
+  {
     "input": "6·9",
     "internal": "#f\"#i",
     "expected": "6011166010",
     "unicode": "⠼⠋⠐⠼⠊"
+  },
+  {
+    "input": "dt/dy·du/dt·dx/du",
+    "internal": "dt/dy\"du/dt\"dx/du",
+    "expected": "2530122561162537122530162545122537",
+    "unicode": "⠙⠞⠌⠙⠽⠐⠙⠥⠌⠙⠞⠐⠙⠭⠌⠙⠥"
   }
 ]

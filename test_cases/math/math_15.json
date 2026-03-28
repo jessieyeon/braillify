@@ -1,5 +1,59 @@
 [
   {
+    "input": "⊕",
+    "internal": "_5",
+    "expected": "5634",
+    "unicode": "⠸⠢"
+  },
+  {
+    "input": "⊖",
+    "internal": "_9",
+    "expected": "5620",
+    "unicode": "⠸⠔"
+  },
+  {
+    "input": "⊗",
+    "internal": "_*",
+    "expected": "5633",
+    "unicode": "⠸⠡"
+  },
+  {
+    "input": "∗",
+    "internal": "_<",
+    "expected": "5635",
+    "unicode": "⠸⠣"
+  },
+  {
+    "input": "∘",
+    "internal": "_0",
+    "expected": "5652",
+    "unicode": "⠸⠴"
+  },
+  {
+    "input": "∙",
+    "internal": "_4",
+    "expected": "5650",
+    "unicode": "⠸⠲"
+  },
+  {
+    "input": "⦾",
+    "internal": "_00",
+    "expected": "565252",
+    "unicode": "⠸⠴⠴"
+  },
+  {
+    "input": "□",
+    "internal": "_7",
+    "expected": "5654",
+    "unicode": "⠸⠶"
+  },
+  {
+    "input": "∆",
+    "internal": "_+",
+    "expected": "5644",
+    "unicode": "⠸⠬"
+  },
+  {
     "input": "x ⊕ y=2x+3y",
     "internal": "x`_5`y33#bx5#cy",
     "expected": "45056340611818603453460961",

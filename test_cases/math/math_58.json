@@ -1,5 +1,11 @@
 [
   {
+    "input": "∬",
+    "internal": "!!",
+    "expected": "4646",
+    "unicode": "⠮⠮"
+  },
+  {
     "input": "∬_A f(x,y)dxdy",
     "internal": "!!;,a`f8x\"`y0dxdy",
     "expected": "4646483210113845160615225452561",

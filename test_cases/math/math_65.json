@@ -1,5 +1,23 @@
 [
   {
+    "input": "∴",
+    "internal": ",*",
+    "expected": "3233",
+    "unicode": "⠠⠡"
+  },
+  {
+    "input": "∵",
+    "internal": "@/",
+    "expected": "812",
+    "unicode": "⠈⠌"
+  },
+  {
+    "input": "＃",
+    "internal": "_?",
+    "expected": "5657",
+    "unicode": "⠸⠹"
+  },
+  {
     "input": "x+y=xy+2 ∴ xy=x+y-2",
     "internal": "x5y33xy5#b``,*``xy33x5y9#b",
     "expected": "4534611818456134603003233004561181845346120603",
@@ -7,8 +25,8 @@
   },
   {
     "input": "y=x+2는 정수 ∵ y=n+2",
-    "internal": "",
-    "expected": "",
-    "unicode": ""
+    "internal": "y33x5#b``cz`.],m``@/``y33n5#b",
+    "expected": "61181845346030095304059321300812006118182934603",
+    "unicode": "⠽⠒⠒⠭⠢⠼⠃⠀⠀⠉⠵⠀⠨⠻⠠⠍⠀⠀⠈⠌⠀⠀⠽⠒⠒⠝⠢⠼⠃"
   }
 ]

@@ -1,9 +1,21 @@
 [
   {
+    "input": "≠",
+    "internal": ".33",
+    "expected": "401818",
+    "unicode": "⠨⠒⠒"
+  },
+  {
     "input": "y≠0",
     "internal": "y.33#j",
     "expected": "614018186026",
     "unicode": "⠽⠨⠒⠒⠼⠚"
+  },
+  {
+    "input": ">",
+    "internal": "55",
+    "expected": "3434",
+    "unicode": "⠢⠢"
   },
   {
     "input": "a>b",
@@ -12,22 +24,10 @@
     "unicode": "⠁⠢⠢⠃"
   },
   {
-    "input": "x<0",
-    "internal": "x99#j",
-    "expected": "4520206026",
-    "unicode": "⠭⠔⠔⠼⠚"
-  },
-  {
-    "input": "x≥5",
-    "internal": "x44#e",
-    "expected": "4550506017",
-    "unicode": "⠭⠲⠲⠼⠑"
-  },
-  {
-    "input": "x≤0",
-    "internal": "x66#j",
-    "expected": "4522226026",
-    "unicode": "⠭⠖⠖⠼⠚"
+    "input": "≯",
+    "internal": ".55",
+    "expected": "403434",
+    "unicode": "⠨⠢⠢"
   },
   {
     "input": "x≯0",
@@ -36,39 +36,105 @@
     "unicode": "⠭⠨⠢⠢⠼⠚"
   },
   {
-    "input": "x≮y",
-    "internal": "x.99y",
-    "expected": "45402020611",
-    "unicode": "⠭⠨⠔⠔⠽"
+    "input": "<",
+    "internal": "99",
+    "expected": "2020",
+    "unicode": "⠔⠔"
+  },
+  {
+    "input": "x<0",
+    "internal": "x99#j",
+    "expected": "4520206026",
+    "unicode": "⠭⠔⠔⠼⠚"
   },
   {
     "input": "-1<x<3",
     "internal": "9#a99x99#c",
-    "expected": "2060120204520206009",
+    "expected": "206012020452020609",
     "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉"
   },
   {
     "input": "-5<x<-2",
     "internal": "9#e99x99#b",
-    "expected": "2060172045202060203",
+    "expected": "2060172020452020603",
     "unicode": "⠔⠼⠑⠔⠔⠭⠔⠔⠼⠃"
+  },
+  {
+    "input": "≮",
+    "internal": ".99",
+    "expected": "402020",
+    "unicode": "⠨⠔⠔"
+  },
+  {
+    "input": "x≮y",
+    "internal": "x.99y",
+    "expected": "4540202061",
+    "unicode": "⠭⠨⠔⠔⠽"
+  },
+  {
+    "input": "≧",
+    "internal": "44",
+    "expected": "5050",
+    "unicode": "⠲⠲"
+  },
+  {
+    "input": "≥",
+    "internal": "44",
+    "expected": "5050",
+    "unicode": "⠲⠲"
+  },
+  {
+    "input": "x≥5",
+    "internal": "x44#e",
+    "expected": "4550506017",
+    "unicode": "⠭⠲⠲⠼⠑"
+  },
+  {
+    "input": "≱",
+    "internal": ".44",
+    "expected": "405050",
+    "unicode": "⠨⠲⠲"
   },
   {
     "input": "x≱y",
     "internal": "x.44y",
-    "expected": "45405050611",
+    "expected": "4540505061",
     "unicode": "⠭⠨⠲⠲⠽"
   },
   {
-    "input": "x≰y",
-    "internal": "x.66y",
-    "expected": "45402222611",
-    "unicode": "⠭⠨⠖⠖⠽"
+    "input": "≦",
+    "internal": "66",
+    "expected": "2222",
+    "unicode": "⠖⠖"
+  },
+  {
+    "input": "≤",
+    "internal": "66",
+    "expected": "2222",
+    "unicode": "⠖⠖"
+  },
+  {
+    "input": "x≤0",
+    "internal": "x66#j",
+    "expected": "4522226026",
+    "unicode": "⠭⠖⠖⠼⠚"
   },
   {
     "input": "-1≤sinx≤1",
     "internal": "9#a666sx66#a",
-    "expected": "20601222221114452222601",
-    "unicode": "⠔⠼⠁⠖⠖⠼⠋⠎⠭⠖⠖⠼⠁"
+    "expected": "2060122222214452222601",
+    "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁"
+  },
+  {
+    "input": "≰",
+    "internal": ".66",
+    "expected": "402222",
+    "unicode": "⠨⠖⠖"
+  },
+  {
+    "input": "x≰y",
+    "internal": "x.66y",
+    "expected": "4540222261",
+    "unicode": "⠭⠨⠖⠖⠽"
   }
 ]

@@ -1,5 +1,11 @@
 [
   {
+    "input": "≒",
+    "internal": "\"33",
+    "expected": "161818",
+    "unicode": "⠐⠒⠒"
+  },
+  {
     "input": "√3≒1.732",
     "internal": ">#c\"33#a4gcb",
     "expected": "28609161818601502793",

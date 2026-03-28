@@ -1,5 +1,11 @@
 [
   {
+    "input": "≡",
+    "internal": "77",
+    "expected": "5454",
+    "unicode": "⠶⠶"
+  },
+  {
     "input": "△ABC≡△DEF",
     "internal": "_+,,abc77_+,,def",
     "expected": "56443232139545456443232251711",

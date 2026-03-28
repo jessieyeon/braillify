@@ -1,9 +1,21 @@
 [
   {
+    "input": "→",
+    "internal": "3o",
+    "expected": "1821",
+    "unicode": "⠒⠕"
+  },
+  {
     "input": "X → Y",
     "internal": ",x`3o`,y",
     "expected": "32450182103261",
     "unicode": "⠠⠭⠀⠒⠕⠀⠠⠽"
+  },
+  {
+    "input": "←",
+    "internal": "[3",
+    "expected": "4218",
+    "unicode": "⠪⠒"
   },
   {
     "input": "A ← B",
@@ -12,9 +24,51 @@
     "unicode": "⠠⠁⠀⠪⠒⠀⠠⠃"
   },
   {
+    "input": "↔",
+    "internal": "[3o",
+    "expected": "421821",
+    "unicode": "⠪⠒⠕"
+  },
+  {
     "input": "a ↔ b",
     "internal": "a`[3o`b",
     "expected": "1042182103",
     "unicode": "⠁⠀⠪⠒⠕⠀⠃"
+  },
+  {
+    "input": "↑",
+    "internal": ";3o",
+    "expected": "481821",
+    "unicode": "⠰⠒⠕"
+  },
+  {
+    "input": "↓",
+    "internal": "^3o",
+    "expected": "241821",
+    "unicode": "⠘⠒⠕"
+  },
+  {
+    "input": "↗",
+    "internal": "9o",
+    "expected": "2021",
+    "unicode": "⠔⠕"
+  },
+  {
+    "input": "↘",
+    "internal": "5o",
+    "expected": "3421",
+    "unicode": "⠢⠕"
+  },
+  {
+    "input": "↖",
+    "internal": "[5",
+    "expected": "4234",
+    "unicode": "⠪⠢"
+  },
+  {
+    "input": "↙",
+    "internal": "[9",
+    "expected": "4220",
+    "unicode": "⠪⠔"
   }
 ]

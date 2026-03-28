@@ -1,5 +1,11 @@
 [
   {
+    "input": "⌢",
+    "internal": "@[",
+    "expected": "842",
+    "unicode": "⠈⠪"
+  },
+  {
     "input": "AB̄",
     "internal": "@c,,ab",
     "expected": "89323213",
