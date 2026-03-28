@@ -1,32 +1,80 @@
 [
   {
-    "input": "37+25",
-    "internal": "#cg5#be",
-    "expected": "609273460317",
-    "unicode": "⠼⠉⠛⠢⠼⠃⠑"
+    "input": "0",
+    "internal": "#j",
+    "expected": "6026",
+    "unicode": "⠼⠚"
   },
   {
-    "input": "23-18",
-    "internal": "#bc9#ah",
-    "expected": "60392060119",
-    "unicode": "⠼⠃⠉⠔⠼⠁⠓"
+    "input": "1",
+    "internal": "#a",
+    "expected": "601",
+    "unicode": "⠼⠁"
   },
   {
-    "input": "13×3",
-    "internal": "#ac*#c",
-    "expected": "601933609",
-    "unicode": "⠼⠁⠉⠡⠼⠉"
+    "input": "2",
+    "internal": "#b",
+    "expected": "603",
+    "unicode": "⠼⠃"
   },
   {
-    "input": "72÷8",
-    "internal": "#gb//#h",
-    "expected": "6027312126019",
-    "unicode": "⠼⠛⠃⠌⠌⠼⠓"
+    "input": "3",
+    "internal": "#c",
+    "expected": "609",
+    "unicode": "⠼⠉"
+  },
+  {
+    "input": "4",
+    "internal": "#d",
+    "expected": "6025",
+    "unicode": "⠼⠙"
+  },
+  {
+    "input": "5",
+    "internal": "#e",
+    "expected": "6017",
+    "unicode": "⠼⠑"
+  },
+  {
+    "input": "6",
+    "internal": "#f",
+    "expected": "6011",
+    "unicode": "⠼⠋"
+  },
+  {
+    "input": "7",
+    "internal": "#g",
+    "expected": "6027",
+    "unicode": "⠼⠛"
+  },
+  {
+    "input": "8",
+    "internal": "#h",
+    "expected": "6019",
+    "unicode": "⠼⠓"
+  },
+  {
+    "input": "9",
+    "internal": "#i",
+    "expected": "6010",
+    "unicode": "⠼⠊"
+  },
+  {
+    "input": "10",
+    "internal": "#aj",
+    "expected": "60126",
+    "unicode": "⠼⠁⠚"
+  },
+  {
+    "input": "100",
+    "internal": "#ajj",
+    "expected": "6012626",
+    "unicode": "⠼⠁⠚⠚"
   },
   {
     "input": "5,700,000",
     "internal": "#e1gjj1jjj",
-    "expected": "6017627262626262626",
+    "expected": "601722726262262626",
     "unicode": "⠼⠑⠂⠛⠚⠚⠂⠚⠚⠚"
   }
 ]
