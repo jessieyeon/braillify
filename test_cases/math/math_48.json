@@ -10,5 +10,26 @@
     "internal": "6s^9#a,a",
     "expected": "22142420601321",
     "unicode": "⠖⠎⠘⠔⠼⠁⠠⠁"
+  },
+  {
+    "input": "3sin⁻¹x",
+    "note": "3·arcsin(x)",
+    "internal": "#c6s^9#ax",
+    "expected": "6092214242060145",
+    "unicode": "⠼⠉⠖⠎⠘⠔⠼⠁⠭"
+  },
+  {
+    "input": "sin⁻¹(3/x)",
+    "note": "arcsin(3/x)",
+    "internal": "6s^9#a(#c/x)",
+    "expected": "2214242060155609124562",
+    "unicode": "⠖⠎⠘⠔⠼⠁⠷⠼⠉⠌⠭⠾"
+  },
+  {
+    "input": "sin(sin⁻¹x)",
+    "note": "sin(arcsin(x))",
+    "internal": "6s86s^9#ax0",
+    "expected": "221438221424206014552",
+    "unicode": "⠖⠎⠦⠖⠎⠘⠔⠼⠁⠭⠴"
   }
 ]

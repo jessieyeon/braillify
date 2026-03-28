@@ -34,5 +34,31 @@
     "internal": ",,ab;2,,cd",
     "expected": "3232134863232925",
     "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙"
+  },
+  {
+    "input": "△ABC",
+    "internal": "_+,,ABC",
+    "expected": "",
+    "unicode": ""
+  },
+  {
+    "input": "□ABCD",
+    "internal": "_7,,ABCD",
+    "expected": "",
+    "unicode": ""
+  },
+  {
+    "input": "⬠",
+    "note": "오각형",
+    "internal": "_/*",
+    "expected": "561233",
+    "unicode": "⠸⠌⠡"
+  },
+  {
+    "input": "⬡",
+    "note": "육각형",
+    "internal": "_//",
+    "expected": "561212",
+    "unicode": "⠸⠌⠌"
   }
 ]

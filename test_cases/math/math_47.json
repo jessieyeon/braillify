@@ -1,15 +1,45 @@
 [
   {
+    "input": "sin",
+    "internal": "6s",
+    "expected": "2214",
+    "unicode": "⠖⠎"
+  },
+  {
+    "input": "cos",
+    "internal": "6c",
+    "expected": "229",
+    "unicode": "⠖⠉"
+  },
+  {
+    "input": "tan",
+    "internal": "6t",
+    "expected": "2230",
+    "unicode": "⠖⠞"
+  },
+  {
+    "input": "csc",
+    "internal": "6\\",
+    "expected": "2251",
+    "unicode": "⠖⠳"
+  },
+  {
+    "input": "sec",
+    "internal": "6<",
+    "expected": "2235",
+    "unicode": "⠖⠣"
+  },
+  {
+    "input": "cot",
+    "internal": "6-",
+    "expected": "2236",
+    "unicode": "⠖⠤"
+  },
+  {
     "input": "sin3x",
     "internal": "6s(#cx)",
     "expected": "2214556094562",
     "unicode": "⠖⠎⠷⠼⠉⠭⠾"
-  },
-  {
-    "input": "2cosx",
-    "internal": "#b6cx",
-    "expected": "60322945",
-    "unicode": "⠼⠃⠖⠉⠭"
   },
   {
     "input": "sin²x+cos²x=1",

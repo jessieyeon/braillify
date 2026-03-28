@@ -1,20 +1,27 @@
 [
   {
-    "input": "sinhx",
-    "internal": "6shx",
-    "expected": "22141945",
-    "unicode": "⠖⠎⠓⠭"
+    "input": "sinh",
+    "internal": "6sh",
+    "expected": "221419",
+    "unicode": "⠖⠎⠓"
   },
   {
-    "input": "coshx",
-    "internal": "6chx",
-    "expected": "2291945",
-    "unicode": "⠖⠉⠓⠭"
+    "input": "cosh",
+    "internal": "6ch",
+    "expected": "22919",
+    "unicode": "⠖⠉⠓"
   },
   {
-    "input": "tanhx",
-    "internal": "6thx",
-    "expected": "22301945",
-    "unicode": "⠖⠞⠓⠭"
+    "input": "tanh",
+    "internal": "6th",
+    "expected": "223019",
+    "unicode": "⠖⠞⠓"
+  },
+  {
+    "input": "sinhx=(eˣ-e⁻ˣ)/2",
+    "note": "sinh 정의",
+    "internal": "6shx33#b/(e^x9e^9x)",
+    "expected": "2214194518186031255172445201724204562",
+    "unicode": "⠖⠎⠓⠭⠒⠒⠼⠃⠌⠷⠑⠘⠭⠔⠑⠘⠔⠭⠾"
   }
 ]

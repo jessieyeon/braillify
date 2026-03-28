@@ -6,10 +6,24 @@
     "unicode": "⠭⠰⠼⠃"
   },
   {
+    "input": "$\\x_{2}$",
+    "internal": "x;#b",
+    "expected": "4548603",
+    "unicode": "⠭⠰⠼⠃",
+    "note": "LaTeX"
+  },
+  {
     "input": "aₙ",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝"
+  },
+  {
+    "input": "$\\a_{n}$",
+    "internal": "a;n",
+    "expected": "14829",
+    "unicode": "⠁⠰⠝",
+    "note": "LaTeX"
   },
   {
     "input": "aₙ₊₃",

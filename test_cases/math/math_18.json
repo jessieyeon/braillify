@@ -6,10 +6,24 @@
     "unicode": "⠼⠓⠘⠼⠃"
   },
   {
+    "input": "$\\8^{2}$",
+    "internal": "#h^#b",
+    "expected": "601924603",
+    "unicode": "⠼⠓⠘⠼⠃",
+    "note": "LaTeX"
+  },
+  {
     "input": "c²",
     "internal": "c^#b",
     "expected": "924603",
     "unicode": "⠉⠘⠼⠃"
+  },
+  {
+    "input": "$\\c^{2}$",
+    "internal": "c^#b",
+    "expected": "924603",
+    "unicode": "⠉⠘⠼⠃",
+    "note": "LaTeX"
   },
   {
     "input": "(-3)³",
@@ -22,6 +36,13 @@
     "internal": "x^9#a",
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁"
+  },
+  {
+    "input": "$\\x^{-1}$",
+    "internal": "x^9#a",
+    "expected": "452420601",
+    "unicode": "⠭⠘⠔⠼⠁",
+    "note": "LaTeX"
   },
   {
     "input": "aᵏ",
@@ -46,5 +67,26 @@
     "internal": "x^#j4c",
     "expected": "45246026509",
     "unicode": "⠭⠘⠼⠚⠲⠉"
+  },
+  {
+    "input": "2²⁽ᵐ⁺ⁿ⁾",
+    "note": "2^(2(m+n))",
+    "internal": "#b^(#b8m5n0)",
+    "expected": "6032455603381334295262",
+    "unicode": "⠼⠃⠘⠷⠼⠃⠦⠍⠢⠝⠴⠾"
+  },
+  {
+    "input": "3ˣ/1",
+    "note": "3^x / 1",
+    "internal": "#c^x/#a",
+    "expected": "609244512601",
+    "unicode": "⠼⠉⠘⠭⠌⠼⠁"
+  },
+  {
+    "input": "3⁴⁄¹",
+    "note": "3^(4/1)",
+    "internal": "#c^(#d/#a)",
+    "expected": "609245560251260162",
+    "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾"
   }
 ]

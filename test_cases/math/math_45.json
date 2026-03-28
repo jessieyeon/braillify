@@ -10,5 +10,17 @@
     "internal": "f8x9#a0",
     "expected": "1138452060152",
     "unicode": "⠋⠦⠭⠔⠼⠁⠴"
+  },
+  {
+    "input": "y=f⁻¹(x)",
+    "internal": "y33f^9#a8x0",
+    "expected": "611818112420601384552",
+    "unicode": "⠽⠒⠒⠋⠘⠔⠼⠁⠦⠭⠴"
+  },
+  {
+    "input": "f(x-1)",
+    "internal": "F8X9#A0",
+    "expected": "",
+    "unicode": ""
   }
 ]

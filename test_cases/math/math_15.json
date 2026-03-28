@@ -6,58 +6,16 @@
     "unicode": "⠸⠢"
   },
   {
-    "input": "⊖",
-    "internal": "_9",
-    "expected": "5620",
-    "unicode": "⠸⠔"
-  },
-  {
-    "input": "⊗",
-    "internal": "_*",
-    "expected": "5633",
-    "unicode": "⠸⠡"
-  },
-  {
-    "input": "∗",
-    "internal": "_<",
-    "expected": "5635",
-    "unicode": "⠸⠣"
-  },
-  {
-    "input": "∘",
-    "internal": "_0",
-    "expected": "5652",
-    "unicode": "⠸⠴"
-  },
-  {
-    "input": "∙",
-    "internal": "_4",
-    "expected": "5650",
-    "unicode": "⠸⠲"
-  },
-  {
-    "input": "⦾",
-    "internal": "_00",
-    "expected": "565252",
-    "unicode": "⠸⠴⠴"
-  },
-  {
-    "input": "□",
-    "internal": "_7",
-    "expected": "5654",
-    "unicode": "⠸⠶"
-  },
-  {
-    "input": "∆",
-    "internal": "_+",
-    "expected": "5644",
-    "unicode": "⠸⠬"
-  },
-  {
     "input": "x ⊕ y=2x+3y",
     "internal": "x`_5`y33#bx5#cy",
     "expected": "45056340611818603453460961",
     "unicode": "⠭⠀⠸⠢⠀⠽⠒⠒⠼⠃⠭⠢⠼⠉⠽"
+  },
+  {
+    "input": "⊖",
+    "internal": "_9",
+    "expected": "5620",
+    "unicode": "⠸⠔"
   },
   {
     "input": "a ⊖ b=3(a+b)",
@@ -66,10 +24,22 @@
     "unicode": "⠁⠀⠸⠔⠀⠃⠒⠒⠼⠉⠦⠁⠢⠃⠴"
   },
   {
+    "input": "⊗",
+    "internal": "_*",
+    "expected": "5633",
+    "unicode": "⠸⠡"
+  },
+  {
     "input": "x ⊗ y=x³+y",
     "internal": "x`_*`y33x^#c5y",
     "expected": "4505633061181845246093461",
     "unicode": "⠭⠀⠸⠡⠀⠽⠒⠒⠭⠘⠼⠉⠢⠽"
+  },
+  {
+    "input": "∗",
+    "internal": "_<",
+    "expected": "5635",
+    "unicode": "⠸⠣"
   },
   {
     "input": "-3 ∗ y=e",
@@ -78,9 +48,63 @@
     "unicode": "⠔⠼⠉⠀⠸⠣⠀⠽⠒⠒⠑"
   },
   {
+    "input": "∘",
+    "internal": "_0",
+    "expected": "5652",
+    "unicode": "⠸⠴"
+  },
+  {
     "input": "a ∘ e=ae+a",
     "internal": "a`_0`e33ae5a",
     "expected": "1056520171818117341",
     "unicode": "⠁⠀⠸⠴⠀⠑⠒⠒⠁⠑⠢⠁"
+  },
+  {
+    "input": "⦾",
+    "internal": "_00",
+    "expected": "565252",
+    "unicode": "⠸⠴⠴"
+  },
+  {
+    "input": "x ⦾ y=6xy-5y+2y²",
+    "internal": "x`_00`y33#fxy9#ey5#by^#b",
+    "expected": "45056525206118186011456120601761346036124603",
+    "unicode": "⠭⠀⠸⠴⠴⠀⠽⠒⠒⠼⠋⠭⠽⠔⠼⠑⠽⠢⠼⠃⠽⠘⠼⠃"
+  },
+  {
+    "input": "∙",
+    "internal": "_4",
+    "expected": "5650",
+    "unicode": "⠸⠲"
+  },
+  {
+    "input": "a∙b=a/1-b/1",
+    "internal": "a`_4`b33a/#a9b/#a",
+    "expected": "10565003181811260120312601",
+    "unicode": "⠁⠀⠸⠲⠀⠃⠒⠒⠁⠌⠼⠁⠔⠃⠌⠼⠁"
+  },
+  {
+    "input": "□",
+    "internal": "_7",
+    "expected": "5654",
+    "unicode": "⠸⠶"
+  },
+  {
+    "input": "x□y=x²y+7xy-3yx",
+    "internal": "x`_7`y33x^#by5#gxy9#cyx",
+    "expected": "450565406118184524603613460274561206096145",
+    "unicode": "⠭⠀⠸⠶⠀⠽⠒⠒⠭⠘⠼⠃⠽⠢⠼⠛⠭⠽⠔⠼⠉⠽⠭"
+  },
+  {
+    "input": "∆",
+    "internal": "_+",
+    "expected": "5644",
+    "unicode": "⠸⠬"
+  },
+  {
+    "input": "A∆B=(A-B)+(B-A)",
+    "internal": "``,a`_+`,b338,a9,b0`+`8,b9,a0",
+    "expected": "0032105644032318183832120323520440383232032152",
+    "unicode": "⠀⠀⠠⠁⠀⠸⠬⠀⠠⠃⠒⠒⠦⠠⠁⠔⠠⠃⠴⠀⠬⠀⠦⠠⠃⠔⠠⠁⠴"
   }
 ]

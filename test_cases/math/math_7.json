@@ -12,6 +12,13 @@
     "unicode": "⠼⠙⠌⠼⠉"
   },
   {
+    "input": "$\\frac{3}{4}$",
+    "internal": "#d/#c",
+    "expected": "602512609",
+    "unicode": "⠼⠙⠌⠼⠉",
+    "note": "LaTeX"
+  },
+  {
     "input": "3⅙",
     "internal": "#c#f/#a",
     "expected": "609601112601",
@@ -28,6 +35,13 @@
     "internal": "#b_/#c",
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉"
+  },
+  {
+    "input": "$\\frac{2}{3}$",
+    "internal": "#b_/#c",
+    "expected": "6035612609",
+    "unicode": "⠼⠃⠸⠌⠼⠉",
+    "note": "LaTeX"
   },
   {
     "input": "x+y̲",
@@ -52,5 +66,12 @@
     "internal": "#e/(ab)",
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾"
+  },
+  {
+    "input": "2^(3/(x+1))",
+    "note": "분수 중첩",
+    "internal": "#b^(#c/(x5#a))",
+    "expected": "6032455609125545346016262",
+    "unicode": "⠼⠃⠘⠷⠼⠉⠌⠷⠭⠢⠼⠁⠾⠾"
   }
 ]

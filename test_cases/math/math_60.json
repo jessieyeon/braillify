@@ -6,6 +6,19 @@
     "unicode": "⠖"
   },
   {
+    "input": "$\\in$",
+    "internal": "6",
+    "expected": "22",
+    "unicode": "⠖",
+    "note": "LaTeX"
+  },
+  {
+    "input": "A∈M",
+    "internal": "A6,M",
+    "expected": "",
+    "unicode": ""
+  },
+  {
     "input": "∋",
     "internal": "4",
     "expected": "50",
@@ -18,16 +31,55 @@
     "unicode": "⠨⠖"
   },
   {
+    "input": "$\\notin$",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖",
+    "note": "LaTeX"
+  },
+  {
+    "input": "A∉A",
+    "internal": "A.6,A",
+    "expected": "",
+    "unicode": ""
+  },
+  {
     "input": "⊂",
     "internal": "61",
     "expected": "222",
     "unicode": "⠖⠂"
   },
   {
+    "input": "$\\subset$",
+    "internal": "61",
+    "expected": "222",
+    "unicode": "⠖⠂",
+    "note": "LaTeX"
+  },
+  {
+    "input": "B⊂A",
+    "internal": ",B61,A",
+    "expected": "",
+    "unicode": ""
+  },
+  {
     "input": "⊃",
     "internal": "\"4",
     "expected": "1650",
     "unicode": "⠐⠲"
+  },
+  {
+    "input": "$\\supset$",
+    "internal": "\"4",
+    "expected": "1650",
+    "unicode": "⠐⠲",
+    "note": "LaTeX"
+  },
+  {
+    "input": "A⊃B",
+    "internal": ",A\"4,B",
+    "expected": "",
+    "unicode": ""
   },
   {
     "input": "⊄",
@@ -48,16 +100,44 @@
     "unicode": "⠨⠋"
   },
   {
+    "input": "$\\emptyset$",
+    "internal": ".f",
+    "expected": "4011",
+    "unicode": "⠨⠋",
+    "note": "LaTeX"
+  },
+  {
     "input": "∪",
     "internal": "+",
     "expected": "44",
     "unicode": "⠬"
   },
   {
+    "input": "$\\cup$",
+    "internal": "+",
+    "expected": "44",
+    "unicode": "⠬",
+    "note": "LaTeX"
+  },
+  {
     "input": "∩",
     "internal": "%",
     "expected": "41",
     "unicode": "⠩"
+  },
+  {
+    "input": "$\\cap$",
+    "internal": "%",
+    "expected": "41",
+    "unicode": "⠩",
+    "note": "LaTeX"
+  },
+  {
+    "input": "Aᶜ=U-A",
+    "note": "여집합 Aᶜ=U-A",
+    "internal": ",A^c33,U9,A",
+    "expected": "",
+    "unicode": ""
   },
   {
     "input": "a∉A",
@@ -130,5 +210,11 @@
     "internal": ",m.\"4,a",
     "expected": "3213401650321",
     "unicode": "⠠⠍⠨⠐⠲⠠⠁"
+  },
+  {
+    "input": "A⊄M",
+    "internal": ",A.61,M",
+    "expected": "",
+    "unicode": ""
   }
 ]

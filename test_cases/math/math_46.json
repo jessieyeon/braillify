@@ -40,5 +40,25 @@
     "internal": "_;e8#b5h0",
     "expected": "56481738603341952",
     "unicode": "⠸⠰⠑⠦⠼⠃⠢⠓⠴"
+  },
+  {
+    "input": "log₍₃/₁₎9",
+    "note": "log 밑 3/1",
+    "internal": "_;(#c/#a)#i",
+    "expected": "56485560912601626010",
+    "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊"
+  },
+  {
+    "input": "log₍₀.₂₎n",
+    "note": "log 밑 0.2",
+    "internal": "_;(#j4b),n",
+    "expected": "5648556026503623229",
+    "unicode": "⠸⠰⠷⠼⠚⠲⠃⠾⠠⠝"
+  },
+  {
+    "input": "log₂(x+1)",
+    "internal": "_,2(8x5#a0)",
+    "expected": "56326553845346015262",
+    "unicode": "⠸⠠⠆⠷⠦⠭⠢⠼⠁⠴⠾"
   }
 ]

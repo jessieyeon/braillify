@@ -89,7 +89,6 @@
   },
   {
     "input": "√(xy)",
-    "note": "√(xy)",
     "internal": ">(xy)",
     "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾"
@@ -99,20 +98,6 @@
     "internal": "6s(#f/x)",
     "expected": "2214556011124562",
     "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾"
-  },
-  {
-    "input": "",
-    "note": "한글표 (한글 묶음 열기)",
-    "internal": "_(",
-    "expected": "5655",
-    "unicode": "⠸⠷"
-  },
-  {
-    "input": "",
-    "note": "한글 종료표 (한글 묶음 닫기)",
-    "internal": "_)",
-    "expected": "5662",
-    "unicode": "⠸⠾"
   },
   {
     "input": "원의 둘레 = 반지름 × 2 × 3.14",

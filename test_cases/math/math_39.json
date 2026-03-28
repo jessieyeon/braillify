@@ -10,5 +10,11 @@
     "internal": "3o,,ab",
     "expected": "1821323213",
     "unicode": "⠒⠕⠠⠠⠁⠃"
+  },
+  {
+    "input": "∠ABC",
+    "internal": "?,,ABC",
+    "expected": "",
+    "unicode": ""
   }
 ]

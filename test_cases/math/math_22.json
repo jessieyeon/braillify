@@ -12,6 +12,13 @@
     "unicode": "⠜⠼⠃"
   },
   {
+    "input": "$\\sqrt{2}$",
+    "internal": ">#b",
+    "expected": "28603",
+    "unicode": "⠜⠼⠃",
+    "note": "LaTeX"
+  },
+  {
     "input": "³√x³",
     "internal": "#c]x^#c",
     "expected": "609594524609",
@@ -34,5 +41,19 @@
     "internal": ">(xy)",
     "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾"
+  },
+  {
+    "input": "$\\sqrt{xy}$",
+    "internal": ">(xy)",
+    "expected": "2855456162",
+    "unicode": "⠜⠷⠭⠽⠾",
+    "note": "LaTeX"
+  },
+  {
+    "input": "ᵐⁿ√y",
+    "note": "mn제곱근 y",
+    "internal": "(mn)]y",
+    "expected": "551329625961",
+    "unicode": "⠷⠍⠝⠾⠻⠽"
   }
 ]

@@ -10,5 +10,61 @@
     "internal": "f-8x0",
     "expected": "1136384552",
     "unicode": "⠋⠤⠦⠭⠴"
+  },
+  {
+    "input": "dx/dy=dz/dy·dx/dz",
+    "note": "연쇄법칙",
+    "internal": "dx/dy33dz/dy*dx/dz",
+    "expected": "254512256118182553122561332545122553",
+    "unicode": "⠙⠭⠌⠙⠽⠒⠒⠙⠵⠌⠙⠽⠡⠙⠭⠌⠙⠵"
+  },
+  {
+    "input": "y''=d²x/d²y",
+    "note": "이계도함수",
+    "internal": "y--33dx^#b/d^#by",
+    "expected": "613636181825452460312252460361",
+    "unicode": "⠽⠤⠤⠒⠒⠙⠭⠘⠼⠃⠌⠙⠘⠼⠃⠽"
+  },
+  {
+    "input": "dx/du·v+u·dx/dv",
+    "note": "곱미분",
+    "internal": "dx/du*v5u*dx/dv",
+    "expected": "254512253733393437332545122539",
+    "unicode": "⠙⠭⠌⠙⠥⠡⠧⠢⠥⠡⠙⠭⠌⠙⠧"
+  },
+  {
+    "input": "dx/d(3x+5)",
+    "note": "합성함수 미분",
+    "internal": "dx/d8#cx5#e0",
+    "expected": "25451225386094534601752",
+    "unicode": "⠙⠭⠌⠙⠦⠼⠉⠭⠢⠼⠑⠴"
+  },
+  {
+    "input": "d²y=f''(x)dx²",
+    "note": "이계도함수",
+    "internal": "d^#by33f--8x0dx^#b",
+    "expected": "2524603611818113636384552254524603",
+    "unicode": "⠙⠘⠼⠃⠽⠒⠒⠋⠤⠤⠦⠭⠴⠙⠭⠘⠼⠃"
+  },
+  {
+    "input": "y'''=d³x/d³y",
+    "note": "삼계도함수",
+    "internal": "y---33dx^#c/d^#cy",
+    "expected": "61363636181825452460912252460961",
+    "unicode": "⠽⠤⠤⠤⠒⠒⠙⠭⠘⠼⠉⠌⠙⠘⠼⠉⠽"
+  },
+  {
+    "input": "y⁴=d⁴x/d⁴y",
+    "note": "사계도함수",
+    "internal": "y^8#d033dx^#d/d^#dy",
+    "expected": "61243860255218182545246025122524602561",
+    "unicode": "⠽⠘⠦⠼⠙⠴⠒⠒⠙⠭⠘⠼⠙⠌⠙⠘⠼⠙⠽"
+  },
+  {
+    "input": "yⁿ=dⁿx/dⁿy",
+    "note": "n계도함수",
+    "internal": "y^8n033dx^n/d^ny",
+    "expected": "61243829521818254524291225242961",
+    "unicode": "⠽⠘⠦⠝⠴⠒⠒⠙⠭⠘⠝⠌⠙⠘⠝⠽"
   }
 ]

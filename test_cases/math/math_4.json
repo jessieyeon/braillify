@@ -12,6 +12,13 @@
     "unicode": "⠽⠨⠒⠒⠼⠚"
   },
   {
+    "input": "$\\y \\neq 0$",
+    "internal": "y.33#j",
+    "expected": "614018186026",
+    "unicode": "⠽⠨⠒⠒⠼⠚",
+    "note": "LaTeX"
+  },
+  {
     "input": ">",
     "internal": "55",
     "expected": "3434",
@@ -22,6 +29,13 @@
     "internal": "a55b",
     "expected": "134343",
     "unicode": "⠁⠢⠢⠃"
+  },
+  {
+    "input": "$\\a > b$",
+    "internal": "a55b",
+    "expected": "134343",
+    "unicode": "⠁⠢⠢⠃",
+    "note": "LaTeX"
   },
   {
     "input": "≯",
@@ -48,10 +62,24 @@
     "unicode": "⠭⠔⠔⠼⠚"
   },
   {
+    "input": "$\\x < 0$",
+    "internal": "x99#j",
+    "expected": "4520206026",
+    "unicode": "⠭⠔⠔⠼⠚",
+    "note": "LaTeX"
+  },
+  {
     "input": "-1<x<3",
     "internal": "9#a99x99#c",
     "expected": "206012020452020609",
     "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉"
+  },
+  {
+    "input": "$\\-1 < x < 3$",
+    "internal": "9#a99x99#c",
+    "expected": "206012020452020609",
+    "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉",
+    "note": "LaTeX"
   },
   {
     "input": "-5<x<-2",
@@ -90,6 +118,13 @@
     "unicode": "⠭⠲⠲⠼⠑"
   },
   {
+    "input": "$\\x \\geq 5$",
+    "internal": "x44#e",
+    "expected": "4550506017",
+    "unicode": "⠭⠲⠲⠼⠑",
+    "note": "LaTeX"
+  },
+  {
     "input": "≱",
     "internal": ".44",
     "expected": "405050",
@@ -120,10 +155,24 @@
     "unicode": "⠭⠖⠖⠼⠚"
   },
   {
+    "input": "$\\x \\leq 0$",
+    "internal": "x66#j",
+    "expected": "4522226026",
+    "unicode": "⠭⠖⠖⠼⠚",
+    "note": "LaTeX"
+  },
+  {
     "input": "-1≤sinx≤1",
     "internal": "9#a666sx66#a",
     "expected": "2060122222214452222601",
     "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁"
+  },
+  {
+    "input": "$\\-1 \\leq \\sin x \\leq 1$",
+    "internal": "9#a666sx66#a",
+    "expected": "2060122222214452222601",
+    "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁",
+    "note": "LaTeX"
   },
   {
     "input": "≰",

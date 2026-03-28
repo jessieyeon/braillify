@@ -6,6 +6,13 @@
     "unicode": "⠿"
   },
   {
+    "input": "$\\infty$",
+    "internal": "=",
+    "expected": "63",
+    "unicode": "⠿",
+    "note": "LaTeX"
+  },
+  {
     "input": "n → ∞",
     "internal": "n`3o`=",
     "expected": "2901821063",
@@ -16,5 +23,19 @@
     "internal": "9=",
     "expected": "2063",
     "unicode": "⠔⠿"
+  },
+  {
+    "input": "$\\-\\infty$",
+    "internal": "9=",
+    "expected": "2063",
+    "unicode": "⠔⠿",
+    "note": "LaTeX"
+  },
+  {
+    "input": "n→∞",
+    "note": "n → ∞",
+    "internal": "N`3o`=",
+    "expected": "",
+    "unicode": ""
   }
 ]
