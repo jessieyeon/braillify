@@ -6,10 +6,202 @@
     "unicode": "⠼⠂"
   },
   {
+    "input": "②",
+    "internal": "#2",
+    "expected": "606",
+    "unicode": "⠼⠆"
+  },
+  {
+    "input": "③",
+    "internal": "#3",
+    "expected": "6018",
+    "unicode": "⠼⠒"
+  },
+  {
+    "input": "④",
+    "internal": "#4",
+    "expected": "6050",
+    "unicode": "⠼⠲"
+  },
+  {
+    "input": "⑤",
+    "internal": "#5",
+    "expected": "6034",
+    "unicode": "⠼⠢"
+  },
+  {
+    "input": "⑥",
+    "internal": "#6",
+    "expected": "6022",
+    "unicode": "⠼⠖"
+  },
+  {
+    "input": "⑦",
+    "internal": "#7",
+    "expected": "6054",
+    "unicode": "⠼⠶"
+  },
+  {
+    "input": "⑧",
+    "internal": "#8",
+    "expected": "6038",
+    "unicode": "⠼⠦"
+  },
+  {
+    "input": "⑨",
+    "internal": "#9",
+    "expected": "6020",
+    "unicode": "⠼⠔"
+  },
+  {
+    "input": "⑩",
+    "internal": "#10",
+    "expected": "60252",
+    "unicode": "⠼⠂⠴"
+  },
+  {
+    "input": "⑪",
+    "internal": "#11",
+    "expected": "6022",
+    "unicode": "⠼⠂⠂"
+  },
+  {
+    "input": "⑫",
+    "internal": "#12",
+    "expected": "6026",
+    "unicode": "⠼⠂⠆"
+  },
+  {
+    "input": "⑬",
+    "internal": "#13",
+    "expected": "60218",
+    "unicode": "⠼⠂⠒"
+  },
+  {
+    "input": "⑭",
+    "internal": "#14",
+    "expected": "60250",
+    "unicode": "⠼⠂⠲"
+  },
+  {
+    "input": "⑮",
+    "internal": "#15",
+    "expected": "60234",
+    "unicode": "⠼⠂⠢"
+  },
+  {
+    "input": "⑯",
+    "internal": "#16",
+    "expected": "60222",
+    "unicode": "⠼⠂⠖"
+  },
+  {
+    "input": "⑰",
+    "internal": "#17",
+    "expected": "60254",
+    "unicode": "⠼⠂⠶"
+  },
+  {
+    "input": "⑱",
+    "internal": "#18",
+    "expected": "60238",
+    "unicode": "⠼⠂⠦"
+  },
+  {
+    "input": "⑲",
+    "internal": "#19",
+    "expected": "60220",
+    "unicode": "⠼⠂⠔"
+  },
+  {
+    "input": "⑳",
+    "internal": "#20",
+    "expected": "60652",
+    "unicode": "⠼⠆⠴"
+  },
+  {
     "input": "㉮",
     "internal": "7$7",
     "expected": "544354",
     "unicode": "⠶⠫⠶"
+  },
+  {
+    "input": "㉯",
+    "internal": "7c7",
+    "expected": "54954",
+    "unicode": "⠶⠉⠶"
+  },
+  {
+    "input": "㉰",
+    "internal": "7i7",
+    "expected": "541054",
+    "unicode": "⠶⠊⠶"
+  },
+  {
+    "input": "㉱",
+    "internal": "7\"<7",
+    "expected": "54163554",
+    "unicode": "⠶⠐⠣⠶"
+  },
+  {
+    "input": "㉲",
+    "internal": "7e7",
+    "expected": "541754",
+    "unicode": "⠶⠑⠶"
+  },
+  {
+    "input": "㉳",
+    "internal": "7^7",
+    "expected": "542454",
+    "unicode": "⠶⠘⠶"
+  },
+  {
+    "input": "㉴",
+    "internal": "7l7",
+    "expected": "54754",
+    "unicode": "⠶⠇⠶"
+  },
+  {
+    "input": "㉵",
+    "internal": "7<7",
+    "expected": "543554",
+    "unicode": "⠶⠣⠶"
+  },
+  {
+    "input": "㉶",
+    "internal": "7.7",
+    "expected": "544054",
+    "unicode": "⠶⠨⠶"
+  },
+  {
+    "input": "㉷",
+    "internal": "7;<7",
+    "expected": "54483554",
+    "unicode": "⠶⠰⠣⠶"
+  },
+  {
+    "input": "㉸",
+    "internal": "7f7",
+    "expected": "541154",
+    "unicode": "⠶⠋⠶"
+  },
+  {
+    "input": "㉹",
+    "internal": "7h7",
+    "expected": "541954",
+    "unicode": "⠶⠓⠶"
+  },
+  {
+    "input": "㉺",
+    "internal": "7d7",
+    "expected": "542554",
+    "unicode": "⠶⠙⠶"
+  },
+  {
+    "input": "㉻",
+    "internal": "7j7",
+    "expected": "542654",
+    "unicode": "⠶⠚⠶"
   },
   {
     "input": "㉠",
@@ -18,10 +210,238 @@
     "unicode": "⠶⠿⠁⠶"
   },
   {
+    "input": "㉡",
+    "internal": "7=37",
+    "expected": "54631854",
+    "unicode": "⠶⠿⠒⠶"
+  },
+  {
+    "input": "㉢",
+    "internal": "7=97",
+    "expected": "54632054",
+    "unicode": "⠶⠿⠔⠶"
+  },
+  {
+    "input": "㉣",
+    "internal": "7=17",
+    "expected": "5463254",
+    "unicode": "⠶⠿⠂⠶"
+  },
+  {
+    "input": "㉤",
+    "internal": "7=57",
+    "expected": "54633454",
+    "unicode": "⠶⠿⠢⠶"
+  },
+  {
+    "input": "㉥",
+    "internal": "7=b7",
+    "expected": "5463354",
+    "unicode": "⠶⠿⠃⠶"
+  },
+  {
+    "input": "㉦",
+    "internal": "7='7",
+    "expected": "5463454",
+    "unicode": "⠶⠿⠄⠶"
+  },
+  {
+    "input": "㉧",
+    "internal": "7=77",
+    "expected": "54635454",
+    "unicode": "⠶⠿⠶⠶"
+  },
+  {
+    "input": "㉨",
+    "internal": "7=k7",
+    "expected": "5463554",
+    "unicode": "⠶⠿⠅⠶"
+  },
+  {
+    "input": "㉩",
+    "internal": "7=27",
+    "expected": "5463654",
+    "unicode": "⠶⠿⠆⠶"
+  },
+  {
+    "input": "㉪",
+    "internal": "7=67",
+    "expected": "54632254",
+    "unicode": "⠶⠿⠖⠶"
+  },
+  {
+    "input": "㉫",
+    "internal": "7=87",
+    "expected": "54633854",
+    "unicode": "⠶⠿⠦⠶"
+  },
+  {
+    "input": "㉬",
+    "internal": "7=47",
+    "expected": "54635054",
+    "unicode": "⠶⠿⠲⠶"
+  },
+  {
+    "input": "㉭",
+    "internal": "7=07",
+    "expected": "54635254",
+    "unicode": "⠶⠿⠴⠶"
+  },
+  {
     "input": "ⓐ",
     "internal": "70a7",
     "expected": "5452154",
     "unicode": "⠶⠴⠁⠶"
+  },
+  {
+    "input": "ⓑ",
+    "internal": "70b7",
+    "expected": "5452354",
+    "unicode": "⠶⠴⠃⠶"
+  },
+  {
+    "input": "ⓒ",
+    "internal": "70c7",
+    "expected": "5452954",
+    "unicode": "⠶⠴⠉⠶"
+  },
+  {
+    "input": "ⓓ",
+    "internal": "70d7",
+    "expected": "54522554",
+    "unicode": "⠶⠴⠙⠶"
+  },
+  {
+    "input": "ⓔ",
+    "internal": "70e7",
+    "expected": "54521754",
+    "unicode": "⠶⠴⠑⠶"
+  },
+  {
+    "input": "ⓕ",
+    "internal": "70f7",
+    "expected": "54521154",
+    "unicode": "⠶⠴⠋⠶"
+  },
+  {
+    "input": "ⓖ",
+    "internal": "70g7",
+    "expected": "54522754",
+    "unicode": "⠶⠴⠛⠶"
+  },
+  {
+    "input": "ⓗ",
+    "internal": "70h7",
+    "expected": "54521954",
+    "unicode": "⠶⠴⠓⠶"
+  },
+  {
+    "input": "ⓘ",
+    "internal": "70i7",
+    "expected": "54521054",
+    "unicode": "⠶⠴⠊⠶"
+  },
+  {
+    "input": "ⓙ",
+    "internal": "70j7",
+    "expected": "54522654",
+    "unicode": "⠶⠴⠚⠶"
+  },
+  {
+    "input": "ⓚ",
+    "internal": "70k7",
+    "expected": "5452554",
+    "unicode": "⠶⠴⠅⠶"
+  },
+  {
+    "input": "ⓛ",
+    "internal": "70l7",
+    "expected": "5452754",
+    "unicode": "⠶⠴⠇⠶"
+  },
+  {
+    "input": "ⓜ",
+    "internal": "70m7",
+    "expected": "54521354",
+    "unicode": "⠶⠴⠍⠶"
+  },
+  {
+    "input": "ⓝ",
+    "internal": "70n7",
+    "expected": "54522954",
+    "unicode": "⠶⠴⠝⠶"
+  },
+  {
+    "input": "ⓞ",
+    "internal": "70o7",
+    "expected": "54522154",
+    "unicode": "⠶⠴⠕⠶"
+  },
+  {
+    "input": "ⓟ",
+    "internal": "70p7",
+    "expected": "54521554",
+    "unicode": "⠶⠴⠏⠶"
+  },
+  {
+    "input": "ⓠ",
+    "internal": "70q7",
+    "expected": "54523154",
+    "unicode": "⠶⠴⠟⠶"
+  },
+  {
+    "input": "ⓡ",
+    "internal": "70r7",
+    "expected": "54522354",
+    "unicode": "⠶⠴⠗⠶"
+  },
+  {
+    "input": "ⓢ",
+    "internal": "70s7",
+    "expected": "54521454",
+    "unicode": "⠶⠴⠎⠶"
+  },
+  {
+    "input": "ⓣ",
+    "internal": "70t7",
+    "expected": "54523054",
+    "unicode": "⠶⠴⠞⠶"
+  },
+  {
+    "input": "ⓤ",
+    "internal": "70u7",
+    "expected": "54523754",
+    "unicode": "⠶⠴⠥⠶"
+  },
+  {
+    "input": "ⓥ",
+    "internal": "70v7",
+    "expected": "54523954",
+    "unicode": "⠶⠴⠧⠶"
+  },
+  {
+    "input": "ⓦ",
+    "internal": "70w7",
+    "expected": "54525854",
+    "unicode": "⠶⠴⠺⠶"
+  },
+  {
+    "input": "ⓧ",
+    "internal": "70x7",
+    "expected": "54524554",
+    "unicode": "⠶⠴⠭⠶"
+  },
+  {
+    "input": "ⓨ",
+    "internal": "70y7",
+    "expected": "54526154",
+    "unicode": "⠶⠴⠽⠶"
+  },
+  {
+    "input": "ⓩ",
+    "internal": "70z7",
+    "expected": "54525354",
+    "unicode": "⠶⠴⠵⠶"
   },
   {
     "input": "",

@@ -212,7 +212,7 @@ mod test {
         input: &'a str,
     ) -> Option<(Cow<'a, str>, Vec<FormattingSpan>)> {
         match (file_stem, line_num) {
-            ("korean/rule_49", 58) => Some((
+            ("korean/rule_49", 59) => Some((
                 Cow::Borrowed(input),
                 vec![
                     FormattingSpan {
