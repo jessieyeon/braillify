@@ -4,34 +4,39 @@
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",
-    "world": "⠸⠳"
+    "world": "⠸⠳",
+    "jeomsarang": "⠸⠳"
   },
   {
     "input": "∤",
     "internal": ".\\",
     "expected": "4051",
     "unicode": "⠨⠳",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠨⠳"
   },
   {
     "input": "4|8",
     "internal": "#d\\#h",
     "expected": "6025516019",
     "unicode": "⠼⠙⠳⠼⠓",
-    "world": "⠼⠙⠸⠳⠼⠓"
+    "world": "⠼⠙⠸⠳⠼⠓",
+    "jeomsarang": "⠼⠙⠸⠳⠼⠓"
   },
   {
     "input": "2∤3",
     "internal": "#b.\\#c",
     "expected": "6034051609",
     "unicode": "⠼⠃⠨⠳⠼⠉",
-    "world": "⠼⠃⠼⠉"
+    "world": "⠼⠃⠼⠉",
+    "jeomsarang": "⠼⠃⠨⠳⠼⠉"
   },
   {
     "input": "4|8, -5|n",
     "internal": "#d\\#h`9#e\\n",
     "expected": "602551601902060175129",
     "unicode": "⠼⠙⠳⠼⠓⠀⠔⠼⠑⠳⠝",
-    "world": "⠼⠙⠸⠳⠼⠓⠐ ⠤⠼⠑⠸⠳⠴⠝⠲"
+    "world": "⠼⠙⠸⠳⠼⠓⠐ ⠤⠼⠑⠸⠳⠴⠝⠲",
+    "jeomsarang": "⠼⠙⠸⠳⠼⠓⠐⠀⠤⠼⠑⠸⠳⠴⠝⠲"
   }
 ]

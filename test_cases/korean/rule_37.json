@@ -4,223 +4,255 @@
     "internal": "but",
     "expected": "33730",
     "unicode": "⠃⠥⠞",
-    "world": "⠴⠃⠥⠞⠲"
+    "world": "⠴⠃⠥⠞⠲",
+    "jeomsarang": "⠴⠃"
   },
   {
     "input": "can",
     "internal": "can",
     "expected": "9129",
     "unicode": "⠉⠁⠝",
-    "world": "⠴⠉⠁⠝⠲"
+    "world": "⠴⠉⠁⠝⠲",
+    "jeomsarang": "⠴⠉"
   },
   {
     "input": "do",
     "internal": "do",
     "expected": "2521",
     "unicode": "⠙⠕",
-    "world": "⠴⠙⠕⠲"
+    "world": "⠴⠙⠕⠲",
+    "jeomsarang": "⠴⠙"
   },
   {
     "input": "every",
     "internal": "\"ey",
     "expected": "161761",
     "unicode": "⠐⠑⠽",
-    "world": "⠴⠐⠑⠽⠲"
+    "world": "⠴⠐⠑⠽⠲",
+    "jeomsarang": "⠴⠑"
   },
   {
     "input": "from",
     "internal": "from",
     "expected": "11232113",
     "unicode": "⠋⠗⠕⠍",
-    "world": "⠴⠋⠗⠕⠍⠲"
+    "world": "⠴⠋⠗⠕⠍⠲",
+    "jeomsarang": "⠴⠋"
   },
   {
     "input": "go",
     "internal": "go",
     "expected": "2721",
     "unicode": "⠛⠕",
-    "world": "⠴⠛⠕⠲"
+    "world": "⠴⠛⠕⠲",
+    "jeomsarang": "⠴⠛"
   },
   {
     "input": "have",
     "internal": "have",
     "expected": "1913917",
     "unicode": "⠓⠁⠧⠑",
-    "world": "⠴⠓⠁⠧⠑⠲"
+    "world": "⠴⠓⠁⠧⠑⠲",
+    "jeomsarang": "⠴⠓"
   },
   {
     "input": "just",
     "internal": "ju/",
     "expected": "263712",
     "unicode": "⠚⠥⠌",
-    "world": "⠴⠚⠥⠌⠲"
+    "world": "⠴⠚⠥⠌⠲",
+    "jeomsarang": "⠴⠚"
   },
   {
     "input": "knowledge",
     "internal": "\"kl$ge",
     "expected": "1657432717",
     "unicode": "⠐⠅⠇⠫⠛⠑",
-    "world": "⠴⠐⠅⠇⠫⠛⠑⠲"
+    "world": "⠴⠐⠅⠇⠫⠛⠑⠲",
+    "jeomsarang": "⠴⠅"
   },
   {
     "input": "like",
     "internal": "like",
     "expected": "710517",
     "unicode": "⠇⠊⠅⠑",
-    "world": "⠴⠇⠊⠅⠑⠲"
+    "world": "⠴⠇⠊⠅⠑⠲",
+    "jeomsarang": "⠴⠇"
   },
   {
     "input": "more",
     "internal": "more",
     "expected": "13212317",
     "unicode": "⠍⠕⠗⠑",
-    "world": "⠴⠍⠕⠗⠑⠲"
+    "world": "⠴⠍⠕⠗⠑⠲",
+    "jeomsarang": "⠴⠍"
   },
   {
     "input": "not",
     "internal": "not",
     "expected": "292130",
     "unicode": "⠝⠕⠞",
-    "world": "⠴⠝⠕⠞⠲"
+    "world": "⠴⠝⠕⠞⠲",
+    "jeomsarang": "⠴⠝"
   },
   {
     "input": "people",
     "internal": "people",
     "expected": "15172115717",
     "unicode": "⠏⠑⠕⠏⠇⠑",
-    "world": "⠴⠏⠑⠕⠏⠇⠑⠲"
+    "world": "⠴⠏⠑⠕⠏⠇⠑⠲",
+    "jeomsarang": "⠴⠏"
   },
   {
     "input": "quite",
     "internal": "quite",
     "expected": "3137103017",
     "unicode": "⠟⠥⠊⠞⠑",
-    "world": "⠴⠟⠥⠊⠞⠑⠲"
+    "world": "⠴⠟⠥⠊⠞⠑⠲",
+    "jeomsarang": "⠴⠟"
   },
   {
     "input": "rather",
     "internal": "ra!r",
     "expected": "2314623",
     "unicode": "⠗⠁⠮⠗",
-    "world": "⠴⠗⠁⠮⠗⠲"
+    "world": "⠴⠗⠁⠮⠗⠲",
+    "jeomsarang": "⠴⠗"
   },
   {
     "input": "so",
     "internal": "so",
     "expected": "1421",
     "unicode": "⠎⠕",
-    "world": "⠴⠎⠕⠲"
+    "world": "⠴⠎⠕⠲",
+    "jeomsarang": "⠴⠎"
   },
   {
     "input": "that",
     "internal": "?at",
     "expected": "57130",
     "unicode": "⠹⠁⠞",
-    "world": "⠴⠹⠁⠞⠲"
+    "world": "⠴⠹⠁⠞⠲",
+    "jeomsarang": "⠴⠞"
   },
   {
     "input": "us",
     "internal": "us",
     "expected": "3714",
     "unicode": "⠥⠎",
-    "world": "⠴⠥⠎⠲"
+    "world": "⠴⠥⠎⠲",
+    "jeomsarang": "⠴⠥"
   },
   {
     "input": "very",
     "internal": "v}y",
     "expected": "395961",
     "unicode": "⠧⠻⠽",
-    "world": "⠴⠧⠻⠽⠲"
+    "world": "⠴⠧⠻⠽⠲",
+    "jeomsarang": "⠴⠧"
   },
   {
     "input": "will",
     "internal": "will",
     "expected": "581077",
     "unicode": "⠺⠊⠇⠇",
-    "world": "⠴⠺⠊⠇⠇⠲"
+    "world": "⠴⠺⠊⠇⠇⠲",
+    "jeomsarang": "⠴⠺"
   },
   {
     "input": "it",
     "internal": "it",
     "expected": "1030",
     "unicode": "⠊⠞",
-    "world": "⠴⠊⠞⠲"
+    "world": "⠴⠊⠞⠲",
+    "jeomsarang": "⠴⠭"
   },
   {
     "input": "you",
     "internal": "y\\",
     "expected": "6151",
     "unicode": "⠽⠳",
-    "world": "⠴⠽⠳⠲"
+    "world": "⠴⠽⠳⠲",
+    "jeomsarang": "⠴⠽"
   },
   {
     "input": "as",
     "internal": "as",
     "expected": "114",
     "unicode": "⠁⠎",
-    "world": "⠴⠁⠎⠲"
+    "world": "⠴⠁⠎⠲",
+    "jeomsarang": "⠴⠵"
   },
   {
     "input": "be",
     "internal": "be",
     "expected": "317",
     "unicode": "⠃⠑",
-    "world": "⠴⠃⠑⠲"
+    "world": "⠴⠃⠑⠲",
+    "jeomsarang": "⠴⠆"
   },
   {
     "input": "enough",
     "internal": "5\\<",
     "expected": "345135",
     "unicode": "⠢⠳⠣",
-    "world": "⠴⠢⠳⠣⠲"
+    "world": "⠴⠢⠳⠣⠲",
+    "jeomsarang": "⠴⠢"
   },
   {
     "input": "his",
     "internal": "his",
     "expected": "191014",
     "unicode": "⠓⠊⠎",
-    "world": "⠴⠓⠊⠎⠲"
+    "world": "⠴⠓⠊⠎⠲",
+    "jeomsarang": "⠴⠦"
   },
   {
     "input": "in",
     "internal": "in",
     "expected": "1029",
     "unicode": "⠊⠝",
-    "world": "⠴⠊⠝⠲"
+    "world": "⠴⠊⠝⠲",
+    "jeomsarang": "⠴⠔"
   },
   {
     "input": "was",
     "internal": "was",
     "expected": "58114",
     "unicode": "⠺⠁⠎",
-    "world": "⠴⠺⠁⠎⠲"
+    "world": "⠴⠺⠁⠎⠲",
+    "jeomsarang": "⠴⠴"
   },
   {
     "input": "were",
     "internal": "w}e",
     "expected": "585917",
     "unicode": "⠺⠻⠑",
-    "world": "⠴⠺⠻⠑⠲"
+    "world": "⠴⠺⠻⠑⠲",
+    "jeomsarang": "⠴⠶"
   },
   {
     "input": "그는 Can you help me?라고 도움을 요청했다.",
     "internal": "@{cz`0,can`y`help`me8\"<@u`ium5`!`+;]jr/i4",
     "expected": "842953052329129061019177150131738163583701037133404604448592623121050",
     "unicode": "⠈⠪⠉⠵⠀⠴⠠⠉⠁⠝⠀⠽⠀⠓⠑⠇⠏⠀⠍⠑⠦⠐⠣⠈⠥⠀⠊⠥⠍⠢⠀⠮⠀⠬⠰⠻⠚⠗⠌⠊⠲",
-    "world": "⠈⠪⠉⠵ ⠴⠠⠉⠁⠝ ⠽ ⠓⠑⠇⠏ ⠍⠑⠦⠐⠣⠈⠥ ⠊⠥⠍⠢⠮ ⠬⠰⠻⠚⠗⠌⠊⠲"
+    "world": "⠈⠪⠉⠵ ⠴⠠⠉⠁⠝ ⠽ ⠓⠑⠇⠏ ⠍⠑⠦⠐⠣⠈⠥ ⠊⠥⠍⠢⠮ ⠬⠰⠻⠚⠗⠌⠊⠲",
+    "jeomsarang": "⠈⠪⠉⠵⠀⠴⠠⠉⠁⠝⠀⠽⠀⠓⠑⠇⠏⠀⠍⠑⠦⠐⠣⠈⠥⠀⠊⠥⠍⠢⠮⠀⠬⠰⠻⠚⠗⠌⠊⠲"
   },
   {
     "input": "be는 am, are, is의 원형 동사이다.",
     "internal": "0be4cz`0am1`>e1`is4w`p3j}`i=loi4",
     "expected": "52317509530521132028172010145058015182659010637211050",
     "unicode": "⠴⠃⠑⠲⠉⠵⠀⠴⠁⠍⠂⠀⠜⠑⠂⠀⠊⠎⠲⠺⠀⠏⠒⠚⠻⠀⠊⠿⠇⠕⠊⠲",
-    "world": "⠴⠃⠑⠲⠉⠵ ⠴⠁⠍⠂ ⠜⠑⠂ ⠊⠎⠲⠺ ⠏⠒⠚⠻ ⠊⠿⠇⠕⠊⠲"
+    "world": "⠴⠃⠑⠲⠉⠵ ⠴⠁⠍⠂ ⠜⠑⠂ ⠊⠎⠲⠺ ⠏⠒⠚⠻ ⠊⠿⠇⠕⠊⠲",
+    "jeomsarang": "⠴⠃⠑⠲⠉⠵⠀⠴⠁⠍⠐⠀⠜⠑⠐⠀⠊⠎⠲⠺⠀⠏⠒⠚⠻⠀⠊⠿⠇⠕⠊⠲"
   },
   {
     "input": "be, his, was, were의 약자를 바르게 쓰시오.",
     "internal": "0be1`his1`was1`w]e4w`>a.\"!`~\"{@n`,,{,ou4",
     "expected": "5231720191014205811420585917505802814016460241642829032324232213750",
     "unicode": "⠴⠃⠑⠂⠀⠓⠊⠎⠂⠀⠺⠁⠎⠂⠀⠺⠻⠑⠲⠺⠀⠜⠁⠨⠐⠮⠀⠘⠐⠪⠈⠝⠀⠠⠠⠪⠠⠕⠥⠲",
-    "world": "⠴⠃⠑⠂ ⠓⠊⠎⠂ ⠺⠁⠎⠂ ⠺⠻⠑⠲⠺ ⠜⠁⠨⠐⠮ ⠘⠐⠪⠈⠝ ⠠⠠⠪⠠⠕⠥⠲"
+    "world": "⠴⠃⠑⠂ ⠓⠊⠎⠂ ⠺⠁⠎⠂ ⠺⠻⠑⠲⠺ ⠜⠁⠨⠐⠮ ⠘⠐⠪⠈⠝ ⠠⠠⠪⠠⠕⠥⠲",
+    "jeomsarang": "⠴⠃⠑⠐⠀⠓⠊⠎⠐⠀⠺⠁⠎⠐⠀⠺⠻⠑⠲⠺⠀⠜⠁⠨⠐⠮⠀⠘⠐⠪⠈⠝⠀⠠⠠⠪⠠⠕⠥⠲"
   }
 ]

@@ -4,7 +4,8 @@
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
-    "world": "⠴⠭⠰⠼⠃"
+    "world": "⠴⠭⠰⠼⠃",
+    "jeomsarang": "⠴⠭⠲⠰⠢⠼⠃"
   },
   {
     "input": "$x_2$",
@@ -12,14 +13,16 @@
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x₂",
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
-    "world": "⠴⠭⠰⠼⠃"
+    "world": "⠴⠭⠰⠼⠃",
+    "jeomsarang": "⠴⠭⠲⠰⠢⠼⠃"
   },
   {
     "input": "$x_{2}$",
@@ -27,14 +30,16 @@
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "aₙ",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
-    "world": "⠴⠁⠰⠝⠲"
+    "world": "⠴⠁⠰⠝⠲",
+    "jeomsarang": "⠴⠁⠲⠀"
   },
   {
     "input": "$a_n$",
@@ -42,14 +47,16 @@
     "expected": "14829",
     "unicode": "⠁⠰⠝",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "aₙ",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
-    "world": "⠴⠁⠰⠝⠲"
+    "world": "⠴⠁⠰⠝⠲",
+    "jeomsarang": "⠴⠁⠲⠀"
   },
   {
     "input": "$a_{n}$",
@@ -57,14 +64,16 @@
     "expected": "14829",
     "unicode": "⠁⠰⠝",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "aₙ₊₃",
     "internal": "a;(n5#c)",
     "expected": "14855293460962",
     "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾",
-    "world": "⠴⠁⠰⠝⠢⠼⠉"
+    "world": "⠴⠁⠰⠝⠢⠼⠉",
+    "jeomsarang": "⠴⠁⠲⠀⠰⠢⠰⠼⠉"
   },
   {
     "input": "$a_{n+3}$",
@@ -72,14 +81,16 @@
     "expected": "14855293460962",
     "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "aₘ₊ₙ",
     "internal": "a;(m5n)",
     "expected": "1485513342962",
     "unicode": "⠁⠰⠷⠍⠢⠝⠾",
-    "world": "⠴⠁⠰⠍⠐⠖⠝⠲"
+    "world": "⠴⠁⠰⠍⠐⠖⠝⠲",
+    "jeomsarang": "⠴⠁⠲⠀⠰⠢⠀"
   },
   {
     "input": "$a_{m+n}$",
@@ -87,14 +98,16 @@
     "expected": "1485513342962",
     "unicode": "⠁⠰⠷⠍⠢⠝⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x₀.₅",
     "internal": "x;#j4e",
     "expected": "454860265017",
     "unicode": "⠭⠰⠼⠚⠲⠑",
-    "world": "⠴⠭⠰⠼⠚⠲⠰⠑"
+    "world": "⠴⠭⠰⠼⠚⠲⠰⠑",
+    "jeomsarang": "⠴⠭⠲⠰⠼⠚⠲⠠⠢"
   },
   {
     "input": "$x_{0.5}$",
@@ -102,14 +115,16 @@
     "expected": "454860265017",
     "unicode": "⠭⠰⠼⠚⠲⠑",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "S₂ₐ",
     "internal": ",s;(#b\"a)",
     "expected": "3214485560316162",
     "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾",
-    "world": "⠴⠠⠎⠰⠼⠃⠰⠁⠲"
+    "world": "⠴⠠⠎⠰⠼⠃⠰⠁⠲",
+    "jeomsarang": "⠴⠠⠎⠲⠰⠢⠼⠃⠰⠁"
   },
   {
     "input": "$S_{2a}$",
@@ -117,6 +132,7 @@
     "expected": "3214485560316162",
     "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

@@ -4,14 +4,16 @@
     "internal": "_+",
     "expected": "5644",
     "unicode": "⠸⠬",
-    "world": "⠸⠬"
+    "world": "⠸⠬",
+    "jeomsarang": "⠸⠬"
   },
   {
     "input": "△ABC",
     "internal": "_+,,ABC",
     "expected": "56443232139",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉",
-    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠲"
+    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠲",
+    "jeomsarang": "⠸⠬⠠⠠⠁⠃⠉⠲"
   },
   {
     "input": "$\\triangle ABC$",
@@ -19,21 +21,24 @@
     "expected": "56443232139",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "□",
     "internal": "_7",
     "expected": "5654",
     "unicode": "⠸⠶",
-    "world": "⠸⠶"
+    "world": "⠸⠶",
+    "jeomsarang": "⠸⠶"
   },
   {
     "input": "□ABCD",
     "internal": "_7,,ABCD",
     "expected": "5654323213925",
     "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
-    "world": "⠸⠶⠴⠠⠠⠁⠃⠉⠙⠲"
+    "world": "⠸⠶⠴⠠⠠⠁⠃⠉⠙⠲",
+    "jeomsarang": "⠸⠶⠠⠠⠁⠃⠉⠙⠲"
   },
   {
     "input": "$\\square ABCD$",
@@ -41,34 +46,39 @@
     "expected": "5654323213925",
     "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "⌂",
     "internal": "_[K",
     "expected": "56425",
     "unicode": "⠸⠪⠅",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "⎔",
     "internal": "_[O",
     "expected": "564221",
     "unicode": "⠸⠪⠕",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "",
     "internal": "_/*",
     "expected": "561233",
     "unicode": "⠸⠌⠡",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "▱",
     "internal": "_//",
     "expected": "561212",
     "unicode": "⠸⠌⠌",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠸⠌⠌"
   }
 ]

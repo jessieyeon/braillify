@@ -5,7 +5,8 @@
     "internal": "\"#",
     "expected": "1660",
     "unicode": "⠐⠼",
-    "world": "⠿⠐⠼"
+    "world": "⠿⠐⠼",
+    "jeomsarang": "⠐⠼"
   },
   {
     "input": "ㆎ",
@@ -13,7 +14,8 @@
     "internal": "\"#R",
     "expected": "166023",
     "unicode": "⠐⠼⠗",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠐⠼⠗"
   },
   {
     "input": "ㆇ",
@@ -21,7 +23,8 @@
     "internal": "_+>",
     "expected": "564428",
     "unicode": "⠸⠬⠜",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠿⠬⠤⠜"
   },
   {
     "input": "ㆈ",
@@ -29,7 +32,8 @@
     "internal": "_+>r",
     "expected": "56442823",
     "unicode": "⠸⠬⠜⠗",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠸⠬⠜⠗"
   },
   {
     "input": "ㆉ",
@@ -37,7 +41,8 @@
     "internal": "_+o",
     "expected": "564421",
     "unicode": "⠸⠬⠕",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠸⠬⠕"
   },
   {
     "input": "ㆊ",
@@ -45,7 +50,8 @@
     "internal": "_%:",
     "expected": "564149",
     "unicode": "⠸⠩⠱",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠿⠩⠤⠱"
   },
   {
     "input": "ㆋ",
@@ -53,7 +59,8 @@
     "internal": "_%/",
     "expected": "564112",
     "unicode": "⠸⠩⠌",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠿⠩⠤⠌"
   },
   {
     "input": "ㆌ",
@@ -61,7 +68,8 @@
     "internal": "_%o",
     "expected": "564121",
     "unicode": "⠸⠩⠕",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠿⠩⠤⠗"
   },
   {
     "input": "",
@@ -69,7 +77,8 @@
     "internal": "@\"#\".\"#1",
     "expected": "81660164016602",
     "unicode": "⠈⠐⠼⠐⠨⠐⠼⠂",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠈⠐⠼⠀"
   },
   {
     "input": "",
@@ -77,7 +86,8 @@
     "internal": "\"#re\"#rj\"#3",
     "expected": "1660231716602326166018",
     "unicode": "⠐⠼⠗⠑⠐⠼⠗⠚⠐⠼⠒",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠐⠼⠗⠑⠐⠼⠗⠚⠐⠼⠒"
   },
   {
     "input": "고기",
@@ -85,7 +95,8 @@
     "internal": ",_+o@u@o",
     "expected": "32564421837821",
     "unicode": "⠠⠸⠬⠕⠈⠥⠈⠕",
-    "world": "⠈⠥⠈⠕"
+    "world": "⠈⠥⠈⠕",
+    "jeomsarang": "⠠⠸⠬⠕⠈⠥⠈⠕"
   },
   {
     "input": "轉輪륜王",
@@ -93,7 +104,8 @@
     "internal": "i_%:3\"%3\"dv\"4",
     "expected": "10564149181641181625391650",
     "unicode": "⠊⠸⠩⠱⠒⠐⠩⠒⠐⠙⠧⠐⠲",
-    "world": "⠨⠾⠩⠒⠐⠩⠒⠧⠶"
+    "world": "⠨⠾⠩⠒⠐⠩⠒⠧⠶",
+    "jeomsarang": "⠨⠾⠀⠐⠩⠒⠐⠩⠒⠧⠶⠀"
   },
   {
     "input": "榮養",
@@ -101,7 +113,8 @@
     "internal": "\"d_%:\"4>\"4",
     "expected": "16255641491650281650",
     "unicode": "⠐⠙⠸⠩⠱⠐⠲⠜⠐⠲",
-    "world": "⠻⠜⠶"
+    "world": "⠻⠜⠶",
+    "jeomsarang": "⠻⠀⠜⠶⠀"
   },
   {
     "input": "砌 기슭섬 ",
@@ -109,7 +122,8 @@
     "internal": "@o,!a,s5`;_%/",
     "expected": "82132461321434048564112",
     "unicode": "⠈⠕⠠⠮⠁⠠⠎⠢⠀⠰⠸⠩⠌",
-    "world": "⠰⠝ ⠈⠕⠠⠮⠁⠠⠎⠢"
+    "world": "⠰⠝ ⠈⠕⠠⠮⠁⠠⠎⠢",
+    "jeomsarang": "⠰⠝⠀⠈⠕⠠⠮⠁⠠⠎⠢⠀⠀"
   },
   {
     "input": "집거라",
@@ -117,7 +131,8 @@
     "internal": ".ob@s_%o\"<",
     "expected": "402138145641211635",
     "unicode": "⠨⠕⠃⠈⠎⠸⠩⠕⠐⠣",
-    "world": "⠨⠕⠃⠈⠎⠐⠣"
+    "world": "⠨⠕⠃⠈⠎⠐⠣",
+    "jeomsarang": "⠨⠕⠃⠈⠎⠀⠐⠣"
   },
   {
     "input": "술 야",
@@ -125,6 +140,7 @@
     "internal": ",&`;_%oj\"#>",
     "expected": "324704856412126166028",
     "unicode": "⠠⠯⠀⠰⠸⠩⠕⠚⠐⠼⠜",
-    "world": "⠠⠯ ⠜"
+    "world": "⠠⠯ ⠜",
+    "jeomsarang": "⠠⠯⠀⠰⠸⠩⠕⠚⠐⠼⠜"
   }
 ]

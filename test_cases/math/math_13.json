@@ -5,7 +5,8 @@
     "internal": ",.a",
     "expected": "32401",
     "unicode": "⠠⠨⠁",
-    "world": "⠴⠠⠨⠁⠲"
+    "world": "⠴⠠⠨⠁⠲",
+    "jeomsarang": "⠠⠨⠁⠲"
   },
   {
     "input": "Β",
@@ -13,7 +14,8 @@
     "internal": ",.b",
     "expected": "32403",
     "unicode": "⠠⠨⠃",
-    "world": "⠴⠠⠨⠃⠲"
+    "world": "⠴⠠⠨⠃⠲",
+    "jeomsarang": "⠠⠨⠃⠲"
   },
   {
     "input": "Γ",
@@ -21,7 +23,8 @@
     "internal": ",.g",
     "expected": "324027",
     "unicode": "⠠⠨⠛",
-    "world": "⠴⠠⠨⠛⠲"
+    "world": "⠴⠠⠨⠛⠲",
+    "jeomsarang": "⠠⠨⠛⠲"
   },
   {
     "input": "γ",
@@ -29,7 +32,8 @@
     "internal": ".g",
     "expected": "4027",
     "unicode": "⠨⠛",
-    "world": "⠴⠨⠛⠲"
+    "world": "⠴⠨⠛⠲",
+    "jeomsarang": "⠨⠛⠲"
   },
   {
     "input": "Δ",
@@ -37,7 +41,8 @@
     "internal": ",.d",
     "expected": "324025",
     "unicode": "⠠⠨⠙",
-    "world": "⠴⠠⠨⠙⠲"
+    "world": "⠴⠠⠨⠙⠲",
+    "jeomsarang": "⠠⠨⠙⠲"
   },
   {
     "input": "δ",
@@ -45,7 +50,8 @@
     "internal": ".d",
     "expected": "4025",
     "unicode": "⠨⠙",
-    "world": "⠴⠨⠙⠲"
+    "world": "⠴⠨⠙⠲",
+    "jeomsarang": "⠨⠙⠲"
   },
   {
     "input": "Ε",
@@ -53,7 +59,8 @@
     "internal": ",.e",
     "expected": "324017",
     "unicode": "⠠⠨⠑",
-    "world": "⠴⠠⠨⠑⠲"
+    "world": "⠴⠠⠨⠑⠲",
+    "jeomsarang": "⠠⠨⠑⠲"
   },
   {
     "input": "ε",
@@ -61,7 +68,8 @@
     "internal": ".e",
     "expected": "4017",
     "unicode": "⠨⠑",
-    "world": "⠴⠨⠑⠲"
+    "world": "⠴⠨⠑⠲",
+    "jeomsarang": "⠨⠑⠲"
   },
   {
     "input": "Ζ",
@@ -69,7 +77,8 @@
     "internal": ",.z",
     "expected": "324053",
     "unicode": "⠠⠨⠵",
-    "world": "⠴⠠⠨⠵⠲"
+    "world": "⠴⠠⠨⠵⠲",
+    "jeomsarang": "⠠⠨⠵⠲"
   },
   {
     "input": "ζ",
@@ -77,7 +86,8 @@
     "internal": ".z",
     "expected": "4053",
     "unicode": "⠨⠵",
-    "world": "⠴⠨⠵⠲"
+    "world": "⠴⠨⠵⠲",
+    "jeomsarang": "⠨⠵⠲"
   },
   {
     "input": "Η",
@@ -85,7 +95,8 @@
     "internal": ".:",
     "expected": "4049",
     "unicode": "⠨⠱",
-    "world": "⠴⠠⠨⠱⠲"
+    "world": "⠴⠠⠨⠱⠲",
+    "jeomsarang": "⠠⠨⠱⠲"
   },
   {
     "input": "η",
@@ -93,7 +104,8 @@
     "internal": ".:",
     "expected": "4049",
     "unicode": "⠨⠱",
-    "world": "⠴⠨⠱⠲"
+    "world": "⠴⠨⠱⠲",
+    "jeomsarang": "⠨⠱⠲"
   },
   {
     "input": "Θ",
@@ -101,7 +113,8 @@
     "internal": ",.?",
     "expected": "324057",
     "unicode": "⠠⠨⠹",
-    "world": "⠴⠠⠨⠹⠲"
+    "world": "⠴⠠⠨⠹⠲",
+    "jeomsarang": "⠠⠨⠹⠲"
   },
   {
     "input": "Ι",
@@ -109,7 +122,8 @@
     "internal": ",.i",
     "expected": "324010",
     "unicode": "⠠⠨⠊",
-    "world": "⠴⠠⠨⠊⠲"
+    "world": "⠴⠠⠨⠊⠲",
+    "jeomsarang": "⠠⠨⠊⠲"
   },
   {
     "input": "ι",
@@ -117,7 +131,8 @@
     "internal": ".i",
     "expected": "4010",
     "unicode": "⠨⠊",
-    "world": "⠴⠨⠊⠲"
+    "world": "⠴⠨⠊⠲",
+    "jeomsarang": "⠨⠊⠲"
   },
   {
     "input": "Κ",
@@ -125,7 +140,8 @@
     "internal": ",.k",
     "expected": "32405",
     "unicode": "⠠⠨⠅",
-    "world": "⠴⠠⠨⠅⠲"
+    "world": "⠴⠠⠨⠅⠲",
+    "jeomsarang": "⠠⠨⠅⠲"
   },
   {
     "input": "κ",
@@ -133,7 +149,8 @@
     "internal": ".k",
     "expected": "405",
     "unicode": "⠨⠅",
-    "world": "⠴⠨⠅⠲"
+    "world": "⠴⠨⠅⠲",
+    "jeomsarang": "⠨⠅⠲"
   },
   {
     "input": "Λ",
@@ -141,7 +158,8 @@
     "internal": ",.l",
     "expected": "32407",
     "unicode": "⠠⠨⠇",
-    "world": "⠴⠠⠨⠇⠲"
+    "world": "⠴⠠⠨⠇⠲",
+    "jeomsarang": "⠠⠨⠇⠲"
   },
   {
     "input": "λ",
@@ -149,7 +167,8 @@
     "internal": ".l",
     "expected": "407",
     "unicode": "⠨⠇",
-    "world": "⠴⠨⠇⠲"
+    "world": "⠴⠨⠇⠲",
+    "jeomsarang": "⠨⠇⠲"
   },
   {
     "input": "Μ",
@@ -157,7 +176,8 @@
     "internal": ",.m",
     "expected": "324013",
     "unicode": "⠠⠨⠍",
-    "world": "⠴⠠⠨⠍⠲"
+    "world": "⠴⠠⠨⠍⠲",
+    "jeomsarang": "⠠⠨⠍⠲"
   },
   {
     "input": "μ",
@@ -165,7 +185,8 @@
     "internal": ".m",
     "expected": "4013",
     "unicode": "⠨⠍",
-    "world": "⠴⠨⠍⠲"
+    "world": "⠴⠨⠍⠲",
+    "jeomsarang": "⠨⠍⠲"
   },
   {
     "input": "Ν",
@@ -173,7 +194,8 @@
     "internal": ",.n",
     "expected": "324029",
     "unicode": "⠠⠨⠝",
-    "world": "⠴⠠⠨⠝⠲"
+    "world": "⠴⠠⠨⠝⠲",
+    "jeomsarang": "⠠⠨⠝⠲"
   },
   {
     "input": "ν",
@@ -181,7 +203,8 @@
     "internal": ".n",
     "expected": "4029",
     "unicode": "⠨⠝",
-    "world": "⠴⠨⠝⠲"
+    "world": "⠴⠨⠝⠲",
+    "jeomsarang": "⠨⠝⠲"
   },
   {
     "input": "Ξ",
@@ -189,7 +212,8 @@
     "internal": ",.x",
     "expected": "324045",
     "unicode": "⠠⠨⠭",
-    "world": "⠴⠠⠨⠭⠲"
+    "world": "⠴⠠⠨⠭⠲",
+    "jeomsarang": "⠠⠨⠭⠲"
   },
   {
     "input": "ξ",
@@ -197,7 +221,8 @@
     "internal": ".x",
     "expected": "4045",
     "unicode": "⠨⠭",
-    "world": "⠴⠨⠭⠲"
+    "world": "⠴⠨⠭⠲",
+    "jeomsarang": "⠨⠭⠲"
   },
   {
     "input": "Ο",
@@ -205,7 +230,8 @@
     "internal": ",.o",
     "expected": "324021",
     "unicode": "⠠⠨⠕",
-    "world": "⠴⠠⠨⠕⠲"
+    "world": "⠴⠠⠨⠕⠲",
+    "jeomsarang": "⠠⠨⠕⠲"
   },
   {
     "input": "ο",
@@ -213,7 +239,8 @@
     "internal": ".o",
     "expected": "4021",
     "unicode": "⠨⠕",
-    "world": "⠴⠨⠕⠲"
+    "world": "⠴⠨⠕⠲",
+    "jeomsarang": "⠨⠕⠲"
   },
   {
     "input": "Π",
@@ -221,7 +248,8 @@
     "internal": ",.p",
     "expected": "324015",
     "unicode": "⠠⠨⠏",
-    "world": "⠴⠠⠨⠏⠲"
+    "world": "⠴⠠⠨⠏⠲",
+    "jeomsarang": "⠠⠨⠏⠲"
   },
   {
     "input": "Ρ",
@@ -229,7 +257,8 @@
     "internal": ",.r",
     "expected": "324023",
     "unicode": "⠠⠨⠗",
-    "world": "⠴⠠⠨⠗⠲"
+    "world": "⠴⠠⠨⠗⠲",
+    "jeomsarang": "⠠⠨⠗⠲"
   },
   {
     "input": "ρ",
@@ -237,7 +266,8 @@
     "internal": ".r",
     "expected": "4023",
     "unicode": "⠨⠗",
-    "world": "⠴⠨⠗⠲"
+    "world": "⠴⠨⠗⠲",
+    "jeomsarang": "⠨⠗⠲"
   },
   {
     "input": "Σ",
@@ -245,7 +275,8 @@
     "internal": ",.s",
     "expected": "324014",
     "unicode": "⠠⠨⠎",
-    "world": "⠴⠠⠨⠎⠲"
+    "world": "⠴⠠⠨⠎⠲",
+    "jeomsarang": "⠠⠨⠎⠲"
   },
   {
     "input": "Τ",
@@ -253,7 +284,8 @@
     "internal": ",.t",
     "expected": "324030",
     "unicode": "⠠⠨⠞",
-    "world": "⠴⠠⠨⠞⠲"
+    "world": "⠴⠠⠨⠞⠲",
+    "jeomsarang": "⠠⠨⠞⠲"
   },
   {
     "input": "τ",
@@ -261,7 +293,8 @@
     "internal": ".t",
     "expected": "4030",
     "unicode": "⠨⠞",
-    "world": "⠴⠨⠞⠲"
+    "world": "⠴⠨⠞⠲",
+    "jeomsarang": "⠨⠞⠲"
   },
   {
     "input": "Υ",
@@ -269,7 +302,8 @@
     "internal": ",.u",
     "expected": "324037",
     "unicode": "⠠⠨⠥",
-    "world": "⠴⠠⠨⠥⠲"
+    "world": "⠴⠠⠨⠥⠲",
+    "jeomsarang": "⠠⠨⠥⠲"
   },
   {
     "input": "υ",
@@ -277,7 +311,8 @@
     "internal": ".u",
     "expected": "4037",
     "unicode": "⠨⠥",
-    "world": "⠴⠨⠥⠲"
+    "world": "⠴⠨⠥⠲",
+    "jeomsarang": "⠨⠥⠲"
   },
   {
     "input": "Φ",
@@ -285,7 +320,8 @@
     "internal": ",.f",
     "expected": "324011",
     "unicode": "⠠⠨⠋",
-    "world": "⠴⠠⠨⠋⠲"
+    "world": "⠴⠠⠨⠋⠲",
+    "jeomsarang": "⠠⠨⠋⠲"
   },
   {
     "input": "φ",
@@ -293,7 +329,8 @@
     "internal": ".f",
     "expected": "4011",
     "unicode": "⠨⠋",
-    "world": "⠴⠨⠋⠲"
+    "world": "⠴⠨⠋⠲",
+    "jeomsarang": "⠨⠋⠲"
   },
   {
     "input": "Χ",
@@ -301,7 +338,8 @@
     "internal": ",.&",
     "expected": "324047",
     "unicode": "⠠⠨⠯",
-    "world": "⠴⠠⠨⠯⠲"
+    "world": "⠴⠠⠨⠯⠲",
+    "jeomsarang": "⠠⠨⠯⠲"
   },
   {
     "input": "χ",
@@ -309,7 +347,8 @@
     "internal": ".&",
     "expected": "4047",
     "unicode": "⠨⠯",
-    "world": "⠴⠨⠯⠲"
+    "world": "⠴⠨⠯⠲",
+    "jeomsarang": "⠨⠯⠲"
   },
   {
     "input": "Ψ",
@@ -317,7 +356,8 @@
     "internal": ",.y",
     "expected": "324061",
     "unicode": "⠠⠨⠽",
-    "world": "⠴⠠⠨⠽⠲"
+    "world": "⠴⠠⠨⠽⠲",
+    "jeomsarang": "⠠⠨⠽⠲"
   },
   {
     "input": "ψ",
@@ -325,7 +365,8 @@
     "internal": ".y",
     "expected": "4061",
     "unicode": "⠨⠽",
-    "world": "⠴⠨⠽⠲"
+    "world": "⠴⠨⠽⠲",
+    "jeomsarang": "⠨⠽⠲"
   },
   {
     "input": "Ω",
@@ -333,48 +374,55 @@
     "internal": ",.w",
     "expected": "324058",
     "unicode": "⠠⠨⠺",
-    "world": "⠴⠠⠨⠺⠲"
+    "world": "⠴⠠⠨⠺⠲",
+    "jeomsarang": "⠠⠨⠺⠲"
   },
   {
     "input": "α",
     "internal": ".a",
     "expected": "401",
     "unicode": "⠨⠁",
-    "world": "⠴⠨⠁⠲"
+    "world": "⠴⠨⠁⠲",
+    "jeomsarang": "⠨⠁⠲"
   },
   {
     "input": "β",
     "internal": ".b",
     "expected": "403",
     "unicode": "⠨⠃",
-    "world": "⠴⠨⠃⠲"
+    "world": "⠴⠨⠃⠲",
+    "jeomsarang": "⠨⠃⠲"
   },
   {
     "input": "π",
     "internal": ".p",
     "expected": "4015",
     "unicode": "⠨⠏",
-    "world": "⠴⠨⠏⠲"
+    "world": "⠴⠨⠏⠲",
+    "jeomsarang": "⠨⠏⠲"
   },
   {
     "input": "θ",
     "internal": ".?",
     "expected": "4057",
     "unicode": "⠨⠹",
-    "world": "⠴⠨⠹⠲"
+    "world": "⠴⠨⠹⠲",
+    "jeomsarang": "⠨⠹⠲"
   },
   {
     "input": "σ",
     "internal": ".s",
     "expected": "4014",
     "unicode": "⠨⠎",
-    "world": "⠴⠨⠎⠲"
+    "world": "⠴⠨⠎⠲",
+    "jeomsarang": "⠨⠎⠲"
   },
   {
     "input": "ω",
     "internal": ".w",
     "expected": "4058",
     "unicode": "⠨⠺",
-    "world": "⠴⠨⠺⠲"
+    "world": "⠴⠨⠺⠲",
+    "jeomsarang": "⠨⠺⠲"
   }
 ]

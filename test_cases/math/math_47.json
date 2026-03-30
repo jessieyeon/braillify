@@ -4,63 +4,72 @@
     "internal": "6s",
     "expected": "2214",
     "unicode": "⠖⠎",
-    "world": "⠴⠎⠔⠲"
+    "world": "⠴⠎⠔⠲",
+    "jeomsarang": "⠴⠎⠔⠲"
   },
   {
     "input": "cos",
     "internal": "6c",
     "expected": "229",
     "unicode": "⠖⠉",
-    "world": "⠴⠉⠕⠎⠲"
+    "world": "⠴⠉⠕⠎⠲",
+    "jeomsarang": "⠴⠉⠕⠎⠲"
   },
   {
     "input": "2cosx",
     "internal": "#b6cx",
     "expected": "60322945",
     "unicode": "⠼⠃⠖⠉⠭",
-    "world": "⠼⠃⠴⠉⠕⠎⠭⠲"
+    "world": "⠼⠃⠴⠉⠕⠎⠭⠲",
+    "jeomsarang": "⠼⠃⠴⠉⠕⠎⠭⠲"
   },
   {
     "input": "tan",
     "internal": "6t",
     "expected": "2230",
     "unicode": "⠖⠞",
-    "world": "⠴⠞⠁⠝⠲"
+    "world": "⠴⠞⠁⠝⠲",
+    "jeomsarang": "⠴⠞⠁⠝⠲"
   },
   {
     "input": "csc",
     "internal": "6\\",
     "expected": "2251",
     "unicode": "⠖⠳",
-    "world": "⠴⠉⠎⠉⠲"
+    "world": "⠴⠉⠎⠉⠲",
+    "jeomsarang": "⠴⠉⠎⠉⠲"
   },
   {
     "input": "sec",
     "internal": "6<",
     "expected": "2235",
     "unicode": "⠖⠣",
-    "world": "⠴⠎⠑⠉⠲"
+    "world": "⠴⠎⠑⠉⠲",
+    "jeomsarang": "⠴⠎⠑⠉⠲"
   },
   {
     "input": "cot",
     "internal": "6-",
     "expected": "2236",
     "unicode": "⠖⠤",
-    "world": "⠴⠉⠕⠞⠲"
+    "world": "⠴⠉⠕⠞⠲",
+    "jeomsarang": "⠴⠉⠕⠞⠲"
   },
   {
     "input": "sin3x",
     "internal": "6s(#cx)",
     "expected": "2214556094562",
     "unicode": "⠖⠎⠷⠼⠉⠭⠾",
-    "world": "⠴⠎⠔⠼⠉⠭⠲"
+    "world": "⠴⠎⠔⠼⠉⠭⠲",
+    "jeomsarang": "⠴⠎⠔⠼⠉⠭⠲"
   },
   {
     "input": "sin²x+cos²x=1",
     "internal": "6s^#bx56c^#bx33#a",
     "expected": "221424603453422924603451818601",
     "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
-    "world": "⠴⠎⠔⠘⠼⠃⠭⠐⠖⠉⠕⠎⠘⠼⠃⠭⠒⠒⠼⠁"
+    "world": "⠴⠎⠔⠘⠼⠃⠭⠐⠖⠉⠕⠎⠘⠼⠃⠭⠒⠒⠼⠁",
+    "jeomsarang": "⠴⠎⠔⠰⠘⠼⠃⠰⠭⠢⠉⠕⠎⠰⠘⠼⠃⠭⠐⠶⠼⠁"
   },
   {
     "input": "$\\sin^2x+cos^2x=1$",
@@ -68,28 +77,32 @@
     "expected": "221424603453422924603451818601",
     "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "sin(xy)",
     "internal": "6s(xy)",
     "expected": "221455456162",
     "unicode": "⠖⠎⠷⠭⠽⠾",
-    "world": "⠴⠎⠔⠐⠣⠭⠽⠠⠴"
+    "world": "⠴⠎⠔⠐⠣⠭⠽⠠⠴",
+    "jeomsarang": "⠴⠎⠔⠦⠄⠭⠽⠠⠴"
   },
   {
     "input": "sin(x/6)",
     "internal": "6s(#f/x)",
     "expected": "2214556011124562",
     "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾",
-    "world": "⠴⠎⠔⠐⠣⠭⠸⠌⠼⠋⠠⠴"
+    "world": "⠴⠎⠔⠐⠣⠭⠸⠌⠼⠋⠠⠴",
+    "jeomsarang": "⠴⠎⠔⠐⠣⠭⠲⠘⠌⠼⠋⠐⠜⠲"
   },
   {
     "input": "sin³x",
     "internal": "6s^#cx",
     "expected": "22142460945",
     "unicode": "⠖⠎⠘⠼⠉⠭",
-    "world": "⠴⠎⠔⠘⠼⠉⠭⠲"
+    "world": "⠴⠎⠔⠘⠼⠉⠭⠲",
+    "jeomsarang": "⠴⠎⠔⠰⠘⠼⠉⠰⠭⠲"
   },
   {
     "input": "$\\sin^3x$",
@@ -97,14 +110,16 @@
     "expected": "22142460945",
     "unicode": "⠖⠎⠘⠼⠉⠭",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "sinx³",
     "internal": "6sx^#c",
     "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉",
-    "world": "⠴⠎⠔⠭⠘⠼⠉"
+    "world": "⠴⠎⠔⠭⠘⠼⠉",
+    "jeomsarang": "⠴⠎⠔⠭⠲⠰⠘⠼⠉"
   },
   {
     "input": "$\\sinx^3$",
@@ -112,6 +127,7 @@
     "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

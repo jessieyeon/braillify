@@ -4,566 +4,647 @@
     "internal": "#1",
     "expected": "602",
     "unicode": "⠼⠂",
-    "world": "⠼⠂"
+    "world": "⠼⠂",
+    "jeomsarang": "⠼⠂"
   },
   {
     "input": "②",
     "internal": "#2",
     "expected": "606",
     "unicode": "⠼⠆",
-    "world": "⠼⠆"
+    "world": "⠼⠆",
+    "jeomsarang": "⠼⠆"
   },
   {
     "input": "③",
     "internal": "#3",
     "expected": "6018",
     "unicode": "⠼⠒",
-    "world": "⠼⠒"
+    "world": "⠼⠒",
+    "jeomsarang": "⠼⠒"
   },
   {
     "input": "④",
     "internal": "#4",
     "expected": "6050",
     "unicode": "⠼⠲",
-    "world": "⠼⠲"
+    "world": "⠼⠲",
+    "jeomsarang": "⠼⠲"
   },
   {
     "input": "⑤",
     "internal": "#5",
     "expected": "6034",
     "unicode": "⠼⠢",
-    "world": "⠼⠢"
+    "world": "⠼⠢",
+    "jeomsarang": "⠼⠢"
   },
   {
     "input": "⑥",
     "internal": "#6",
     "expected": "6022",
     "unicode": "⠼⠖",
-    "world": "⠼⠖"
+    "world": "⠼⠖",
+    "jeomsarang": "⠼⠖"
   },
   {
     "input": "⑦",
     "internal": "#7",
     "expected": "6054",
     "unicode": "⠼⠶",
-    "world": "⠼⠶"
+    "world": "⠼⠶",
+    "jeomsarang": "⠼⠶"
   },
   {
     "input": "⑧",
     "internal": "#8",
     "expected": "6038",
     "unicode": "⠼⠦",
-    "world": "⠼⠦"
+    "world": "⠼⠦",
+    "jeomsarang": "⠼⠦"
   },
   {
     "input": "⑨",
     "internal": "#9",
     "expected": "6020",
     "unicode": "⠼⠔",
-    "world": "⠼⠔"
+    "world": "⠼⠔",
+    "jeomsarang": "⠼⠔"
   },
   {
     "input": "⑩",
     "internal": "#10",
     "expected": "60252",
     "unicode": "⠼⠂⠴",
-    "world": "⠼⠂⠴"
+    "world": "⠼⠂⠴",
+    "jeomsarang": "⠼⠂⠴"
   },
   {
     "input": "⑪",
     "internal": "#11",
     "expected": "6022",
     "unicode": "⠼⠂⠂",
-    "world": "⠼⠂⠂"
+    "world": "⠼⠂⠂",
+    "jeomsarang": "⠼⠂⠂"
   },
   {
     "input": "⑫",
     "internal": "#12",
     "expected": "6026",
     "unicode": "⠼⠂⠆",
-    "world": "⠼⠂⠆"
+    "world": "⠼⠂⠆",
+    "jeomsarang": "⠼⠂⠆"
   },
   {
     "input": "⑬",
     "internal": "#13",
     "expected": "60218",
     "unicode": "⠼⠂⠒",
-    "world": "⠼⠂⠒"
+    "world": "⠼⠂⠒",
+    "jeomsarang": "⠼⠂⠒"
   },
   {
     "input": "⑭",
     "internal": "#14",
     "expected": "60250",
     "unicode": "⠼⠂⠲",
-    "world": "⠼⠂⠲"
+    "world": "⠼⠂⠲",
+    "jeomsarang": "⠼⠂⠲"
   },
   {
     "input": "⑮",
     "internal": "#15",
     "expected": "60234",
     "unicode": "⠼⠂⠢",
-    "world": "⠼⠂⠢"
+    "world": "⠼⠂⠢",
+    "jeomsarang": "⠼⠂⠢"
   },
   {
     "input": "⑯",
     "internal": "#16",
     "expected": "60222",
     "unicode": "⠼⠂⠖",
-    "world": "⠼⠂⠖"
+    "world": "⠼⠂⠖",
+    "jeomsarang": "⠼⠂⠖"
   },
   {
     "input": "⑰",
     "internal": "#17",
     "expected": "60254",
     "unicode": "⠼⠂⠶",
-    "world": "⠼⠂⠶"
+    "world": "⠼⠂⠶",
+    "jeomsarang": "⠼⠂⠶"
   },
   {
     "input": "⑱",
     "internal": "#18",
     "expected": "60238",
     "unicode": "⠼⠂⠦",
-    "world": "⠼⠂⠦"
+    "world": "⠼⠂⠦",
+    "jeomsarang": "⠼⠂⠦"
   },
   {
     "input": "⑲",
     "internal": "#19",
     "expected": "60220",
     "unicode": "⠼⠂⠔",
-    "world": "⠼⠂⠔"
+    "world": "⠼⠂⠔",
+    "jeomsarang": "⠼⠂⠔"
   },
   {
     "input": "⑳",
     "internal": "#20",
     "expected": "60652",
     "unicode": "⠼⠆⠴",
-    "world": "⠼⠆⠴"
+    "world": "⠼⠆⠴",
+    "jeomsarang": "⠼⠆⠴"
   },
   {
     "input": "㉮",
     "internal": "7$7",
     "expected": "544354",
     "unicode": "⠶⠫⠶",
-    "world": "⠶⠫⠶"
+    "world": "⠶⠫⠶",
+    "jeomsarang": "⠶⠫⠶"
   },
   {
     "input": "㉯",
     "internal": "7c7",
     "expected": "54954",
     "unicode": "⠶⠉⠶",
-    "world": "⠶⠉⠶"
+    "world": "⠶⠉⠶",
+    "jeomsarang": "⠶⠉⠶"
   },
   {
     "input": "㉰",
     "internal": "7i7",
     "expected": "541054",
     "unicode": "⠶⠊⠶",
-    "world": "⠶⠊⠶"
+    "world": "⠶⠊⠶",
+    "jeomsarang": "⠶⠊⠶"
   },
   {
     "input": "㉱",
     "internal": "7\"<7",
     "expected": "54163554",
     "unicode": "⠶⠐⠣⠶",
-    "world": "⠶⠐⠣⠶"
+    "world": "⠶⠐⠣⠶",
+    "jeomsarang": "⠶⠐⠣⠶"
   },
   {
     "input": "㉲",
     "internal": "7e7",
     "expected": "541754",
     "unicode": "⠶⠑⠶",
-    "world": "⠶⠑⠶"
+    "world": "⠶⠑⠶",
+    "jeomsarang": "⠶⠑⠶"
   },
   {
     "input": "㉳",
     "internal": "7^7",
     "expected": "542454",
     "unicode": "⠶⠘⠶",
-    "world": "⠶⠘⠶"
+    "world": "⠶⠘⠶",
+    "jeomsarang": "⠶⠘⠶"
   },
   {
     "input": "㉴",
     "internal": "7l7",
     "expected": "54754",
     "unicode": "⠶⠇⠶",
-    "world": "⠶⠇⠶"
+    "world": "⠶⠇⠶",
+    "jeomsarang": "⠶⠇⠶"
   },
   {
     "input": "㉵",
     "internal": "7<7",
     "expected": "543554",
     "unicode": "⠶⠣⠶",
-    "world": "⠶⠣⠶"
+    "world": "⠶⠣⠶",
+    "jeomsarang": "⠶⠣⠶"
   },
   {
     "input": "㉶",
     "internal": "7.7",
     "expected": "544054",
     "unicode": "⠶⠨⠶",
-    "world": "⠶⠨⠶"
+    "world": "⠶⠨⠶",
+    "jeomsarang": "⠶⠨⠶"
   },
   {
     "input": "㉷",
     "internal": "7;<7",
     "expected": "54483554",
     "unicode": "⠶⠰⠣⠶",
-    "world": "⠶⠙⠶"
+    "world": "⠶⠙⠶",
+    "jeomsarang": "⠶⠰⠣⠶"
   },
   {
     "input": "㉸",
     "internal": "7f7",
     "expected": "541154",
     "unicode": "⠶⠋⠶",
-    "world": "⠶⠋⠶"
+    "world": "⠶⠋⠶",
+    "jeomsarang": "⠶⠋⠶"
   },
   {
     "input": "㉹",
     "internal": "7h7",
     "expected": "541954",
     "unicode": "⠶⠓⠶",
-    "world": "⠶⠓⠫⠶"
+    "world": "⠶⠓⠫⠶",
+    "jeomsarang": "⠶⠓⠶"
   },
   {
     "input": "㉺",
     "internal": "7d7",
     "expected": "542554",
     "unicode": "⠶⠙⠶",
-    "world": "⠶⠙⠶"
+    "world": "⠶⠙⠶",
+    "jeomsarang": "⠶⠙⠶"
   },
   {
     "input": "㉻",
     "internal": "7j7",
     "expected": "542654",
     "unicode": "⠶⠚⠶",
-    "world": "⠶⠚⠶"
+    "world": "⠶⠚⠶",
+    "jeomsarang": "⠶⠚⠶"
   },
   {
     "input": "㉠",
     "internal": "7=a7",
     "expected": "5463154",
     "unicode": "⠶⠿⠁⠶",
-    "world": "⠶⠿⠁⠶"
+    "world": "⠶⠿⠁⠶",
+    "jeomsarang": "⠶⠿⠁⠶"
   },
   {
     "input": "㉡",
     "internal": "7=37",
     "expected": "54631854",
     "unicode": "⠶⠿⠒⠶",
-    "world": "⠶⠿⠒⠶"
+    "world": "⠶⠿⠒⠶",
+    "jeomsarang": "⠶⠿⠒⠶"
   },
   {
     "input": "㉢",
     "internal": "7=97",
     "expected": "54632054",
     "unicode": "⠶⠿⠔⠶",
-    "world": "⠶⠿⠔⠶"
+    "world": "⠶⠿⠔⠶",
+    "jeomsarang": "⠶⠿⠔⠶"
   },
   {
     "input": "㉣",
     "internal": "7=17",
     "expected": "5463254",
     "unicode": "⠶⠿⠂⠶",
-    "world": "⠶⠿⠂⠶"
+    "world": "⠶⠿⠂⠶",
+    "jeomsarang": "⠶⠿⠂⠶"
   },
   {
     "input": "㉤",
     "internal": "7=57",
     "expected": "54633454",
     "unicode": "⠶⠿⠢⠶",
-    "world": "⠶⠿⠢⠶"
+    "world": "⠶⠿⠢⠶",
+    "jeomsarang": "⠶⠿⠢⠶"
   },
   {
     "input": "㉥",
     "internal": "7=b7",
     "expected": "5463354",
     "unicode": "⠶⠿⠃⠶",
-    "world": "⠶⠿⠃⠶"
+    "world": "⠶⠿⠃⠶",
+    "jeomsarang": "⠶⠿⠃⠶"
   },
   {
     "input": "㉦",
     "internal": "7='7",
     "expected": "5463454",
     "unicode": "⠶⠿⠄⠶",
-    "world": "⠶⠿⠄⠶"
+    "world": "⠶⠿⠄⠶",
+    "jeomsarang": "⠶⠿⠄⠶"
   },
   {
     "input": "㉧",
     "internal": "7=77",
     "expected": "54635454",
     "unicode": "⠶⠿⠶⠶",
-    "world": "⠶⠿⠶⠶"
+    "world": "⠶⠿⠶⠶",
+    "jeomsarang": "⠶⠿⠶⠶"
   },
   {
     "input": "㉨",
     "internal": "7=k7",
     "expected": "5463554",
     "unicode": "⠶⠿⠅⠶",
-    "world": "⠶⠿⠅⠶"
+    "world": "⠶⠿⠅⠶",
+    "jeomsarang": "⠶⠿⠅⠶"
   },
   {
     "input": "㉩",
     "internal": "7=27",
     "expected": "5463654",
     "unicode": "⠶⠿⠆⠶",
-    "world": "⠶⠿⠆⠶"
+    "world": "⠶⠿⠆⠶",
+    "jeomsarang": "⠶⠿⠆⠶"
   },
   {
     "input": "㉪",
     "internal": "7=67",
     "expected": "54632254",
     "unicode": "⠶⠿⠖⠶",
-    "world": "⠶⠿⠖⠶"
+    "world": "⠶⠿⠖⠶",
+    "jeomsarang": "⠶⠿⠖⠶"
   },
   {
     "input": "㉫",
     "internal": "7=87",
     "expected": "54633854",
     "unicode": "⠶⠿⠦⠶",
-    "world": "⠶⠿⠦⠶"
+    "world": "⠶⠿⠦⠶",
+    "jeomsarang": "⠶⠿⠦⠶"
   },
   {
     "input": "㉬",
     "internal": "7=47",
     "expected": "54635054",
     "unicode": "⠶⠿⠲⠶",
-    "world": "⠶⠿⠲⠶"
+    "world": "⠶⠿⠲⠶",
+    "jeomsarang": "⠶⠿⠲⠶"
   },
   {
     "input": "㉭",
     "internal": "7=07",
     "expected": "54635254",
     "unicode": "⠶⠿⠴⠶",
-    "world": "⠶⠿⠴⠶"
+    "world": "⠶⠿⠴⠶",
+    "jeomsarang": "⠶⠿⠴⠶"
   },
   {
     "input": "ⓐ",
     "internal": "70a7",
     "expected": "5452154",
     "unicode": "⠶⠴⠁⠶",
-    "world": "⠶⠴⠁⠶"
+    "world": "⠶⠴⠁⠶",
+    "jeomsarang": "⠶⠴⠁⠶"
   },
   {
     "input": "ⓑ",
     "internal": "70b7",
     "expected": "5452354",
     "unicode": "⠶⠴⠃⠶",
-    "world": "⠶⠴⠃⠶"
+    "world": "⠶⠴⠃⠶",
+    "jeomsarang": "⠶⠴⠃⠶"
   },
   {
     "input": "ⓒ",
     "internal": "70c7",
     "expected": "5452954",
     "unicode": "⠶⠴⠉⠶",
-    "world": "⠶⠴⠉⠶"
+    "world": "⠶⠴⠉⠶",
+    "jeomsarang": "⠶⠴⠉⠶"
   },
   {
     "input": "ⓓ",
     "internal": "70d7",
     "expected": "54522554",
     "unicode": "⠶⠴⠙⠶",
-    "world": "⠶⠴⠙⠶"
+    "world": "⠶⠴⠙⠶",
+    "jeomsarang": "⠶⠴⠙⠶"
   },
   {
     "input": "ⓔ",
     "internal": "70e7",
     "expected": "54521754",
     "unicode": "⠶⠴⠑⠶",
-    "world": "⠶⠴⠑⠶"
+    "world": "⠶⠴⠑⠶",
+    "jeomsarang": "⠶⠴⠑⠶"
   },
   {
     "input": "ⓕ",
     "internal": "70f7",
     "expected": "54521154",
     "unicode": "⠶⠴⠋⠶",
-    "world": "⠶⠴⠋⠶"
+    "world": "⠶⠴⠋⠶",
+    "jeomsarang": "⠶⠴⠋⠶"
   },
   {
     "input": "ⓖ",
     "internal": "70g7",
     "expected": "54522754",
     "unicode": "⠶⠴⠛⠶",
-    "world": "⠶⠴⠛⠶"
+    "world": "⠶⠴⠛⠶",
+    "jeomsarang": "⠶⠴⠛⠶"
   },
   {
     "input": "ⓗ",
     "internal": "70h7",
     "expected": "54521954",
     "unicode": "⠶⠴⠓⠶",
-    "world": "⠶⠴⠓⠶"
+    "world": "⠶⠴⠓⠶",
+    "jeomsarang": "⠶⠴⠓⠶"
   },
   {
     "input": "ⓘ",
     "internal": "70i7",
     "expected": "54521054",
     "unicode": "⠶⠴⠊⠶",
-    "world": "⠶⠴⠊⠶"
+    "world": "⠶⠴⠊⠶",
+    "jeomsarang": "⠶⠴⠊⠶"
   },
   {
     "input": "ⓙ",
     "internal": "70j7",
     "expected": "54522654",
     "unicode": "⠶⠴⠚⠶",
-    "world": "⠶⠴⠚⠶"
+    "world": "⠶⠴⠚⠶",
+    "jeomsarang": "⠶⠴⠚⠶"
   },
   {
     "input": "ⓚ",
     "internal": "70k7",
     "expected": "5452554",
     "unicode": "⠶⠴⠅⠶",
-    "world": "⠶⠴⠅⠶"
+    "world": "⠶⠴⠅⠶",
+    "jeomsarang": "⠶⠴⠅⠶"
   },
   {
     "input": "ⓛ",
     "internal": "70l7",
     "expected": "5452754",
     "unicode": "⠶⠴⠇⠶",
-    "world": "⠶⠴⠇⠶"
+    "world": "⠶⠴⠇⠶",
+    "jeomsarang": "⠶⠴⠇⠶"
   },
   {
     "input": "ⓜ",
     "internal": "70m7",
     "expected": "54521354",
     "unicode": "⠶⠴⠍⠶",
-    "world": "⠶⠴⠍⠶"
+    "world": "⠶⠴⠍⠶",
+    "jeomsarang": "⠶⠴⠍⠶"
   },
   {
     "input": "ⓝ",
     "internal": "70n7",
     "expected": "54522954",
     "unicode": "⠶⠴⠝⠶",
-    "world": "⠶⠴⠝⠶"
+    "world": "⠶⠴⠝⠶",
+    "jeomsarang": "⠶⠴⠝⠶"
   },
   {
     "input": "ⓞ",
     "internal": "70o7",
     "expected": "54522154",
     "unicode": "⠶⠴⠕⠶",
-    "world": "⠶⠴⠕⠶"
+    "world": "⠶⠴⠕⠶",
+    "jeomsarang": "⠶⠴⠕⠶"
   },
   {
     "input": "ⓟ",
     "internal": "70p7",
     "expected": "54521554",
     "unicode": "⠶⠴⠏⠶",
-    "world": "⠶⠴⠏⠶"
+    "world": "⠶⠴⠏⠶",
+    "jeomsarang": "⠶⠴⠏⠶"
   },
   {
     "input": "ⓠ",
     "internal": "70q7",
     "expected": "54523154",
     "unicode": "⠶⠴⠟⠶",
-    "world": "⠶⠴⠟⠶"
+    "world": "⠶⠴⠟⠶",
+    "jeomsarang": "⠶⠴⠟⠶"
   },
   {
     "input": "ⓡ",
     "internal": "70r7",
     "expected": "54522354",
     "unicode": "⠶⠴⠗⠶",
-    "world": "⠶⠴⠗⠶"
+    "world": "⠶⠴⠗⠶",
+    "jeomsarang": "⠶⠴⠗⠶"
   },
   {
     "input": "ⓢ",
     "internal": "70s7",
     "expected": "54521454",
     "unicode": "⠶⠴⠎⠶",
-    "world": "⠶⠴⠎⠶"
+    "world": "⠶⠴⠎⠶",
+    "jeomsarang": "⠶⠴⠎⠶"
   },
   {
     "input": "ⓣ",
     "internal": "70t7",
     "expected": "54523054",
     "unicode": "⠶⠴⠞⠶",
-    "world": "⠶⠴⠞⠶"
+    "world": "⠶⠴⠞⠶",
+    "jeomsarang": "⠶⠴⠞⠶"
   },
   {
     "input": "ⓤ",
     "internal": "70u7",
     "expected": "54523754",
     "unicode": "⠶⠴⠥⠶",
-    "world": "⠶⠴⠥⠶"
+    "world": "⠶⠴⠥⠶",
+    "jeomsarang": "⠶⠴⠥⠶"
   },
   {
     "input": "ⓥ",
     "internal": "70v7",
     "expected": "54523954",
     "unicode": "⠶⠴⠧⠶",
-    "world": "⠶⠴⠧⠶"
+    "world": "⠶⠴⠧⠶",
+    "jeomsarang": "⠶⠴⠧⠶"
   },
   {
     "input": "ⓦ",
     "internal": "70w7",
     "expected": "54525854",
     "unicode": "⠶⠴⠺⠶",
-    "world": "⠶⠴⠺⠶"
+    "world": "⠶⠴⠺⠶",
+    "jeomsarang": "⠶⠴⠺⠶"
   },
   {
     "input": "ⓧ",
     "internal": "70x7",
     "expected": "54524554",
     "unicode": "⠶⠴⠭⠶",
-    "world": "⠶⠴⠭⠶"
+    "world": "⠶⠴⠭⠶",
+    "jeomsarang": "⠶⠴⠭⠶"
   },
   {
     "input": "ⓨ",
     "internal": "70y7",
     "expected": "54526154",
     "unicode": "⠶⠴⠽⠶",
-    "world": "⠶⠴⠽⠶"
+    "world": "⠶⠴⠽⠶",
+    "jeomsarang": "⠶⠴⠽⠶"
   },
   {
     "input": "ⓩ",
     "internal": "70z7",
     "expected": "54525354",
     "unicode": "⠶⠴⠵⠶",
-    "world": "⠶⠴⠵⠶"
+    "world": "⠶⠴⠵⠶",
+    "jeomsarang": "⠶⠴⠵⠶"
   },
   {
     "input": "",
     "internal": "_8#a0l",
     "expected": "5638601527",
     "unicode": "⠸⠦⠼⠁⠴⠇",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "",
     "internal": "_8$0l",
     "expected": "563843527",
     "unicode": "⠸⠦⠫⠴⠇",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "",
     "internal": "_8=a0l",
     "expected": "5638631527",
     "unicode": "⠸⠦⠿⠁⠴⠇",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "",
     "internal": "_80a0l",
     "expected": "5638521527",
     "unicode": "⠸⠦⠴⠁⠴⠇",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠀"
   },
   {
     "input": "① ㄱ, ㄴ ② ㄱ, ㄷ",
     "internal": "#1`=a\"`=3``#2`=a\"`=9",
     "expected": "602063116063180060606311606320",
     "unicode": "⠼⠂⠀⠿⠁⠐⠀⠿⠒⠀⠀⠼⠆⠀⠿⠁⠐⠀⠿⠔",
-    "world": "⠼⠂ ⠿⠁⠐ ⠿⠒ ⠼⠆ ⠿⠁⠐ ⠿⠔"
+    "world": "⠼⠂ ⠿⠁⠐ ⠿⠒ ⠼⠆ ⠿⠁⠐ ⠿⠔",
+    "jeomsarang": "⠼⠂⠀⠿⠁⠐⠀⠿⠒⠀⠼⠆⠀⠿⠁⠐⠀⠿⠔"
   },
   {
     "input": "다음 ⓐ, ⓑ, ⓒ가 가리키는 것은?",
     "internal": "i<{5`70a7\"`70b7\"`70c7$`$\"ofocz`_sz8",
     "expected": "1035423405452154160545235416054529544304316211121953056145338",
     "unicode": "⠊⠣⠪⠢⠀⠶⠴⠁⠶⠐⠀⠶⠴⠃⠶⠐⠀⠶⠴⠉⠶⠫⠀⠫⠐⠕⠋⠕⠉⠵⠀⠸⠎⠵⠦",
-    "world": "⠊⠣⠪⠢ ⠶⠴⠁⠶⠐ ⠶⠴⠃⠶⠐ ⠶⠴⠉⠶⠫ ⠫⠐⠕⠋⠕⠉⠵ ⠸⠎⠵⠦"
+    "world": "⠊⠣⠪⠢ ⠶⠴⠁⠶⠐ ⠶⠴⠃⠶⠐ ⠶⠴⠉⠶⠫ ⠫⠐⠕⠋⠕⠉⠵ ⠸⠎⠵⠦",
+    "jeomsarang": "⠊⠣⠪⠢⠀⠶⠴⠁⠶⠐⠀⠶⠴⠃⠶⠐⠀⠶⠴⠉⠶⠫⠀⠫⠐⠕⠋⠕⠉⠵⠀⠸⠎⠵⠦"
   },
   {
     "input": "에 들어갈 내용으로 가장 적절한 것은?",
     "internal": "_8$0ln`i!s$1`cr+7{\"u`$.7`.?.t`j3`_sz8",
     "expected": "56384352729010461443209234454421637043405404057403002618056145338",
     "unicode": "⠸⠦⠫⠴⠇⠝⠀⠊⠮⠎⠫⠂⠀⠉⠗⠬⠶⠪⠐⠥⠀⠫⠨⠶⠀⠨⠹⠨⠞⠀⠚⠒⠀⠸⠎⠵⠦",
-    "world": "⠝ ⠊⠮⠎⠫⠂ ⠉⠗⠬⠶⠪⠐⠥ ⠫⠨⠶ ⠨⠹⠨⠞⠚⠒ ⠸⠎⠵⠦"
+    "world": "⠝ ⠊⠮⠎⠫⠂ ⠉⠗⠬⠶⠪⠐⠥ ⠫⠨⠶ ⠨⠹⠨⠞⠚⠒ ⠸⠎⠵⠦",
+    "jeomsarang": "⠀⠝⠀⠊⠮⠎⠫⠂⠀⠉⠗⠬⠶⠪⠐⠥⠀⠫⠨⠶⠀⠨⠹⠨⠞⠚⠒⠀⠸⠎⠵⠦"
   }
 ]

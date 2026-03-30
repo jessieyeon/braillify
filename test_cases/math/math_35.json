@@ -4,7 +4,8 @@
     "internal": "@c,,AB",
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
-    "world": "⠴⠰⠠⠠⠁⠃⠲"
+    "world": "⠴⠰⠠⠠⠁⠃⠲",
+    "jeomsarang": "⠀⠠⠠⠁⠃⠲"
   },
   {
     "input": "$\\overline{AB}$",
@@ -12,14 +13,16 @@
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "A′B′̅",
     "internal": "@c,,A-B-",
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
-    "world": "⠴⠠⠁⠶⠠⠃⠴⠤"
+    "world": "⠴⠠⠁⠶⠠⠃⠴⠤",
+    "jeomsarang": "⠴⠠⠁⠶⠠⠃⠲⠶⠀"
   },
   {
     "input": "$\\overline{A'B'}$",
@@ -27,6 +30,7 @@
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

@@ -1,6 +1,50 @@
 import { Center, Flex, Text } from '@devup-ui/react'
 import { ComponentProps } from 'react'
 
+interface CompetitorStatProps {
+  label: string
+  total: number
+  fail: number
+  braillifyPercent: number
+  showTotal: boolean
+}
+
+function CompetitorStat({
+  label,
+  total,
+  fail,
+  braillifyPercent,
+  showTotal,
+}: CompetitorStatProps) {
+  const success = total - fail
+  const percent = Math.round((success / total) * 100)
+
+  return (
+    <Center bg="#2B2B2B" borderRadius="10px" gap="10px" px="16px" py="10px">
+      <Text color="#888" typography="progress">
+        {label}
+      </Text>
+      {showTotal && (
+        <Text color="#888" typography="progress">
+          전체 {total.toLocaleString()}
+        </Text>
+      )}
+      <Text color="#888" typography="progress">
+        성공 {success.toLocaleString()}
+      </Text>
+      <Text color="$error" typography="progress">
+        실패 {fail.toLocaleString()}
+      </Text>
+      <Text
+        color={percent < braillifyPercent ? '$error' : '$text'}
+        typography="progress"
+      >
+        ({percent}%)
+      </Text>
+    </Center>
+  )
+}
+
 interface TestCaseStatProps extends ComponentProps<typeof Center<'div'>> {
   showTotal?: boolean
   total: number
@@ -8,6 +52,8 @@ interface TestCaseStatProps extends ComponentProps<typeof Center<'div'>> {
   fail: number
   worldTotal?: number
   worldFail?: number
+  jeomsarangTotal?: number
+  jeomsarangFail?: number
 }
 
 export function TestCaseStat({
@@ -17,19 +63,23 @@ export function TestCaseStat({
   fail,
   worldTotal,
   worldFail,
+  jeomsarangTotal,
+  jeomsarangFail,
   ...props
 }: TestCaseStatProps) {
   const hasFail = fail > 0
   const braillifyPercent = Math.round((success / total) * 100)
 
   const hasWorld = worldTotal != null && worldTotal > 0
-  const worldSuccess = hasWorld ? worldTotal - worldFail! : 0
-  const worldPercent = hasWorld
-    ? Math.round((worldSuccess / worldTotal) * 100)
-    : 0
+  const hasJeomsarang = jeomsarangTotal != null && jeomsarangTotal > 0
 
   return (
-    <Flex alignItems="center" gap="8px" styleOrder={1}>
+    <Flex
+      alignItems="center"
+      flexWrap="wrap"
+      gap="8px"
+      styleOrder={1}
+    >
       <Center
         bg="$menuHover"
         borderRadius="10px"
@@ -57,34 +107,22 @@ export function TestCaseStat({
         </Text>
       </Center>
       {hasWorld && (
-        <Center
-          bg="#2B2B2B"
-          borderRadius="10px"
-          gap="10px"
-          px="16px"
-          py="10px"
-        >
-          <Text color="#888" typography="progress">
-            점자세상
-          </Text>
-          {showTotal && (
-            <Text color="#888" typography="progress">
-              전체 {worldTotal.toLocaleString()}
-            </Text>
-          )}
-          <Text color="#888" typography="progress">
-            성공 {worldSuccess.toLocaleString()}
-          </Text>
-          <Text color="$error" typography="progress">
-            실패 {worldFail!.toLocaleString()}
-          </Text>
-          <Text
-            color={worldPercent < braillifyPercent ? '$error' : '$text'}
-            typography="progress"
-          >
-            ({worldPercent}%)
-          </Text>
-        </Center>
+        <CompetitorStat
+          braillifyPercent={braillifyPercent}
+          fail={worldFail!}
+          label="점자세상"
+          showTotal={showTotal}
+          total={worldTotal}
+        />
+      )}
+      {hasJeomsarang && (
+        <CompetitorStat
+          braillifyPercent={braillifyPercent}
+          fail={jeomsarangFail!}
+          label="점사랑"
+          showTotal={showTotal}
+          total={jeomsarangTotal}
+        />
       )}
     </Flex>
   )

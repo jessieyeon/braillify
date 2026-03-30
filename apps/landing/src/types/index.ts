@@ -5,6 +5,8 @@ export type TestStatus = [
   fail: number,
   worldTotal: number,
   worldFail: number,
+  jeomsarangTotal: number,
+  jeomsarangFail: number,
   Array<
     [
       text: string,
@@ -14,6 +16,8 @@ export type TestStatus = [
       isSuccess: boolean,
       world: string,
       worldIsSuccess: boolean,
+      jeomsarang: string,
+      jeomsarangIsSuccess: boolean,
     ]
   >,
 ]

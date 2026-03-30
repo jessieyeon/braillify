@@ -5,7 +5,8 @@
     "internal": "0a",
     "expected": "521",
     "unicode": "⠴⠁",
-    "world": "⠴⠁⠲"
+    "world": "⠴⠁⠲",
+    "jeomsarang": "⠴⠁"
   },
   {
     "input": "b",
@@ -13,7 +14,8 @@
     "internal": "0b",
     "expected": "523",
     "unicode": "⠴⠃",
-    "world": "⠴⠃⠲"
+    "world": "⠴⠃⠲",
+    "jeomsarang": "⠴⠃"
   },
   {
     "input": "c",
@@ -21,7 +23,8 @@
     "internal": "0c",
     "expected": "529",
     "unicode": "⠴⠉",
-    "world": "⠴⠉⠲"
+    "world": "⠴⠉⠲",
+    "jeomsarang": "⠴⠉"
   },
   {
     "input": "d",
@@ -29,7 +32,8 @@
     "internal": "0d",
     "expected": "5225",
     "unicode": "⠴⠙",
-    "world": "⠴⠙⠲"
+    "world": "⠴⠙⠲",
+    "jeomsarang": "⠴⠙"
   },
   {
     "input": "e",
@@ -37,7 +41,8 @@
     "internal": "0e",
     "expected": "5217",
     "unicode": "⠴⠑",
-    "world": "⠴⠑⠲"
+    "world": "⠴⠑⠲",
+    "jeomsarang": "⠴⠑"
   },
   {
     "input": "f",
@@ -45,7 +50,8 @@
     "internal": "0f",
     "expected": "5211",
     "unicode": "⠴⠋",
-    "world": "⠴⠋⠲"
+    "world": "⠴⠋⠲",
+    "jeomsarang": "⠴⠋"
   },
   {
     "input": "g",
@@ -53,7 +59,8 @@
     "internal": "0g",
     "expected": "5227",
     "unicode": "⠴⠛",
-    "world": "⠴⠛⠲"
+    "world": "⠴⠛⠲",
+    "jeomsarang": "⠴⠛"
   },
   {
     "input": "h",
@@ -61,7 +68,8 @@
     "internal": "0h",
     "expected": "5219",
     "unicode": "⠴⠓",
-    "world": "⠴⠓⠲"
+    "world": "⠴⠓⠲",
+    "jeomsarang": "⠴⠓"
   },
   {
     "input": "i",
@@ -69,7 +77,8 @@
     "internal": "0i",
     "expected": "5210",
     "unicode": "⠴⠊",
-    "world": "⠴⠊⠲"
+    "world": "⠴⠊⠲",
+    "jeomsarang": "⠴⠊"
   },
   {
     "input": "j",
@@ -77,7 +86,8 @@
     "internal": "0j",
     "expected": "5226",
     "unicode": "⠴⠚",
-    "world": "⠴⠚⠲"
+    "world": "⠴⠚⠲",
+    "jeomsarang": "⠴⠚"
   },
   {
     "input": "k",
@@ -85,7 +95,8 @@
     "internal": "0k",
     "expected": "525",
     "unicode": "⠴⠅",
-    "world": "⠴⠅⠲"
+    "world": "⠴⠅⠲",
+    "jeomsarang": "⠴⠅"
   },
   {
     "input": "l",
@@ -93,7 +104,8 @@
     "internal": "0l",
     "expected": "527",
     "unicode": "⠴⠇",
-    "world": "⠴⠇⠲"
+    "world": "⠴⠇⠲",
+    "jeomsarang": "⠴⠇"
   },
   {
     "input": "m",
@@ -101,7 +113,8 @@
     "internal": "0m",
     "expected": "5213",
     "unicode": "⠴⠍",
-    "world": "⠴⠍⠲"
+    "world": "⠴⠍⠲",
+    "jeomsarang": "⠴⠍"
   },
   {
     "input": "n",
@@ -109,7 +122,8 @@
     "internal": "0n",
     "expected": "5229",
     "unicode": "⠴⠝",
-    "world": "⠴⠝⠲"
+    "world": "⠴⠝⠲",
+    "jeomsarang": "⠴⠝"
   },
   {
     "input": "o",
@@ -117,7 +131,8 @@
     "internal": "0o",
     "expected": "5221",
     "unicode": "⠴⠕",
-    "world": "⠴⠕⠲"
+    "world": "⠴⠕⠲",
+    "jeomsarang": "⠴⠕"
   },
   {
     "input": "p",
@@ -125,7 +140,8 @@
     "internal": "0p",
     "expected": "5215",
     "unicode": "⠴⠏",
-    "world": "⠴⠏⠲"
+    "world": "⠴⠏⠲",
+    "jeomsarang": "⠴⠏"
   },
   {
     "input": "q",
@@ -133,7 +149,8 @@
     "internal": "0q",
     "expected": "5231",
     "unicode": "⠴⠟",
-    "world": "⠴⠟⠲"
+    "world": "⠴⠟⠲",
+    "jeomsarang": "⠴⠟"
   },
   {
     "input": "r",
@@ -141,7 +158,8 @@
     "internal": "0r",
     "expected": "5223",
     "unicode": "⠴⠗",
-    "world": "⠴⠗⠲"
+    "world": "⠴⠗⠲",
+    "jeomsarang": "⠴⠗"
   },
   {
     "input": "s",
@@ -149,7 +167,8 @@
     "internal": "0s",
     "expected": "5214",
     "unicode": "⠴⠎",
-    "world": "⠴⠎⠲"
+    "world": "⠴⠎⠲",
+    "jeomsarang": "⠴⠎"
   },
   {
     "input": "t",
@@ -157,7 +176,8 @@
     "internal": "0t",
     "expected": "5230",
     "unicode": "⠴⠞",
-    "world": "⠴⠞⠲"
+    "world": "⠴⠞⠲",
+    "jeomsarang": "⠴⠞"
   },
   {
     "input": "u",
@@ -165,7 +185,8 @@
     "internal": "0u",
     "expected": "5237",
     "unicode": "⠴⠥",
-    "world": "⠴⠥⠲"
+    "world": "⠴⠥⠲",
+    "jeomsarang": "⠴⠥"
   },
   {
     "input": "v",
@@ -173,7 +194,8 @@
     "internal": "0v",
     "expected": "5239",
     "unicode": "⠴⠧",
-    "world": "⠴⠧⠲"
+    "world": "⠴⠧⠲",
+    "jeomsarang": "⠴⠧"
   },
   {
     "input": "w",
@@ -181,7 +203,8 @@
     "internal": "0w",
     "expected": "5258",
     "unicode": "⠴⠺",
-    "world": "⠴⠺⠲"
+    "world": "⠴⠺⠲",
+    "jeomsarang": "⠴⠺"
   },
   {
     "input": "x",
@@ -189,7 +212,8 @@
     "internal": "0x",
     "expected": "5245",
     "unicode": "⠴⠭",
-    "world": "⠴⠭⠲"
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠴⠭"
   },
   {
     "input": "y",
@@ -197,7 +221,8 @@
     "internal": "0y",
     "expected": "5261",
     "unicode": "⠴⠽",
-    "world": "⠴⠽⠲"
+    "world": "⠴⠽⠲",
+    "jeomsarang": "⠴⠽"
   },
   {
     "input": "z",
@@ -205,41 +230,47 @@
     "internal": "0z",
     "expected": "5253",
     "unicode": "⠴⠵",
-    "world": "⠴⠵⠲"
+    "world": "⠴⠵⠲",
+    "jeomsarang": "⠴⠵"
   },
   {
     "input": "a",
     "internal": "a",
     "expected": "1",
     "unicode": "⠁",
-    "world": "⠴⠁⠲"
+    "world": "⠴⠁⠲",
+    "jeomsarang": "⠴⠁"
   },
   {
     "input": "x",
     "internal": "x",
     "expected": "45",
     "unicode": "⠭",
-    "world": "⠴⠭⠲"
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠴⠭"
   },
   {
     "input": "z",
     "internal": "z",
     "expected": "53",
     "unicode": "⠵",
-    "world": "⠴⠵⠲"
+    "world": "⠴⠵⠲",
+    "jeomsarang": "⠴⠵"
   },
   {
     "input": "ax+b=0",
     "internal": "ax5b33#j",
     "expected": "14534318186026",
     "unicode": "⠁⠭⠢⠃⠒⠒⠼⠚",
-    "world": "⠴⠁⠭⠐⠖⠃⠒⠒⠼⠚"
+    "world": "⠴⠁⠭⠐⠖⠃⠒⠒⠼⠚",
+    "jeomsarang": "⠴⠁⠭⠢⠴⠃⠐⠶⠼⠚"
   },
   {
     "input": "3ab",
     "internal": "#c\"ab",
     "expected": "6091613",
     "unicode": "⠼⠉⠐⠁⠃",
-    "world": "⠼⠉⠴⠁⠃⠲"
+    "world": "⠼⠉⠴⠁⠃⠲",
+    "jeomsarang": "⠼⠉⠴⠁⠃⠲"
   }
 ]

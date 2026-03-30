@@ -5,7 +5,8 @@
     "internal": "<\".\"#",
     "expected": "3516401660",
     "unicode": "⠣⠐⠨⠐⠼",
-    "world": "⠣"
+    "world": "⠣",
+    "jeomsarang": "⠣⠐⠨⠐⠼"
   },
   {
     "input": "의 갗",
@@ -13,7 +14,8 @@
     "internal": ":\"kw`$2",
     "expected": "49165580436",
     "unicode": "⠱⠐⠅⠺⠀⠫⠆",
-    "world": "⠺ ⠫⠆"
+    "world": "⠺ ⠫⠆",
+    "jeomsarang": "⠱⠐⠅⠺⠀⠫⠆"
   },
   {
     "input": "이긔",
@@ -21,7 +23,8 @@
     "internal": "o\"ds@w",
     "expected": "21162514858",
     "unicode": "⠕⠐⠙⠎⠈⠺",
-    "world": "⠕⠈⠺"
+    "world": "⠕⠈⠺",
+    "jeomsarang": "⠕⠐⠙⠎⠈⠺"
   },
   {
     "input": "굼",
@@ -29,7 +32,8 @@
     "internal": "@m5^s\"4",
     "expected": "8133424141650",
     "unicode": "⠈⠍⠢⠘⠎⠐⠲",
-    "world": "⠈⠍⠢"
+    "world": "⠈⠍⠢",
+    "jeomsarang": "⠈⠍⠢⠘⠎⠐⠲"
   },
   {
     "input": "훈민",
@@ -37,7 +41,8 @@
     "internal": "jgeq.:\"4\"j[5",
     "expected": "262717314049165016264234",
     "unicode": "⠚⠛⠑⠟⠨⠱⠐⠲⠐⠚⠪⠢",
-    "world": "⠚⠛⠑⠟"
+    "world": "⠚⠛⠑⠟",
+    "jeomsarang": "⠚⠛⠑⠟⠨⠱⠐⠲⠐⠚⠪⠢"
   },
   {
     "input": " 배",
@@ -45,7 +50,8 @@
     "internal": "ju1\"0`^r",
     "expected": "26372165202423",
     "unicode": "⠚⠥⠂⠐⠴⠀⠘⠗",
-    "world": "⠘⠗"
+    "world": "⠘⠗",
+    "jeomsarang": "⠀⠀⠀⠘⠗"
   },
   {
     "input": "君군ㄷ字",
@@ -53,7 +59,8 @@
     "internal": "@G_9,.\"#\"7",
     "expected": "8275620324016601654",
     "unicode": "⠈⠛⠸⠔⠠⠨⠐⠼⠐⠶",
-    "world": "⠈⠛⠈⠛⠿⠔⠨"
+    "world": "⠈⠛⠈⠛⠿⠔⠨",
+    "jeomsarang": ""
   },
   {
     "input": "洪ㄱ字",
@@ -61,6 +68,7 @@
     "internal": "\"JJu\"4_A,.\"#\"7",
     "expected": "162626371650561324016601654",
     "unicode": "⠐⠚⠚⠥⠐⠲⠸⠁⠠⠨⠐⠼⠐⠶",
-    "world": "⠚⠿⠿⠁⠨"
+    "world": "⠚⠿⠿⠁⠨",
+    "jeomsarang": "⠚⠿⠐⠚⠚⠥⠐⠲⠸⠁⠨⠠⠨⠐⠼⠐⠶"
   }
 ]

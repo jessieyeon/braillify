@@ -4,14 +4,16 @@
     "internal": "#d/#c",
     "expected": "602512609",
     "unicode": "⠼⠙⠌⠼⠉",
-    "world": "⠼⠉⠸⠌⠼⠙"
+    "world": "⠼⠉⠸⠌⠼⠙",
+    "jeomsarang": "⠼⠉⠸⠌⠼⠙"
   },
   {
     "input": "¾",
     "internal": "#d/#c",
     "expected": "602512609",
     "unicode": "⠼⠙⠌⠼⠉",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠼⠙⠌⠼⠉"
   },
   {
     "input": "$\\frac{3}{4}$",
@@ -19,14 +21,16 @@
     "expected": "602512609",
     "unicode": "⠼⠙⠌⠼⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "3⅙",
     "internal": "#c#f/#a",
     "expected": "609601112601",
     "unicode": "⠼⠉⠼⠋⠌⠼⠁",
-    "world": "⠼⠉"
+    "world": "⠼⠉",
+    "jeomsarang": "⠼⠉⠼⠋⠌⠼⠁"
   },
   {
     "input": "$3\\frac{1}{6}$",
@@ -34,28 +38,32 @@
     "expected": "609601112601",
     "unicode": "⠼⠉⠼⠋⠌⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "/",
     "internal": "_/",
     "expected": "5612",
     "unicode": "⠸⠌",
-    "world": null
+    "world": null,
+    "jeomsarang": "⠸⠌"
   },
   {
     "input": "2/3",
     "internal": "#b_/#c",
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉",
-    "world": "⠼⠃⠸⠌⠼⠉"
+    "world": "⠼⠃⠸⠌⠼⠉",
+    "jeomsarang": "⠼⠃⠸⠌⠼⠉"
   },
   {
     "input": "⅔",
     "internal": "#b_/#c",
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠼⠉⠌⠼⠃"
   },
   {
     "input": "$\\frac{2}{3}$",
@@ -63,14 +71,16 @@
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x+y̲",
     "internal": "x5y/#a",
     "expected": "45346112601",
     "unicode": "⠭⠢⠽⠌⠼⠁",
-    "world": "⠴⠭⠐⠖⠽"
+    "world": "⠴⠭⠐⠖⠽",
+    "jeomsarang": "⠴⠭⠢⠽⠀"
   },
   {
     "input": "$x+\\underline{y}$",
@@ -78,14 +88,16 @@
     "expected": "45346112601",
     "unicode": "⠭⠢⠽⠌⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "1̲/(x+y)",
     "internal": "(x5y)/#a",
     "expected": "554534616212601",
     "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁",
-    "world": "⠼⠁⠸⠌⠦⠄⠴⠭⠐⠖⠽⠠⠴"
+    "world": "⠼⠁⠸⠌⠦⠄⠴⠭⠐⠖⠽⠠⠴",
+    "jeomsarang": "⠼⠁⠀⠸⠌⠦⠄⠴⠭⠢⠽⠠⠴"
   },
   {
     "input": "$\\underline{1}/(x+y)$",
@@ -93,14 +105,16 @@
     "expected": "554534616212601",
     "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "1̲/(ab)",
     "internal": "(ab)/#a",
     "expected": "55136212601",
     "unicode": "⠷⠁⠃⠾⠌⠼⠁",
-    "world": "⠼⠁⠸⠌⠦⠄⠴⠁⠃⠠⠴"
+    "world": "⠼⠁⠸⠌⠦⠄⠴⠁⠃⠠⠴",
+    "jeomsarang": "⠼⠁⠀⠸⠌⠦⠄⠴⠰⠁⠃⠠⠴"
   },
   {
     "input": "$\\underline{1}/(ab)$",
@@ -108,14 +122,16 @@
     "expected": "55136212601",
     "unicode": "⠷⠁⠃⠾⠌⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "ab̲/5",
     "internal": "#e/(ab)",
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾",
-    "world": "⠴⠁⠃⠸⠌⠼⠑"
+    "world": "⠴⠁⠃⠸⠌⠼⠑",
+    "jeomsarang": "⠴⠰⠁⠃⠀⠘⠌⠼⠑"
   },
   {
     "input": "$a\\underline{b}/5$",
@@ -123,7 +139,8 @@
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "2^(3/(x+1))",
@@ -131,6 +148,7 @@
     "internal": "#b^(#c/(x5#a))",
     "expected": "6032455609125545346016262",
     "unicode": "⠼⠃⠘⠷⠼⠉⠌⠷⠭⠢⠼⠁⠾⠾",
-    "world": "⠼⠃⠈⠢⠦⠄⠼⠉⠸⠌⠦⠄⠴⠭⠢⠼⠁⠠⠴⠠⠴"
+    "world": "⠼⠃⠈⠢⠦⠄⠼⠉⠸⠌⠦⠄⠴⠭⠢⠼⠁⠠⠴⠠⠴",
+    "jeomsarang": "⠼⠃⠸⠘⠐⠣⠼⠉⠸⠌⠐⠣⠭⠢⠼⠁⠐⠜⠐⠜⠲"
   }
 ]

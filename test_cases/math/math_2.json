@@ -4,76 +4,87 @@
     "internal": "5",
     "expected": "34",
     "unicode": "⠢",
-    "world": "⠢"
+    "world": "⠢",
+    "jeomsarang": "⠢"
   },
   {
     "input": "−",
     "internal": "9",
     "expected": "20",
     "unicode": "⠔",
-    "world": "⠔"
+    "world": "⠔",
+    "jeomsarang": "⠔"
   },
   {
     "input": "×",
     "internal": "*",
     "expected": "33",
     "unicode": "⠡",
-    "world": "⠡"
+    "world": "⠡",
+    "jeomsarang": "⠡"
   },
   {
     "input": "÷",
     "internal": "//",
     "expected": "1212",
     "unicode": "⠌⠌",
-    "world": "⠌⠌"
+    "world": "⠌⠌",
+    "jeomsarang": "⠌⠌"
   },
   {
     "input": "37+25",
     "internal": "#cg5#be",
     "expected": "609273460317",
     "unicode": "⠼⠉⠛⠢⠼⠃⠑",
-    "world": "⠼⠉⠛⠢⠼⠃⠑"
+    "world": "⠼⠉⠛⠢⠼⠃⠑",
+    "jeomsarang": "⠼⠉⠛⠢⠼⠃⠑"
   },
   {
     "input": "23−18",
     "internal": "#bc9#ah",
     "expected": "60392060119",
     "unicode": "⠼⠃⠉⠔⠼⠁⠓",
-    "world": "⠼⠃⠉⠔⠼⠁⠓"
+    "world": "⠼⠃⠉⠔⠼⠁⠓",
+    "jeomsarang": "⠼⠃⠉⠔⠼⠁⠓"
   },
   {
     "input": "13×3",
     "internal": "#ac*#c",
     "expected": "601933609",
     "unicode": "⠼⠁⠉⠡⠼⠉",
-    "world": "⠼⠁⠉⠡⠼⠉"
+    "world": "⠼⠁⠉⠡⠼⠉",
+    "jeomsarang": "⠼⠁⠉⠡⠼⠉"
   },
   {
     "input": "72÷8",
     "internal": "#gb//#h",
     "expected": "6027312126019",
     "unicode": "⠼⠛⠃⠌⠌⠼⠓",
-    "world": "⠼⠛⠃⠌⠌⠼⠓"
+    "world": "⠼⠛⠃⠌⠌⠼⠓",
+    "jeomsarang": "⠼⠛⠃⠌⠌⠼⠓"
   },
   {
     "input": "·",
     "internal": "\"",
     "expected": "16",
     "unicode": "⠐",
-    "world": "⠐⠆"
+    "world": "⠐⠆",
+    "jeomsarang": "⠸⠲"
   },
   {
     "input": "6·9",
     "internal": "#f\"#i",
     "expected": "6011166010",
     "unicode": "⠼⠋⠐⠼⠊",
-    "world": "⠼⠋⠐⠆⠼⠊"
+    "world": "⠼⠋⠐⠆⠼⠊",
+    "jeomsarang": "⠼⠋⠐⠆⠼⠊"
   },
   {
     "input": "dt/dy·du/dt·dx/du",
     "internal": "dt/dy\"du/dt\"dx/du",
     "expected": "2530122561162537122530162545122537",
     "unicode": "⠙⠞⠌⠙⠽⠐⠙⠥⠌⠙⠞⠐⠙⠭⠌⠙⠥",
-    "world": "⠴⠙⠞⠸⠌⠙⠽⠈⠡⠙⠥⠸⠌⠙⠞⠈⠡⠙⠭⠸⠌⠙⠥⠲"
+    "world": "⠴⠙⠞⠸⠌⠙⠽⠈⠡⠙⠥⠸⠌⠙⠞⠈⠡⠙⠭⠸⠌⠙⠥⠲",
+    "jeomsarang": "⠴⠙⠞⠸⠌⠙⠽⠐⠆⠙⠥⠸⠌⠙⠞⠐⠆⠙⠭⠸⠌⠙⠥⠲"
   }
 ]

@@ -4,27 +4,31 @@
     "internal": "@:aai",
     "expected": "8491110",
     "unicode": "⠈⠱⠁⠁⠊",
-    "world": "⠈⠱⠁⠁⠊"
+    "world": "⠈⠱⠁⠁⠊",
+    "jeomsarang": "⠈⠱⠁⠁⠊"
   },
   {
     "input": "묶음",
     "internal": "emaa[5",
     "expected": "1713114234",
     "unicode": "⠑⠍⠁⠁⠪⠢",
-    "world": "⠑⠍⠁⠁⠪⠢"
+    "world": "⠑⠍⠁⠁⠪⠢",
+    "jeomsarang": "⠑⠍⠁⠁⠪⠢"
   },
   {
     "input": "있다",
     "internal": "o/i",
     "expected": "211210",
     "unicode": "⠕⠌⠊",
-    "world": "⠕⠌⠊"
+    "world": "⠕⠌⠊",
+    "jeomsarang": "⠕⠌⠊"
   },
   {
     "input": "보았다",
     "internal": "^u</i",
     "expected": "2437351210",
     "unicode": "⠘⠥⠣⠌⠊",
-    "world": "⠘⠥⠣⠌⠊"
+    "world": "⠘⠥⠣⠌⠊",
+    "jeomsarang": "⠘⠥⠣⠌⠊"
   }
 ]

@@ -4,14 +4,16 @@
     "internal": ",'",
     "expected": "324",
     "unicode": "⠠⠄",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠨⠒"
   },
   {
     "input": "△ABC∽△A′B′C′",
     "internal": "_+,,ABC,'_+,,A-B-C-",
     "expected": "5644323213932456443232136336936",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉⠠⠄⠸⠬⠠⠠⠁⠤⠃⠤⠉⠤",
-    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠄⠳⠭⠆⠆⠒⠙⠄⠫⠼⠉⠠⠁⠶⠠⠃⠶⠠⠉⠴⠤"
+    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠄⠳⠭⠆⠆⠒⠙⠄⠫⠼⠉⠠⠁⠶⠠⠃⠶⠠⠉⠴⠤",
+    "jeomsarang": "⠸⠬⠠⠠⠁⠃⠉⠨⠒⠸⠬⠇⠠⠁⠶⠠⠃⠶⠠⠉⠲⠶"
   },
   {
     "input": "$\\triangle ABC \\sim \\triangle A'B'C'$",
@@ -19,6 +21,7 @@
     "expected": "5644323213932456443232136336936",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉⠠⠄⠸⠬⠠⠠⠁⠤⠃⠤⠉⠤",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

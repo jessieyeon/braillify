@@ -4,14 +4,16 @@
     "internal": "?",
     "expected": "57",
     "unicode": "⠹",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠹"
   },
   {
     "input": "∠ABC",
     "internal": "?,,ABC",
     "expected": "573232139",
     "unicode": "⠹⠠⠠⠁⠃⠉",
-    "world": "⠴⠠⠠⠁⠃⠉⠲"
+    "world": "⠴⠠⠠⠁⠃⠉⠲",
+    "jeomsarang": "⠹⠠⠠⠁⠃⠉⠲"
   },
   {
     "input": "$\\angle ABC$",
@@ -19,6 +21,7 @@
     "expected": "573232139",
     "unicode": "⠹⠠⠠⠁⠃⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

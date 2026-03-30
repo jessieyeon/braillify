@@ -4,69 +4,79 @@
     "internal": "#a$",
     "expected": "60143",
     "unicode": "⠼⠁⠫",
-    "world": "⠼⠁⠫"
+    "world": "⠼⠁⠫",
+    "jeomsarang": "⠼⠁⠫"
   },
   {
     "input": "2권",
     "internal": "#b@p3",
     "expected": "60381518",
     "unicode": "⠼⠃⠈⠏⠒",
-    "world": "⠼⠃⠈⠏⠒"
+    "world": "⠼⠃⠈⠏⠒",
+    "jeomsarang": "⠼⠃⠈⠏⠒"
   },
   {
     "input": "3반",
     "internal": "#c^3",
     "expected": "6092418",
     "unicode": "⠼⠉⠘⠒",
-    "world": "⠼⠉⠘⠒"
+    "world": "⠼⠉⠘⠒",
+    "jeomsarang": "⠼⠉⠘⠒"
   },
   {
     "input": "4선",
     "internal": "#d,)",
     "expected": "60253262",
     "unicode": "⠼⠙⠠⠾",
-    "world": "⠼⠙⠠⠾"
+    "world": "⠼⠙⠠⠾",
+    "jeomsarang": "⠼⠙⠠⠾"
   },
   {
     "input": "5월",
     "internal": "#ep1",
     "expected": "6017152",
     "unicode": "⠼⠑⠏⠂",
-    "world": "⠼⠑⠏⠂"
+    "world": "⠼⠑⠏⠂",
+    "jeomsarang": "⠼⠑⠏⠂"
   },
   {
     "input": "6일",
     "internal": "#fo1",
     "expected": "6011212",
     "unicode": "⠼⠋⠕⠂",
-    "world": "⠼⠋⠕⠂"
+    "world": "⠼⠋⠕⠂",
+    "jeomsarang": "⠼⠋⠕⠂"
   },
   {
     "input": "7자루",
     "internal": "#g.\"m",
     "expected": "6027401613",
     "unicode": "⠼⠛⠨⠐⠍",
-    "world": "⠼⠛⠨⠐⠍"
+    "world": "⠼⠛⠨⠐⠍",
+    "jeomsarang": "⠼⠛⠨⠐⠍"
   },
   {
     "input": "8꾸러미",
     "internal": "#h,@m\"seo",
     "expected": "60193281316141721",
     "unicode": "⠼⠓⠠⠈⠍⠐⠎⠑⠕",
-    "world": "⠼⠓⠠⠈⠍⠐⠎⠑⠕"
+    "world": "⠼⠓⠠⠈⠍⠐⠎⠑⠕",
+    "jeomsarang": "⠼⠓⠠⠈⠍⠐⠎⠑⠕"
   },
   {
     "input": "5 개",
     "internal": "#e @r",
     "expected": "60170823",
     "unicode": "⠼⠑⠀⠈⠗",
-    "world": "⠼⠑ ⠈⠗"
+    "world": "⠼⠑ ⠈⠗",
+    "jeomsarang": "⠼⠑⠀⠈⠗"
   },
   {
     "input": "8 상자",
     "internal": "#h l7.",
     "expected": "6019075440",
     "unicode": "⠼⠓⠀⠇⠶⠨",
-    "world": "⠼⠓ ⠇⠶⠨"
+    "world": "⠼⠓ ⠇⠶⠨",
+    "jeomsarang": "⠼⠓⠀⠇⠶⠨"
   }
 ]

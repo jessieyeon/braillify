@@ -4,14 +4,16 @@
     "internal": "a,rb",
     "expected": "132233",
     "unicode": "⠁⠠⠗⠃",
-    "world": "⠴⠁⠠⠗⠃⠲"
+    "world": "⠴⠁⠠⠗⠃⠲",
+    "jeomsarang": "⠴⠁⠠⠗⠃⠲"
   },
   {
     "input": "a~b",
     "internal": "a@9b",
     "expected": "18203",
     "unicode": "⠁⠈⠔⠃",
-    "world": "⠴⠁⠈⠔⠃⠲"
+    "world": "⠴⠁⠈⠔⠃⠲",
+    "jeomsarang": "⠴⠁⠈⠔⠃⠲"
   },
   {
     "input": "$a \\not\\mathrel{R} b$",
@@ -19,7 +21,8 @@
     "expected": "14032233",
     "unicode": "⠁⠨⠠⠗⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$a \\not\\sim b$",
@@ -27,6 +30,7 @@
     "expected": "1408203",
     "unicode": "⠁⠨⠈⠔⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

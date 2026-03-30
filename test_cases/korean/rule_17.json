@@ -4,41 +4,47 @@
     "internal": ",]$",
     "expected": "325943",
     "unicode": "⠠⠻⠫",
-    "world": "⠠⠻⠫"
+    "world": "⠠⠻⠫",
+    "jeomsarang": "⠠⠻⠫"
   },
   {
     "input": "말썽",
     "internal": "e1,,]",
     "expected": "172323259",
     "unicode": "⠑⠂⠠⠠⠻",
-    "world": "⠑⠂⠠⠠⠻"
+    "world": "⠑⠂⠠⠠⠻",
+    "jeomsarang": "⠑⠂⠠⠠⠻"
   },
   {
     "input": "정성",
     "internal": ".],]",
     "expected": "40593259",
     "unicode": "⠨⠻⠠⠻",
-    "world": "⠨⠻⠠⠻"
+    "world": "⠨⠻⠠⠻",
+    "jeomsarang": "⠨⠻⠠⠻"
   },
   {
     "input": "어정쩡",
     "internal": "s.],.]",
     "expected": "144059324059",
     "unicode": "⠎⠨⠻⠠⠨⠻",
-    "world": "⠎⠨⠻⠠⠨⠻"
+    "world": "⠎⠨⠻⠠⠨⠻",
+    "jeomsarang": "⠎⠨⠻⠠⠨⠻"
   },
   {
     "input": "청년",
     "internal": ";]c*",
     "expected": "4859933",
     "unicode": "⠰⠻⠉⠡",
-    "world": "⠰⠻⠉⠡"
+    "world": "⠰⠻⠉⠡",
+    "jeomsarang": "⠰⠻⠉⠡"
   },
   {
     "input": "얄라셩",
     "internal": ">1\"<,:7",
     "expected": "2821635324954",
     "unicode": "⠜⠂⠐⠣⠠⠱⠶",
-    "world": "⠜⠂⠐⠣⠠⠱⠶"
+    "world": "⠜⠂⠐⠣⠠⠱⠶",
+    "jeomsarang": "⠜⠂⠐⠣⠠⠱⠶"
   }
 ]

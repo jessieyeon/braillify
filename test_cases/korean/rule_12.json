@@ -4,27 +4,31 @@
     "internal": ">-r",
     "expected": "283623",
     "unicode": "⠜⠤⠗",
-    "world": "⠜⠤⠗"
+    "world": "⠜⠤⠗",
+    "jeomsarang": "⠜⠤⠗"
   },
   {
     "input": "소화액",
     "internal": ",ujv-ra",
     "expected": "3237263936231",
     "unicode": "⠠⠥⠚⠧⠤⠗⠁",
-    "world": "⠠⠥⠚⠧⠤⠗⠁"
+    "world": "⠠⠥⠚⠧⠤⠗⠁",
+    "jeomsarang": "⠠⠥⠚⠧⠤⠗⠁"
   },
   {
     "input": "수액",
     "internal": ",m-ra",
     "expected": "321336231",
     "unicode": "⠠⠍⠤⠗⠁",
-    "world": "⠠⠍⠤⠗⠁"
+    "world": "⠠⠍⠤⠗⠁",
+    "jeomsarang": "⠠⠍⠤⠗⠁"
   },
   {
     "input": "파워앰프",
     "internal": "d<p-r5d[",
     "expected": "2535153623342542",
     "unicode": "⠙⠣⠏⠤⠗⠢⠙⠪",
-    "world": "⠙⠣⠏⠤⠗⠢⠙⠪"
+    "world": "⠙⠣⠏⠤⠗⠢⠙⠪",
+    "jeomsarang": "⠙⠣⠏⠤⠗⠢⠙⠪"
   }
 ]

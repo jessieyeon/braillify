@@ -4,27 +4,31 @@
     "internal": "-",
     "expected": "36",
     "unicode": "⠤",
-    "world": "⠴⠤"
+    "world": "⠴⠤",
+    "jeomsarang": "⠴⠤"
   },
   {
     "input": "x′",
     "internal": "x-",
     "expected": "4536",
     "unicode": "⠭⠤",
-    "world": "⠴⠭⠴⠤"
+    "world": "⠴⠭⠴⠤",
+    "jeomsarang": "⠴⠭⠲⠶"
   },
   {
     "input": "y′",
     "internal": "y-",
     "expected": "6136",
     "unicode": "⠽⠤",
-    "world": "⠴⠽⠴⠤"
+    "world": "⠴⠽⠴⠤",
+    "jeomsarang": "⠴⠽⠲⠶"
   },
   {
     "input": "a′b",
     "internal": "a-b",
     "expected": "1363",
     "unicode": "⠁⠤⠃",
-    "world": "⠴⠁⠶⠃⠲"
+    "world": "⠴⠁⠶⠃⠲",
+    "jeomsarang": "⠴⠁⠶⠰⠃⠲"
   }
 ]

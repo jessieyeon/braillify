@@ -601,9 +601,20 @@ mod test {
             let mut file_failed = 0;
             let mut file_world_total = 0;
             let mut file_world_failed = 0;
-            // input, note, expected, actual, is_success, world, world_is_success
-            let mut test_status: Vec<(String, String, String, String, bool, String, bool)> =
-                Vec::new();
+            let mut file_jeomsarang_total = 0;
+            let mut file_jeomsarang_failed = 0;
+            // (input, note, expected, actual, is_success, world, world_is_success, jeomsarang, jeomsarang_is_success)
+            let mut test_status: Vec<(
+                String,
+                String,
+                String,
+                String,
+                bool,
+                String,
+                bool,
+                String,
+                bool,
+            )> = Vec::new();
 
             for (line_num, record) in records.iter().enumerate() {
                 total += 1;
@@ -617,6 +628,8 @@ mod test {
                 let note = record["note"].as_str().unwrap_or("").to_string();
                 let world = record["world"].as_str().unwrap_or("").to_string();
                 file_world_total += 1;
+                let jeomsarang = record["jeomsarang"].as_str().unwrap_or("").to_string();
+                file_jeomsarang_total += 1;
                 // 테스트 케이스 파일의 숫자 코드에서 앞뒤 공백 제거 후 비교
                 let expected = record["expected"]
                     .as_str()
@@ -675,6 +688,11 @@ mod test {
                         if !world_is_success {
                             file_world_failed += 1;
                         }
+                        let jeomsarang_is_success =
+                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                        if !jeomsarang_is_success {
+                            file_jeomsarang_failed += 1;
+                        }
 
                         test_status.push((
                             input.to_string(),
@@ -692,6 +710,8 @@ mod test {
                             },
                             world.clone(),
                             world_is_success,
+                            jeomsarang.clone(),
+                            jeomsarang_is_success,
                         ));
                     }
                     Err(e) => {
@@ -717,6 +737,11 @@ mod test {
                         if !world_is_success {
                             file_world_failed += 1;
                         }
+                        let jeomsarang_is_success =
+                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                        if !jeomsarang_is_success {
+                            file_jeomsarang_failed += 1;
+                        }
 
                         test_status.push((
                             input.to_string(),
@@ -726,6 +751,8 @@ mod test {
                             false,
                             world.clone(),
                             world_is_success,
+                            jeomsarang.clone(),
+                            jeomsarang_is_success,
                         ));
                     }
                 }
@@ -737,6 +764,8 @@ mod test {
                     file_failed,
                     file_world_total,
                     file_world_failed,
+                    file_jeomsarang_total,
+                    file_jeomsarang_failed,
                     test_status,
                 ),
             );
@@ -807,7 +836,7 @@ mod test {
 
         println!("\n파일별 테스트 결과:");
         println!("=================");
-        for (filename, (file_total, file_failed, _, _, _)) in file_stats {
+        for (filename, (file_total, file_failed, _, _, _, _, _)) in file_stats {
             let success_rate =
                 ((file_total - file_failed) as f64 / file_total as f64 * 100.0) as i32;
             let color = if success_rate == 100 {

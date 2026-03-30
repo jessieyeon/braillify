@@ -4,7 +4,8 @@
     "internal": "0'",
     "expected": "524",
     "unicode": "⠴⠄",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠴⠄"
   },
   {
     "input": "$AB \\perp DE$",
@@ -12,6 +13,7 @@
     "expected": "32321352432322517",
     "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

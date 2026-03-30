@@ -6,12 +6,22 @@ import { TestStatus } from '@/types'
 import TestCaseCircle from '../TestCaseCircle'
 import { TestCaseDisplayBoundary } from '../TestCaseDisplayBoundary'
 
-export function TestCaseList({ results }: { results: TestStatus[4] }) {
+export function TestCaseList({ results }: { results: TestStatus[6] }) {
   return (
     <Grid gap="8px" gridTemplateColumns="repeat(auto-fill, minmax(16px, 1fr))">
       {results.map(
         (
-          [text, note, expected, actual, isSuccess, world, worldIsSuccess],
+          [
+            text,
+            note,
+            expected,
+            actual,
+            isSuccess,
+            world,
+            worldIsSuccess,
+            jeomsarang,
+            jeomsarangIsSuccess,
+          ],
           idx,
         ) => {
           const textParts = parseTextWithLaTeX(text)
@@ -45,6 +55,14 @@ export function TestCaseList({ results }: { results: TestStatus[4] }) {
                         점자세상 :{' '}
                         <Text wordBreak="break-all">{world}</Text>{' '}
                         {worldIsSuccess ? '✅' : '❌'}
+                      </>
+                    ) : null}
+                    {jeomsarang ? (
+                      <>
+                        <br />
+                        점사랑 :{' '}
+                        <Text wordBreak="break-all">{jeomsarang}</Text>{' '}
+                        {jeomsarangIsSuccess ? '✅' : '❌'}
                       </>
                     ) : null}
                   </Text>

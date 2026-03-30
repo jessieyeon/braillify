@@ -4,7 +4,8 @@
     "internal": "[3O,,AB",
     "expected": "421821323213",
     "unicode": "⠪⠒⠕⠠⠠⠁⠃",
-    "world": "⠪⠒⠕⠴⠰⠠⠠⠁⠃⠲"
+    "world": "⠪⠒⠕⠴⠰⠠⠠⠁⠃⠲",
+    "jeomsarang": "⠪⠒⠕⠠⠠⠁⠃⠲"
   },
   {
     "input": "$\\overleftrightarrow{AB}$",
@@ -12,6 +13,7 @@
     "expected": "421821323213",
     "unicode": "⠪⠒⠕⠠⠠⠁⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

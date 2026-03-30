@@ -4,7 +4,8 @@
     "internal": "#h^#b",
     "expected": "601924603",
     "unicode": "⠼⠓⠘⠼⠃",
-    "world": "⠼⠓⠘⠼⠃"
+    "world": "⠼⠓⠘⠼⠃",
+    "jeomsarang": "⠼⠓⠘⠼⠃"
   },
   {
     "input": "$8^2$",
@@ -12,14 +13,16 @@
     "expected": "601924603",
     "unicode": "⠼⠓⠘⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "8²",
     "internal": "#h^#b",
     "expected": "601924603",
     "unicode": "⠼⠓⠘⠼⠃",
-    "world": "⠼⠓⠘⠼⠃"
+    "world": "⠼⠓⠘⠼⠃",
+    "jeomsarang": "⠼⠓⠘⠼⠃"
   },
   {
     "input": "$8^{2}$",
@@ -27,14 +30,16 @@
     "expected": "601924603",
     "unicode": "⠼⠓⠘⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "c²",
     "internal": "c^#b",
     "expected": "924603",
     "unicode": "⠉⠘⠼⠃",
-    "world": "⠴⠉⠘⠼⠃"
+    "world": "⠴⠉⠘⠼⠃",
+    "jeomsarang": "⠴⠉⠲⠰⠘⠼⠃"
   },
   {
     "input": "$c^2$",
@@ -42,14 +47,16 @@
     "expected": "924603",
     "unicode": "⠉⠘⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "c²",
     "internal": "c^#b",
     "expected": "924603",
     "unicode": "⠉⠘⠼⠃",
-    "world": "⠴⠉⠘⠼⠃"
+    "world": "⠴⠉⠘⠼⠃",
+    "jeomsarang": "⠴⠉⠲⠰⠘⠼⠃"
   },
   {
     "input": "$c^{2}$",
@@ -57,14 +64,16 @@
     "expected": "924603",
     "unicode": "⠉⠘⠼⠃",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "(-3)³",
     "internal": "89#c0^#c",
     "expected": "38206095224609",
     "unicode": "⠦⠔⠼⠉⠴⠘⠼⠉",
-    "world": "⠦⠄⠤⠼⠉⠠⠴⠘⠼⠉"
+    "world": "⠦⠄⠤⠼⠉⠠⠴⠘⠼⠉",
+    "jeomsarang": "⠦⠄⠤⠼⠉⠠⠴⠘⠼⠉"
   },
   {
     "input": "$(-3)^3$",
@@ -72,14 +81,16 @@
     "expected": "38206095224609",
     "unicode": "⠦⠔⠼⠉⠴⠘⠼⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x⁻¹",
     "internal": "x^9#a",
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁",
-    "world": "⠴⠭⠘⠔ ⠘⠼⠁"
+    "world": "⠴⠭⠘⠔ ⠘⠼⠁",
+    "jeomsarang": "⠴⠭⠘⠔⠘⠼⠁"
   },
   {
     "input": "$x^{-1}$",
@@ -87,14 +98,16 @@
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x⁻¹",
     "internal": "x^9#a",
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁",
-    "world": "⠴⠭⠘⠔ ⠘⠼⠁"
+    "world": "⠴⠭⠘⠔ ⠘⠼⠁",
+    "jeomsarang": "⠴⠭⠘⠔⠘⠼⠁"
   },
   {
     "input": "$x^{-1}$",
@@ -102,21 +115,24 @@
     "expected": "452420601",
     "unicode": "⠭⠘⠔⠼⠁",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "aᵏ",
     "internal": "a^k",
     "expected": "1245",
     "unicode": "⠁⠘⠅",
-    "world": "⠴⠁"
+    "world": "⠴⠁",
+    "jeomsarang": "⠴⠁⠀"
   },
   {
     "input": "x⁷⁺⁹",
     "internal": "x^(#g5#i)",
     "expected": "452455602734601062",
     "unicode": "⠭⠘⠷⠼⠛⠢⠼⠊⠾",
-    "world": "⠴⠭⠘⠼⠛⠘⠢ ⠘⠼⠊"
+    "world": "⠴⠭⠘⠼⠛⠘⠢ ⠘⠼⠊",
+    "jeomsarang": "⠴⠭⠘⠼⠛⠘⠢⠘⠼⠊"
   },
   {
     "input": "$x^{7+9}$",
@@ -124,14 +140,16 @@
     "expected": "452455602734601062",
     "unicode": "⠭⠘⠷⠼⠛⠢⠼⠊⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "a³ᵐ⁺²ⁿ",
     "internal": "a^(#cm5#bn)",
     "expected": "1245560913346032962",
     "unicode": "⠁⠘⠷⠼⠉⠍⠢⠼⠃⠝⠾",
-    "world": "⠴⠁⠘⠼⠉⠍⠘⠐⠖ ⠘⠼⠃⠝⠲"
+    "world": "⠴⠁⠘⠼⠉⠍⠘⠐⠖ ⠘⠼⠃⠝⠲",
+    "jeomsarang": "⠴⠁⠰⠘⠼⠉⠀⠘⠢⠘⠼⠃⠘⠝"
   },
   {
     "input": "$a^{3m+2n}$",
@@ -139,14 +157,16 @@
     "expected": "1245560913346032962",
     "unicode": "⠁⠘⠷⠼⠉⠍⠢⠼⠃⠝⠾",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x⁰·³",
     "internal": "x^#j4c",
     "expected": "45246026509",
     "unicode": "⠭⠘⠼⠚⠲⠉",
-    "world": "⠴⠭⠘⠼⠚⠐⠆⠘⠼⠉"
+    "world": "⠴⠭⠘⠼⠚⠐⠆⠘⠼⠉",
+    "jeomsarang": "⠴⠭⠘⠼⠚⠐⠆⠘⠼⠉"
   },
   {
     "input": "$x^{0.3}$",
@@ -154,14 +174,16 @@
     "expected": "45246026509",
     "unicode": "⠭⠘⠼⠚⠲⠉",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "2²⁽ᵐ⁺ⁿ⁾",
     "internal": "#b^(#b8m5n0)",
     "expected": "6032455603381334295262",
     "unicode": "⠼⠃⠘⠷⠼⠃⠦⠍⠢⠝⠴⠾",
-    "world": "⠼⠃⠘⠼⠃⠦⠄⠘⠢ ⠘⠴⠝⠠⠴"
+    "world": "⠼⠃⠘⠼⠃⠦⠄⠘⠢ ⠘⠴⠝⠠⠴",
+    "jeomsarang": "⠼⠃⠘⠼⠃⠘⠦⠀⠘⠢⠘⠝⠘⠴"
   },
   {
     "input": "$2^{2(m+n)}$",
@@ -169,7 +191,8 @@
     "internal": "#b^(#b8m5n0)",
     "expected": "6032455603381334295262",
     "unicode": "⠼⠃⠘⠷⠼⠃⠦⠍⠢⠝⠴⠾",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "3ˣ/1",
@@ -177,14 +200,16 @@
     "internal": "#c^x/#a",
     "expected": "609244512601",
     "unicode": "⠼⠉⠘⠭⠌⠼⠁",
-    "world": "⠼⠉⠸⠌⠼⠁"
+    "world": "⠼⠉⠸⠌⠼⠁",
+    "jeomsarang": "⠼⠉⠀⠸⠌⠼⠁"
   },
   {
     "input": "3⁴⁄¹",
     "internal": "#c^(#d/#a)",
     "expected": "609245560251260162",
     "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾",
-    "world": "⠼⠉⠘⠼⠙⠘⠼⠁"
+    "world": "⠼⠉⠘⠼⠙⠘⠼⠁",
+    "jeomsarang": "⠼⠉⠘⠼⠙⠌⠘⠼⠁"
   },
   {
     "input": "$3^{4/1}$",
@@ -192,6 +217,7 @@
     "internal": "#c^(#d/#a)",
     "expected": "609245560251260162",
     "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   }
 ]

@@ -6,7 +6,29 @@ import { TestStatus } from '@/types'
 
 import { TestCaseDisplayBoundary } from '../TestCaseDisplayBoundary'
 
-export function TestCaseTable({ results }: { results: TestStatus[4] }) {
+function CompetitorCell({
+  label,
+  value,
+  isSuccess,
+}: {
+  label: string
+  value: string
+  isSuccess: boolean
+}) {
+  if (!value) return <Text color="#666">-</Text>
+  return (
+    <Flex alignItems="center" gap="4px">
+      <Text
+        className={css({ color: isSuccess ? '$success' : '$error' })}
+        whiteSpace="nowrap"
+      >
+        {isSuccess ? '일치' : '불일치'}
+      </Text>
+    </Flex>
+  )
+}
+
+export function TestCaseTable({ results }: { results: TestStatus[6] }) {
   return (
     <Table>
       <Thead
@@ -19,12 +41,23 @@ export function TestCaseTable({ results }: { results: TestStatus[4] }) {
           <Th>결과</Th>
           <Th>성공 여부</Th>
           <Th>점자세상</Th>
+          <Th>점사랑</Th>
         </Tr>
       </Thead>
       <Tbody>
         {results.map(
           (
-            [text, note, expected, actual, isSuccess, world, worldIsSuccess],
+            [
+              text,
+              note,
+              expected,
+              actual,
+              isSuccess,
+              world,
+              worldIsSuccess,
+              jeomsarang,
+              jeomsarangIsSuccess,
+            ],
             index,
           ) => (
             <TestCaseDisplayBoundary
@@ -69,20 +102,18 @@ export function TestCaseTable({ results }: { results: TestStatus[4] }) {
                   </Flex>
                 </Td>
                 <Td>
-                  {world ? (
-                    <Flex alignItems="center" gap="4px">
-                      <Text
-                        className={css({
-                          color: worldIsSuccess ? '$success' : '$error',
-                        })}
-                        whiteSpace="nowrap"
-                      >
-                        {worldIsSuccess ? '일치' : '불일치'}
-                      </Text>
-                    </Flex>
-                  ) : (
-                    <Text color="#666">-</Text>
-                  )}
+                  <CompetitorCell
+                    isSuccess={worldIsSuccess}
+                    label="점자세상"
+                    value={world}
+                  />
+                </Td>
+                <Td>
+                  <CompetitorCell
+                    isSuccess={jeomsarangIsSuccess}
+                    label="점사랑"
+                    value={jeomsarang}
+                  />
                 </Td>
               </Tr>
               <Tr
@@ -135,7 +166,21 @@ export function TestCaseTable({ results }: { results: TestStatus[4] }) {
                             color: worldIsSuccess ? '$success' : '$error',
                           })}
                         >
-                          {worldIsSuccess ? '일치' : '불일치'} ({world})
+                          {worldIsSuccess ? '일치' : '불일치'}
+                        </Text>
+                      </Flex>
+                    ) : null}
+                    {jeomsarang ? (
+                      <Flex alignItems="center" gap="10px" px="10px">
+                        <Text typography="bodyBold">점사랑</Text>
+                        <Text
+                          className={css({
+                            color: jeomsarangIsSuccess
+                              ? '$success'
+                              : '$error',
+                          })}
+                        >
+                          {jeomsarangIsSuccess ? '일치' : '불일치'}
                         </Text>
                       </Flex>
                     ) : null}

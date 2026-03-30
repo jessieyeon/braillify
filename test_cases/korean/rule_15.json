@@ -4,622 +4,711 @@
     "internal": "?",
     "expected": "57",
     "unicode": "⠹",
-    "world": "⠹"
+    "world": "⠹",
+    "jeomsarang": "⠹"
   },
   {
     "input": "언",
     "internal": ")",
     "expected": "62",
     "unicode": "⠾",
-    "world": "⠾"
+    "world": "⠾",
+    "jeomsarang": "⠾"
   },
   {
     "input": "얼",
     "internal": "t",
     "expected": "30",
     "unicode": "⠞",
-    "world": "⠞"
+    "world": "⠞",
+    "jeomsarang": "⠞"
   },
   {
     "input": "연",
     "internal": "*",
     "expected": "33",
     "unicode": "⠡",
-    "world": "⠡"
+    "world": "⠡",
+    "jeomsarang": "⠡"
   },
   {
     "input": "열",
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",
-    "world": "⠳"
+    "world": "⠳",
+    "jeomsarang": "⠳"
   },
   {
     "input": "영",
     "internal": "]",
     "expected": "59",
     "unicode": "⠻",
-    "world": "⠻"
+    "world": "⠻",
+    "jeomsarang": "⠻"
   },
   {
     "input": "옥",
     "internal": "x",
     "expected": "45",
     "unicode": "⠭",
-    "world": "⠭"
+    "world": "⠭",
+    "jeomsarang": "⠭"
   },
   {
     "input": "온",
     "internal": "(",
     "expected": "55",
     "unicode": "⠷",
-    "world": "⠷"
+    "world": "⠷",
+    "jeomsarang": "⠷"
   },
   {
     "input": "옹",
     "internal": "=",
     "expected": "63",
     "unicode": "⠿",
-    "world": "⠿"
+    "world": "⠿",
+    "jeomsarang": "⠿"
   },
   {
     "input": "운",
     "internal": "g",
     "expected": "27",
     "unicode": "⠛",
-    "world": "⠛"
+    "world": "⠛",
+    "jeomsarang": "⠛"
   },
   {
     "input": "울",
     "internal": "&",
     "expected": "47",
     "unicode": "⠯",
-    "world": "⠯"
+    "world": "⠯",
+    "jeomsarang": "⠯"
   },
   {
     "input": "은",
     "internal": "z",
     "expected": "53",
     "unicode": "⠵",
-    "world": "⠵"
+    "world": "⠵",
+    "jeomsarang": "⠵"
   },
   {
     "input": "을",
     "internal": "!",
     "expected": "46",
     "unicode": "⠮",
-    "world": "⠮"
+    "world": "⠮",
+    "jeomsarang": "⠮"
   },
   {
     "input": "인",
     "internal": "q",
     "expected": "31",
     "unicode": "⠟",
-    "world": "⠟"
+    "world": "⠟",
+    "jeomsarang": "⠟"
   },
   {
     "input": "것",
     "internal": "_s",
     "expected": "5614",
     "unicode": "⠸⠎",
-    "world": "⠸⠎"
+    "world": "⠸⠎",
+    "jeomsarang": "⠸⠎"
   },
   {
     "input": "억새",
     "internal": "?,r",
     "expected": "573223",
     "unicode": "⠹⠠⠗",
-    "world": "⠹⠠⠗"
+    "world": "⠹⠠⠗",
+    "jeomsarang": "⠹⠠⠗"
   },
   {
     "input": "추억",
     "internal": ";m?",
     "expected": "481357",
     "unicode": "⠰⠍⠹",
-    "world": "⠰⠍⠹"
+    "world": "⠰⠍⠹",
+    "jeomsarang": "⠰⠍⠹"
   },
   {
     "input": "언어",
     "internal": ")s",
     "expected": "6214",
     "unicode": "⠾⠎",
-    "world": "⠾⠎"
+    "world": "⠾⠎",
+    "jeomsarang": "⠾⠎"
   },
   {
     "input": "격언",
     "internal": "@:a)",
     "expected": "849162",
     "unicode": "⠈⠱⠁⠾",
-    "world": "⠈⠱⠁⠾"
+    "world": "⠈⠱⠁⠾",
+    "jeomsarang": "⠈⠱⠁⠾"
   },
   {
     "input": "얼룩",
     "internal": "t\"ma",
     "expected": "3016131",
     "unicode": "⠞⠐⠍⠁",
-    "world": "⠞⠐⠍⠁"
+    "world": "⠞⠐⠍⠁",
+    "jeomsarang": "⠞⠐⠍⠁"
   },
   {
     "input": "하얼빈",
     "internal": "j<t^q",
     "expected": "2635302431",
     "unicode": "⠚⠣⠞⠘⠟",
-    "world": "⠚⠣⠞⠘⠟"
+    "world": "⠚⠣⠞⠘⠟",
+    "jeomsarang": "⠚⠣⠞⠘⠟"
   },
   {
     "input": "연필",
     "internal": "*do1",
     "expected": "3325212",
     "unicode": "⠡⠙⠕⠂",
-    "world": "⠡⠙⠕⠂"
+    "world": "⠡⠙⠕⠂",
+    "jeomsarang": "⠡⠙⠕⠂"
   },
   {
     "input": "자연",
     "internal": ".<*",
     "expected": "403533",
     "unicode": "⠨⠣⠡",
-    "world": "⠨⠣⠡"
+    "world": "⠨⠣⠡",
+    "jeomsarang": "⠨⠣⠡"
   },
   {
     "input": "열매",
     "internal": "\\er",
     "expected": "511723",
     "unicode": "⠳⠑⠗",
-    "world": "⠳⠑⠗"
+    "world": "⠳⠑⠗",
+    "jeomsarang": "⠳⠑⠗"
   },
   {
     "input": "가열",
     "internal": "$\\",
     "expected": "4351",
     "unicode": "⠫⠳",
-    "world": "⠫⠳"
+    "world": "⠫⠳",
+    "jeomsarang": "⠫⠳"
   },
   {
     "input": "영어",
     "internal": "]s",
     "expected": "5914",
     "unicode": "⠻⠎",
-    "world": "⠻⠎"
+    "world": "⠻⠎",
+    "jeomsarang": "⠻⠎"
   },
   {
     "input": "환영",
     "internal": "jv3]",
     "expected": "26391859",
     "unicode": "⠚⠧⠒⠻",
-    "world": "⠚⠧⠒⠻"
+    "world": "⠚⠧⠒⠻",
+    "jeomsarang": "⠚⠧⠒⠻"
   },
   {
     "input": "옥수수",
     "internal": "x,m,m",
     "expected": "4532133213",
     "unicode": "⠭⠠⠍⠠⠍",
-    "world": "⠭⠠⠍⠠⠍"
+    "world": "⠭⠠⠍⠠⠍",
+    "jeomsarang": "⠭⠠⠍⠠⠍"
   },
   {
     "input": "가옥",
     "internal": "$x",
     "expected": "4345",
     "unicode": "⠫⠭",
-    "world": "⠫⠭"
+    "world": "⠫⠭",
+    "jeomsarang": "⠫⠭"
   },
   {
     "input": "온도",
     "internal": "(iu",
     "expected": "551037",
     "unicode": "⠷⠊⠥",
-    "world": "⠷⠊⠥"
+    "world": "⠷⠊⠥",
+    "jeomsarang": "⠷⠊⠥"
   },
   {
     "input": "오리온",
     "internal": "u\"o(",
     "expected": "37162155",
     "unicode": "⠥⠐⠕⠷",
-    "world": "⠥⠐⠕⠷"
+    "world": "⠥⠐⠕⠷",
+    "jeomsarang": "⠥⠐⠕⠷"
   },
   {
     "input": "옹고집",
     "internal": "=@u.ob",
     "expected": "6383740213",
     "unicode": "⠿⠈⠥⠨⠕⠃",
-    "world": "⠿⠈⠥⠨⠕⠃"
+    "world": "⠿⠈⠥⠨⠕⠃",
+    "jeomsarang": "⠿⠈⠥⠨⠕⠃"
   },
   {
     "input": "새옹지마",
     "internal": ",r=.oe",
     "expected": "322363402117",
     "unicode": "⠠⠗⠿⠨⠕⠑",
-    "world": "⠠⠗⠿⠨⠕⠑"
+    "world": "⠠⠗⠿⠨⠕⠑",
+    "jeomsarang": "⠠⠗⠿⠨⠕⠑"
   },
   {
     "input": "운동장",
     "internal": "gi=.7",
     "expected": "2710634054",
     "unicode": "⠛⠊⠿⠨⠶",
-    "world": "⠛⠊⠿⠨⠶"
+    "world": "⠛⠊⠿⠨⠶",
+    "jeomsarang": "⠛⠊⠿⠨⠶"
   },
   {
     "input": "행운",
     "internal": "jr7g",
     "expected": "26235427",
     "unicode": "⠚⠗⠶⠛",
-    "world": "⠚⠗⠶⠛"
+    "world": "⠚⠗⠶⠛",
+    "jeomsarang": "⠚⠗⠶⠛"
   },
   {
     "input": "울타리",
     "internal": "&h\"o",
     "expected": "47191621",
     "unicode": "⠯⠓⠐⠕",
-    "world": "⠯⠓⠐⠕"
+    "world": "⠯⠓⠐⠕",
+    "jeomsarang": "⠯⠓⠐⠕"
   },
   {
     "input": "겨울",
     "internal": "@:&",
     "expected": "84947",
     "unicode": "⠈⠱⠯",
-    "world": "⠈⠱⠯"
+    "world": "⠈⠱⠯",
+    "jeomsarang": "⠈⠱⠯"
   },
   {
     "input": "은하수",
     "internal": "zj,m",
     "expected": "53263213",
     "unicode": "⠵⠚⠠⠍",
-    "world": "⠵⠚⠠⠍"
+    "world": "⠵⠚⠠⠍",
+    "jeomsarang": "⠵⠚⠠⠍"
   },
   {
     "input": "양은",
     "internal": ">7z",
     "expected": "285453",
     "unicode": "⠜⠶⠵",
-    "world": "⠜⠶⠵"
+    "world": "⠜⠶⠵",
+    "jeomsarang": "⠜⠶⠵"
   },
   {
     "input": "을지로",
     "internal": "!.o\"u",
     "expected": "4640211637",
     "unicode": "⠮⠨⠕⠐⠥",
-    "world": "⠮⠨⠕⠐⠥"
+    "world": "⠮⠨⠕⠐⠥",
+    "jeomsarang": "⠮⠨⠕⠐⠥"
   },
   {
     "input": "가을",
     "internal": "$!",
     "expected": "4346",
     "unicode": "⠫⠮",
-    "world": "⠫⠮"
+    "world": "⠫⠮",
+    "jeomsarang": "⠫⠮"
   },
   {
     "input": "인내",
     "internal": "qcr",
     "expected": "31923",
     "unicode": "⠟⠉⠗",
-    "world": "⠟⠉⠗"
+    "world": "⠟⠉⠗",
+    "jeomsarang": "⠟⠉⠗"
   },
   {
     "input": "거인",
     "internal": "@sq",
     "expected": "81431",
     "unicode": "⠈⠎⠟",
-    "world": "⠈⠎⠟"
+    "world": "⠈⠎⠟",
+    "jeomsarang": "⠈⠎⠟"
   },
   {
     "input": "것이다",
     "internal": "_soi",
     "expected": "56142110",
     "unicode": "⠸⠎⠕⠊",
-    "world": "⠸⠎⠕⠊"
+    "world": "⠸⠎⠕⠊",
+    "jeomsarang": "⠸⠎⠕⠊"
   },
   {
     "input": "이것",
     "internal": "o_s",
     "expected": "215614",
     "unicode": "⠕⠸⠎",
-    "world": "⠕⠸⠎"
+    "world": "⠕⠸⠎",
+    "jeomsarang": "⠕⠸⠎"
   },
   {
     "input": "덕망",
     "internal": "i?e7",
     "expected": "10571754",
     "unicode": "⠊⠹⠑⠶",
-    "world": "⠊⠹⠑⠶"
+    "world": "⠊⠹⠑⠶",
+    "jeomsarang": "⠊⠹⠑⠶"
   },
   {
     "input": "기적",
     "internal": "@o.?",
     "expected": "8214057",
     "unicode": "⠈⠕⠨⠹",
-    "world": "⠈⠕⠨⠹"
+    "world": "⠈⠕⠨⠹",
+    "jeomsarang": "⠈⠕⠨⠹"
   },
   {
     "input": "꺾다",
     "internal": ",@?ai",
     "expected": "32857110",
     "unicode": "⠠⠈⠹⠁⠊",
-    "world": "⠠⠈⠹⠁⠊"
+    "world": "⠠⠈⠹⠁⠊",
+    "jeomsarang": "⠠⠈⠹⠁⠊"
   },
   {
     "input": "넋",
     "internal": "c?'",
     "expected": "9574",
     "unicode": "⠉⠹⠄",
-    "world": "⠉⠹⠄"
+    "world": "⠉⠹⠄",
+    "jeomsarang": "⠉⠹⠄"
   },
   {
     "input": "건전지",
     "internal": "@).).o",
     "expected": "86240624021",
     "unicode": "⠈⠾⠨⠾⠨⠕",
-    "world": "⠈⠾⠨⠾⠨⠕"
+    "world": "⠈⠾⠨⠾⠨⠕",
+    "jeomsarang": "⠈⠾⠨⠾⠨⠕"
   },
   {
     "input": "개천절",
     "internal": "@r;).t",
     "expected": "82348624030",
     "unicode": "⠈⠗⠰⠾⠨⠞",
-    "world": "⠈⠗⠰⠾⠨⠞"
+    "world": "⠈⠗⠰⠾⠨⠞",
+    "jeomsarang": "⠈⠗⠰⠾⠨⠞"
   },
   {
     "input": "얹다",
     "internal": ")ki",
     "expected": "62510",
     "unicode": "⠾⠅⠊",
-    "world": "⠾⠅⠊"
+    "world": "⠾⠅⠊",
+    "jeomsarang": "⠾⠅⠊"
   },
   {
     "input": "벌레",
     "internal": "^t\"n",
     "expected": "24301629",
     "unicode": "⠘⠞⠐⠝",
-    "world": "⠘⠞⠐⠝"
+    "world": "⠘⠞⠐⠝",
+    "jeomsarang": "⠘⠞⠐⠝"
   },
   {
     "input": "옷걸이",
     "internal": "u'@to",
     "expected": "37483021",
     "unicode": "⠥⠄⠈⠞⠕",
-    "world": "⠥⠄⠈⠞⠕"
+    "world": "⠥⠄⠈⠞⠕",
+    "jeomsarang": "⠥⠄⠈⠞⠕"
   },
   {
     "input": "얽다",
     "internal": "tai",
     "expected": "30110",
     "unicode": "⠞⠁⠊",
-    "world": "⠞⠁⠊"
+    "world": "⠞⠁⠊",
+    "jeomsarang": "⠞⠁⠊"
   },
   {
     "input": "젊다",
     "internal": ".t5i",
     "expected": "40303410",
     "unicode": "⠨⠞⠢⠊",
-    "world": "⠨⠞⠢⠊"
+    "world": "⠨⠞⠢⠊",
+    "jeomsarang": "⠨⠞⠢⠊"
   },
   {
     "input": "넓다",
     "internal": "ctbi",
     "expected": "930310",
     "unicode": "⠉⠞⠃⠊",
-    "world": "⠉⠞⠃⠊"
+    "world": "⠉⠞⠃⠊",
+    "jeomsarang": "⠉⠞⠃⠊"
   },
   {
     "input": "변화",
     "internal": "^*jv",
     "expected": "24332639",
     "unicode": "⠘⠡⠚⠧",
-    "world": "⠘⠡⠚⠧"
+    "world": "⠘⠡⠚⠧",
+    "jeomsarang": "⠘⠡⠚⠧"
   },
   {
     "input": "수련",
     "internal": ",m\"*",
     "expected": "32131633",
     "unicode": "⠠⠍⠐⠡",
-    "world": "⠠⠍⠐⠡"
+    "world": "⠠⠍⠐⠡",
+    "jeomsarang": "⠠⠍⠐⠡"
   },
   {
     "input": "별자리",
     "internal": "^\\.\"o",
     "expected": "2451401621",
     "unicode": "⠘⠳⠨⠐⠕",
-    "world": "⠘⠳⠨⠐⠕"
+    "world": "⠘⠳⠨⠐⠕",
+    "jeomsarang": "⠘⠳⠨⠐⠕"
   },
   {
     "input": "헌혈",
     "internal": "j)j\\",
     "expected": "26622651",
     "unicode": "⠚⠾⠚⠳",
-    "world": "⠚⠾⠚⠳"
+    "world": "⠚⠾⠚⠳",
+    "jeomsarang": "⠚⠾⠚⠳"
   },
   {
     "input": "엷다",
     "internal": "\\bi",
     "expected": "51310",
     "unicode": "⠳⠃⠊",
-    "world": "⠳⠃⠊"
+    "world": "⠳⠃⠊",
+    "jeomsarang": "⠳⠃⠊"
   },
   {
     "input": "평화",
     "internal": "d]jv",
     "expected": "25592639",
     "unicode": "⠙⠻⠚⠧",
-    "world": "⠙⠻⠚⠧"
+    "world": "⠙⠻⠚⠧",
+    "jeomsarang": "⠙⠻⠚⠧"
   },
   {
     "input": "안녕",
     "internal": "<3c]",
     "expected": "3518959",
     "unicode": "⠣⠒⠉⠻",
-    "world": "⠣⠒⠉⠻"
+    "world": "⠣⠒⠉⠻",
+    "jeomsarang": "⠣⠒⠉⠻"
   },
   {
     "input": "복덕방",
     "internal": "^xi?^7",
     "expected": "244510572454",
     "unicode": "⠘⠭⠊⠹⠘⠶",
-    "world": "⠘⠭⠊⠹⠘⠶"
+    "world": "⠘⠭⠊⠹⠘⠶",
+    "jeomsarang": "⠘⠭⠊⠹⠘⠶"
   },
   {
     "input": "가곡",
     "internal": "$@x",
     "expected": "43845",
     "unicode": "⠫⠈⠭",
-    "world": "⠫⠈⠭"
+    "world": "⠫⠈⠭",
+    "jeomsarang": "⠫⠈⠭"
   },
   {
     "input": "볶다",
     "internal": "^xai",
     "expected": "2445110",
     "unicode": "⠘⠭⠁⠊",
-    "world": "⠘⠭⠁⠊"
+    "world": "⠘⠭⠁⠊",
+    "jeomsarang": "⠘⠭⠁⠊"
   },
   {
     "input": "논두렁",
     "internal": "c(im\"s7",
     "expected": "9551013161454",
     "unicode": "⠉⠷⠊⠍⠐⠎⠶",
-    "world": "⠉⠷⠊⠍⠐⠎⠶"
+    "world": "⠉⠷⠊⠍⠐⠎⠶",
+    "jeomsarang": "⠉⠷⠊⠍⠐⠎⠶"
   },
   {
     "input": "용돈",
     "internal": "+7i(",
     "expected": "44541055",
     "unicode": "⠬⠶⠊⠷",
-    "world": "⠬⠶⠊⠷"
+    "world": "⠬⠶⠊⠷",
+    "jeomsarang": "⠬⠶⠊⠷"
   },
   {
     "input": "동그라미",
     "internal": "i=@[\"<eo",
     "expected": "106384216351721",
     "unicode": "⠊⠿⠈⠪⠐⠣⠑⠕",
-    "world": "⠊⠿⠈⠪⠐⠣⠑⠕"
+    "world": "⠊⠿⠈⠪⠐⠣⠑⠕",
+    "jeomsarang": "⠊⠿⠈⠪⠐⠣⠑⠕"
   },
   {
     "input": "탁구공",
     "internal": "ha@m@=",
     "expected": "191813863",
     "unicode": "⠓⠁⠈⠍⠈⠿",
-    "world": "⠓⠁⠈⠍⠈⠿"
+    "world": "⠓⠁⠈⠍⠈⠿",
+    "jeomsarang": "⠓⠁⠈⠍⠈⠿"
   },
   {
     "input": "순두부",
     "internal": ",gim^m",
     "expected": "322710132413",
     "unicode": "⠠⠛⠊⠍⠘⠍",
-    "world": "⠠⠛⠊⠍⠘⠍"
+    "world": "⠠⠛⠊⠍⠘⠍",
+    "jeomsarang": "⠠⠛⠊⠍⠘⠍"
   },
   {
     "input": "숭례문",
     "internal": ",m7\"/eg",
     "expected": "32135416121727",
     "unicode": "⠠⠍⠶⠐⠌⠑⠛",
-    "world": "⠠⠍⠶⠐⠌⠑⠛"
+    "world": "⠠⠍⠶⠐⠌⠑⠛",
+    "jeomsarang": "⠠⠍⠶⠐⠌⠑⠛"
   },
   {
     "input": "불고기",
     "internal": "^&@u@o",
     "expected": "2447837821",
     "unicode": "⠘⠯⠈⠥⠈⠕",
-    "world": "⠘⠯⠈⠥⠈⠕"
+    "world": "⠘⠯⠈⠥⠈⠕",
+    "jeomsarang": "⠘⠯⠈⠥⠈⠕"
   },
   {
     "input": "일출",
     "internal": "o1;&",
     "expected": "2124847",
     "unicode": "⠕⠂⠰⠯",
-    "world": "⠕⠂⠰⠯"
+    "world": "⠕⠂⠰⠯",
+    "jeomsarang": "⠕⠂⠰⠯"
   },
   {
     "input": "붉다",
     "internal": "^&ai",
     "expected": "2447110",
     "unicode": "⠘⠯⠁⠊",
-    "world": "⠘⠯⠁⠊"
+    "world": "⠘⠯⠁⠊",
+    "jeomsarang": "⠘⠯⠁⠊"
   },
   {
     "input": "굶다",
     "internal": "@&5i",
     "expected": "8473410",
     "unicode": "⠈⠯⠢⠊",
-    "world": "⠈⠯⠢⠊"
+    "world": "⠈⠯⠢⠊",
+    "jeomsarang": "⠈⠯⠢⠊"
   },
   {
     "input": "훑다",
     "internal": "j&8i",
     "expected": "26473810",
     "unicode": "⠚⠯⠦⠊",
-    "world": "⠚⠯⠦⠊"
+    "world": "⠚⠯⠦⠊",
+    "jeomsarang": "⠚⠯⠦⠊"
   },
   {
     "input": "근로",
     "internal": "@z\"u",
     "expected": "8531637",
     "unicode": "⠈⠵⠐⠥",
-    "world": "⠈⠵⠐⠥"
+    "world": "⠈⠵⠐⠥",
+    "jeomsarang": "⠈⠵⠐⠥"
   },
   {
     "input": "마흔",
     "internal": "ejz",
     "expected": "172653",
     "unicode": "⠑⠚⠵",
-    "world": "⠑⠚⠵"
+    "world": "⠑⠚⠵",
+    "jeomsarang": "⠑⠚⠵"
   },
   {
     "input": "끊다",
     "internal": ",@z0i",
     "expected": "328535210",
     "unicode": "⠠⠈⠵⠴⠊",
-    "world": "⠠⠈⠵⠴⠊"
+    "world": "⠠⠈⠵⠴⠊",
+    "jeomsarang": "⠠⠈⠵⠴⠊"
   },
   {
     "input": "글씨",
     "internal": "@!,,o",
     "expected": "846323221",
     "unicode": "⠈⠮⠠⠠⠕",
-    "world": "⠈⠮⠠⠠⠕"
+    "world": "⠈⠮⠠⠠⠕",
+    "jeomsarang": "⠈⠮⠠⠠⠕"
   },
   {
     "input": "구슬",
     "internal": "@m,!",
     "expected": "8133246",
     "unicode": "⠈⠍⠠⠮",
-    "world": "⠈⠍⠠⠮"
+    "world": "⠈⠍⠠⠮",
+    "jeomsarang": "⠈⠍⠠⠮"
   },
   {
     "input": "긁다",
     "internal": "@!ai",
     "expected": "846110",
     "unicode": "⠈⠮⠁⠊",
-    "world": "⠈⠮⠁⠊"
+    "world": "⠈⠮⠁⠊",
+    "jeomsarang": "⠈⠮⠁⠊"
   },
   {
     "input": "읊다",
     "internal": "!4i",
     "expected": "465010",
     "unicode": "⠮⠲⠊",
-    "world": "⠮⠲⠊"
+    "world": "⠮⠲⠊",
+    "jeomsarang": "⠮⠲⠊"
   },
   {
     "input": "끓다",
     "internal": ",@!0i",
     "expected": "328465210",
     "unicode": "⠠⠈⠮⠴⠊",
-    "world": "⠠⠈⠮⠴⠊"
+    "world": "⠠⠈⠮⠴⠊",
+    "jeomsarang": "⠠⠈⠮⠴⠊"
   },
   {
     "input": "진실",
     "internal": ".q,o1",
     "expected": "403132212",
     "unicode": "⠨⠟⠠⠕⠂",
-    "world": "⠨⠟⠠⠕⠂"
+    "world": "⠨⠟⠠⠕⠂",
+    "jeomsarang": "⠨⠟⠠⠕⠂"
   },
   {
     "input": "어린이",
     "internal": "s\"qo",
     "expected": "14163121",
     "unicode": "⠎⠐⠟⠕",
-    "world": "⠎⠐⠟⠕"
+    "world": "⠎⠐⠟⠕",
+    "jeomsarang": "⠎⠐⠟⠕"
   },
   {
     "input": "하겄다",
     "internal": "j@s/i",
     "expected": "268141210",
     "unicode": "⠚⠈⠎⠌⠊",
-    "world": "⠚⠈⠎⠌⠊"
+    "world": "⠚⠈⠎⠌⠊",
+    "jeomsarang": "⠚⠈⠎⠌⠊"
   }
 ]

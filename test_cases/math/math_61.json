@@ -5,7 +5,8 @@
     "internal": "@9P",
     "expected": "82015",
     "unicode": "⠈⠔⠏",
-    "world": "⠴⠠⠏⠲"
+    "world": "⠴⠠⠏⠲",
+    "jeomsarang": "⠈⠒⠠⠏⠲"
   },
   {
     "input": "P↔Q",
@@ -13,7 +14,8 @@
     "internal": "P`[3O`Q",
     "expected": "150421821031",
     "unicode": "⠏⠀⠪⠒⠕⠀⠟",
-    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠔⠲⠄⠰⠠⠟⠲"
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠔⠲⠄⠰⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠏⠪⠒⠕⠠⠟⠲"
   },
   {
     "input": "P⇔Q",
@@ -21,7 +23,8 @@
     "internal": "P`[33O`Q",
     "expected": "15042181821031",
     "unicode": "⠏⠀⠪⠒⠒⠕⠀⠟",
-    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠙⠲⠄⠰⠠⠟⠲"
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠙⠲⠄⠰⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠏⠪⠶⠕⠠⠟⠲"
   },
   {
     "input": "P⇄Q",
@@ -29,14 +32,16 @@
     "internal": "P`[7O`Q",
     "expected": "150425421031",
     "unicode": "⠏⠀⠪⠶⠕⠀⠟",
-    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠉⠲⠄⠰⠠⠟⠲"
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠉⠲⠄⠰⠠⠟⠲",
+    "jeomsarang": "⠴⠰⠠⠏⠪⠒⠕⠠⠟⠲"
   },
   {
     "input": "∧",
     "internal": "?",
     "expected": "57",
     "unicode": "⠹",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠹"
   },
   {
     "input": "$\\land$",
@@ -44,14 +49,16 @@
     "expected": "57",
     "unicode": "⠹",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∨",
     "internal": "#",
     "expected": "60",
     "unicode": "⠼",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠼"
   },
   {
     "input": "$\\lor$",
@@ -59,7 +66,8 @@
     "expected": "60",
     "unicode": "⠼",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "P∨Q",
@@ -67,21 +75,24 @@
     "internal": "P`#`Q",
     "expected": "15060031",
     "unicode": "⠏⠀⠼⠀⠟",
-    "world": "⠴⠠⠏⠈⠖⠠⠟⠲"
+    "world": "⠴⠠⠏⠈⠖⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠏⠼⠠⠟⠲"
   },
   {
     "input": "⊻",
     "internal": "#-",
     "expected": "6036",
     "unicode": "⠼⠤",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠴⠠⠭⠕⠗"
   },
   {
     "input": "P ⊻ Q",
     "internal": "P`#-`Q",
     "expected": "1506036031",
     "unicode": "⠏⠀⠼⠤⠀⠟",
-    "world": "⠴⠠⠏ ⠄⠳⠭⠆⠆⠃⠃⠄ ⠰⠠⠟⠲"
+    "world": "⠴⠠⠏ ⠄⠳⠭⠆⠆⠃⠃⠄ ⠰⠠⠟⠲",
+    "jeomsarang": "⠴⠰⠠⠏⠀⠴⠠⠭⠕⠗⠀⠰⠠⠟⠲"
   },
   {
     "input": "P↓Q",
@@ -89,7 +100,8 @@
     "internal": "P`^3O`Q",
     "expected": "150241821031",
     "unicode": "⠏⠀⠘⠒⠕⠀⠟",
-    "world": "⠴⠠⠏⠰⠳⠩⠠⠟⠲"
+    "world": "⠴⠠⠏⠰⠳⠩⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠏⠰⠳⠩⠠⠟⠲"
   },
   {
     "input": "P↑Q",
@@ -97,14 +109,16 @@
     "internal": "P`;3o`Q",
     "expected": "150481821031",
     "unicode": "⠏⠀⠰⠒⠕⠀⠟",
-    "world": "⠴⠠⠏⠰⠳⠬⠠⠟⠲"
+    "world": "⠴⠠⠏⠰⠳⠬⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠏⠰⠳⠬⠠⠟⠲"
   },
   {
     "input": "∀",
     "internal": ".'",
     "expected": "404",
     "unicode": "⠨⠄",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠨⠄"
   },
   {
     "input": "$\\forall$",
@@ -112,14 +126,16 @@
     "expected": "404",
     "unicode": "⠨⠄",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∃",
     "internal": ".5",
     "expected": "4034",
     "unicode": "⠨⠢",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠨⠢"
   },
   {
     "input": "$\\exists$",
@@ -127,7 +143,8 @@
     "expected": "4034",
     "unicode": "⠨⠢",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∃x P(x)",
@@ -135,14 +152,16 @@
     "internal": ".5X`P8X0",
     "expected": "403445015384552",
     "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴",
-    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴"
+    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴",
+    "jeomsarang": "⠨⠢⠭⠀⠠⠏⠦⠄⠭⠠⠴"
   },
   {
     "input": "∄",
     "internal": "..5",
     "expected": "404034",
     "unicode": "⠨⠨⠢",
-    "world": ""
+    "world": "",
+    "jeomsarang": "⠨⠨⠢"
   },
   {
     "input": "$\\nexists$",
@@ -150,7 +169,8 @@
     "expected": "404034",
     "unicode": "⠨⠨⠢",
     "note": "LaTeX",
-    "world": ""
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∄x",
@@ -158,98 +178,112 @@
     "internal": "..5X",
     "expected": "40403445",
     "unicode": "⠨⠨⠢⠭",
-    "world": "⠴⠭⠲"
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠨⠨⠢⠭⠲"
   },
   {
     "input": "p → q",
     "internal": "p`3o`q",
     "expected": "1501821031",
     "unicode": "⠏⠀⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠰⠳⠕ ⠰⠟⠲"
+    "world": "⠴⠏ ⠰⠳⠕ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠰⠳⠕⠀⠰⠟⠲"
   },
   {
     "input": "p ⇒ q",
     "internal": "p`33o`q",
     "expected": "150181821031",
     "unicode": "⠏⠀⠒⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠰⠳⠶⠕ ⠰⠟⠲"
+    "world": "⠴⠏ ⠰⠳⠶⠕ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠒⠒⠕⠀⠰⠟⠲"
   },
   {
     "input": "p ↔ q",
     "internal": "p`[3o`q",
     "expected": "150421821031",
     "unicode": "⠏⠀⠪⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠔⠲⠄ ⠰⠟⠲"
+    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠔⠲⠄ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠪⠒⠕⠀⠰⠟⠲"
   },
   {
     "input": "r ⇔ s",
     "internal": "r`[33o`s",
     "expected": "23042181821014",
     "unicode": "⠗⠀⠪⠒⠒⠕⠀⠎",
-    "world": "⠴⠗ ⠄⠳⠭⠆⠂⠙⠲⠄ ⠰⠎⠲"
+    "world": "⠴⠗ ⠄⠳⠭⠆⠂⠙⠲⠄ ⠰⠎⠲",
+    "jeomsarang": "⠴⠗⠀⠪⠶⠕⠀⠰⠎⠲"
   },
   {
     "input": "p ∧ q",
     "internal": "p`?`q",
     "expected": "15057031",
     "unicode": "⠏⠀⠹⠀⠟",
-    "world": "⠴⠏ ⠈⠦ ⠰⠟⠲"
+    "world": "⠴⠏ ⠈⠦ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠹⠀⠰⠟⠲"
   },
   {
     "input": "p ∨ q",
     "internal": "p`#`q",
     "expected": "15060031",
     "unicode": "⠏⠀⠼⠀⠟",
-    "world": "⠴⠏ ⠈⠖ ⠰⠟⠲"
+    "world": "⠴⠏ ⠈⠖ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠼⠀⠰⠟⠲"
   },
   {
     "input": "∀x p(x)",
     "internal": ".'x`p8x0",
     "expected": "40445015384552",
     "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴",
-    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴"
+    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴",
+    "jeomsarang": "⠨⠄⠭⠀⠏⠦⠄⠭⠠⠴"
   },
   {
     "input": "∃x p(x)",
     "internal": ".5x`p8x0",
     "expected": "403445015384552",
     "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴",
-    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴"
+    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴",
+    "jeomsarang": "⠨⠢⠭⠀⠏⠦⠄⠭⠠⠴"
   },
   {
     "input": "P∨¬P",
     "internal": ",p`#`@9,p",
     "expected": "321506008203215",
     "unicode": "⠠⠏⠀⠼⠀⠈⠔⠠⠏",
-    "world": "⠴⠠⠏⠈⠖⠈⠹⠠⠏⠲"
+    "world": "⠴⠠⠏⠈⠖⠈⠹⠠⠏⠲",
+    "jeomsarang": "⠴⠠⠏⠼⠈⠒⠠⠏⠲"
   },
   {
     "input": "p ⇏ q",
     "internal": "p`.33o`q",
     "expected": "15040181821031",
     "unicode": "⠏⠀⠨⠒⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠰⠳⠶⠕⠄⠳⠭⠴⠒⠒⠦⠄ ⠰⠟⠲"
+    "world": "⠴⠏ ⠰⠳⠶⠕⠄⠳⠭⠴⠒⠒⠦⠄ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠒⠒⠕⠀⠰⠟⠲"
   },
   {
     "input": "p ⇄ q",
     "internal": "p`[7o`q",
     "expected": "150425421031",
     "unicode": "⠏⠀⠪⠶⠕⠀⠟",
-    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠉⠲⠄ ⠰⠟⠲"
+    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠉⠲⠄ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠪⠒⠕⠀⠟⠲"
   },
   {
     "input": "p ↓ q",
     "internal": "p`^3o`q",
     "expected": "150241821031",
     "unicode": "⠏⠀⠘⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠰⠳⠩ ⠰⠟⠲"
+    "world": "⠴⠏ ⠰⠳⠩ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠰⠳⠩⠀⠰⠟⠲"
   },
   {
     "input": "p ↑ q",
     "internal": "p`;3o`q",
     "expected": "150481821031",
     "unicode": "⠏⠀⠰⠒⠕⠀⠟",
-    "world": "⠴⠏ ⠰⠳⠬ ⠰⠟⠲"
+    "world": "⠴⠏ ⠰⠳⠬ ⠰⠟⠲",
+    "jeomsarang": "⠴⠏⠀⠰⠳⠬⠀⠰⠟⠲"
   },
   {
     "input": "∀x P(x)",
@@ -257,6 +291,7 @@
     "internal": ".'X`P8X0",
     "expected": "40445015384552",
     "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴",
-    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴"
+    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴",
+    "jeomsarang": "⠨⠄⠭⠀⠠⠏⠦⠄⠭⠠⠴"
   }
 ]
