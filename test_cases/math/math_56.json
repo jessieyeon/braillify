@@ -3,26 +3,30 @@
     "input": "∫",
     "internal": "!",
     "expected": "46",
-    "unicode": "⠮"
+    "unicode": "⠮",
+    "world": ""
   },
   {
     "input": "$\\int$",
     "internal": "!",
     "expected": "46",
     "unicode": "⠮",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∫f(x)dx=F(x)+C",
     "internal": "!f8x0dx33,f8x05,c",
     "expected": "461138455225451818321138455234329",
-    "unicode": "⠮⠋⠦⠭⠴⠙⠭⠒⠒⠠⠋⠦⠭⠴⠢⠠⠉"
+    "unicode": "⠮⠋⠦⠭⠴⠙⠭⠒⠒⠠⠋⠦⠭⠴⠢⠠⠉",
+    "world": "⠴⠋⠐⠣⠭⠐⠜⠙⠭⠐⠶⠠⠋⠐⠣⠭⠐⠜⠐⠖⠠⠉⠲"
   },
   {
     "input": "$\\int af(x)dx = a\\int f(x)dx$",
     "internal": "!AF8X0DX33A!F8X0DX",
     "expected": "4611138455225451818146113845522545",
     "unicode": "⠮⠁⠋⠦⠭⠴⠙⠭⠒⠒⠁⠮⠋⠦⠭⠴⠙⠭",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

@@ -3,84 +3,98 @@
     "input": "국보",
     "internal": "@ma^u",
     "expected": "81312437",
-    "unicode": "⠈⠍⠁⠘⠥"
+    "unicode": "⠈⠍⠁⠘⠥",
+    "world": "⠈⠍⠁⠘⠥"
   },
   {
     "input": "윤리",
     "internal": "%3\"o",
     "expected": "41181621",
-    "unicode": "⠩⠒⠐⠕"
+    "unicode": "⠩⠒⠐⠕",
+    "world": "⠩⠒⠐⠕"
   },
   {
     "input": "싣고",
     "internal": ",o9@u",
     "expected": "322120837",
-    "unicode": "⠠⠕⠔⠈⠥"
+    "unicode": "⠠⠕⠔⠈⠥",
+    "world": "⠠⠕⠔⠈⠥"
   },
   {
     "input": "놀이",
     "internal": "cu1o",
     "expected": "937221",
-    "unicode": "⠉⠥⠂⠕"
+    "unicode": "⠉⠥⠂⠕",
+    "world": "⠉⠥⠂⠕"
   },
   {
     "input": "솜씨",
     "internal": ",u5,,o",
     "expected": "323734323221",
-    "unicode": "⠠⠥⠢⠠⠠⠕"
+    "unicode": "⠠⠥⠢⠠⠠⠕",
+    "world": "⠠⠥⠢⠠⠠⠕"
   },
   {
     "input": "넙치",
     "internal": "csb;o",
     "expected": "91434821",
-    "unicode": "⠉⠎⠃⠰⠕"
+    "unicode": "⠉⠎⠃⠰⠕",
+    "world": "⠉⠎⠃⠰⠕"
   },
   {
     "input": "놋그릇",
     "internal": "cu'@[\"['",
     "expected": "937484216424",
-    "unicode": "⠉⠥⠄⠈⠪⠐⠪⠄"
+    "unicode": "⠉⠥⠄⠈⠪⠐⠪⠄",
+    "world": "⠉⠥⠄⠈⠪⠐⠪⠄"
   },
   {
     "input": "향기",
     "internal": "j>7@o",
     "expected": "262854821",
-    "unicode": "⠚⠜⠶⠈⠕"
+    "unicode": "⠚⠜⠶⠈⠕",
+    "world": "⠚⠜⠶⠈⠕"
   },
   {
     "input": "엊저녁",
     "internal": "sk.sc:a",
     "expected": "14540149491",
-    "unicode": "⠎⠅⠨⠎⠉⠱⠁"
+    "unicode": "⠎⠅⠨⠎⠉⠱⠁",
+    "world": "⠎⠅⠨⠎⠉⠱⠁"
   },
   {
     "input": "윷놀이",
     "internal": "%2cu1o",
     "expected": "416937221",
-    "unicode": "⠩⠆⠉⠥⠂⠕"
+    "unicode": "⠩⠆⠉⠥⠂⠕",
+    "world": "⠩⠆⠉⠥⠂⠕"
   },
   {
     "input": "부엌",
     "internal": "^ms6",
     "expected": "24131422",
-    "unicode": "⠘⠍⠎⠖"
+    "unicode": "⠘⠍⠎⠖",
+    "world": "⠘⠍⠎⠖"
   },
   {
     "input": "겉보리",
     "internal": "@s8^u\"o",
     "expected": "8143824371621",
-    "unicode": "⠈⠎⠦⠘⠥⠐⠕"
+    "unicode": "⠈⠎⠦⠘⠥⠐⠕",
+    "world": "⠈⠎⠦⠘⠥⠐⠕"
   },
   {
     "input": "앞집",
     "internal": "<4.ob",
     "expected": "355040213",
-    "unicode": "⠣⠲⠨⠕⠃"
+    "unicode": "⠣⠲⠨⠕⠃",
+    "world": "⠣⠲⠨⠕⠃"
   },
   {
     "input": "히읗",
     "internal": "jo[0",
     "expected": "26214252",
-    "unicode": "⠚⠕⠪⠴"
+    "unicode": "⠚⠕⠪⠴",
+    "world": "⠚⠕⠪⠴"
   }
 ]

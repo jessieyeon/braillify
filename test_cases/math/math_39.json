@@ -3,19 +3,22 @@
     "input": "∠",
     "internal": "?",
     "expected": "57",
-    "unicode": "⠹"
+    "unicode": "⠹",
+    "world": ""
   },
   {
     "input": "∠ABC",
     "internal": "?,,ABC",
     "expected": "573232139",
-    "unicode": "⠹⠠⠠⠁⠃⠉"
+    "unicode": "⠹⠠⠠⠁⠃⠉",
+    "world": "⠴⠠⠠⠁⠃⠉⠲"
   },
   {
     "input": "$\\angle ABC$",
     "internal": "?,,ABC",
     "expected": "573232139",
     "unicode": "⠹⠠⠠⠁⠃⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

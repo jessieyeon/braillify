@@ -3,78 +3,91 @@
     "input": "아버지",
     "internal": "<^s.o",
     "expected": "3524144021",
-    "unicode": "⠣⠘⠎⠨⠕"
+    "unicode": "⠣⠘⠎⠨⠕",
+    "world": "⠣⠘⠎⠨⠕"
   },
   {
     "input": "야구",
     "internal": ">@m",
     "expected": "28813",
-    "unicode": "⠜⠈⠍"
+    "unicode": "⠜⠈⠍",
+    "world": "⠜⠈⠍"
   },
   {
     "input": "어머니",
     "internal": "sesco",
     "expected": "141714921",
-    "unicode": "⠎⠑⠎⠉⠕"
+    "unicode": "⠎⠑⠎⠉⠕",
+    "world": "⠎⠑⠎⠉⠕"
   },
   {
     "input": "여우",
     "internal": ":m",
     "expected": "4913",
-    "unicode": "⠱⠍"
+    "unicode": "⠱⠍",
+    "world": "⠱⠍"
   },
   {
     "input": "오이",
     "internal": "uo",
     "expected": "3721",
-    "unicode": "⠥⠕"
+    "unicode": "⠥⠕",
+    "world": "⠥⠕"
   },
   {
     "input": "요리",
     "internal": "+\"o",
     "expected": "441621",
-    "unicode": "⠬⠐⠕"
+    "unicode": "⠬⠐⠕",
+    "world": "⠬⠐⠕"
   },
   {
     "input": "우유",
     "internal": "m%",
     "expected": "1341",
-    "unicode": "⠍⠩"
+    "unicode": "⠍⠩",
+    "world": "⠍⠩"
   },
   {
     "input": "유리",
     "internal": "%\"o",
     "expected": "411621",
-    "unicode": "⠩⠐⠕"
+    "unicode": "⠩⠐⠕",
+    "world": "⠩⠐⠕"
   },
   {
     "input": "으스스",
     "internal": "[,[,[",
     "expected": "4232423242",
-    "unicode": "⠪⠠⠪⠠⠪"
+    "unicode": "⠪⠠⠪⠠⠪",
+    "world": "⠪⠠⠪⠠⠪"
   },
   {
     "input": "이모",
     "internal": "oeu",
     "expected": "211737",
-    "unicode": "⠕⠑⠥"
+    "unicode": "⠕⠑⠥",
+    "world": "⠕⠑⠥"
   },
   {
     "input": "피아노",
     "internal": "do<cu",
     "expected": "252135937",
-    "unicode": "⠙⠕⠣⠉⠥"
+    "unicode": "⠙⠕⠣⠉⠥",
+    "world": "⠙⠕⠣⠉⠥"
   },
   {
     "input": "도우미",
     "internal": "iumeo",
     "expected": "1037131721",
-    "unicode": "⠊⠥⠍⠑⠕"
+    "unicode": "⠊⠥⠍⠑⠕",
+    "world": "⠊⠥⠍⠑⠕"
   },
   {
     "input": "러시아",
     "internal": "\"s,o<",
     "expected": "1614322135",
-    "unicode": "⠐⠎⠠⠕⠣"
+    "unicode": "⠐⠎⠠⠕⠣",
+    "world": "⠐⠎⠠⠕⠣"
   }
 ]

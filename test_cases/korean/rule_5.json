@@ -3,60 +3,70 @@
     "input": "품삯",
     "internal": "dm5la'",
     "expected": "251334714",
-    "unicode": "⠙⠍⠢⠇⠁⠄"
+    "unicode": "⠙⠍⠢⠇⠁⠄",
+    "world": "⠙⠍⠢⠇⠁⠄"
   },
   {
     "input": "앉다",
     "internal": "<3ki",
     "expected": "3518510",
-    "unicode": "⠣⠒⠅⠊"
+    "unicode": "⠣⠒⠅⠊",
+    "world": "⠣⠒⠅⠊"
   },
   {
     "input": "않다",
     "internal": "<30i",
     "expected": "35185210",
-    "unicode": "⠣⠒⠴⠊"
+    "unicode": "⠣⠒⠴⠊",
+    "world": "⠣⠒⠴⠊"
   },
   {
     "input": "읽다",
     "internal": "o1ai",
     "expected": "212110",
-    "unicode": "⠕⠂⠁⠊"
+    "unicode": "⠕⠂⠁⠊",
+    "world": "⠕⠂⠁⠊"
   },
   {
     "input": "옮기다",
     "internal": "u15@oi",
     "expected": "3723482110",
-    "unicode": "⠥⠂⠢⠈⠕⠊"
+    "unicode": "⠥⠂⠢⠈⠕⠊",
+    "world": "⠥⠂⠢⠈⠕⠊"
   },
   {
     "input": "얇다",
     "internal": ">1bi",
     "expected": "282310",
-    "unicode": "⠜⠂⠃⠊"
+    "unicode": "⠜⠂⠃⠊",
+    "world": "⠜⠂⠃⠊"
   },
   {
     "input": "외곬",
     "internal": "y@u1'",
     "expected": "6183724",
-    "unicode": "⠽⠈⠥⠂⠄"
+    "unicode": "⠽⠈⠥⠂⠄",
+    "world": "⠽⠈⠥⠂⠄"
   },
   {
     "input": "핥다",
     "internal": "j18i",
     "expected": "2623810",
-    "unicode": "⠚⠂⠦⠊"
+    "unicode": "⠚⠂⠦⠊",
+    "world": "⠚⠂⠦⠊"
   },
   {
     "input": "옳다",
     "internal": "u10i",
     "expected": "3725210",
-    "unicode": "⠥⠂⠴⠊"
+    "unicode": "⠥⠂⠴⠊",
+    "world": "⠥⠂⠴⠊"
   },
   {
     "input": "없다",
     "internal": "sb'i",
     "expected": "143410",
-    "unicode": "⠎⠃⠄⠊"
+    "unicode": "⠎⠃⠄⠊",
+    "world": "⠎⠃⠄⠊"
   }
 ]

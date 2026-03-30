@@ -3,187 +3,217 @@
     "input": "≠",
     "internal": ".33",
     "expected": "401818",
-    "unicode": "⠨⠒⠒"
+    "unicode": "⠨⠒⠒",
+    "world": "⠨⠒⠒"
   },
   {
     "input": "y≠0",
     "internal": "y.33#j",
     "expected": "614018186026",
-    "unicode": "⠽⠨⠒⠒⠼⠚"
+    "unicode": "⠽⠨⠒⠒⠼⠚",
+    "world": "⠴⠽⠒⠒⠼⠚"
   },
   {
     "input": "$y \\neq 0$",
     "internal": "y.33#j",
     "expected": "614018186026",
     "unicode": "⠽⠨⠒⠒⠼⠚",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": ">",
     "internal": "55",
     "expected": "3434",
-    "unicode": "⠢⠢"
+    "unicode": "⠢⠢",
+    "world": "⠢⠢"
   },
   {
     "input": "a>b",
     "internal": "a55b",
     "expected": "134343",
-    "unicode": "⠁⠢⠢⠃"
+    "unicode": "⠁⠢⠢⠃",
+    "world": "⠴⠁⠈⠜⠃⠲"
   },
   {
     "input": "$a > b$",
     "internal": "a55b",
     "expected": "134343",
     "unicode": "⠁⠢⠢⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "≯",
     "internal": ".55",
     "expected": "403434",
-    "unicode": "⠨⠢⠢"
+    "unicode": "⠨⠢⠢",
+    "world": "⠨⠢⠢"
   },
   {
     "input": "x≯0",
     "internal": "x.55#j",
     "expected": "454034346026",
-    "unicode": "⠭⠨⠢⠢⠼⠚"
+    "unicode": "⠭⠨⠢⠢⠼⠚",
+    "world": "⠴⠭⠢⠢⠼⠚"
   },
   {
     "input": "<",
     "internal": "99",
     "expected": "2020",
-    "unicode": "⠔⠔"
+    "unicode": "⠔⠔",
+    "world": "⠔⠔"
   },
   {
     "input": "x<0",
     "internal": "x99#j",
     "expected": "4520206026",
-    "unicode": "⠭⠔⠔⠼⠚"
+    "unicode": "⠭⠔⠔⠼⠚",
+    "world": "⠴⠭⠔⠔⠼⠚"
   },
   {
     "input": "$x < 0$",
     "internal": "x99#j",
     "expected": "4520206026",
     "unicode": "⠭⠔⠔⠼⠚",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "-1<x<3",
     "internal": "9#a99x99#c",
     "expected": "206012020452020609",
-    "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉"
+    "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉",
+    "world": "⠤⠼⠁⠔⠔⠴⠭⠔⠔⠼⠉"
   },
   {
     "input": "$-1 < x < 3$",
     "internal": "9#a99x99#c",
     "expected": "206012020452020609",
     "unicode": "⠔⠼⠁⠔⠔⠭⠔⠔⠼⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "-5<x<-2",
     "internal": "9#e99x99#b",
     "expected": "2060172020452020603",
-    "unicode": "⠔⠼⠑⠔⠔⠭⠔⠔⠼⠃"
+    "unicode": "⠔⠼⠑⠔⠔⠭⠔⠔⠼⠃",
+    "world": "⠤⠼⠑⠔⠔⠴⠭⠔⠔⠤⠼⠃"
   },
   {
     "input": "≮",
     "internal": ".99",
     "expected": "402020",
-    "unicode": "⠨⠔⠔"
+    "unicode": "⠨⠔⠔",
+    "world": "⠨⠔⠔"
   },
   {
     "input": "x≮y",
     "internal": "x.99y",
     "expected": "4540202061",
-    "unicode": "⠭⠨⠔⠔⠽"
+    "unicode": "⠭⠨⠔⠔⠽",
+    "world": "⠴⠭⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲"
   },
   {
     "input": "≧",
     "internal": "44",
     "expected": "5050",
-    "unicode": "⠲⠲"
+    "unicode": "⠲⠲",
+    "world": "⠲⠲"
   },
   {
     "input": "≥",
     "internal": "44",
     "expected": "5050",
-    "unicode": "⠲⠲"
+    "unicode": "⠲⠲",
+    "world": "⠲⠲"
   },
   {
     "input": "x≥5",
     "internal": "x44#e",
     "expected": "4550506017",
-    "unicode": "⠭⠲⠲⠼⠑"
+    "unicode": "⠭⠲⠲⠼⠑",
+    "world": "⠴⠭⠲⠲⠼⠑"
   },
   {
     "input": "$x \\geq 5$",
     "internal": "x44#e",
     "expected": "4550506017",
     "unicode": "⠭⠲⠲⠼⠑",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "≱",
     "internal": ".44",
     "expected": "405050",
-    "unicode": "⠨⠲⠲"
+    "unicode": "⠨⠲⠲",
+    "world": "⠨⠲⠲"
   },
   {
     "input": "x≱y",
     "internal": "x.44y",
     "expected": "4540505061",
-    "unicode": "⠭⠨⠲⠲⠽"
+    "unicode": "⠭⠨⠲⠲⠽",
+    "world": "⠴⠭⠸⠈⠜⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲"
   },
   {
     "input": "≦",
     "internal": "66",
     "expected": "2222",
-    "unicode": "⠖⠖"
+    "unicode": "⠖⠖",
+    "world": "⠖⠖"
   },
   {
     "input": "≤",
     "internal": "66",
     "expected": "2222",
-    "unicode": "⠖⠖"
+    "unicode": "⠖⠖",
+    "world": "⠖⠖"
   },
   {
     "input": "x≤0",
     "internal": "x66#j",
     "expected": "4522226026",
-    "unicode": "⠭⠖⠖⠼⠚"
+    "unicode": "⠭⠖⠖⠼⠚",
+    "world": "⠴⠭⠖⠖⠼⠚"
   },
   {
     "input": "$x \\leq 0$",
     "internal": "x66#j",
     "expected": "4522226026",
     "unicode": "⠭⠖⠖⠼⠚",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "-1≤sinx≤1",
     "internal": "9#a666sx66#a",
     "expected": "2060122222214452222601",
-    "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁"
+    "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁",
+    "world": "⠤⠼⠁⠖⠖⠴⠎⠔⠭⠖⠖⠼⠁"
   },
   {
     "input": "$-1 \\leq \\sin x \\leq 1$",
     "internal": "9#a666sx66#a",
     "expected": "2060122222214452222601",
     "unicode": "⠔⠼⠁⠖⠖⠖⠎⠭⠖⠖⠼⠁",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "≰",
     "internal": ".66",
     "expected": "402222",
-    "unicode": "⠨⠖⠖"
+    "unicode": "⠨⠖⠖",
+    "world": "⠨⠖⠖"
   },
   {
     "input": "x≰y",
     "internal": "x.66y",
     "expected": "4540222261",
-    "unicode": "⠭⠨⠖⠖⠽"
+    "unicode": "⠭⠨⠖⠖⠽",
+    "world": "⠴⠭⠸⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲"
   }
 ]

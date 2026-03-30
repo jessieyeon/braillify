@@ -3,77 +3,89 @@
     "input": "√",
     "internal": ">",
     "expected": "28",
-    "unicode": "⠜"
+    "unicode": "⠜",
+    "world": ""
   },
   {
     "input": "√2",
     "internal": ">#b",
     "expected": "28603",
-    "unicode": "⠜⠼⠃"
+    "unicode": "⠜⠼⠃",
+    "world": "⠼⠃"
   },
   {
     "input": "$\\sqrt{2}$",
     "internal": ">#b",
     "expected": "28603",
     "unicode": "⠜⠼⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "³√x³",
     "internal": "#c]x^#c",
     "expected": "609594524609",
-    "unicode": "⠼⠉⠻⠭⠘⠼⠉"
+    "unicode": "⠼⠉⠻⠭⠘⠼⠉",
+    "world": "⠘⠼⠉⠴⠭⠘⠼⠉"
   },
   {
     "input": "$\\sqrt[3]{x^3}$",
     "internal": "#c]x^#c",
     "expected": "609594524609",
     "unicode": "⠼⠉⠻⠭⠘⠼⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "⁵√32",
     "internal": "#e]#cb",
     "expected": "6017596093",
-    "unicode": "⠼⠑⠻⠼⠉⠃"
+    "unicode": "⠼⠑⠻⠼⠉⠃",
+    "world": "⠘⠼⠑⠼⠉⠃"
   },
   {
     "input": "$\\sqrt[5]{32}$",
     "internal": "#e]#cb",
     "expected": "6017596093",
     "unicode": "⠼⠑⠻⠼⠉⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "ᵐ√n",
     "internal": "m]n",
     "expected": "135929",
-    "unicode": "⠍⠻⠝"
+    "unicode": "⠍⠻⠝",
+    "world": "⠴⠝⠲"
   },
   {
     "input": "√(xy)",
     "internal": ">(xy)",
     "expected": "2855456162",
-    "unicode": "⠜⠷⠭⠽⠾"
+    "unicode": "⠜⠷⠭⠽⠾",
+    "world": "⠦⠄⠴⠭⠽⠠⠴"
   },
   {
     "input": "$\\sqrt{xy}$",
     "internal": ">(xy)",
     "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "ᵐⁿ√y",
     "internal": "(mn)]y",
     "expected": "551329625961",
-    "unicode": "⠷⠍⠝⠾⠻⠽"
+    "unicode": "⠷⠍⠝⠾⠻⠽",
+    "world": "⠘⠴⠝⠐⠩⠽⠲"
   },
   {
     "input": "$\\sqrt[mn]{y}$",
     "note": "LaTeX",
     "internal": "(mn)]y",
     "expected": "551329625961",
-    "unicode": "⠷⠍⠝⠾⠻⠽"
+    "unicode": "⠷⠍⠝⠾⠻⠽",
+    "world": ""
   }
 ]

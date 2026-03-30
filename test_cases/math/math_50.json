@@ -3,45 +3,52 @@
     "input": "∞",
     "internal": "=",
     "expected": "63",
-    "unicode": "⠿"
+    "unicode": "⠿",
+    "world": ""
   },
   {
     "input": "$\\infty$",
     "internal": "=",
     "expected": "63",
     "unicode": "⠿",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "n → ∞",
     "internal": "n`3o`=",
     "expected": "2901821063",
-    "unicode": "⠝⠀⠒⠕⠀⠿"
+    "unicode": "⠝⠀⠒⠕⠀⠿",
+    "world": "⠴⠝ ⠳⠕"
   },
   {
     "input": "-∞",
     "internal": "9=",
     "expected": "2063",
-    "unicode": "⠔⠿"
+    "unicode": "⠔⠿",
+    "world": "⠤"
   },
   {
     "input": "$-\\infty$",
     "internal": "9=",
     "expected": "2063",
     "unicode": "⠔⠿",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "n→∞",
     "note": "n → ∞",
     "internal": "N`3o`=",
     "expected": "2901821063",
-    "unicode": "⠝⠀⠒⠕⠀⠿"
+    "unicode": "⠝⠀⠒⠕⠀⠿",
+    "world": "⠴⠝⠳⠕"
   },
   {
     "input": "tan90°=∞",
     "internal": "6T#IJ0D33=",
     "expected": "22306010265225181863",
-    "unicode": "⠖⠞⠼⠊⠚⠴⠙⠒⠒⠿"
+    "unicode": "⠖⠞⠼⠊⠚⠴⠙⠒⠒⠿",
+    "world": "⠴⠞⠁⠝⠼⠊⠚⠴⠙⠒⠒"
   }
 ]

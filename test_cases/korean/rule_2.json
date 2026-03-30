@@ -3,60 +3,70 @@
     "input": "꾸러미",
     "internal": ",@m\"seo",
     "expected": "3281316141721",
-    "unicode": "⠠⠈⠍⠐⠎⠑⠕"
+    "unicode": "⠠⠈⠍⠐⠎⠑⠕",
+    "world": "⠠⠈⠍⠐⠎⠑⠕"
   },
   {
     "input": "두꺼비",
     "internal": "im,@s^o",
     "expected": "1013328142421",
-    "unicode": "⠊⠍⠠⠈⠎⠘⠕"
+    "unicode": "⠊⠍⠠⠈⠎⠘⠕",
+    "world": "⠊⠍⠠⠈⠎⠘⠕"
   },
   {
     "input": "뚜껑",
     "internal": ",im,@s7",
     "expected": "3210133281454",
-    "unicode": "⠠⠊⠍⠠⠈⠎⠶"
+    "unicode": "⠠⠊⠍⠠⠈⠎⠶",
+    "world": "⠠⠊⠍⠠⠈⠎⠶"
   },
   {
     "input": "허리띠",
     "internal": "js\"o,io",
     "expected": "26141621321021",
-    "unicode": "⠚⠎⠐⠕⠠⠊⠕"
+    "unicode": "⠚⠎⠐⠕⠠⠊⠕",
+    "world": "⠚⠎⠐⠕⠠⠊⠕"
   },
   {
     "input": "뻐꾸기",
     "internal": ",^s,@m@o",
     "expected": "32241432813821",
-    "unicode": "⠠⠘⠎⠠⠈⠍⠈⠕"
+    "unicode": "⠠⠘⠎⠠⠈⠍⠈⠕",
+    "world": "⠠⠘⠎⠠⠈⠍⠈⠕"
   },
   {
     "input": "고삐",
     "internal": "@u,^o",
     "expected": "837322421",
-    "unicode": "⠈⠥⠠⠘⠕"
+    "unicode": "⠈⠥⠠⠘⠕",
+    "world": "⠈⠥⠠⠘⠕"
   },
   {
     "input": "쓰기",
     "internal": ",,[@o",
     "expected": "323242821",
-    "unicode": "⠠⠠⠪⠈⠕"
+    "unicode": "⠠⠠⠪⠈⠕",
+    "world": "⠠⠠⠪⠈⠕"
   },
   {
     "input": "아저씨",
     "internal": "<.s,,o",
     "expected": "354014323221",
-    "unicode": "⠣⠨⠎⠠⠠⠕"
+    "unicode": "⠣⠨⠎⠠⠠⠕",
+    "world": "⠣⠨⠎⠠⠠⠕"
   },
   {
     "input": "쭈르르",
     "internal": ",.m\"[\"[",
     "expected": "32401316421642",
-    "unicode": "⠠⠨⠍⠐⠪⠐⠪"
+    "unicode": "⠠⠨⠍⠐⠪⠐⠪",
+    "world": "⠠⠨⠍⠐⠪⠐⠪"
   },
   {
     "input": "버찌",
     "internal": "^s,.o",
     "expected": "2414324021",
-    "unicode": "⠘⠎⠠⠨⠕"
+    "unicode": "⠘⠎⠠⠨⠕",
+    "world": "⠘⠎⠠⠨⠕"
   }
 ]

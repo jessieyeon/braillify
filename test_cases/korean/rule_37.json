@@ -3,192 +3,224 @@
     "input": "but",
     "internal": "but",
     "expected": "33730",
-    "unicode": "⠃⠥⠞"
+    "unicode": "⠃⠥⠞",
+    "world": "⠴⠃⠥⠞⠲"
   },
   {
     "input": "can",
     "internal": "can",
     "expected": "9129",
-    "unicode": "⠉⠁⠝"
+    "unicode": "⠉⠁⠝",
+    "world": "⠴⠉⠁⠝⠲"
   },
   {
     "input": "do",
     "internal": "do",
     "expected": "2521",
-    "unicode": "⠙⠕"
+    "unicode": "⠙⠕",
+    "world": "⠴⠙⠕⠲"
   },
   {
     "input": "every",
     "internal": "\"ey",
     "expected": "161761",
-    "unicode": "⠐⠑⠽"
+    "unicode": "⠐⠑⠽",
+    "world": "⠴⠐⠑⠽⠲"
   },
   {
     "input": "from",
     "internal": "from",
     "expected": "11232113",
-    "unicode": "⠋⠗⠕⠍"
+    "unicode": "⠋⠗⠕⠍",
+    "world": "⠴⠋⠗⠕⠍⠲"
   },
   {
     "input": "go",
     "internal": "go",
     "expected": "2721",
-    "unicode": "⠛⠕"
+    "unicode": "⠛⠕",
+    "world": "⠴⠛⠕⠲"
   },
   {
     "input": "have",
     "internal": "have",
     "expected": "1913917",
-    "unicode": "⠓⠁⠧⠑"
+    "unicode": "⠓⠁⠧⠑",
+    "world": "⠴⠓⠁⠧⠑⠲"
   },
   {
     "input": "just",
     "internal": "ju/",
     "expected": "263712",
-    "unicode": "⠚⠥⠌"
+    "unicode": "⠚⠥⠌",
+    "world": "⠴⠚⠥⠌⠲"
   },
   {
     "input": "knowledge",
     "internal": "\"kl$ge",
     "expected": "1657432717",
-    "unicode": "⠐⠅⠇⠫⠛⠑"
+    "unicode": "⠐⠅⠇⠫⠛⠑",
+    "world": "⠴⠐⠅⠇⠫⠛⠑⠲"
   },
   {
     "input": "like",
     "internal": "like",
     "expected": "710517",
-    "unicode": "⠇⠊⠅⠑"
+    "unicode": "⠇⠊⠅⠑",
+    "world": "⠴⠇⠊⠅⠑⠲"
   },
   {
     "input": "more",
     "internal": "more",
     "expected": "13212317",
-    "unicode": "⠍⠕⠗⠑"
+    "unicode": "⠍⠕⠗⠑",
+    "world": "⠴⠍⠕⠗⠑⠲"
   },
   {
     "input": "not",
     "internal": "not",
     "expected": "292130",
-    "unicode": "⠝⠕⠞"
+    "unicode": "⠝⠕⠞",
+    "world": "⠴⠝⠕⠞⠲"
   },
   {
     "input": "people",
     "internal": "people",
     "expected": "15172115717",
-    "unicode": "⠏⠑⠕⠏⠇⠑"
+    "unicode": "⠏⠑⠕⠏⠇⠑",
+    "world": "⠴⠏⠑⠕⠏⠇⠑⠲"
   },
   {
     "input": "quite",
     "internal": "quite",
     "expected": "3137103017",
-    "unicode": "⠟⠥⠊⠞⠑"
+    "unicode": "⠟⠥⠊⠞⠑",
+    "world": "⠴⠟⠥⠊⠞⠑⠲"
   },
   {
     "input": "rather",
     "internal": "ra!r",
     "expected": "2314623",
-    "unicode": "⠗⠁⠮⠗"
+    "unicode": "⠗⠁⠮⠗",
+    "world": "⠴⠗⠁⠮⠗⠲"
   },
   {
     "input": "so",
     "internal": "so",
     "expected": "1421",
-    "unicode": "⠎⠕"
+    "unicode": "⠎⠕",
+    "world": "⠴⠎⠕⠲"
   },
   {
     "input": "that",
     "internal": "?at",
     "expected": "57130",
-    "unicode": "⠹⠁⠞"
+    "unicode": "⠹⠁⠞",
+    "world": "⠴⠹⠁⠞⠲"
   },
   {
     "input": "us",
     "internal": "us",
     "expected": "3714",
-    "unicode": "⠥⠎"
+    "unicode": "⠥⠎",
+    "world": "⠴⠥⠎⠲"
   },
   {
     "input": "very",
     "internal": "v}y",
     "expected": "395961",
-    "unicode": "⠧⠻⠽"
+    "unicode": "⠧⠻⠽",
+    "world": "⠴⠧⠻⠽⠲"
   },
   {
     "input": "will",
     "internal": "will",
     "expected": "581077",
-    "unicode": "⠺⠊⠇⠇"
+    "unicode": "⠺⠊⠇⠇",
+    "world": "⠴⠺⠊⠇⠇⠲"
   },
   {
     "input": "it",
     "internal": "it",
     "expected": "1030",
-    "unicode": "⠊⠞"
+    "unicode": "⠊⠞",
+    "world": "⠴⠊⠞⠲"
   },
   {
     "input": "you",
     "internal": "y\\",
     "expected": "6151",
-    "unicode": "⠽⠳"
+    "unicode": "⠽⠳",
+    "world": "⠴⠽⠳⠲"
   },
   {
     "input": "as",
     "internal": "as",
     "expected": "114",
-    "unicode": "⠁⠎"
+    "unicode": "⠁⠎",
+    "world": "⠴⠁⠎⠲"
   },
   {
     "input": "be",
     "internal": "be",
     "expected": "317",
-    "unicode": "⠃⠑"
+    "unicode": "⠃⠑",
+    "world": "⠴⠃⠑⠲"
   },
   {
     "input": "enough",
     "internal": "5\\<",
     "expected": "345135",
-    "unicode": "⠢⠳⠣"
+    "unicode": "⠢⠳⠣",
+    "world": "⠴⠢⠳⠣⠲"
   },
   {
     "input": "his",
     "internal": "his",
     "expected": "191014",
-    "unicode": "⠓⠊⠎"
+    "unicode": "⠓⠊⠎",
+    "world": "⠴⠓⠊⠎⠲"
   },
   {
     "input": "in",
     "internal": "in",
     "expected": "1029",
-    "unicode": "⠊⠝"
+    "unicode": "⠊⠝",
+    "world": "⠴⠊⠝⠲"
   },
   {
     "input": "was",
     "internal": "was",
     "expected": "58114",
-    "unicode": "⠺⠁⠎"
+    "unicode": "⠺⠁⠎",
+    "world": "⠴⠺⠁⠎⠲"
   },
   {
     "input": "were",
     "internal": "w}e",
     "expected": "585917",
-    "unicode": "⠺⠻⠑"
+    "unicode": "⠺⠻⠑",
+    "world": "⠴⠺⠻⠑⠲"
   },
   {
     "input": "그는 Can you help me?라고 도움을 요청했다.",
     "internal": "@{cz`0,can`y`help`me8\"<@u`ium5`!`+;]jr/i4",
     "expected": "842953052329129061019177150131738163583701037133404604448592623121050",
-    "unicode": "⠈⠪⠉⠵⠀⠴⠠⠉⠁⠝⠀⠽⠀⠓⠑⠇⠏⠀⠍⠑⠦⠐⠣⠈⠥⠀⠊⠥⠍⠢⠀⠮⠀⠬⠰⠻⠚⠗⠌⠊⠲"
+    "unicode": "⠈⠪⠉⠵⠀⠴⠠⠉⠁⠝⠀⠽⠀⠓⠑⠇⠏⠀⠍⠑⠦⠐⠣⠈⠥⠀⠊⠥⠍⠢⠀⠮⠀⠬⠰⠻⠚⠗⠌⠊⠲",
+    "world": "⠈⠪⠉⠵ ⠴⠠⠉⠁⠝ ⠽ ⠓⠑⠇⠏ ⠍⠑⠦⠐⠣⠈⠥ ⠊⠥⠍⠢⠮ ⠬⠰⠻⠚⠗⠌⠊⠲"
   },
   {
     "input": "be는 am, are, is의 원형 동사이다.",
     "internal": "0be4cz`0am1`>e1`is4w`p3j}`i=loi4",
     "expected": "52317509530521132028172010145058015182659010637211050",
-    "unicode": "⠴⠃⠑⠲⠉⠵⠀⠴⠁⠍⠂⠀⠜⠑⠂⠀⠊⠎⠲⠺⠀⠏⠒⠚⠻⠀⠊⠿⠇⠕⠊⠲"
+    "unicode": "⠴⠃⠑⠲⠉⠵⠀⠴⠁⠍⠂⠀⠜⠑⠂⠀⠊⠎⠲⠺⠀⠏⠒⠚⠻⠀⠊⠿⠇⠕⠊⠲",
+    "world": "⠴⠃⠑⠲⠉⠵ ⠴⠁⠍⠂ ⠜⠑⠂ ⠊⠎⠲⠺ ⠏⠒⠚⠻ ⠊⠿⠇⠕⠊⠲"
   },
   {
     "input": "be, his, was, were의 약자를 바르게 쓰시오.",
     "internal": "0be1`his1`was1`w]e4w`>a.\"!`~\"{@n`,,{,ou4",
     "expected": "5231720191014205811420585917505802814016460241642829032324232213750",
-    "unicode": "⠴⠃⠑⠂⠀⠓⠊⠎⠂⠀⠺⠁⠎⠂⠀⠺⠻⠑⠲⠺⠀⠜⠁⠨⠐⠮⠀⠘⠐⠪⠈⠝⠀⠠⠠⠪⠠⠕⠥⠲"
+    "unicode": "⠴⠃⠑⠂⠀⠓⠊⠎⠂⠀⠺⠁⠎⠂⠀⠺⠻⠑⠲⠺⠀⠜⠁⠨⠐⠮⠀⠘⠐⠪⠈⠝⠀⠠⠠⠪⠠⠕⠥⠲",
+    "world": "⠴⠃⠑⠂ ⠓⠊⠎⠂ ⠺⠁⠎⠂ ⠺⠻⠑⠲⠺ ⠜⠁⠨⠐⠮ ⠘⠐⠪⠈⠝ ⠠⠠⠪⠠⠕⠥⠲"
   }
 ]

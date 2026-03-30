@@ -3,116 +3,134 @@
     "input": "3/4",
     "internal": "#d/#c",
     "expected": "602512609",
-    "unicode": "⠼⠙⠌⠼⠉"
+    "unicode": "⠼⠙⠌⠼⠉",
+    "world": "⠼⠉⠸⠌⠼⠙"
   },
   {
     "input": "¾",
     "internal": "#d/#c",
     "expected": "602512609",
-    "unicode": "⠼⠙⠌⠼⠉"
+    "unicode": "⠼⠙⠌⠼⠉",
+    "world": ""
   },
   {
     "input": "$\\frac{3}{4}$",
     "internal": "#d/#c",
     "expected": "602512609",
     "unicode": "⠼⠙⠌⠼⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "3⅙",
     "internal": "#c#f/#a",
     "expected": "609601112601",
-    "unicode": "⠼⠉⠼⠋⠌⠼⠁"
+    "unicode": "⠼⠉⠼⠋⠌⠼⠁",
+    "world": "⠼⠉"
   },
   {
     "input": "$3\\frac{1}{6}$",
     "internal": "#c#f/#a",
     "expected": "609601112601",
     "unicode": "⠼⠉⠼⠋⠌⠼⠁",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "/",
     "internal": "_/",
     "expected": "5612",
-    "unicode": "⠸⠌"
+    "unicode": "⠸⠌",
+    "world": null
   },
   {
     "input": "2/3",
     "internal": "#b_/#c",
     "expected": "6035612609",
-    "unicode": "⠼⠃⠸⠌⠼⠉"
+    "unicode": "⠼⠃⠸⠌⠼⠉",
+    "world": "⠼⠃⠸⠌⠼⠉"
   },
   {
     "input": "⅔",
     "internal": "#b_/#c",
     "expected": "6035612609",
-    "unicode": "⠼⠃⠸⠌⠼⠉"
+    "unicode": "⠼⠃⠸⠌⠼⠉",
+    "world": ""
   },
   {
     "input": "$\\frac{2}{3}$",
     "internal": "#b_/#c",
     "expected": "6035612609",
     "unicode": "⠼⠃⠸⠌⠼⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "x+y̲",
     "internal": "x5y/#a",
     "expected": "45346112601",
-    "unicode": "⠭⠢⠽⠌⠼⠁"
+    "unicode": "⠭⠢⠽⠌⠼⠁",
+    "world": "⠴⠭⠐⠖⠽"
   },
   {
     "input": "$x+\\underline{y}$",
     "internal": "x5y/#a",
     "expected": "45346112601",
     "unicode": "⠭⠢⠽⠌⠼⠁",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "1̲/(x+y)",
     "internal": "(x5y)/#a",
     "expected": "554534616212601",
-    "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁"
+    "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁",
+    "world": "⠼⠁⠸⠌⠦⠄⠴⠭⠐⠖⠽⠠⠴"
   },
   {
     "input": "$\\underline{1}/(x+y)$",
     "internal": "(x5y)/#a",
     "expected": "554534616212601",
     "unicode": "⠷⠭⠢⠽⠾⠌⠼⠁",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "1̲/(ab)",
     "internal": "(ab)/#a",
     "expected": "55136212601",
-    "unicode": "⠷⠁⠃⠾⠌⠼⠁"
+    "unicode": "⠷⠁⠃⠾⠌⠼⠁",
+    "world": "⠼⠁⠸⠌⠦⠄⠴⠁⠃⠠⠴"
   },
   {
     "input": "$\\underline{1}/(ab)$",
     "internal": "(ab)/#a",
     "expected": "55136212601",
     "unicode": "⠷⠁⠃⠾⠌⠼⠁",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "ab̲/5",
     "internal": "#e/(ab)",
     "expected": "601712551362",
-    "unicode": "⠼⠑⠌⠷⠁⠃⠾"
+    "unicode": "⠼⠑⠌⠷⠁⠃⠾",
+    "world": "⠴⠁⠃⠸⠌⠼⠑"
   },
   {
     "input": "$a\\underline{b}/5$",
     "internal": "#e/(ab)",
     "expected": "601712551362",
     "unicode": "⠼⠑⠌⠷⠁⠃⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "2^(3/(x+1))",
     "note": "분수 중첩",
     "internal": "#b^(#c/(x5#a))",
     "expected": "6032455609125545346016262",
-    "unicode": "⠼⠃⠘⠷⠼⠉⠌⠷⠭⠢⠼⠁⠾⠾"
+    "unicode": "⠼⠃⠘⠷⠼⠉⠌⠷⠭⠢⠼⠁⠾⠾",
+    "world": "⠼⠃⠈⠢⠦⠄⠼⠉⠸⠌⠦⠄⠴⠭⠢⠼⠁⠠⠴⠠⠴"
   }
 ]

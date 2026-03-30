@@ -3,60 +3,70 @@
     "input": "나이",
     "internal": "c<o",
     "expected": "93521",
-    "unicode": "⠉⠣⠕"
+    "unicode": "⠉⠣⠕",
+    "world": "⠉⠣⠕"
   },
   {
     "input": "다음",
     "internal": "i<[5",
     "expected": "10354234",
-    "unicode": "⠊⠣⠪⠢"
+    "unicode": "⠊⠣⠪⠢",
+    "world": "⠊⠣⠪⠢"
   },
   {
     "input": "마우스",
     "internal": "e<m,[",
     "expected": "1735133242",
-    "unicode": "⠑⠣⠍⠠⠪"
+    "unicode": "⠑⠣⠍⠠⠪",
+    "world": "⠑⠣⠍⠠⠪"
   },
   {
     "input": "바위",
     "internal": "^<mr",
     "expected": "24351323",
-    "unicode": "⠘⠣⠍⠗"
+    "unicode": "⠘⠣⠍⠗",
+    "world": "⠘⠣⠍⠗"
   },
   {
     "input": "자아",
     "internal": ".<<",
     "expected": "403535",
-    "unicode": "⠨⠣⠣"
+    "unicode": "⠨⠣⠣",
+    "world": "⠨⠣⠣"
   },
   {
     "input": "카이로",
     "internal": "f<o\"u",
     "expected": "1135211637",
-    "unicode": "⠋⠣⠕⠐⠥"
+    "unicode": "⠋⠣⠕⠐⠥",
+    "world": "⠋⠣⠕⠐⠥"
   },
   {
     "input": "넥타이",
     "internal": "cnah<o",
     "expected": "9291193521",
-    "unicode": "⠉⠝⠁⠓⠣⠕"
+    "unicode": "⠉⠝⠁⠓⠣⠕",
+    "world": "⠉⠝⠁⠓⠣⠕"
   },
   {
     "input": "파이프",
     "internal": "d<od[",
     "expected": "2535212542",
-    "unicode": "⠙⠣⠕⠙⠪"
+    "unicode": "⠙⠣⠕⠙⠪",
+    "world": "⠙⠣⠕⠙⠪"
   },
   {
     "input": "하얀",
     "internal": "j<>3",
     "expected": "26352818",
-    "unicode": "⠚⠣⠜⠒"
+    "unicode": "⠚⠣⠜⠒",
+    "world": "⠚⠣⠜⠒"
   },
   {
     "input": "땅을 팠다.",
     "internal": ",i7! d</i4",
     "expected": "3210544602535121050",
-    "unicode": "⠠⠊⠶⠮⠀⠙⠣⠌⠊⠲"
+    "unicode": "⠠⠊⠶⠮⠀⠙⠣⠌⠊⠲",
+    "world": "⠠⠊⠶⠮ ⠙⠣⠌⠊⠲"
   }
 ]

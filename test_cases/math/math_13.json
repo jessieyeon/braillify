@@ -4,329 +4,377 @@
     "note": "대문자 Alpha",
     "internal": ",.a",
     "expected": "32401",
-    "unicode": "⠠⠨⠁"
+    "unicode": "⠠⠨⠁",
+    "world": "⠴⠠⠨⠁⠲"
   },
   {
     "input": "Β",
     "note": "대문자 Beta",
     "internal": ",.b",
     "expected": "32403",
-    "unicode": "⠠⠨⠃"
+    "unicode": "⠠⠨⠃",
+    "world": "⠴⠠⠨⠃⠲"
   },
   {
     "input": "Γ",
     "note": "대문자 Gamma",
     "internal": ",.g",
     "expected": "324027",
-    "unicode": "⠠⠨⠛"
+    "unicode": "⠠⠨⠛",
+    "world": "⠴⠠⠨⠛⠲"
   },
   {
     "input": "γ",
     "note": "소문자 gamma",
     "internal": ".g",
     "expected": "4027",
-    "unicode": "⠨⠛"
+    "unicode": "⠨⠛",
+    "world": "⠴⠨⠛⠲"
   },
   {
     "input": "Δ",
     "note": "대문자 Delta",
     "internal": ",.d",
     "expected": "324025",
-    "unicode": "⠠⠨⠙"
+    "unicode": "⠠⠨⠙",
+    "world": "⠴⠠⠨⠙⠲"
   },
   {
     "input": "δ",
     "note": "소문자 delta",
     "internal": ".d",
     "expected": "4025",
-    "unicode": "⠨⠙"
+    "unicode": "⠨⠙",
+    "world": "⠴⠨⠙⠲"
   },
   {
     "input": "Ε",
     "note": "대문자 Epsilon",
     "internal": ",.e",
     "expected": "324017",
-    "unicode": "⠠⠨⠑"
+    "unicode": "⠠⠨⠑",
+    "world": "⠴⠠⠨⠑⠲"
   },
   {
     "input": "ε",
     "note": "소문자 epsilon",
     "internal": ".e",
     "expected": "4017",
-    "unicode": "⠨⠑"
+    "unicode": "⠨⠑",
+    "world": "⠴⠨⠑⠲"
   },
   {
     "input": "Ζ",
     "note": "대문자 Zeta",
     "internal": ",.z",
     "expected": "324053",
-    "unicode": "⠠⠨⠵"
+    "unicode": "⠠⠨⠵",
+    "world": "⠴⠠⠨⠵⠲"
   },
   {
     "input": "ζ",
     "note": "소문자 zeta",
     "internal": ".z",
     "expected": "4053",
-    "unicode": "⠨⠵"
+    "unicode": "⠨⠵",
+    "world": "⠴⠨⠵⠲"
   },
   {
     "input": "Η",
     "note": "대문자 Eta",
     "internal": ".:",
     "expected": "4049",
-    "unicode": "⠨⠱"
+    "unicode": "⠨⠱",
+    "world": "⠴⠠⠨⠱⠲"
   },
   {
     "input": "η",
     "note": "소문자 eta",
     "internal": ".:",
     "expected": "4049",
-    "unicode": "⠨⠱"
+    "unicode": "⠨⠱",
+    "world": "⠴⠨⠱⠲"
   },
   {
     "input": "Θ",
     "note": "대문자 Theta",
     "internal": ",.?",
     "expected": "324057",
-    "unicode": "⠠⠨⠹"
+    "unicode": "⠠⠨⠹",
+    "world": "⠴⠠⠨⠹⠲"
   },
   {
     "input": "Ι",
     "note": "대문자 Iota",
     "internal": ",.i",
     "expected": "324010",
-    "unicode": "⠠⠨⠊"
+    "unicode": "⠠⠨⠊",
+    "world": "⠴⠠⠨⠊⠲"
   },
   {
     "input": "ι",
     "note": "소문자 iota",
     "internal": ".i",
     "expected": "4010",
-    "unicode": "⠨⠊"
+    "unicode": "⠨⠊",
+    "world": "⠴⠨⠊⠲"
   },
   {
     "input": "Κ",
     "note": "대문자 Kappa",
     "internal": ",.k",
     "expected": "32405",
-    "unicode": "⠠⠨⠅"
+    "unicode": "⠠⠨⠅",
+    "world": "⠴⠠⠨⠅⠲"
   },
   {
     "input": "κ",
     "note": "소문자 kappa",
     "internal": ".k",
     "expected": "405",
-    "unicode": "⠨⠅"
+    "unicode": "⠨⠅",
+    "world": "⠴⠨⠅⠲"
   },
   {
     "input": "Λ",
     "note": "대문자 Lambda",
     "internal": ",.l",
     "expected": "32407",
-    "unicode": "⠠⠨⠇"
+    "unicode": "⠠⠨⠇",
+    "world": "⠴⠠⠨⠇⠲"
   },
   {
     "input": "λ",
     "note": "소문자 lambda",
     "internal": ".l",
     "expected": "407",
-    "unicode": "⠨⠇"
+    "unicode": "⠨⠇",
+    "world": "⠴⠨⠇⠲"
   },
   {
     "input": "Μ",
     "note": "대문자 Mu",
     "internal": ",.m",
     "expected": "324013",
-    "unicode": "⠠⠨⠍"
+    "unicode": "⠠⠨⠍",
+    "world": "⠴⠠⠨⠍⠲"
   },
   {
     "input": "μ",
     "note": "소문자 mu",
     "internal": ".m",
     "expected": "4013",
-    "unicode": "⠨⠍"
+    "unicode": "⠨⠍",
+    "world": "⠴⠨⠍⠲"
   },
   {
     "input": "Ν",
     "note": "대문자 Nu",
     "internal": ",.n",
     "expected": "324029",
-    "unicode": "⠠⠨⠝"
+    "unicode": "⠠⠨⠝",
+    "world": "⠴⠠⠨⠝⠲"
   },
   {
     "input": "ν",
     "note": "소문자 nu",
     "internal": ".n",
     "expected": "4029",
-    "unicode": "⠨⠝"
+    "unicode": "⠨⠝",
+    "world": "⠴⠨⠝⠲"
   },
   {
     "input": "Ξ",
     "note": "대문자 Xi",
     "internal": ",.x",
     "expected": "324045",
-    "unicode": "⠠⠨⠭"
+    "unicode": "⠠⠨⠭",
+    "world": "⠴⠠⠨⠭⠲"
   },
   {
     "input": "ξ",
     "note": "소문자 xi",
     "internal": ".x",
     "expected": "4045",
-    "unicode": "⠨⠭"
+    "unicode": "⠨⠭",
+    "world": "⠴⠨⠭⠲"
   },
   {
     "input": "Ο",
     "note": "대문자 Omicron",
     "internal": ",.o",
     "expected": "324021",
-    "unicode": "⠠⠨⠕"
+    "unicode": "⠠⠨⠕",
+    "world": "⠴⠠⠨⠕⠲"
   },
   {
     "input": "ο",
     "note": "소문자 omicron",
     "internal": ".o",
     "expected": "4021",
-    "unicode": "⠨⠕"
+    "unicode": "⠨⠕",
+    "world": "⠴⠨⠕⠲"
   },
   {
     "input": "Π",
     "note": "대문자 Pi",
     "internal": ",.p",
     "expected": "324015",
-    "unicode": "⠠⠨⠏"
+    "unicode": "⠠⠨⠏",
+    "world": "⠴⠠⠨⠏⠲"
   },
   {
     "input": "Ρ",
     "note": "대문자 Rho",
     "internal": ",.r",
     "expected": "324023",
-    "unicode": "⠠⠨⠗"
+    "unicode": "⠠⠨⠗",
+    "world": "⠴⠠⠨⠗⠲"
   },
   {
     "input": "ρ",
     "note": "소문자 rho",
     "internal": ".r",
     "expected": "4023",
-    "unicode": "⠨⠗"
+    "unicode": "⠨⠗",
+    "world": "⠴⠨⠗⠲"
   },
   {
     "input": "Σ",
     "note": "대문자 Sigma",
     "internal": ",.s",
     "expected": "324014",
-    "unicode": "⠠⠨⠎"
+    "unicode": "⠠⠨⠎",
+    "world": "⠴⠠⠨⠎⠲"
   },
   {
     "input": "Τ",
     "note": "대문자 Tau",
     "internal": ",.t",
     "expected": "324030",
-    "unicode": "⠠⠨⠞"
+    "unicode": "⠠⠨⠞",
+    "world": "⠴⠠⠨⠞⠲"
   },
   {
     "input": "τ",
     "note": "소문자 tau",
     "internal": ".t",
     "expected": "4030",
-    "unicode": "⠨⠞"
+    "unicode": "⠨⠞",
+    "world": "⠴⠨⠞⠲"
   },
   {
     "input": "Υ",
     "note": "대문자 Upsilon",
     "internal": ",.u",
     "expected": "324037",
-    "unicode": "⠠⠨⠥"
+    "unicode": "⠠⠨⠥",
+    "world": "⠴⠠⠨⠥⠲"
   },
   {
     "input": "υ",
     "note": "소문자 upsilon",
     "internal": ".u",
     "expected": "4037",
-    "unicode": "⠨⠥"
+    "unicode": "⠨⠥",
+    "world": "⠴⠨⠥⠲"
   },
   {
     "input": "Φ",
     "note": "대문자 Phi",
     "internal": ",.f",
     "expected": "324011",
-    "unicode": "⠠⠨⠋"
+    "unicode": "⠠⠨⠋",
+    "world": "⠴⠠⠨⠋⠲"
   },
   {
     "input": "φ",
     "note": "소문자 phi",
     "internal": ".f",
     "expected": "4011",
-    "unicode": "⠨⠋"
+    "unicode": "⠨⠋",
+    "world": "⠴⠨⠋⠲"
   },
   {
     "input": "Χ",
     "note": "대문자 Chi",
     "internal": ",.&",
     "expected": "324047",
-    "unicode": "⠠⠨⠯"
+    "unicode": "⠠⠨⠯",
+    "world": "⠴⠠⠨⠯⠲"
   },
   {
     "input": "χ",
     "note": "소문자 chi",
     "internal": ".&",
     "expected": "4047",
-    "unicode": "⠨⠯"
+    "unicode": "⠨⠯",
+    "world": "⠴⠨⠯⠲"
   },
   {
     "input": "Ψ",
     "note": "대문자 Psi",
     "internal": ",.y",
     "expected": "324061",
-    "unicode": "⠠⠨⠽"
+    "unicode": "⠠⠨⠽",
+    "world": "⠴⠠⠨⠽⠲"
   },
   {
     "input": "ψ",
     "note": "소문자 psi",
     "internal": ".y",
     "expected": "4061",
-    "unicode": "⠨⠽"
+    "unicode": "⠨⠽",
+    "world": "⠴⠨⠽⠲"
   },
   {
     "input": "Ω",
     "note": "대문자 Omega",
     "internal": ",.w",
     "expected": "324058",
-    "unicode": "⠠⠨⠺"
+    "unicode": "⠠⠨⠺",
+    "world": "⠴⠠⠨⠺⠲"
   },
   {
     "input": "α",
     "internal": ".a",
     "expected": "401",
-    "unicode": "⠨⠁"
+    "unicode": "⠨⠁",
+    "world": "⠴⠨⠁⠲"
   },
   {
     "input": "β",
     "internal": ".b",
     "expected": "403",
-    "unicode": "⠨⠃"
+    "unicode": "⠨⠃",
+    "world": "⠴⠨⠃⠲"
   },
   {
     "input": "π",
     "internal": ".p",
     "expected": "4015",
-    "unicode": "⠨⠏"
+    "unicode": "⠨⠏",
+    "world": "⠴⠨⠏⠲"
   },
   {
     "input": "θ",
     "internal": ".?",
     "expected": "4057",
-    "unicode": "⠨⠹"
+    "unicode": "⠨⠹",
+    "world": "⠴⠨⠹⠲"
   },
   {
     "input": "σ",
     "internal": ".s",
     "expected": "4014",
-    "unicode": "⠨⠎"
+    "unicode": "⠨⠎",
+    "world": "⠴⠨⠎⠲"
   },
   {
     "input": "ω",
     "internal": ".w",
     "expected": "4058",
-    "unicode": "⠨⠺"
+    "unicode": "⠨⠺",
+    "world": "⠴⠨⠺⠲"
   }
 ]

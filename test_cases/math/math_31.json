@@ -3,12 +3,14 @@
     "input": "≃",
     "internal": "@93",
     "expected": "82018",
-    "unicode": "⠈⠔⠒"
+    "unicode": "⠈⠔⠒",
+    "world": ""
   },
   {
     "input": "f ≃ g",
     "internal": "f`@93`g",
     "expected": "11082018027",
-    "unicode": "⠋⠀⠈⠔⠒⠀⠛"
+    "unicode": "⠋⠀⠈⠔⠒⠀⠛",
+    "world": "⠴⠋ ⠸⠔ ⠰⠛⠲"
   }
 ]

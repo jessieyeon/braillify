@@ -3,90 +3,104 @@
     "input": "8!",
     "internal": "#h6",
     "expected": "601922",
-    "unicode": "⠼⠓⠖"
+    "unicode": "⠼⠓⠖",
+    "world": "⠼⠓⠖"
   },
   {
     "input": "n!",
     "internal": "n6",
     "expected": "2922",
-    "unicode": "⠝⠖"
+    "unicode": "⠝⠖",
+    "world": "⠴⠝⠖"
   },
   {
     "input": "₃P₁",
     "internal": ",p8#c`#a0",
     "expected": "321538609060152",
-    "unicode": "⠠⠏⠦⠼⠉⠀⠼⠁⠴"
+    "unicode": "⠠⠏⠦⠼⠉⠀⠼⠁⠴",
+    "world": "⠰⠼⠉⠴⠠⠏⠰⠼⠁"
   },
   {
     "input": "$\\_3P_1$",
     "internal": ",p8#c`#a0",
     "expected": "321538609060152",
     "unicode": "⠠⠏⠦⠼⠉⠀⠼⠁⠴",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "₃C₂",
     "internal": ",c8#c`#b0",
     "expected": "32938609060352",
-    "unicode": "⠠⠉⠦⠼⠉⠀⠼⠃⠴"
+    "unicode": "⠠⠉⠦⠼⠉⠀⠼⠃⠴",
+    "world": "⠰⠼⠉⠴⠠⠉⠰⠼⠃"
   },
   {
     "input": "$\\_3C_2$",
     "internal": ",c8#c`#b0",
     "expected": "32938609060352",
     "unicode": "⠠⠉⠦⠼⠉⠀⠼⠃⠴",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "x!",
     "internal": "x6",
     "expected": "4522",
-    "unicode": "⠭⠖"
+    "unicode": "⠭⠖",
+    "world": "⠴⠭⠖"
   },
   {
     "input": "(7+4)!",
     "internal": "8#g5#d06",
     "expected": "3860273460255222",
-    "unicode": "⠦⠼⠛⠢⠼⠙⠴⠖"
+    "unicode": "⠦⠼⠛⠢⠼⠙⠴⠖",
+    "world": "⠦⠄⠼⠛⠢⠼⠙⠠⠴⠖"
   },
   {
     "input": "(3n)!",
     "internal": "8#cn06",
     "expected": "38609295222",
-    "unicode": "⠦⠼⠉⠝⠴⠖"
+    "unicode": "⠦⠼⠉⠝⠴⠖",
+    "world": "⠦⠄⠼⠉⠴⠝⠠⠴⠖"
   },
   {
     "input": "5!/3!",
     "internal": "#c6/#e6",
     "expected": "6092212601722",
-    "unicode": "⠼⠉⠖⠌⠼⠑⠖"
+    "unicode": "⠼⠉⠖⠌⠼⠑⠖",
+    "world": "⠼⠑⠖⠸⠌⠼⠉⠖"
   },
   {
     "input": "$3P1$",
     "internal": ",P(#C`#A)",
     "expected": "321555609060162",
     "unicode": "⠠⠏⠷⠼⠉⠀⠼⠁⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "$3C2$",
     "internal": ",C(#C`#B)",
     "expected": "32955609060362",
     "unicode": "⠠⠉⠷⠼⠉⠀⠼⠃⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "$\\Pi(7,2)$",
     "internal": ",.P(#g`#b)",
     "expected": "324015556027060362",
     "unicode": "⠠⠨⠏⠷⠼⠛⠀⠼⠃⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "$H(7,2)$",
     "internal": ",H(#g`#b)",
     "expected": "3219556027060362",
     "unicode": "⠠⠓⠷⠼⠛⠀⠼⠃⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

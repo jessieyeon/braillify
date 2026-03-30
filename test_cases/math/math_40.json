@@ -3,62 +3,72 @@
     "input": "△",
     "internal": "_+",
     "expected": "5644",
-    "unicode": "⠸⠬"
+    "unicode": "⠸⠬",
+    "world": "⠸⠬"
   },
   {
     "input": "△ABC",
     "internal": "_+,,ABC",
     "expected": "56443232139",
-    "unicode": "⠸⠬⠠⠠⠁⠃⠉"
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉",
+    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠲"
   },
   {
     "input": "$\\triangle ABC$",
     "internal": "_+,,ABC",
     "expected": "56443232139",
     "unicode": "⠸⠬⠠⠠⠁⠃⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "□",
     "internal": "_7",
     "expected": "5654",
-    "unicode": "⠸⠶"
+    "unicode": "⠸⠶",
+    "world": "⠸⠶"
   },
   {
     "input": "□ABCD",
     "internal": "_7,,ABCD",
     "expected": "5654323213925",
-    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙"
+    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
+    "world": "⠸⠶⠴⠠⠠⠁⠃⠉⠙⠲"
   },
   {
     "input": "$\\square ABCD$",
     "internal": "_7,,ABCD",
     "expected": "5654323213925",
     "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "⌂",
     "internal": "_[K",
     "expected": "56425",
-    "unicode": "⠸⠪⠅"
+    "unicode": "⠸⠪⠅",
+    "world": ""
   },
   {
     "input": "⎔",
     "internal": "_[O",
     "expected": "564221",
-    "unicode": "⠸⠪⠕"
+    "unicode": "⠸⠪⠕",
+    "world": ""
   },
   {
     "input": "",
     "internal": "_/*",
     "expected": "561233",
-    "unicode": "⠸⠌⠡"
+    "unicode": "⠸⠌⠡",
+    "world": ""
   },
   {
     "input": "▱",
     "internal": "_//",
     "expected": "561212",
-    "unicode": "⠸⠌⠌"
+    "unicode": "⠸⠌⠌",
+    "world": ""
   }
 ]

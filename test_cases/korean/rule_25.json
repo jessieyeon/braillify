@@ -4,111 +4,127 @@
     "note": "아래아",
     "internal": "\"#",
     "expected": "1660",
-    "unicode": "⠐⠼"
+    "unicode": "⠐⠼",
+    "world": "⠿⠐⠼"
   },
   {
     "input": "ㆎ",
     "note": "아래애",
     "internal": "\"#R",
     "expected": "166023",
-    "unicode": "⠐⠼⠗"
+    "unicode": "⠐⠼⠗",
+    "world": ""
   },
   {
     "input": "ㆇ",
     "note": "요야",
     "internal": "_+>",
     "expected": "564428",
-    "unicode": "⠸⠬⠜"
+    "unicode": "⠸⠬⠜",
+    "world": ""
   },
   {
     "input": "ㆈ",
     "note": "요얘",
     "internal": "_+>r",
     "expected": "56442823",
-    "unicode": "⠸⠬⠜⠗"
+    "unicode": "⠸⠬⠜⠗",
+    "world": ""
   },
   {
     "input": "ㆉ",
     "note": "요이",
     "internal": "_+o",
     "expected": "564421",
-    "unicode": "⠸⠬⠕"
+    "unicode": "⠸⠬⠕",
+    "world": ""
   },
   {
     "input": "ㆊ",
     "note": "유여",
     "internal": "_%:",
     "expected": "564149",
-    "unicode": "⠸⠩⠱"
+    "unicode": "⠸⠩⠱",
+    "world": ""
   },
   {
     "input": "ㆋ",
     "note": "유예",
     "internal": "_%/",
     "expected": "564112",
-    "unicode": "⠸⠩⠌"
+    "unicode": "⠸⠩⠌",
+    "world": ""
   },
   {
     "input": "ㆌ",
     "note": "유이",
     "internal": "_%o",
     "expected": "564121",
-    "unicode": "⠸⠩⠕"
+    "unicode": "⠸⠩⠕",
+    "world": ""
   },
   {
     "input": "",
     "note": "가을",
     "internal": "@\"#\".\"#1",
     "expected": "81660164016602",
-    "unicode": "⠈⠐⠼⠐⠨⠐⠼⠂"
+    "unicode": "⠈⠐⠼⠐⠨⠐⠼⠂",
+    "world": ""
   },
   {
     "input": "",
     "note": "애매한",
     "internal": "\"#re\"#rj\"#3",
     "expected": "1660231716602326166018",
-    "unicode": "⠐⠼⠗⠑⠐⠼⠗⠚⠐⠼⠒"
+    "unicode": "⠐⠼⠗⠑⠐⠼⠗⠚⠐⠼⠒",
+    "world": ""
   },
   {
     "input": "고기",
     "note": "쇠고기",
     "internal": ",_+o@u@o",
     "expected": "32564421837821",
-    "unicode": "⠠⠸⠬⠕⠈⠥⠈⠕"
+    "unicode": "⠠⠸⠬⠕⠈⠥⠈⠕",
+    "world": "⠈⠥⠈⠕"
   },
   {
     "input": "轉輪륜王",
     "note": "전륜왕(轉輪王)",
     "internal": "i_%:3\"%3\"dv\"4",
     "expected": "10564149181641181625391650",
-    "unicode": "⠊⠸⠩⠱⠒⠐⠩⠒⠐⠙⠧⠐⠲"
+    "unicode": "⠊⠸⠩⠱⠒⠐⠩⠒⠐⠙⠧⠐⠲",
+    "world": "⠨⠾⠩⠒⠐⠩⠒⠧⠶"
   },
   {
     "input": "榮養",
     "note": "영양(榮養)",
     "internal": "\"d_%:\"4>\"4",
     "expected": "16255641491650281650",
-    "unicode": "⠐⠙⠸⠩⠱⠐⠲⠜⠐⠲"
+    "unicode": "⠐⠙⠸⠩⠱⠐⠲⠜⠐⠲",
+    "world": "⠻⠜⠶"
   },
   {
     "input": "砌 기슭섬 ",
     "note": "댓돌 ‘체(砌)’",
     "internal": "@o,!a,s5`;_%/",
     "expected": "82132461321434048564112",
-    "unicode": "⠈⠕⠠⠮⠁⠠⠎⠢⠀⠰⠸⠩⠌"
+    "unicode": "⠈⠕⠠⠮⠁⠠⠎⠢⠀⠰⠸⠩⠌",
+    "world": "⠰⠝ ⠈⠕⠠⠮⠁⠠⠎⠢"
   },
   {
     "input": "집거라",
     "note": "집거위이다",
     "internal": ".ob@s_%o\"<",
     "expected": "402138145641211635",
-    "unicode": "⠨⠕⠃⠈⠎⠸⠩⠕⠐⠣"
+    "unicode": "⠨⠕⠃⠈⠎⠸⠩⠕⠐⠣",
+    "world": "⠨⠕⠃⠈⠎⠐⠣"
   },
   {
     "input": "술 야",
     "note": "술 취하여",
     "internal": ",&`;_%oj\"#>",
     "expected": "324704856412126166028",
-    "unicode": "⠠⠯⠀⠰⠸⠩⠕⠚⠐⠼⠜"
+    "unicode": "⠠⠯⠀⠰⠸⠩⠕⠚⠐⠼⠜",
+    "world": "⠠⠯ ⠜"
   }
 ]

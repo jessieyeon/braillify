@@ -4,90 +4,103 @@
     "note": "혼자",
     "internal": "j\"#\"^7\"#\".<",
     "expected": "2616601624541660164035",
-    "unicode": "⠚⠐⠼⠐⠘⠶⠐⠼⠐⠨⠣"
+    "unicode": "⠚⠐⠼⠐⠘⠶⠐⠼⠐⠨⠣",
+    "world": ""
   },
   {
     "input": "새",
     "note": "새삼스럽게",
     "internal": ",r\".<5i\"#\"^7o",
     "expected": "32231640353410166016245421",
-    "unicode": "⠠⠗⠐⠨⠣⠢⠊⠐⠼⠐⠘⠶⠕"
+    "unicode": "⠠⠗⠐⠨⠣⠢⠊⠐⠼⠐⠘⠶⠕",
+    "world": "⠠⠗"
   },
   {
     "input": "나치",
     "note": "낱낱이",
     "internal": "c<\"kc;o",
     "expected": "93516594821",
-    "unicode": "⠉⠣⠐⠅⠉⠰⠕"
+    "unicode": "⠉⠣⠐⠅⠉⠰⠕",
+    "world": "⠉⠰⠕"
   },
   {
     "input": "이라",
     "note": "아우이다",
     "internal": "<\"ko\"<",
     "expected": "35165211635",
-    "unicode": "⠣⠐⠅⠕⠐⠣"
+    "unicode": "⠣⠐⠅⠕⠐⠣",
+    "world": "⠕⠐⠣"
   },
   {
     "input": "밠바",
     "note": "발바닥",
     "internal": "^1'^i<\"4",
     "expected": "24242410351650",
-    "unicode": "⠘⠂⠄⠘⠊⠣⠐⠲"
+    "unicode": "⠘⠂⠄⠘⠊⠣⠐⠲",
+    "world": "⠘⠂⠄⠘"
   },
   {
     "input": "바이니라",
     "note": "바탕이다",
     "internal": "^h<\"4oco\"<",
     "expected": "2419351650219211635",
-    "unicode": "⠘⠓⠣⠐⠲⠕⠉⠕⠐⠣"
+    "unicode": "⠘⠓⠣⠐⠲⠕⠉⠕⠐⠣",
+    "world": "⠘⠕⠉⠕⠐⠣"
   },
   {
     "input": "므리어나",
     "note": "강물이거나",
     "internal": "$\"4'e[\"osc",
     "expected": "431650417421621149",
-    "unicode": "⠫⠐⠲⠄⠑⠪⠐⠕⠎⠉"
+    "unicode": "⠫⠐⠲⠄⠑⠪⠐⠕⠎⠉",
+    "world": "⠑⠪⠐⠕⠎⠉"
   },
   {
     "input": "갓가",
     "note": "가까워",
     "internal": "$'$\"^7<",
     "expected": "4344316245435",
-    "unicode": "⠫⠄⠫⠐⠘⠶⠣"
+    "unicode": "⠫⠄⠫⠐⠘⠶⠣",
+    "world": "⠫⠄⠫"
   },
   {
     "input": "니르다",
     "note": "받아 일으켜",
     "internal": "co\"[\"^7<i",
     "expected": "92116421624543510",
-    "unicode": "⠉⠕⠐⠪⠐⠘⠶⠣⠊"
+    "unicode": "⠉⠕⠐⠪⠐⠘⠶⠣⠊",
+    "world": "⠉⠕⠐⠪⠊"
   },
   {
     "input": "대",
     "note": "대나무밭",
     "internal": "ir\"^7<9",
     "expected": "10231624543520",
-    "unicode": "⠊⠗⠐⠘⠶⠣⠔"
+    "unicode": "⠊⠗⠐⠘⠶⠣⠔",
+    "world": "⠊⠗"
   },
   {
     "input": "애븐",
     "note": "애달픈",
     "internal": "r\"^7<9^z",
     "expected": "2316245435202453",
-    "unicode": "⠗⠐⠘⠶⠣⠔⠘⠵"
+    "unicode": "⠗⠐⠘⠶⠣⠔⠘⠵",
+    "world": "⠗⠘⠵"
   },
   {
     "input": "",
     "note": "쌍생아",
     "internal": "\"^,<7,\"#r7",
     "expected": "16243235543216602354",
-    "unicode": "⠐⠘⠠⠣⠶⠠⠐⠼⠗⠶"
+    "unicode": "⠐⠘⠠⠣⠶⠠⠐⠼⠗⠶",
+    "world": ""
   },
   {
     "input": "도라",
     "note": "감돌거늘",
     "internal": "$5'iu\"<c\"#1",
     "expected": "4334410371635916602",
-    "unicode": "⠫⠢⠄⠊⠥⠐⠣⠉⠐⠼⠂"
+    "unicode": "⠫⠢⠄⠊⠥⠐⠣⠉⠐⠼⠂",
+    "world": "⠊⠥⠐⠣"
   }
 ]

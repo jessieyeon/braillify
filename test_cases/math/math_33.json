@@ -3,24 +3,28 @@
     "input": "▷",
     "internal": "_>",
     "expected": "5628",
-    "unicode": "⠸⠜"
+    "unicode": "⠸⠜",
+    "world": ""
   },
   {
     "input": "◁",
     "internal": "_<",
     "expected": "5635",
-    "unicode": "⠸⠣"
+    "unicode": "⠸⠣",
+    "world": ""
   },
   {
     "input": "G ▷ N",
     "internal": ",g`_>`,n",
     "expected": "32270562803229",
-    "unicode": "⠠⠛⠀⠸⠜⠀⠠⠝"
+    "unicode": "⠠⠛⠀⠸⠜⠀⠠⠝",
+    "world": "⠴⠠⠛ ⠄⠳⠭⠆⠢⠃⠶⠄ ⠰⠠⠝⠲"
   },
   {
     "input": "N ◁ G",
     "internal": ",n`_<`,g",
     "expected": "32290563503227",
-    "unicode": "⠠⠝⠀⠸⠣⠀⠠⠛"
+    "unicode": "⠠⠝⠀⠸⠣⠀⠠⠛",
+    "world": "⠴⠠⠝ ⠄⠳⠭⠆⠢⠉⠂⠄ ⠰⠠⠛⠲"
   }
 ]

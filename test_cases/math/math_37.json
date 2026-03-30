@@ -3,13 +3,15 @@
     "input": "↔AB",
     "internal": "[3O,,AB",
     "expected": "421821323213",
-    "unicode": "⠪⠒⠕⠠⠠⠁⠃"
+    "unicode": "⠪⠒⠕⠠⠠⠁⠃",
+    "world": "⠪⠒⠕⠴⠰⠠⠠⠁⠃⠲"
   },
   {
     "input": "$\\overleftrightarrow{AB}$",
     "internal": "[3O,,AB",
     "expected": "421821323213",
     "unicode": "⠪⠒⠕⠠⠠⠁⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

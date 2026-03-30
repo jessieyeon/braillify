@@ -3,13 +3,15 @@
     "input": "⊥",
     "internal": "0'",
     "expected": "524",
-    "unicode": "⠴⠄"
+    "unicode": "⠴⠄",
+    "world": ""
   },
   {
     "input": "$AB \\perp DE$",
     "internal": ",,AB0',,DE",
     "expected": "32321352432322517",
     "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

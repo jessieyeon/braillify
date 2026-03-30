@@ -3,13 +3,15 @@
     "input": "∥",
     "internal": ";2",
     "expected": "486",
-    "unicode": "⠰⠆"
+    "unicode": "⠰⠆",
+    "world": ""
   },
   {
     "input": "$AB \\parallel CD$",
     "internal": ",,AB;2,,CD",
     "expected": "3232134863232925",
     "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

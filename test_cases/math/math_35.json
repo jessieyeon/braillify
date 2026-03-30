@@ -3,26 +3,30 @@
     "input": "̅AB",
     "internal": "@c,,AB",
     "expected": "89323213",
-    "unicode": "⠈⠉⠠⠠⠁⠃"
+    "unicode": "⠈⠉⠠⠠⠁⠃",
+    "world": "⠴⠰⠠⠠⠁⠃⠲"
   },
   {
     "input": "$\\overline{AB}$",
     "internal": "@c,,AB",
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "A′B′̅",
     "internal": "@c,,A-B-",
     "expected": "893232136336",
-    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤"
+    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
+    "world": "⠴⠠⠁⠶⠠⠃⠴⠤"
   },
   {
     "input": "$\\overline{A'B'}$",
     "internal": "@c,,A-B-",
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

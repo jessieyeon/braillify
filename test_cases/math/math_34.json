@@ -3,26 +3,30 @@
     "input": "aRb",
     "internal": "a,rb",
     "expected": "132233",
-    "unicode": "⠁⠠⠗⠃"
+    "unicode": "⠁⠠⠗⠃",
+    "world": "⠴⠁⠠⠗⠃⠲"
   },
   {
     "input": "a~b",
     "internal": "a@9b",
     "expected": "18203",
-    "unicode": "⠁⠈⠔⠃"
+    "unicode": "⠁⠈⠔⠃",
+    "world": "⠴⠁⠈⠔⠃⠲"
   },
   {
     "input": "$a \\not\\mathrel{R} b$",
     "internal": "a.,Rb",
     "expected": "14032233",
     "unicode": "⠁⠨⠠⠗⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "$a \\not\\sim b$",
     "internal": "a.@9b",
     "expected": "1408203",
     "unicode": "⠁⠨⠈⠔⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

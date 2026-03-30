@@ -4,58 +4,67 @@
     "note": "오른쪽 화살표",
     "internal": "3o",
     "expected": "1821",
-    "unicode": "⠒⠕"
+    "unicode": "⠒⠕",
+    "world": "⠒⠕"
   },
   {
     "input": "←",
     "note": "왼쪽 화살표",
     "internal": "[3",
     "expected": "4218",
-    "unicode": "⠪⠒"
+    "unicode": "⠪⠒",
+    "world": "⠪⠒"
   },
   {
     "input": "↔",
     "note": "양쪽 화살표",
     "internal": "[3o",
     "expected": "421821",
-    "unicode": "⠪⠒⠕"
+    "unicode": "⠪⠒⠕",
+    "world": "⠪⠒⠕"
   },
   {
     "input": "↓",
     "note": "아래쪽 화살표",
     "internal": "^3o",
     "expected": "241821",
-    "unicode": "⠘⠒⠕"
+    "unicode": "⠘⠒⠕",
+    "world": "⠘⠒⠕"
   },
   {
     "input": "↑",
     "note": "위쪽 화살표",
     "internal": ";3o",
     "expected": "481821",
-    "unicode": "⠰⠒⠕"
+    "unicode": "⠰⠒⠕",
+    "world": "⠰⠒⠕"
   },
   {
     "input": "부산 → 서울",
     "internal": "~ml3`3o`,s&",
     "expected": "2413718018210321447",
-    "unicode": "⠘⠍⠇⠒⠀⠒⠕⠀⠠⠎⠯"
+    "unicode": "⠘⠍⠇⠒⠀⠒⠕⠀⠠⠎⠯",
+    "world": "⠘⠍⠇⠒ ⠒⠕ ⠠⠎⠯"
   },
   {
     "input": "← 행주대교",
     "internal": "{3`jr7.mir@+",
     "expected": "4218026235440131023844",
-    "unicode": "⠪⠒⠀⠚⠗⠶⠨⠍⠊⠗⠈⠬"
+    "unicode": "⠪⠒⠀⠚⠗⠶⠨⠍⠊⠗⠈⠬",
+    "world": "⠪⠒ ⠚⠗⠶⠨⠍⠊⠗⠈⠬"
   },
   {
     "input": "한글 ↔ 일본어 번역",
     "internal": "j3@!`{3o`o1~(s`~):a",
     "expected": "26188460421821021224551402462491",
-    "unicode": "⠚⠒⠈⠮⠀⠪⠒⠕⠀⠕⠂⠘⠷⠎⠀⠘⠾⠱⠁"
+    "unicode": "⠚⠒⠈⠮⠀⠪⠒⠕⠀⠕⠂⠘⠷⠎⠀⠘⠾⠱⠁",
+    "world": "⠚⠒⠈⠮ ⠪⠒⠕ ⠕⠂⠘⠷⠎ ⠘⠾⠱⠁"
   },
   {
     "input": "거래량 ↓",
     "internal": "@s\"r\">7`~3o",
     "expected": "81416231628540241821",
-    "unicode": "⠈⠎⠐⠗⠐⠜⠶⠀⠘⠒⠕"
+    "unicode": "⠈⠎⠐⠗⠐⠜⠶⠀⠘⠒⠕",
+    "world": "⠈⠎⠐⠗⠐⠜⠶ ⠘⠒⠕"
   }
 ]

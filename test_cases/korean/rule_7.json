@@ -3,198 +3,231 @@
     "input": "ㅐ",
     "internal": "=r",
     "expected": "6323",
-    "unicode": "⠿⠗"
+    "unicode": "⠿⠗",
+    "world": "⠿⠗"
   },
   {
     "input": "ㅒ",
     "internal": "=>r",
     "expected": "632823",
-    "unicode": "⠿⠜⠗"
+    "unicode": "⠿⠜⠗",
+    "world": "⠿⠜⠗"
   },
   {
     "input": "ㅔ",
     "internal": "=n",
     "expected": "6329",
-    "unicode": "⠿⠝"
+    "unicode": "⠿⠝",
+    "world": "⠿⠝"
   },
   {
     "input": "ㅖ",
     "internal": "=/",
     "expected": "6312",
-    "unicode": "⠿⠌"
+    "unicode": "⠿⠌",
+    "world": "⠿⠌"
   },
   {
     "input": "ㅘ",
     "internal": "=v",
     "expected": "6339",
-    "unicode": "⠿⠧"
+    "unicode": "⠿⠧",
+    "world": "⠿⠧"
   },
   {
     "input": "ㅙ",
     "internal": "=vr",
     "expected": "633923",
-    "unicode": "⠿⠧⠗"
+    "unicode": "⠿⠧⠗",
+    "world": "⠿⠧⠗"
   },
   {
     "input": "ㅚ",
     "internal": "=y",
     "expected": "6361",
-    "unicode": "⠿⠽"
+    "unicode": "⠿⠽",
+    "world": "⠿⠽"
   },
   {
     "input": "ㅝ",
     "internal": "=p",
     "expected": "6315",
-    "unicode": "⠿⠏"
+    "unicode": "⠿⠏",
+    "world": "⠿⠏"
   },
   {
     "input": "ㅞ",
     "internal": "=pr",
     "expected": "631523",
-    "unicode": "⠿⠏⠗"
+    "unicode": "⠿⠏⠗",
+    "world": "⠿⠏⠗"
   },
   {
     "input": "ㅟ",
     "internal": "=mr",
     "expected": "631323",
-    "unicode": "⠿⠍⠗"
+    "unicode": "⠿⠍⠗",
+    "world": "⠿⠍⠗"
   },
   {
     "input": "ㅢ",
     "internal": "=w",
     "expected": "6358",
-    "unicode": "⠿⠺"
+    "unicode": "⠿⠺",
+    "world": "⠿⠺"
   },
   {
     "input": "애",
     "internal": "r",
     "expected": "23",
-    "unicode": "⠗"
+    "unicode": "⠗",
+    "world": "⠗"
   },
   {
     "input": "얘",
     "internal": ">r",
     "expected": "2823",
-    "unicode": "⠜⠗"
+    "unicode": "⠜⠗",
+    "world": "⠜⠗"
   },
   {
     "input": "에",
     "internal": "n",
     "expected": "29",
-    "unicode": "⠝"
+    "unicode": "⠝",
+    "world": "⠝"
   },
   {
     "input": "예",
     "internal": "/",
     "expected": "12",
-    "unicode": "⠌"
+    "unicode": "⠌",
+    "world": "⠌"
   },
   {
     "input": "와",
     "internal": "v",
     "expected": "39",
-    "unicode": "⠧"
+    "unicode": "⠧",
+    "world": "⠧"
   },
   {
     "input": "왜",
     "internal": "vr",
     "expected": "3923",
-    "unicode": "⠧⠗"
+    "unicode": "⠧⠗",
+    "world": "⠧⠗"
   },
   {
     "input": "외",
     "internal": "y",
     "expected": "61",
-    "unicode": "⠽"
+    "unicode": "⠽",
+    "world": "⠽"
   },
   {
     "input": "워",
     "internal": "p",
     "expected": "15",
-    "unicode": "⠏"
+    "unicode": "⠏",
+    "world": "⠏"
   },
   {
     "input": "웨",
     "internal": "pr",
     "expected": "1523",
-    "unicode": "⠏⠗"
+    "unicode": "⠏⠗",
+    "world": "⠏⠗"
   },
   {
     "input": "위",
     "internal": "mr",
     "expected": "1323",
-    "unicode": "⠍⠗"
+    "unicode": "⠍⠗",
+    "world": "⠍⠗"
   },
   {
     "input": "의",
     "internal": "w",
     "expected": "58",
-    "unicode": "⠺"
+    "unicode": "⠺",
+    "world": "⠺"
   },
   {
     "input": "매미",
     "internal": "ereo",
     "expected": "17231721",
-    "unicode": "⠑⠗⠑⠕"
+    "unicode": "⠑⠗⠑⠕",
+    "world": "⠑⠗⠑⠕"
   },
   {
     "input": "얘기",
     "internal": ">r@o",
     "expected": "2823821",
-    "unicode": "⠜⠗⠈⠕"
+    "unicode": "⠜⠗⠈⠕",
+    "world": "⠜⠗⠈⠕"
   },
   {
     "input": "헤엄",
     "internal": "jns5",
     "expected": "26291434",
-    "unicode": "⠚⠝⠎⠢"
+    "unicode": "⠚⠝⠎⠢",
+    "world": "⠚⠝⠎⠢"
   },
   {
     "input": "지혜",
     "internal": ".oj/",
     "expected": "40212612",
-    "unicode": "⠨⠕⠚⠌"
+    "unicode": "⠨⠕⠚⠌",
+    "world": "⠨⠕⠚⠌"
   },
   {
     "input": "광주리",
     "internal": "@v7.m\"o",
     "expected": "8395440131621",
-    "unicode": "⠈⠧⠶⠨⠍⠐⠕"
+    "unicode": "⠈⠧⠶⠨⠍⠐⠕",
+    "world": "⠈⠧⠶⠨⠍⠐⠕"
   },
   {
     "input": "쾌활",
     "internal": "fvrjv1",
     "expected": "11392326392",
-    "unicode": "⠋⠧⠗⠚⠧⠂"
+    "unicode": "⠋⠧⠗⠚⠧⠂",
+    "world": "⠋⠧⠗⠚⠧⠂"
   },
   {
     "input": "피뢰침",
     "internal": "do\"y;o5",
     "expected": "25211661482134",
-    "unicode": "⠙⠕⠐⠽⠰⠕⠢"
+    "unicode": "⠙⠕⠐⠽⠰⠕⠢",
+    "world": "⠙⠕⠐⠽⠰⠕⠢"
   },
   {
     "input": "권리",
     "internal": "@p3\"o",
     "expected": "815181621",
-    "unicode": "⠈⠏⠒⠐⠕"
+    "unicode": "⠈⠏⠒⠐⠕",
+    "world": "⠈⠏⠒⠐⠕"
   },
   {
     "input": "우렁쉥이",
     "internal": "m\"s7,pr7o",
     "expected": "131614543215235421",
-    "unicode": "⠍⠐⠎⠶⠠⠏⠗⠶⠕"
+    "unicode": "⠍⠐⠎⠶⠠⠏⠗⠶⠕",
+    "world": "⠍⠐⠎⠶⠠⠏⠗⠶⠕"
   },
   {
     "input": "쉼터",
     "internal": ",mr5hs",
     "expected": "321323341914",
-    "unicode": "⠠⠍⠗⠢⠓⠎"
+    "unicode": "⠠⠍⠗⠢⠓⠎",
+    "world": "⠠⠍⠗⠢⠓⠎"
   },
   {
     "input": "무늬",
     "internal": "emcw",
     "expected": "1713958",
-    "unicode": "⠑⠍⠉⠺"
+    "unicode": "⠑⠍⠉⠺",
+    "world": "⠑⠍⠉⠺"
   }
 ]

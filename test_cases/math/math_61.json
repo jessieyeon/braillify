@@ -4,224 +4,259 @@
     "note": "부정 ¬P",
     "internal": "@9P",
     "expected": "82015",
-    "unicode": "⠈⠔⠏"
+    "unicode": "⠈⠔⠏",
+    "world": "⠴⠠⠏⠲"
   },
   {
     "input": "P↔Q",
     "note": "쌍조건문 P↔Q",
     "internal": "P`[3O`Q",
     "expected": "150421821031",
-    "unicode": "⠏⠀⠪⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠪⠒⠕⠀⠟",
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠔⠲⠄⠰⠠⠟⠲"
   },
   {
     "input": "P⇔Q",
     "note": "필요충분 P⇔Q",
     "internal": "P`[33O`Q",
     "expected": "15042181821031",
-    "unicode": "⠏⠀⠪⠒⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠪⠒⠒⠕⠀⠟",
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠙⠲⠄⠰⠠⠟⠲"
   },
   {
     "input": "P⇄Q",
     "note": "동치명제 P⇄Q",
     "internal": "P`[7O`Q",
     "expected": "150425421031",
-    "unicode": "⠏⠀⠪⠶⠕⠀⠟"
+    "unicode": "⠏⠀⠪⠶⠕⠀⠟",
+    "world": "⠴⠠⠏⠄⠳⠭⠆⠂⠉⠲⠄⠰⠠⠟⠲"
   },
   {
     "input": "∧",
     "internal": "?",
     "expected": "57",
-    "unicode": "⠹"
+    "unicode": "⠹",
+    "world": ""
   },
   {
     "input": "$\\land$",
     "internal": "?",
     "expected": "57",
     "unicode": "⠹",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∨",
     "internal": "#",
     "expected": "60",
-    "unicode": "⠼"
+    "unicode": "⠼",
+    "world": ""
   },
   {
     "input": "$\\lor$",
     "internal": "#",
     "expected": "60",
     "unicode": "⠼",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "P∨Q",
     "note": "논리합 P∨Q (예제)",
     "internal": "P`#`Q",
     "expected": "15060031",
-    "unicode": "⠏⠀⠼⠀⠟"
+    "unicode": "⠏⠀⠼⠀⠟",
+    "world": "⠴⠠⠏⠈⠖⠠⠟⠲"
   },
   {
     "input": "⊻",
     "internal": "#-",
     "expected": "6036",
-    "unicode": "⠼⠤"
+    "unicode": "⠼⠤",
+    "world": ""
   },
   {
     "input": "P ⊻ Q",
     "internal": "P`#-`Q",
     "expected": "1506036031",
-    "unicode": "⠏⠀⠼⠤⠀⠟"
+    "unicode": "⠏⠀⠼⠤⠀⠟",
+    "world": "⠴⠠⠏ ⠄⠳⠭⠆⠆⠃⠃⠄ ⠰⠠⠟⠲"
   },
   {
     "input": "P↓Q",
     "note": "부정논리합 P↓Q",
     "internal": "P`^3O`Q",
     "expected": "150241821031",
-    "unicode": "⠏⠀⠘⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠘⠒⠕⠀⠟",
+    "world": "⠴⠠⠏⠰⠳⠩⠠⠟⠲"
   },
   {
     "input": "P↑Q",
     "note": "부정논리곱 P↑Q",
     "internal": "P`;3o`Q",
     "expected": "150481821031",
-    "unicode": "⠏⠀⠰⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠰⠒⠕⠀⠟",
+    "world": "⠴⠠⠏⠰⠳⠬⠠⠟⠲"
   },
   {
     "input": "∀",
     "internal": ".'",
     "expected": "404",
-    "unicode": "⠨⠄"
+    "unicode": "⠨⠄",
+    "world": ""
   },
   {
     "input": "$\\forall$",
     "internal": ".'",
     "expected": "404",
     "unicode": "⠨⠄",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∃",
     "internal": ".5",
     "expected": "4034",
-    "unicode": "⠨⠢"
+    "unicode": "⠨⠢",
+    "world": ""
   },
   {
     "input": "$\\exists$",
     "internal": ".5",
     "expected": "4034",
     "unicode": "⠨⠢",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∃x P(x)",
     "note": "존재 ∃x P(x)",
     "internal": ".5X`P8X0",
     "expected": "403445015384552",
-    "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴"
+    "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴",
+    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴"
   },
   {
     "input": "∄",
     "internal": "..5",
     "expected": "404034",
-    "unicode": "⠨⠨⠢"
+    "unicode": "⠨⠨⠢",
+    "world": ""
   },
   {
     "input": "$\\nexists$",
     "internal": "..5",
     "expected": "404034",
     "unicode": "⠨⠨⠢",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∄x",
     "note": "존재하지않는 ∄x",
     "internal": "..5X",
     "expected": "40403445",
-    "unicode": "⠨⠨⠢⠭"
+    "unicode": "⠨⠨⠢⠭",
+    "world": "⠴⠭⠲"
   },
   {
     "input": "p → q",
     "internal": "p`3o`q",
     "expected": "1501821031",
-    "unicode": "⠏⠀⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠰⠳⠕ ⠰⠟⠲"
   },
   {
     "input": "p ⇒ q",
     "internal": "p`33o`q",
     "expected": "150181821031",
-    "unicode": "⠏⠀⠒⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠒⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠰⠳⠶⠕ ⠰⠟⠲"
   },
   {
     "input": "p ↔ q",
     "internal": "p`[3o`q",
     "expected": "150421821031",
-    "unicode": "⠏⠀⠪⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠪⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠔⠲⠄ ⠰⠟⠲"
   },
   {
     "input": "r ⇔ s",
     "internal": "r`[33o`s",
     "expected": "23042181821014",
-    "unicode": "⠗⠀⠪⠒⠒⠕⠀⠎"
+    "unicode": "⠗⠀⠪⠒⠒⠕⠀⠎",
+    "world": "⠴⠗ ⠄⠳⠭⠆⠂⠙⠲⠄ ⠰⠎⠲"
   },
   {
     "input": "p ∧ q",
     "internal": "p`?`q",
     "expected": "15057031",
-    "unicode": "⠏⠀⠹⠀⠟"
+    "unicode": "⠏⠀⠹⠀⠟",
+    "world": "⠴⠏ ⠈⠦ ⠰⠟⠲"
   },
   {
     "input": "p ∨ q",
     "internal": "p`#`q",
     "expected": "15060031",
-    "unicode": "⠏⠀⠼⠀⠟"
+    "unicode": "⠏⠀⠼⠀⠟",
+    "world": "⠴⠏ ⠈⠖ ⠰⠟⠲"
   },
   {
     "input": "∀x p(x)",
     "internal": ".'x`p8x0",
     "expected": "40445015384552",
-    "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴"
+    "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴",
+    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴"
   },
   {
     "input": "∃x p(x)",
     "internal": ".5x`p8x0",
     "expected": "403445015384552",
-    "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴"
+    "unicode": "⠨⠢⠭⠀⠏⠦⠭⠴",
+    "world": "⠴⠭ ⠏⠐⠣⠭⠠⠴"
   },
   {
     "input": "P∨¬P",
     "internal": ",p`#`@9,p",
     "expected": "321506008203215",
-    "unicode": "⠠⠏⠀⠼⠀⠈⠔⠠⠏"
+    "unicode": "⠠⠏⠀⠼⠀⠈⠔⠠⠏",
+    "world": "⠴⠠⠏⠈⠖⠈⠹⠠⠏⠲"
   },
   {
     "input": "p ⇏ q",
     "internal": "p`.33o`q",
     "expected": "15040181821031",
-    "unicode": "⠏⠀⠨⠒⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠨⠒⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠰⠳⠶⠕⠄⠳⠭⠴⠒⠒⠦⠄ ⠰⠟⠲"
   },
   {
     "input": "p ⇄ q",
     "internal": "p`[7o`q",
     "expected": "150425421031",
-    "unicode": "⠏⠀⠪⠶⠕⠀⠟"
+    "unicode": "⠏⠀⠪⠶⠕⠀⠟",
+    "world": "⠴⠏ ⠄⠳⠭⠆⠂⠉⠲⠄ ⠰⠟⠲"
   },
   {
     "input": "p ↓ q",
     "internal": "p`^3o`q",
     "expected": "150241821031",
-    "unicode": "⠏⠀⠘⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠘⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠰⠳⠩ ⠰⠟⠲"
   },
   {
     "input": "p ↑ q",
     "internal": "p`;3o`q",
     "expected": "150481821031",
-    "unicode": "⠏⠀⠰⠒⠕⠀⠟"
+    "unicode": "⠏⠀⠰⠒⠕⠀⠟",
+    "world": "⠴⠏ ⠰⠳⠬ ⠰⠟⠲"
   },
   {
     "input": "∀x P(x)",
     "note": "모든 ∀x P(x)",
     "internal": ".'X`P8X0",
     "expected": "40445015384552",
-    "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴"
+    "unicode": "⠨⠄⠭⠀⠏⠦⠭⠴",
+    "world": "⠴⠭ ⠠⠏⠐⠣⠭⠠⠴"
   }
 ]

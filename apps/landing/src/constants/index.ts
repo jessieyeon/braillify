@@ -29,19 +29,28 @@ export const TEST_CASE_FILTERS: { label: string; value: TestCaseFilter }[] = [
   },
 ]
 
+const CATEGORY_PREFIX_MAP: Record<string, TestCaseFilter> = {
+  'korean/': 'korean',
+  'math/': 'math',
+  'science/': 'science',
+  'music/': 'music',
+  'western/': 'western',
+  'foreign-language/': 'foreign-language',
+  'ipa/': 'ipa',
+  'corpus/': 'corpus',
+}
+
 /**
  * Create a filter map based on rule_map.json keys.
- * Automatically includes newly added rules.
+ * Automatically classifies rules by key prefix (e.g. "korean/rule_1" → korean, "math/math_1" → math).
  * @param ruleMapKeys - Array of rule keys from rule_map.json
  * @returns Filter map grouped by categories
  */
 export function createFilterMap(
   ruleMapKeys: string[],
 ): Record<TestCaseFilter, string[]> {
-  // Default all rules to korean category
-  // Can be extended with category field in rule_map.json for classification
-  return {
-    korean: ruleMapKeys,
+  const map: Record<TestCaseFilter, string[]> = {
+    korean: [],
     math: [],
     science: [],
     music: [],
@@ -50,6 +59,22 @@ export function createFilterMap(
     ipa: [],
     corpus: [],
   }
+
+  for (const key of ruleMapKeys) {
+    let matched = false
+    for (const [prefix, category] of Object.entries(CATEGORY_PREFIX_MAP)) {
+      if (key.startsWith(prefix)) {
+        map[category].push(key)
+        matched = true
+        break
+      }
+    }
+    if (!matched) {
+      map.korean.push(key)
+    }
+  }
+
+  return map
 }
 
 // Default FILTER_MAP for backward compatibility (legacy migration support)

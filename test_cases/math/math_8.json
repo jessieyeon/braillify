@@ -3,70 +3,81 @@
     "input": ".",
     "internal": "4",
     "expected": "50",
-    "unicode": "⠲"
+    "unicode": "⠲",
+    "world": "⠲"
   },
   {
     "input": "0.17",
     "internal": "#j4ag",
     "expected": "602650127",
-    "unicode": "⠼⠚⠲⠁⠛"
+    "unicode": "⠼⠚⠲⠁⠛",
+    "world": "⠼⠚⠲⠁⠛"
   },
   {
     "input": ".47",
     "internal": "#4dg",
     "expected": "60502527",
-    "unicode": "⠼⠲⠙⠛"
+    "unicode": "⠼⠲⠙⠛",
+    "world": "⠲⠼⠙⠛"
   },
   {
     "input": "0.6̇",
     "internal": "#j4@f",
     "expected": "602650811",
-    "unicode": "⠼⠚⠲⠈⠋"
+    "unicode": "⠼⠚⠲⠈⠋",
+    "world": "⠼⠚⠲⠋"
   },
   {
     "input": "$\\0.\\dot{6}$",
     "internal": "#j4@f",
     "expected": "602650811",
     "unicode": "⠼⠚⠲⠈⠋",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "0.739̇",
     "internal": "#j4g@ci",
     "expected": "602650278910",
-    "unicode": "⠼⠚⠲⠛⠈⠉⠊"
+    "unicode": "⠼⠚⠲⠛⠈⠉⠊",
+    "world": "⠼⠚⠲⠛⠉⠊"
   },
   {
     "input": "$\\0.73\\dot{9}$",
     "internal": "#j4g@ci",
     "expected": "602650278910",
     "unicode": "⠼⠚⠲⠛⠈⠉⠊",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "0.123̇",
     "internal": "#j4@abc",
     "expected": "6026508139",
-    "unicode": "⠼⠚⠲⠈⠁⠃⠉"
+    "unicode": "⠼⠚⠲⠈⠁⠃⠉",
+    "world": "⠼⠚⠲⠁⠃⠉"
   },
   {
     "input": "$\\0.12\\dot{3}$",
     "internal": "#j4@abc",
     "expected": "6026508139",
     "unicode": "⠼⠚⠲⠈⠁⠃⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": ".9̇",
     "internal": "#4@i",
     "expected": "6050810",
-    "unicode": "⠼⠲⠈⠊"
+    "unicode": "⠼⠲⠈⠊",
+    "world": "⠲⠼⠊"
   },
   {
     "input": "$\\.\\dot{9}$",
     "internal": "#4@i",
     "expected": "6050810",
     "unicode": "⠼⠲⠈⠊",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

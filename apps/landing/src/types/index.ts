@@ -1,8 +1,10 @@
 export type Merge<T, U> = Omit<T, Extract<keyof T, keyof U>> & U
 
 export type TestStatus = [
-  success: number,
+  total: number,
   fail: number,
+  worldTotal: number,
+  worldFail: number,
   Array<
     [
       text: string,
@@ -10,6 +12,8 @@ export type TestStatus = [
       expected: string,
       actual: string,
       isSuccess: boolean,
+      world: string,
+      worldIsSuccess: boolean,
     ]
   >,
 ]

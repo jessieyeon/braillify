@@ -3,24 +3,28 @@
     "input": "′",
     "internal": "-",
     "expected": "36",
-    "unicode": "⠤"
+    "unicode": "⠤",
+    "world": "⠴⠤"
   },
   {
     "input": "x′",
     "internal": "x-",
     "expected": "4536",
-    "unicode": "⠭⠤"
+    "unicode": "⠭⠤",
+    "world": "⠴⠭⠴⠤"
   },
   {
     "input": "y′",
     "internal": "y-",
     "expected": "6136",
-    "unicode": "⠽⠤"
+    "unicode": "⠽⠤",
+    "world": "⠴⠽⠴⠤"
   },
   {
     "input": "a′b",
     "internal": "a-b",
     "expected": "1363",
-    "unicode": "⠁⠤⠃"
+    "unicode": "⠁⠤⠃",
+    "world": "⠴⠁⠶⠃⠲"
   }
 ]

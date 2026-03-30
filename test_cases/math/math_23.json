@@ -3,39 +3,45 @@
     "input": "x̄",
     "internal": "x@c",
     "expected": "4589",
-    "unicode": "⠭⠈⠉"
+    "unicode": "⠭⠈⠉",
+    "world": "⠴⠭"
   },
   {
     "input": "$\\bar{x}$",
     "internal": "x@c",
     "expected": "4589",
     "unicode": "⠭⠈⠉",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "(a+bi)̅",
     "internal": "(a5bi)@c",
     "expected": "551343106289",
-    "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉"
+    "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉",
+    "world": "⠦⠄⠴⠁⠐⠖⠃⠊⠠⠴"
   },
   {
     "input": "$\\overline{(a+bi)}$",
     "note": "LaTeX",
     "internal": "(a5bi)@c",
     "expected": "551343106289",
-    "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉"
+    "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉",
+    "world": ""
   },
   {
     "input": "X̅",
     "internal": "X@C",
     "expected": "4589",
-    "unicode": "⠭⠈⠉"
+    "unicode": "⠭⠈⠉",
+    "world": "⠴⠠⠭"
   },
   {
     "input": "$\\overline{X}$",
     "note": "LaTeX",
     "internal": "X@C",
     "expected": "4589",
-    "unicode": "⠭⠈⠉"
+    "unicode": "⠭⠈⠉",
+    "world": ""
   }
 ]

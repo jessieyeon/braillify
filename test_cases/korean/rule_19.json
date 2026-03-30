@@ -4,55 +4,63 @@
     "note": "아우",
     "internal": "<\".\"#",
     "expected": "3516401660",
-    "unicode": "⠣⠐⠨⠐⠼"
+    "unicode": "⠣⠐⠨⠐⠼",
+    "world": "⠣"
   },
   {
     "input": "의 갗",
     "note": "여우의 가죽",
     "internal": ":\"kw`$2",
     "expected": "49165580436",
-    "unicode": "⠱⠐⠅⠺⠀⠫⠆"
+    "unicode": "⠱⠐⠅⠺⠀⠫⠆",
+    "world": "⠺ ⠫⠆"
   },
   {
     "input": "이긔",
     "note": "여기",
     "internal": "o\"ds@w",
     "expected": "21162514858",
-    "unicode": "⠕⠐⠙⠎⠈⠺"
+    "unicode": "⠕⠐⠙⠎⠈⠺",
+    "world": "⠕⠈⠺"
   },
   {
     "input": "굼",
     "note": "굼벵이",
     "internal": "@m5^s\"4",
     "expected": "8133424141650",
-    "unicode": "⠈⠍⠢⠘⠎⠐⠲"
+    "unicode": "⠈⠍⠢⠘⠎⠐⠲",
+    "world": "⠈⠍⠢"
   },
   {
     "input": "훈민",
     "note": "훈민정음",
     "internal": "jgeq.:\"4\"j[5",
     "expected": "262717314049165016264234",
-    "unicode": "⠚⠛⠑⠟⠨⠱⠐⠲⠐⠚⠪⠢"
+    "unicode": "⠚⠛⠑⠟⠨⠱⠐⠲⠐⠚⠪⠢",
+    "world": "⠚⠛⠑⠟"
   },
   {
     "input": " 배",
     "note": "할 바가",
     "internal": "ju1\"0`^r",
     "expected": "26372165202423",
-    "unicode": "⠚⠥⠂⠐⠴⠀⠘⠗"
+    "unicode": "⠚⠥⠂⠐⠴⠀⠘⠗",
+    "world": "⠘⠗"
   },
   {
     "input": "君군ㄷ字",
     "note": "‘군(君)’ 자",
     "internal": "@G_9,.\"#\"7",
     "expected": "8275620324016601654",
-    "unicode": "⠈⠛⠸⠔⠠⠨⠐⠼⠐⠶"
+    "unicode": "⠈⠛⠸⠔⠠⠨⠐⠼⠐⠶",
+    "world": "⠈⠛⠈⠛⠿⠔⠨"
   },
   {
     "input": "洪ㄱ字",
     "note": "‘홍(洪)’ 자",
     "internal": "\"JJu\"4_A,.\"#\"7",
     "expected": "162626371650561324016601654",
-    "unicode": "⠐⠚⠚⠥⠐⠲⠸⠁⠠⠨⠐⠼⠐⠶"
+    "unicode": "⠐⠚⠚⠥⠐⠲⠸⠁⠠⠨⠐⠼⠐⠶",
+    "world": "⠚⠿⠿⠁⠨"
   }
 ]

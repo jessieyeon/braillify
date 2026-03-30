@@ -6,41 +6,54 @@ import { TestStatus } from '@/types'
 import TestCaseCircle from '../TestCaseCircle'
 import { TestCaseDisplayBoundary } from '../TestCaseDisplayBoundary'
 
-export function TestCaseList({ results }: { results: TestStatus[2] }) {
+export function TestCaseList({ results }: { results: TestStatus[4] }) {
   return (
     <Grid gap="8px" gridTemplateColumns="repeat(auto-fill, minmax(16px, 1fr))">
-      {results.map(([text, note, expected, actual, isSuccess], idx) => {
-        const textParts = parseTextWithLaTeX(text)
+      {results.map(
+        (
+          [text, note, expected, actual, isSuccess, world, worldIsSuccess],
+          idx,
+        ) => {
+          const textParts = parseTextWithLaTeX(text)
 
-        return (
-          <TestCaseDisplayBoundary
-            key={text + idx}
-            option="failedOnly"
-            value={Number(!isSuccess)}
-          >
-            <TestCaseCircle key={text + idx} isSuccess={isSuccess}>
-              <Box minW="50vw" w="100%" whiteSpace="pre-wrap">
-                <Text color="#FFF" typography="body">
-                  {textParts.map((part, partIdx) =>
-                    part.type === 'latex' ? (
-                      <Latex key={partIdx}>${part.content}$</Latex>
-                    ) : (
-                      <span key={partIdx}>{part.content}</span>
-                    ),
-                  )}
-                  {note ? ` (${note})` : null}
-                  <br />
-                  정답 : <Text wordBreak="break-all">{expected}</Text>
-                  <br />
-                  결과 : <Text wordBreak="break-all">{actual}</Text>
-                  <br />
-                  {isSuccess ? '✅ 테스트 성공' : '❌ 테스트 실패'}
-                </Text>
-              </Box>
-            </TestCaseCircle>
-          </TestCaseDisplayBoundary>
-        )
-      })}
+          return (
+            <TestCaseDisplayBoundary
+              key={text + idx}
+              option="failedOnly"
+              value={Number(!isSuccess)}
+            >
+              <TestCaseCircle key={text + idx} isSuccess={isSuccess}>
+                <Box minW="50vw" w="100%" whiteSpace="pre-wrap">
+                  <Text color="#FFF" typography="body">
+                    {textParts.map((part, partIdx) =>
+                      part.type === 'latex' ? (
+                        <Latex key={partIdx}>${part.content}$</Latex>
+                      ) : (
+                        <span key={partIdx}>{part.content}</span>
+                      ),
+                    )}
+                    {note ? ` (${note})` : null}
+                    <br />
+                    정답 : <Text wordBreak="break-all">{expected}</Text>
+                    <br />
+                    결과 : <Text wordBreak="break-all">{actual}</Text>
+                    <br />
+                    {isSuccess ? '✅ 테스트 성공' : '❌ 테스트 실패'}
+                    {world ? (
+                      <>
+                        <br />
+                        점자세상 :{' '}
+                        <Text wordBreak="break-all">{world}</Text>{' '}
+                        {worldIsSuccess ? '✅' : '❌'}
+                      </>
+                    ) : null}
+                  </Text>
+                </Box>
+              </TestCaseCircle>
+            </TestCaseDisplayBoundary>
+          )
+        },
+      )}
     </Grid>
   )
 }

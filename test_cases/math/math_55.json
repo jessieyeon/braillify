@@ -3,12 +3,14 @@
     "input": "∇",
     "internal": "_%",
     "expected": "5641",
-    "unicode": "⠸⠩"
+    "unicode": "⠸⠩",
+    "world": ""
   },
   {
     "input": "∇f",
     "internal": "_%f",
     "expected": "564111",
-    "unicode": "⠸⠩⠋"
+    "unicode": "⠸⠩⠋",
+    "world": "⠴⠋⠲"
   }
 ]

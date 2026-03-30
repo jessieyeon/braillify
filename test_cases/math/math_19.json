@@ -3,104 +3,120 @@
     "input": "x₂",
     "internal": "x;#b",
     "expected": "4548603",
-    "unicode": "⠭⠰⠼⠃"
+    "unicode": "⠭⠰⠼⠃",
+    "world": "⠴⠭⠰⠼⠃"
   },
   {
     "input": "$x_2$",
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "x₂",
     "internal": "x;#b",
     "expected": "4548603",
-    "unicode": "⠭⠰⠼⠃"
+    "unicode": "⠭⠰⠼⠃",
+    "world": "⠴⠭⠰⠼⠃"
   },
   {
     "input": "$x_{2}$",
     "internal": "x;#b",
     "expected": "4548603",
     "unicode": "⠭⠰⠼⠃",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "aₙ",
     "internal": "a;n",
     "expected": "14829",
-    "unicode": "⠁⠰⠝"
+    "unicode": "⠁⠰⠝",
+    "world": "⠴⠁⠰⠝⠲"
   },
   {
     "input": "$a_n$",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "aₙ",
     "internal": "a;n",
     "expected": "14829",
-    "unicode": "⠁⠰⠝"
+    "unicode": "⠁⠰⠝",
+    "world": "⠴⠁⠰⠝⠲"
   },
   {
     "input": "$a_{n}$",
     "internal": "a;n",
     "expected": "14829",
     "unicode": "⠁⠰⠝",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "aₙ₊₃",
     "internal": "a;(n5#c)",
     "expected": "14855293460962",
-    "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾"
+    "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾",
+    "world": "⠴⠁⠰⠝⠢⠼⠉"
   },
   {
     "input": "$a_{n+3}$",
     "internal": "a;(n5#c)",
     "expected": "14855293460962",
     "unicode": "⠁⠰⠷⠝⠢⠼⠉⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "aₘ₊ₙ",
     "internal": "a;(m5n)",
     "expected": "1485513342962",
-    "unicode": "⠁⠰⠷⠍⠢⠝⠾"
+    "unicode": "⠁⠰⠷⠍⠢⠝⠾",
+    "world": "⠴⠁⠰⠍⠐⠖⠝⠲"
   },
   {
     "input": "$a_{m+n}$",
     "internal": "a;(m5n)",
     "expected": "1485513342962",
     "unicode": "⠁⠰⠷⠍⠢⠝⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "x₀.₅",
     "internal": "x;#j4e",
     "expected": "454860265017",
-    "unicode": "⠭⠰⠼⠚⠲⠑"
+    "unicode": "⠭⠰⠼⠚⠲⠑",
+    "world": "⠴⠭⠰⠼⠚⠲⠰⠑"
   },
   {
     "input": "$x_{0.5}$",
     "internal": "x;#j4e",
     "expected": "454860265017",
     "unicode": "⠭⠰⠼⠚⠲⠑",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "S₂ₐ",
     "internal": ",s;(#b\"a)",
     "expected": "3214485560316162",
-    "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾"
+    "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾",
+    "world": "⠴⠠⠎⠰⠼⠃⠰⠁⠲"
   },
   {
     "input": "$S_{2a}$",
     "internal": ",s;(#b\"a)",
     "expected": "3214485560316162",
     "unicode": "⠠⠎⠰⠷⠼⠃⠐⠁⠾",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   }
 ]

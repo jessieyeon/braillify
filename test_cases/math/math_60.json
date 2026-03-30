@@ -3,218 +3,253 @@
     "input": "∈",
     "internal": "6",
     "expected": "22",
-    "unicode": "⠖"
+    "unicode": "⠖",
+    "world": ""
   },
   {
     "input": "$\\in$",
     "internal": "6",
     "expected": "22",
     "unicode": "⠖",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "A∈M",
     "internal": "A6,M",
     "expected": "1223213",
-    "unicode": "⠁⠖⠠⠍"
+    "unicode": "⠁⠖⠠⠍",
+    "world": "⠴⠠⠁⠘⠑⠠⠍⠲"
   },
   {
     "input": "∋",
     "internal": "4",
     "expected": "50",
-    "unicode": "⠲"
+    "unicode": "⠲",
+    "world": ""
   },
   {
     "input": "∉",
     "internal": ".6",
     "expected": "4022",
-    "unicode": "⠨⠖"
+    "unicode": "⠨⠖",
+    "world": ""
   },
   {
     "input": "$\\notin$",
     "internal": ".6",
     "expected": "4022",
     "unicode": "⠨⠖",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "A∉A",
     "internal": "A.6,A",
     "expected": "14022321",
-    "unicode": "⠁⠨⠖⠠⠁"
+    "unicode": "⠁⠨⠖⠠⠁",
+    "world": "⠴⠠⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲"
   },
   {
     "input": "⊂",
     "internal": "61",
     "expected": "222",
-    "unicode": "⠖⠂"
+    "unicode": "⠖⠂",
+    "world": ""
   },
   {
     "input": "$\\subset$",
     "internal": "61",
     "expected": "222",
     "unicode": "⠖⠂",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "B⊂A",
     "internal": ",B61,A",
     "expected": "323222321",
-    "unicode": "⠠⠃⠖⠂⠠⠁"
+    "unicode": "⠠⠃⠖⠂⠠⠁",
+    "world": "⠴⠠⠃⠘⠣⠠⠁⠲"
   },
   {
     "input": "⊃",
     "internal": "\"4",
     "expected": "1650",
-    "unicode": "⠐⠲"
+    "unicode": "⠐⠲",
+    "world": ""
   },
   {
     "input": "$\\supset$",
     "internal": "\"4",
     "expected": "1650",
     "unicode": "⠐⠲",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "A⊃B",
     "internal": ",A\"4,B",
     "expected": "3211650323",
-    "unicode": "⠠⠁⠐⠲⠠⠃"
+    "unicode": "⠠⠁⠐⠲⠠⠃",
+    "world": "⠴⠠⠁⠘⠜⠠⠃⠲"
   },
   {
     "input": "⊄",
     "internal": ".61",
     "expected": "40222",
-    "unicode": "⠨⠖⠂"
+    "unicode": "⠨⠖⠂",
+    "world": ""
   },
   {
     "input": "⊅",
     "internal": ".\"4",
     "expected": "401650",
-    "unicode": "⠨⠐⠲"
+    "unicode": "⠨⠐⠲",
+    "world": ""
   },
   {
     "input": "∅",
     "internal": ".f",
     "expected": "4011",
-    "unicode": "⠨⠋"
+    "unicode": "⠨⠋",
+    "world": ""
   },
   {
     "input": "$\\emptyset$",
     "internal": ".f",
     "expected": "4011",
     "unicode": "⠨⠋",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∪",
     "internal": "+",
     "expected": "44",
-    "unicode": "⠬"
+    "unicode": "⠬",
+    "world": ""
   },
   {
     "input": "$\\cup$",
     "internal": "+",
     "expected": "44",
     "unicode": "⠬",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "∩",
     "internal": "%",
     "expected": "41",
-    "unicode": "⠩"
+    "unicode": "⠩",
+    "world": ""
   },
   {
     "input": "$\\cap$",
     "internal": "%",
     "expected": "41",
     "unicode": "⠩",
-    "note": "LaTeX"
+    "note": "LaTeX",
+    "world": ""
   },
   {
     "input": "Aᶜ=U-A",
     "note": "여집합 Aᶜ=U-A",
     "internal": ",A^c33,U9,A",
     "expected": "3212491818323720321",
-    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁"
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
+    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲"
   },
   {
     "input": "a∉A",
     "internal": "a.6,a",
     "expected": "14022321",
-    "unicode": "⠁⠨⠖⠠⠁"
+    "unicode": "⠁⠨⠖⠠⠁",
+    "world": "⠴⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲"
   },
   {
     "input": "{1, 2, 3}",
     "internal": "7#a\"`#b\"`#c7",
     "expected": "5460116060316060954",
-    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶"
+    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶",
+    "world": "⠦⠂⠼⠁⠐ ⠼⠃⠐ ⠼⠉⠐⠴"
   },
   {
     "input": "B⊂A",
     "internal": ",b61,a",
     "expected": "323222321",
-    "unicode": "⠠⠃⠖⠂⠠⠁"
+    "unicode": "⠠⠃⠖⠂⠠⠁",
+    "world": "⠴⠠⠃⠘⠣⠠⠁⠲"
   },
   {
     "input": "A⊃B",
     "internal": ",a\"4,b",
     "expected": "3211650323",
-    "unicode": "⠠⠁⠐⠲⠠⠃"
+    "unicode": "⠠⠁⠐⠲⠠⠃",
+    "world": "⠴⠠⠁⠘⠜⠠⠃⠲"
   },
   {
     "input": "A∩B=∅",
     "internal": ",a`%`,b33.f",
     "expected": "321041032318184011",
-    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋"
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
+    "world": "⠴⠠⠁⠨⠦⠠⠃⠒⠒"
   },
   {
     "input": "A∪B",
     "internal": ",a`+`,b",
     "expected": "3210440323",
-    "unicode": "⠠⠁⠀⠬⠀⠠⠃"
+    "unicode": "⠠⠁⠀⠬⠀⠠⠃",
+    "world": "⠴⠠⠁⠨⠖⠠⠃⠲"
   },
   {
     "input": "Aᶜ=U-A",
     "internal": ",a^c33,u9,a",
     "expected": "3212491818323720321",
-    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁"
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
+    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲"
   },
   {
     "input": "A∩B",
     "internal": ",a`%`,b",
     "expected": "3210410323",
-    "unicode": "⠠⠁⠀⠩⠀⠠⠃"
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃",
+    "world": "⠴⠠⠁⠨⠦⠠⠃⠲"
   },
   {
     "input": "M∌a",
     "internal": ",m.4a",
     "expected": "321340501",
-    "unicode": "⠠⠍⠨⠲⠁"
+    "unicode": "⠠⠍⠨⠲⠁",
+    "world": "⠴⠠⠍⠈⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠁⠲"
   },
   {
     "input": "{x|x는정수}",
     "internal": "7x\\`0x4cz`.],m7",
     "expected": "544551052455095304059321354",
-    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶"
+    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶",
+    "world": "⠦⠂⠴⠭⠸⠳⠭⠲⠉⠵⠨⠻⠠⠍⠐⠴"
   },
   {
     "input": "A⊄M",
     "internal": ",a.61,m",
     "expected": "321402223213",
-    "unicode": "⠠⠁⠨⠖⠂⠠⠍"
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲"
   },
   {
     "input": "M⊅A",
     "internal": ",m.\"4,a",
     "expected": "3213401650321",
-    "unicode": "⠠⠍⠨⠐⠲⠠⠁"
+    "unicode": "⠠⠍⠨⠐⠲⠠⠁",
+    "world": "⠴⠠⠍⠘⠜⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲"
   },
   {
     "input": "A⊄M",
     "internal": ",A.61,M",
     "expected": "321402223213",
-    "unicode": "⠠⠁⠨⠖⠂⠠⠍"
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲"
   }
 ]
