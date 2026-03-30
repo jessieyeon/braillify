@@ -9,7 +9,7 @@ import { TestCaseDisplayBoundary } from '../TestCaseDisplayBoundary'
 export function TestCaseList({ results }: { results: TestStatus[2] }) {
   return (
     <Grid gap="8px" gridTemplateColumns="repeat(auto-fill, minmax(16px, 1fr))">
-      {results.map(([text, expected, actual, isSuccess], idx) => {
+      {results.map(([text, note, expected, actual, isSuccess], idx) => {
         const textParts = parseTextWithLaTeX(text)
 
         return (
@@ -28,6 +28,7 @@ export function TestCaseList({ results }: { results: TestStatus[2] }) {
                       <span key={partIdx}>{part.content}</span>
                     ),
                   )}
+                  {note ? ` (${note})` : null}
                   <br />
                   정답 : <Text wordBreak="break-all">{expected}</Text>
                   <br />

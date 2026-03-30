@@ -21,7 +21,7 @@ export function TestCaseTable({ results }: { results: TestStatus[2] }) {
         </Tr>
       </Thead>
       <Tbody>
-        {results.map(([text, expected, actual, isSuccess], index) => (
+        {results.map(([text, note, expected, actual, isSuccess], index) => (
           <TestCaseDisplayBoundary
             key={index}
             option="failedOnly"
@@ -36,7 +36,10 @@ export function TestCaseTable({ results }: { results: TestStatus[2] }) {
               data-responsive="desktop"
             >
               <Td>{index + 1}</Td>
-              <Td>{text}</Td>
+              <Td>
+                {text}
+                {note ? ` (${note})` : null}
+              </Td>
               <Td>{expected}</Td>
               <Td>{actual}</Td>
               <Td
@@ -88,7 +91,10 @@ export function TestCaseTable({ results }: { results: TestStatus[2] }) {
                   </Flex>
                   <Flex alignItems="center" gap="10px" px="10px">
                     <Text typography="bodyBold">예문</Text>
-                    <Text>{text}</Text>
+                    <Text>
+                      {text}
+                      {note ? ` (${note})` : null}
+                    </Text>
                   </Flex>
                   <Flex alignItems="center" gap="10px" px="10px">
                     <Text typography="bodyBold">정답</Text>

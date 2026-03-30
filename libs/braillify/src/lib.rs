@@ -599,8 +599,8 @@ mod test {
 
             let mut file_total = 0;
             let mut file_failed = 0;
-            // input, expected, actual, is_success
-            let mut test_status: Vec<(String, String, String, bool)> = Vec::new();
+            // input, note, expected, actual, is_success
+            let mut test_status: Vec<(String, String, String, String, bool)> = Vec::new();
 
             for (line_num, record) in records.iter().enumerate() {
                 total += 1;
@@ -611,6 +611,7 @@ mod test {
                         line_num, filename
                     )
                 });
+                let note = record["note"].as_str().unwrap_or("").to_string();
                 // 테스트 케이스 파일의 숫자 코드에서 앞뒤 공백 제거 후 비교
                 let expected = record["expected"]
                     .as_str()
@@ -668,6 +669,7 @@ mod test {
 
                         test_status.push((
                             input.to_string(),
+                            note.clone(),
                             unicode_braille.to_string(),
                             braille_expected.clone(),
                             if has_formatting_case {
@@ -702,6 +704,7 @@ mod test {
 
                         test_status.push((
                             input.to_string(),
+                            note.clone(),
                             unicode_braille.to_string(),
                             e.to_string(),
                             false,
