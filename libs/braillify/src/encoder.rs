@@ -62,12 +62,17 @@ impl Encoder {
             rules::token_rules::solvable_case_override::SolvableCaseOverrideRule,
         ));
         token_engine.register(Box::new(rules::token_rules::normalize::NormalizeEllipsis));
+        token_engine.register(Box::new(rules::token_rules::latex_math::LatexMergeRule));
         token_engine.register(Box::new(
             rules::token_rules::emphasis_ring::EmphasisRingRule,
         ));
         token_engine.register(Box::new(
+            rules::token_rules::math_expression::MathExpressionTokenRule,
+        ));
+        token_engine.register(Box::new(
             rules::token_rules::latex_fraction::LatexFractionRule,
         ));
+        token_engine.register(Box::new(rules::token_rules::latex_math::LatexMathRule));
         token_engine.register(Box::new(
             rules::token_rules::inline_fraction::InlineFractionRule,
         ));

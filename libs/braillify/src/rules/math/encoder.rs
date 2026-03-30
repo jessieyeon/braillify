@@ -1,0 +1,448 @@
+//! Math expression → braille byte encoding.
+//!
+//! Converts parsed math tokens into braille byte sequences
+//! following the 2024 Korean Math Braille Standard.
+
+use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
+use super::parser::{BracketKind, MathToken};
+use super::{
+    rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7, rule_8, rule_9, rule_10, rule_11,
+    rule_12, rule_13, rule_14, rule_15, rule_16, rule_17, rule_18, rule_19, rule_20, rule_21,
+    rule_22, rule_23, rule_24, rule_25, rule_26, rule_27, rule_28, rule_29, rule_30, rule_31,
+    rule_32, rule_33, rule_36, rule_37, rule_38, rule_39, rule_40, rule_41, rule_42, rule_43,
+    rule_44, rule_47, rule_50, rule_52, rule_53, rule_54, rule_55, rule_56, rule_58, rule_59,
+    rule_60, rule_61, rule_65,
+};
+use crate::math_symbol_shortcut;
+
+struct DigitSeparatorRule;
+
+impl MathTokenRule for DigitSeparatorRule {
+    fn name(&self) -> &'static str {
+        "DigitSeparatorRule"
+    }
+
+    fn priority(&self) -> u16 {
+        50
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::DigitSeparator))
+    }
+
+    fn apply(
+        &self,
+        _tokens: &[MathToken],
+        _index: usize,
+        result: &mut Vec<u8>,
+        _state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        result.push(2);
+        Ok(MathTokenResult::Consumed(1))
+    }
+}
+
+struct SpaceRule;
+
+impl MathTokenRule for SpaceRule {
+    fn name(&self) -> &'static str {
+        "SpaceRule"
+    }
+
+    fn priority(&self) -> u16 {
+        50
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::Space))
+    }
+
+    fn apply(
+        &self,
+        _tokens: &[MathToken],
+        _index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        result.push(0);
+        state.prev_was_number = false;
+        Ok(MathTokenResult::Consumed(1))
+    }
+}
+
+struct MathSymbolRule;
+
+impl MathSymbolRule {
+    fn next_non_space(tokens: &[MathToken], mut idx: usize) -> Option<&MathToken> {
+        while let Some(token) = tokens.get(idx) {
+            if !matches!(token, MathToken::Space) {
+                return Some(token);
+            }
+            idx += 1;
+        }
+        None
+    }
+}
+
+impl MathTokenRule for MathSymbolRule {
+    fn name(&self) -> &'static str {
+        "MathSymbolRule"
+    }
+
+    fn priority(&self) -> u16 {
+        100
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::MathSymbol(_)))
+    }
+
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        let Some(MathToken::MathSymbol(c)) = tokens.get(index) else {
+            return Ok(MathTokenResult::Skip);
+        };
+
+        let _ = rule_26::is_reserved_rule_26();
+        let _ = rule_22::NTH_ROOT_INDEX_MARKER;
+
+        if *c == '\u{00AC}'
+            && index > 0
+            && matches!(
+                rule_12::prev_non_space(tokens, index),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            )
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::UpperVariable(_))
+            )
+        {
+            result.push(40);
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(1));
+        }
+
+        if *c == '\u{FF03}'
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::UpperVariable(_))
+            )
+        {
+            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+            result.extend_from_slice(encoded);
+            result.push(38);
+            let mut i = index + 1;
+            while matches!(tokens.get(i), Some(MathToken::Space)) {
+                i += 1;
+            }
+            if let Some(MathToken::UpperVariable(upper)) = tokens.get(i) {
+                result.push(32);
+                result.push(crate::english::encode_english(upper.to_ascii_lowercase())?);
+                i += 1;
+            }
+            result.push(52);
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(i - index));
+        }
+
+        if rule_25::is_sigma_symbol(*c)
+            && matches!(tokens.get(index + 1), Some(MathToken::OpenParen(_)))
+        {
+            let Some(close_idx) = rule_6::find_matching_paren(tokens, index + 1) else {
+                return Err("Unmatched parenthesis in sigma bounds".to_string());
+            };
+            rule_25::encode_sigma_with_bounds(&[], &[], result)?;
+            result.push(48);
+
+            let normalized_inner: Vec<MathToken> = tokens[index + 2..close_idx]
+                .iter()
+                .map(|token| {
+                    if matches!(token, MathToken::Operator(',')) {
+                        MathToken::Space
+                    } else {
+                        token.clone()
+                    }
+                })
+                .collect();
+
+            let has_bound_separators = tokens[index + 2..close_idx]
+                .iter()
+                .any(|token| matches!(token, MathToken::Operator('=' | ',')));
+
+            if has_bound_separators {
+                engine.encode_tokens(&normalized_inner, result)?;
+            } else {
+                result.pop();
+                result.push(55);
+                engine.encode_tokens(&normalized_inner, result)?;
+                result.push(62);
+            }
+
+            if !matches!(tokens.get(close_idx + 1), Some(MathToken::Space) | None) {
+                result.push(0);
+            }
+
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(close_idx + 1 - index));
+        }
+
+        if *c == '\u{03A0}'
+            && matches!(
+                tokens.get(index + 1),
+                Some(MathToken::OpenParen(BracketKind::MathParen))
+            )
+            && matches!(tokens.get(index + 2), Some(MathToken::Number(_)))
+            && matches!(tokens.get(index + 3), Some(MathToken::Operator(',')))
+            && matches!(tokens.get(index + 4), Some(MathToken::Number(_)))
+            && matches!(
+                tokens.get(index + 5),
+                Some(MathToken::CloseParen(BracketKind::MathParen))
+            )
+        {
+            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+            result.extend_from_slice(encoded);
+            result.push(55);
+            if let Some(MathToken::Number(left)) = tokens.get(index + 2) {
+                rule_1::encode_number_literal(left, result);
+            }
+            result.push(0);
+            if let Some(MathToken::Number(right)) = tokens.get(index + 4) {
+                rule_1::encode_number_literal(right, result);
+            }
+            result.push(62);
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(6));
+        }
+
+        let should_pad = rule_2::needs_binary_spacing(*c)
+            && index > 0
+            && rule_2::is_algebraic_neighbor(rule_12::prev_non_space(tokens, index))
+            && (rule_2::is_algebraic_neighbor(Self::next_non_space(tokens, index + 1))
+                || matches!(
+                    Self::next_non_space(tokens, index + 1),
+                    Some(MathToken::MathSymbol('\u{00AC}'))
+                ));
+
+        if (matches!(*c, '\u{2234}' | '\u{2235}')
+            && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::Space)))
+            || (should_pad && !matches!(tokens.get(index - 1), Some(MathToken::Space)))
+        {
+            result.push(0);
+        }
+
+        if rule_3::is_equality_symbol(*c) {
+            rule_3::encode_equality_symbol(*c, result)?;
+        } else if rule_4::is_comparison_symbol(*c) {
+            rule_4::encode_comparison_symbol(*c, result)?;
+        } else if rule_5::is_proportion_symbol(*c) {
+            rule_5::encode_proportion_symbol(*c, result)?;
+        } else if rule_37::is_double_arrow_line_symbol(*c) {
+            rule_37::encode_double_arrow_line_symbol(*c, result)?;
+        } else if rule_38::is_right_arrow_ray_symbol(*c) {
+            rule_38::encode_right_arrow_ray_symbol(*c, result)?;
+        } else if rule_10::is_arrow_symbol(*c) {
+            rule_10::encode_arrow_symbol(*c, result)?;
+        } else if rule_13::is_greek_symbol(*c) {
+            rule_13::encode_greek_symbol(*c, result)?;
+        } else if rule_15::is_custom_binary_operator(*c) {
+            rule_15::encode_custom_binary_operator(*c, result)?;
+        } else if rule_17::is_prime_mark(*c) {
+            rule_17::encode_prime(*c, result)?;
+        } else if rule_20::is_approximation_symbol(*c) {
+            rule_20::encode_approximation_symbol(*c, result)?;
+        } else if rule_21::is_absolute_value_bar(*c) {
+            if matches!(
+                rule_12::prev_non_space(tokens, index),
+                Some(MathToken::Operator(_))
+            ) || index == 0
+            {
+                rule_21::encode_absolute_value_open(result)?;
+            } else {
+                rule_21::encode_absolute_value_close(result)?;
+            }
+        } else if rule_23::is_overline_mark(*c) {
+            rule_23::encode_overline(result)?;
+        } else if rule_24::is_sequence_brace(*c) {
+            rule_24::encode_sequence_brace(*c, result)?;
+        } else if rule_27::is_divisibility_symbol(*c) {
+            if *c == '|' {
+                rule_27::encode_divisibility(*c, result)?;
+            } else {
+                let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+                result.extend_from_slice(encoded);
+            }
+        } else if rule_28::is_norm_symbol(*c) {
+            if index == 0 {
+                rule_28::encode_norm_open(result)?;
+            } else if index + 1 >= tokens.len() {
+                rule_28::encode_norm_close(result)?;
+            } else {
+                rule_28::encode_norm_symbol(*c, result)?;
+            }
+        } else if rule_29::is_approximate_equal(*c) {
+            rule_29::encode_approximate_equal(*c, result)?;
+        } else if rule_30::is_dot_congruence(*c) {
+            rule_30::encode_dot_congruence(*c, result)?;
+        } else if rule_31::is_asymptotic_equal(*c) {
+            rule_31::encode_asymptotic_equal(*c, result)?;
+        } else if rule_32::is_congruence_symbol(*c) {
+            rule_32::encode_congruence_symbol(*c, result)?;
+        } else if rule_33::is_geometric_operator(*c) {
+            rule_33::encode_geometric_operator(*c, result)?;
+        } else if rule_36::is_arc_symbol(*c) {
+            rule_36::encode_arc(*c, result)?;
+        } else if rule_39::is_angle_symbol(*c) {
+            rule_39::encode_angle_symbol(*c, result)?;
+        } else if rule_40::is_geometric_shape(*c) {
+            rule_40::encode_geometric_shape(*c, result)?;
+        } else if rule_41::is_perpendicular_symbol(*c) {
+            rule_41::encode_perpendicular(*c, result)?;
+        } else if rule_42::is_similarity_symbol(*c) {
+            rule_42::encode_similarity_symbol(*c, result)?;
+        } else if rule_43::is_identity_symbol(*c) {
+            rule_43::encode_identity_symbol(*c, result)?;
+        } else if rule_44::is_parallel_symbol(*c) {
+            rule_44::encode_parallel_symbol(*c, result)?;
+        } else if rule_50::is_special_constant(*c) {
+            rule_50::encode_special_constant(*c, result)?;
+        } else if rule_52::is_delta_symbol(*c) {
+            rule_52::encode_delta_symbol(*c, result)?;
+        } else if rule_54::is_partial_derivative(*c) {
+            rule_54::encode_partial_derivative(*c, result)?;
+        } else if rule_55::is_nabla_symbol(*c) {
+            rule_55::encode_nabla_symbol(*c, result)?;
+        } else if rule_56::is_integral_symbol(*c) {
+            rule_56::encode_integral_symbol(*c, result)?;
+        } else if rule_58::is_double_integral(*c) {
+            rule_58::encode_double_integral(*c, result)?;
+        } else if rule_59::is_contour_integral(*c) {
+            rule_59::encode_contour_integral(*c, result)?;
+        } else if rule_65::is_therefore_because(*c) {
+            rule_65::encode_therefore_because(*c, result)?;
+        } else if rule_11::is_math_sentence_delimiter(*c)
+            || rule_16::is_base_notation_subscript(*c)
+            || rule_22::is_root_symbol(*c)
+            || rule_60::is_set_symbol(*c)
+            || rule_61::is_logic_symbol(*c)
+            || super::rule_64::is_hat_notation(*c)
+        {
+            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+            result.extend_from_slice(encoded);
+        } else {
+            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+            result.extend_from_slice(encoded);
+        }
+
+        if (matches!(*c, '\u{2234}' | '\u{2235}')
+            && matches!(tokens.get(index + 1), Some(MathToken::Space)))
+            || (should_pad && !matches!(tokens.get(index + 1), Some(MathToken::Space)))
+        {
+            result.push(0);
+        }
+
+        state.prev_was_number = rule_9::is_repeating_decimal_mark(*c);
+        Ok(MathTokenResult::Consumed(1))
+    }
+}
+
+struct RawTokenRule;
+
+impl MathTokenRule for RawTokenRule {
+    fn name(&self) -> &'static str {
+        "RawTokenRule"
+    }
+
+    fn priority(&self) -> u16 {
+        500
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::Raw(_)))
+    }
+
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        _result: &mut Vec<u8>,
+        _state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        let Some(MathToken::Raw(c)) = tokens.get(index) else {
+            return Ok(MathTokenResult::Skip);
+        };
+        Err(format!("Unrecognized math character: '{}'", c))
+    }
+}
+
+fn build_math_engine() -> MathTokenEngine {
+    let mut engine = MathTokenEngine::new();
+
+    // Priority 10 — lookahead rules
+    engine.register(Box::new(rule_7::ConditionalProbFractionRule));
+    engine.register(Box::new(rule_7::FractionReversalRule));
+    engine.register(Box::new(rule_12::CombinatoricsRule));
+
+    // Priority 50 — core token rules
+    engine.register(Box::new(rule_1::NumberRule));
+    engine.register(Box::new(rule_12::VariableRule));
+    engine.register(Box::new(rule_12::UpperVariableRule));
+    engine.register(Box::new(rule_2::OperatorRule));
+    engine.register(Box::new(rule_47::FunctionNameRule));
+    engine.register(Box::new(rule_6::BracketRule));
+    engine.register(Box::new(rule_18::SuperscriptRule));
+    engine.register(Box::new(rule_19::SubscriptRule));
+    engine.register(Box::new(rule_8::DecimalPointRule));
+    engine.register(Box::new(DigitSeparatorRule));
+    engine.register(Box::new(SpaceRule));
+    engine.register(Box::new(rule_53::PrimeRule));
+
+    // Priority 100 — math symbol dispatch
+    engine.register(Box::new(MathSymbolRule));
+    engine.register(Box::new(RawTokenRule));
+
+    engine.finalize();
+    engine
+}
+
+/// Encode a full math expression string into braille bytes.
+pub fn encode_math_expression(input: &str) -> Result<Vec<u8>, String> {
+    if rule_14::is_roman_numeral_expression(input) {
+        return rule_14::encode_roman_numeral_expression(input);
+    }
+
+    let tokens = super::parser::parse_math_expression(input)?;
+    let engine = build_math_engine();
+    let mut result = Vec::new();
+    engine.encode_tokens(&tokens, &mut result)?;
+    Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simple_equation() {
+        // ax+b=0 → internal "ax5b33#j"
+        // a=1, x=45, 5(+)=34, b=3, 33(=)=18,18, #j=60,26
+        let result = encode_math_expression("ax+b=0");
+        assert!(result.is_ok(), "Should encode ax+b=0: {:?}", result);
+    }
+
+    #[test]
+    fn test_number_encoding() {
+        // Pure number should get # prefix
+        let result = encode_math_expression("37+25").unwrap();
+        // #cg5#be = 60,9,27,34,60,3,17
+        assert!(!result.is_empty());
+    }
+}

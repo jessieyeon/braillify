@@ -77,6 +77,9 @@ impl CharType {
         if is_symbol_char(c) {
             return Ok(Self::Symbol(c));
         }
+        if c == '□' {
+            return Ok(Self::Symbol(c));
+        }
         if is_math_symbol_char(c) {
             return Ok(Self::MathSymbol(c));
         }
@@ -87,7 +90,19 @@ impl CharType {
         if code == 0x0307 {
             return Ok(Self::CombiningMark);
         }
+        if code == 0x0305 {
+            return Ok(Self::CombiningMark);
+        }
+        if code == 0x0308 {
+            return Ok(Self::CombiningMark);
+        }
+        if code == 0x0309 {
+            return Ok(Self::CombiningMark);
+        }
         if code == 0x030A {
+            return Ok(Self::CombiningMark);
+        }
+        if code == 0x0332 {
             return Ok(Self::CombiningMark);
         }
         if (0x3131..=0x3163).contains(&code) {
@@ -101,6 +116,11 @@ impl CharType {
         }
         if c.is_whitespace() {
             return Ok(Self::Space(c));
+        }
+        // LaTeX delimiters — treat as symbols so partial LaTeX tokens
+        // don't cause "Invalid character" errors
+        if c == '$' || c == '\\' {
+            return Ok(Self::Symbol(c));
         }
         Err("Invalid character".to_string())
     }
@@ -129,6 +149,7 @@ mod test {
             CharType::new('½').unwrap(),
             CharType::Fraction('½')
         ));
+        assert!(matches!(CharType::new('□').unwrap(), CharType::Symbol('□')));
     }
 
     proptest! {
@@ -154,7 +175,7 @@ mod test {
                     assert!(ch.is_ascii_digit());
                 }
                 CharType::Symbol(ch) => {
-                    assert!(is_symbol_char(ch));
+                    assert!(is_symbol_char(ch) || ch == '$' || ch == '\\' || ch == '□');
                 }
                 CharType::MathSymbol(ch) => {
                     assert!(is_math_symbol_char(ch));

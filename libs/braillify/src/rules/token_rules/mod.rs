@@ -1,6 +1,8 @@
 pub mod emphasis_ring;
 pub mod inline_fraction;
 pub mod latex_fraction;
+pub mod latex_math;
+pub mod math_expression;
 pub mod middle_dot_spacing;
 pub mod normalize;
 pub mod quote_attachment;

@@ -5,11 +5,11 @@
 
 // ── Chapter 1: 자모 (Jamo) ──────────────────────────────
 pub mod rule_1; // 제1항: basic choseong (initial consonants)
+pub mod rule_11; // 제11항: vowel + 예 separator
+pub mod rule_12; // 제12항: ㅑ/ㅘ/ㅜ/ㅝ + 애 separator
 pub mod rule_2; // 제2항: double choseong (된소리)
 pub mod rule_3; // 제3항–제5항: jongseong (final consonants)
 pub mod rule_8; // 제8항–제10항: standalone jamo
-pub mod rule_11; // 제11항: vowel + 예 separator
-pub mod rule_12; // 제12항: ㅑ/ㅘ/ㅜ/ㅝ + 애 separator
 pub mod rule_korean; // General Korean syllable encoding (composite fallback)
 
 // ── Chapter 2: 약자와 약어 (Abbreviations) ──────────────

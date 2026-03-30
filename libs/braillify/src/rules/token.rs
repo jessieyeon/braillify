@@ -88,19 +88,48 @@ pub enum ModeEvent {
 
 impl<'a> DocumentIR<'a> {
     pub fn parse(text: &'a str, english_indicator: bool) -> Self {
-        let words: Vec<&str> = text.split(' ').filter(|w| !w.is_empty()).collect();
+        let raw_words: Vec<&str> = text.split(' ').filter(|w| !w.is_empty()).collect();
         let mut tokens = Vec::new();
+        let mut i = 0usize;
 
-        for (idx, word) in words.iter().enumerate() {
-            let chars: Vec<char> = word.chars().collect();
+        while i < raw_words.len() {
+            let mut owned_merged: Option<String> = None;
+            let mut consumed = 1usize;
+
+            // Merge $...$ expressions that may contain spaces into a single token.
+            let first = raw_words[i];
+            let mut dollar_count = first.chars().filter(|c| *c == '$').count();
+            if dollar_count % 2 == 1 {
+                let mut merged = first.to_string();
+                let mut j = i + 1;
+                while j < raw_words.len() {
+                    merged.push(' ');
+                    merged.push_str(raw_words[j]);
+                    dollar_count += raw_words[j].chars().filter(|c| *c == '$').count();
+                    j += 1;
+                    if dollar_count % 2 == 0 {
+                        break;
+                    }
+                }
+                consumed = j.saturating_sub(i);
+                owned_merged = Some(merged);
+            }
+
+            let text_cow = match owned_merged {
+                Some(merged) => Cow::Owned(merged),
+                None => Cow::Borrowed(raw_words[i]),
+            };
+
+            let chars: Vec<char> = text_cow.chars().collect();
             let meta = WordMeta::from_chars(&chars);
             tokens.push(Token::Word(WordToken {
-                text: Cow::Borrowed(word),
+                text: text_cow,
                 chars,
                 meta,
             }));
 
-            if idx < words.len() - 1 {
+            i += consumed;
+            if i < raw_words.len() {
                 tokens.push(Token::Space(SpaceKind::Regular));
             }
         }
