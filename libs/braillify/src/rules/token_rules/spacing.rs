@@ -35,14 +35,7 @@ impl TokenRule for AsteriskSpacingRule {
 
         let mut trailing_spaces = 0usize;
 
-        if tokens
-            .iter()
-            .any(|t| matches!(t, Token::Word(w) if w.text == "*"))
-        {
-            trailing_spaces += 1;
-        }
-
-        if current.text.ends_with('*') {
+        if current.text == "*" || current.text.ends_with('*') {
             trailing_spaces += 1;
         }
 

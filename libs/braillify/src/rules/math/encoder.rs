@@ -232,6 +232,19 @@ impl MathTokenRule for MathSymbolRule {
             return Ok(MathTokenResult::Consumed(6));
         }
 
+        // In derivative/product formulas (제53항), middle dot is used as
+        // multiplication sign when the same expression also contains
+        // arithmetic composition (= or +).
+        if *c == '\u{00B7}'
+            && tokens
+                .iter()
+                .any(|t| matches!(t, MathToken::Operator('=' | '+')))
+        {
+            rule_2::encode_operator('\u{00D7}', tokens, index, result)?;
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(1));
+        }
+
         let should_pad = rule_2::needs_binary_spacing(*c)
             && index > 0
             && rule_2::is_algebraic_neighbor(rule_12::prev_non_space(tokens, index))

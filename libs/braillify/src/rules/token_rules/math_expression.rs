@@ -108,6 +108,10 @@ fn is_korean_char(c: char) -> bool {
     (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code)
 }
 
+fn is_korean_suffix_char(c: char) -> bool {
+    is_korean_char(c) || matches!(c, ')' | ']' | '}' | '.' | ',' | '!' | '?')
+}
+
 fn build_word_token(text: String) -> Token<'static> {
     let chars: Vec<char> = text.chars().collect();
     Token::Word(WordToken {
@@ -188,7 +192,8 @@ fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char]) -> Option<Vec<
     if let Some(bytes) = try_encode_math_slice(prefix) {
         let text: String = prefix.iter().collect();
         if !suffix.is_empty()
-            && suffix.iter().all(|c| is_korean_char(*c))
+            && suffix.iter().all(|c| is_korean_suffix_char(*c))
+            && suffix.iter().any(|c| is_korean_char(*c))
             && math::rule_46::is_trig_function(&text)
         {
             return math::encoder::encode_math_expression(&format!("{text}x")).ok();
@@ -217,6 +222,12 @@ fn split_mixed_math_word(
 
         if end == len {
             return None;
+        }
+
+        if !chars[end..].iter().all(|c| is_korean_suffix_char(*c))
+            || !chars[end..].iter().any(|c| is_korean_char(*c))
+        {
+            continue;
         }
 
         let suffix: String = chars[end..].iter().collect();
@@ -574,7 +585,36 @@ impl TokenRule for MathExpressionTokenRule {
         }
 
         // Skip if already processed (PreEncoded) or if it's a fraction
-        if text.starts_with('$') {
+        if let Some(stripped) = text.strip_prefix('$') {
+            if let Some(close_idx) = stripped.find('$')
+                && close_idx + 1 < stripped.len()
+            {
+                let latex = &text[..=close_idx + 1];
+                let suffix = &stripped[close_idx + 1..];
+
+                if let Some((whole, numerator, denominator)) =
+                    crate::fraction::parse_latex_fraction(latex)
+                {
+                    return Ok(TokenAction::ReplaceMany(vec![
+                        Token::Fraction(crate::rules::token::FractionToken {
+                            whole,
+                            numerator,
+                            denominator,
+                        }),
+                        build_word_token(suffix.to_string()),
+                    ]));
+                }
+
+                let inner = &latex[1..latex.len() - 1];
+                let math_text = crate::rules::token_rules::latex_math::strip_latex_to_math(inner);
+                if let Ok(bytes) = math::encoder::encode_math_expression(&math_text) {
+                    return Ok(TokenAction::ReplaceMany(vec![
+                        Token::PreEncoded(bytes),
+                        build_word_token(suffix.to_string()),
+                    ]));
+                }
+            }
+
             if let Some((whole, numerator, denominator)) =
                 crate::fraction::parse_latex_fraction(text)
             {
@@ -625,6 +665,16 @@ impl TokenRule for MathExpressionTokenRule {
                 if prev_has_korean && should_wrap {
                     wrapped.push(0);
                 }
+
+                if !prev_has_korean
+                    && text.contains('\u{2206}')
+                    && text.contains('=')
+                    && text.contains(")+(")
+                {
+                    wrapped.push(0);
+                    wrapped.push(0);
+                }
+
                 wrapped.extend_from_slice(&bytes);
                 if next_has_korean && should_wrap {
                     wrapped.push(0);

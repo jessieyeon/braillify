@@ -9,7 +9,7 @@
 
 use crate::char_struct::CharType;
 use crate::english;
-use crate::rule_en::{rule_en_10_4, rule_en_10_6};
+use crate::rule_en::{rule_en_10_4, rule_en_10_5_whole_word, rule_en_10_6};
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
@@ -74,6 +74,11 @@ impl BrailleRule for Rule28 {
             return Ok(RuleResult::Skip);
         };
 
+        // 제28항 예외: 소문자 단독 "b"는 로마자표를 붙여 구별한다.
+        if *c == 'b' && ctx.word_len() == 1 && ctx.index == 0 && !ctx.state.is_english {
+            ctx.emit(52);
+        }
+
         // Enter English mode (로마자표 / 연속표)
         if ctx.state.english_indicator && !ctx.state.is_english {
             if ctx.state.needs_english_continuation {
@@ -103,21 +108,69 @@ impl BrailleRule for Rule28 {
             .iter()
             .collect::<String>()
             .to_lowercase();
+        let is_whole_lowercase_word =
+            ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
+        let be_boundary_non_alpha = remaining.starts_with("be")
+            && remaining
+                .chars()
+                .nth(2)
+                .is_none_or(|ch| !ch.is_ascii_alphabetic());
+        let in_boundary_non_alpha = remaining.starts_with("in")
+            && remaining
+                .chars()
+                .nth(2)
+                .is_none_or(|ch| !ch.is_ascii_alphabetic());
+        let prev_is_ascii_word =
+            !ctx.prev_word.is_empty() && ctx.prev_word.chars().all(|ch| ch.is_ascii_alphabetic());
+        let next_is_ascii_word = ctx
+            .remaining_words
+            .first()
+            .is_some_and(|w| !w.is_empty() && w.chars().all(|ch| ch.is_ascii_alphabetic()));
+
+        if is_whole_lowercase_word && remaining == "you" && prev_is_ascii_word && next_is_ascii_word
+        {
+            ctx.emit(english::encode_english('y')?);
+            *ctx.skip_count = ctx.word_len().saturating_sub(1);
+            ctx.state.is_english = true;
+            ctx.state.needs_english_continuation = false;
+            return Ok(RuleResult::Consumed);
+        }
+        if ctx.index == 0
+            && !ctx.is_all_uppercase
+            && is_whole_lowercase_word
+            && let Some(cells) = rule_en_10_5_whole_word(&remaining)
+        {
+            ctx.emit_slice(cells);
+            *ctx.skip_count = ctx.word_len().saturating_sub(1);
+            ctx.state.is_english = true;
+            ctx.state.needs_english_continuation = false;
+            return Ok(RuleResult::Consumed);
+        }
+
+        let allow_10_6 = !ctx.is_all_uppercase
+            && !be_boundary_non_alpha
+            && !in_boundary_non_alpha
+            && !(is_whole_lowercase_word && matches!(remaining.as_str(), "be" | "in"));
+        let allow_10_4_entry = !ctx.is_all_uppercase
+            && !in_boundary_non_alpha
+            && !(is_whole_lowercase_word && remaining == "in");
+        let allow_10_4_cont = !in_boundary_non_alpha
+            && !(is_whole_lowercase_word && remaining == "in");
+
         if !ctx.state.is_english || ctx.index == 0 {
-            if !ctx.is_all_uppercase
-                && let Some((code, len)) = rule_en_10_6(&remaining)
+            if allow_10_6 && let Some((code, len)) = rule_en_10_6(&remaining)
             {
                 ctx.emit(code);
                 *ctx.skip_count = len;
-            } else if !ctx.is_all_uppercase
-                && let Some((code, len)) = rule_en_10_4(&remaining)
+            } else if allow_10_4_entry && let Some((code, len)) = rule_en_10_4(&remaining)
             {
                 ctx.emit(code);
                 *ctx.skip_count = len;
             } else {
                 ctx.emit(english::encode_english(*c)?);
             }
-        } else if let Some((code, len)) = rule_en_10_4(&remaining) {
+        } else if allow_10_4_cont && let Some((code, len)) = rule_en_10_4(&remaining)
+        {
             ctx.emit(code);
             *ctx.skip_count = len;
         } else {

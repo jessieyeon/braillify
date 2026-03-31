@@ -50,6 +50,25 @@ static ENGLISH_SHORTCUT_MAP_10_6: phf::Map<&'static str, u8> = phf_map! {
     "gg" => decode_unicode('⠶'),
     "in" => decode_unicode('⠔'),
 };
+
+static ENGLISH_WHOLE_WORD_MAP_10_5: phf::Map<&'static str, &'static [u8]> = phf_map! {
+    "every" => &[decode_unicode('⠐'), decode_unicode('⠑'), decode_unicode('⠽')],
+    "knowledge" => &[
+        decode_unicode('⠐'),
+        decode_unicode('⠅'),
+        decode_unicode('⠇'),
+        decode_unicode('⠫'),
+        decode_unicode('⠛'),
+        decode_unicode('⠑'),
+    ],
+    "rather" => &[decode_unicode('⠗'), decode_unicode('⠁'), decode_unicode('⠮'), decode_unicode('⠗')],
+    "enough" => &[decode_unicode('⠢'), decode_unicode('⠳'), decode_unicode('⠣')],
+    "were" => &[decode_unicode('⠺'), decode_unicode('⠻'), decode_unicode('⠑')],
+};
+
+pub fn rule_en_10_5_whole_word(word: &str) -> Option<&'static [u8]> {
+    ENGLISH_WHOLE_WORD_MAP_10_5.get(word).copied()
+}
 /// 10.6.1 - 하위 묶음 약자 - 시작할 때 일치 해야만 함
 pub fn rule_en_10_6(current: &str) -> Option<(u8, usize)> {
     for key in ENGLISH_SHORTCUT_MAP_10_6.keys() {

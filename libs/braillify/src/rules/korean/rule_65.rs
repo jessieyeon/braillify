@@ -72,6 +72,12 @@ impl BrailleRule for Rule65 {
 
         let encoded = encode_currency_symbol(*c)?;
         ctx.emit_slice(&encoded);
+
+        // 화폐 기호 뒤에 한글이 바로 이어지면 띄어 쓴다.
+        if ctx.next_char().is_some_and(crate::utils::is_korean_char) {
+            ctx.emit(0);
+        }
+
         Ok(RuleResult::Consumed)
     }
 }

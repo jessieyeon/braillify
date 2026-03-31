@@ -54,6 +54,7 @@ pub mod rule_69; // 제69항: common measurement/unit symbols
 pub mod rule_70; // 제70항: arrows
 pub mod rule_71; // 제71항: information/keyboard symbols
 pub mod rule_72; // 제72항: list and placeholder markers
+pub mod rule_73; // 제73항 및 붙임: fill-in blank markers
 pub mod rule_74; // 제74항: digital notation symbols reuse
 pub mod rule_english_symbol; // English-context punctuation rendering
 

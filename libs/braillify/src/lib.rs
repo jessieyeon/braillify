@@ -1004,7 +1004,7 @@ mod test {
         push_failure_ranges(&mut failures, "korean/rule_25", &[]);
         push_failure_ranges(&mut failures, "korean/rule_26", &[]);
         push_failure_ranges(&mut failures, "korean/rule_27", &[(1, 1), (3, 7)]);
-        push_failure_ranges(&mut failures, "korean/rule_28", &[(3, 3)]);
+        push_failure_ranges(&mut failures, "korean/rule_28", &[]);
         push_failure_ranges(
             &mut failures,
             "korean/rule_30",
@@ -1013,11 +1013,7 @@ mod test {
         push_failure_ranges(&mut failures, "korean/rule_33", &[(3, 3)]);
         push_failure_ranges(&mut failures, "korean/rule_35", &[(4, 10)]);
         push_failure_ranges(&mut failures, "korean/rule_36", &[(17, 18)]);
-        push_failure_ranges(
-            &mut failures,
-            "korean/rule_37",
-            &[(4, 4), (9, 9), (15, 15), (24, 24), (27, 27), (30, 32)],
-        );
+        push_failure_ranges(&mut failures, "korean/rule_37", &[(30, 30)]);
         push_failure_ranges(&mut failures, "korean/rule_38", &[(1, 3)]);
         push_failure_ranges(&mut failures, "korean/rule_39", &[(1, 3)]);
         push_failure_ranges(&mut failures, "korean/rule_47", &[(8, 9)]);
@@ -1027,29 +1023,29 @@ mod test {
         push_failure_ranges(&mut failures, "korean/rule_53_b1", &[(1, 1)]);
         push_failure_ranges(&mut failures, "korean/rule_55", &[(5, 6)]);
         push_failure_ranges(&mut failures, "korean/rule_55_b1", &[(1, 1)]);
-        push_failure_ranges(&mut failures, "korean/rule_60", &[(1, 1)]);
+        push_failure_ranges(&mut failures, "korean/rule_60", &[]);
         push_failure_ranges(&mut failures, "korean/rule_64", &[(75, 79), (81, 81)]);
-        push_failure_ranges(&mut failures, "korean/rule_65", &[(12, 13)]);
+        push_failure_ranges(&mut failures, "korean/rule_65", &[]);
         push_failure_ranges(&mut failures, "korean/rule_66", &[(1, 1)]);
-        push_failure_ranges(&mut failures, "korean/rule_67", &[(2, 2)]);
+        push_failure_ranges(&mut failures, "korean/rule_67", &[]);
         push_failure_ranges(&mut failures, "korean/rule_68", &[(2, 6), (8, 10)]);
         push_failure_ranges(
             &mut failures,
             "korean/rule_69",
-            &[(1, 1), (3, 3), (5, 7), (9, 9), (21, 24), (26, 26)],
+            &[(1, 1), (3, 3), (5, 5), (7, 7), (9, 9), (21, 24), (26, 26)],
         );
         push_failure_ranges(
             &mut failures,
             "korean/rule_71",
-            &[(4, 4), (6, 6), (16, 16), (18, 18)],
+            &[(6, 6), (16, 16), (18, 18)],
         );
         push_failure_ranges(&mut failures, "korean/rule_71_b1", &[(1, 3)]);
         push_failure_ranges(&mut failures, "korean/rule_72", &[(1, 4), (7, 9), (11, 11)]);
-        push_failure_ranges(&mut failures, "korean/rule_73", &[(1, 2)]);
-        push_failure_ranges(&mut failures, "korean/rule_73_b1", &[(1, 4)]);
+        push_failure_ranges(&mut failures, "korean/rule_73", &[]);
+        push_failure_ranges(&mut failures, "korean/rule_73_b1", &[(3, 3)]);
         push_failure_ranges(&mut failures, "korean/rule_74", &[(1, 3)]);
         push_failure_ranges(&mut failures, "math/math_11", &[(1, 2), (5, 6)]);
-        push_failure_ranges(&mut failures, "math/math_15", &[(21, 21)]);
+        push_failure_ranges(&mut failures, "math/math_15", &[]);
         push_failure_ranges(&mut failures, "math/math_16", &[(5, 8)]);
         push_failure_ranges(&mut failures, "math/math_24", &[(3, 3)]);
         push_failure_ranges(&mut failures, "math/math_40", &[(9, 9)]);
@@ -1057,7 +1053,7 @@ mod test {
         push_failure_ranges(&mut failures, "math/math_49", &[(4, 5)]);
         push_failure_ranges(&mut failures, "math/math_51", &[(3, 3)]);
         push_failure_ranges(&mut failures, "math/math_52", &[(3, 3)]);
-        push_failure_ranges(&mut failures, "math/math_53", &[(3, 3), (6, 6)]);
+        push_failure_ranges(&mut failures, "math/math_53", &[]);
         push_failure_ranges(&mut failures, "math/math_6", &[(10, 10), (16, 18)]);
         push_failure_ranges(&mut failures, "math/math_60", &[(32, 32)]);
         push_failure_ranges(&mut failures, "math/math_64", &[(4, 4)]);

@@ -56,6 +56,12 @@ impl BrailleRule for Rule67 {
             ctx.emit(crate::unicode::decode_unicode('⠿'));
         }
         ctx.emit(crate::unicode::decode_unicode(ctx.current_char()));
+
+        // 제67항: 본문 중 점형을 설명할 때는 점형 뒤 설명어를 띄어 쓴다.
+        if is_start && ctx.next_char().is_some_and(crate::utils::is_korean_char) {
+            ctx.emit(0);
+        }
+
         Ok(RuleResult::Consumed)
     }
 }

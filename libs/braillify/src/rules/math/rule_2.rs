@@ -58,6 +58,29 @@ pub fn encode_operator(
     i: usize,
     result: &mut Vec<u8>,
 ) -> Result<(), String> {
+    if token == '+' {
+        let prev = tokens[..i]
+            .iter()
+            .rev()
+            .find(|t| !matches!(t, MathToken::Space));
+        let next = tokens[i + 1..]
+            .iter()
+            .find(|t| !matches!(t, MathToken::Space));
+        let has_set_triangle = tokens
+            .iter()
+            .any(|t| matches!(t, MathToken::MathSymbol('\u{2206}')));
+
+        if has_set_triangle
+            && matches!(prev, Some(MathToken::CloseParen(_)))
+            && matches!(next, Some(MathToken::OpenParen(_)))
+        {
+            result.push(0);
+            result.push(44);
+            result.push(0);
+            return Ok(());
+        }
+    }
+
     if token == '!' {
         result.push(22);
         return Ok(());

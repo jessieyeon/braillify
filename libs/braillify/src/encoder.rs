@@ -61,6 +61,7 @@ impl Encoder {
         rule_engine.register(Box::new(rules::korean::rule_70::Rule70));
         rule_engine.register(Box::new(rules::korean::rule_71::Rule71));
         rule_engine.register(Box::new(rules::korean::rule_72::Rule72));
+        rule_engine.register(Box::new(rules::korean::rule_73::Rule73));
         rule_engine.register(Box::new(rules::korean::rule_74::Rule74));
         rule_engine.register(Box::new(rules::korean::rule_61::Rule61));
         rule_engine.register(Box::new(rules::korean::rule_41::Rule41));
