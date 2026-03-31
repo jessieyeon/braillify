@@ -123,7 +123,8 @@ mod tests {
 
     #[test]
     fn test_braillify_invalid_input() {
-        let result = run_one_shot("§");
+        // Use an emoji which is not supported by CharType::new()
+        let result = run_one_shot("😀");
         assert!(result.is_err());
     }
 }

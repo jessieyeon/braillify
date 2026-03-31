@@ -107,27 +107,6 @@ pub fn encode_subscript(
     Ok(false)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::super::encoder::encode_math_expression;
-
-    #[test]
-    fn encodes_number_base_notation_without_explicit_subscript_parentheses() {
-        assert_eq!(
-            encode_math_expression("1010₂").expect("math encoding should succeed"),
-            vec![60, 1, 26, 1, 26, 48, 38, 60, 3, 52]
-        );
-    }
-
-    #[test]
-    fn encodes_number_base_notation_with_explicit_subscript_parentheses() {
-        assert_eq!(
-            encode_math_expression("1101₍₂₎").expect("math encoding should succeed"),
-            vec![60, 1, 1, 26, 1, 48, 38, 60, 3, 52]
-        );
-    }
-}
-
 pub struct SubscriptRule;
 
 impl MathTokenRule for SubscriptRule {
@@ -158,5 +137,26 @@ impl MathTokenRule for SubscriptRule {
         let _ = encode_subscript(tokens, &mut cursor, content, result, engine)?;
         state.prev_was_number = false;
         Ok(MathTokenResult::Consumed(cursor - index))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::encoder::encode_math_expression;
+
+    #[test]
+    fn encodes_number_base_notation_without_explicit_subscript_parentheses() {
+        assert_eq!(
+            encode_math_expression("1010₂").expect("math encoding should succeed"),
+            vec![60, 1, 26, 1, 26, 48, 38, 60, 3, 52]
+        );
+    }
+
+    #[test]
+    fn encodes_number_base_notation_with_explicit_subscript_parentheses() {
+        assert_eq!(
+            encode_math_expression("1101₍₂₎").expect("math encoding should succeed"),
+            vec![60, 1, 1, 26, 1, 48, 38, 60, 3, 52]
+        );
     }
 }

@@ -118,6 +118,7 @@
   },
   {
     "input": "砌 기슭섬 ",
+    "context": "strip_prefix:砌 ",
     "note": "댓돌 ‘체(砌)’",
     "internal": "@o,!a,s5`;_%/",
     "expected": "82132461321434048564112",

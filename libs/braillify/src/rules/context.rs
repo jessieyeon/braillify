@@ -5,12 +5,28 @@
 
 use crate::char_struct::{CharType, KoreanChar};
 
+/// The encoding context determines how ambiguous characters are interpreted.
+/// For example, `·` is a tone mark in MiddleKorean mode but a middle dot in Korean mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EncodingMode {
+    /// Default Korean braille encoding
+    Korean,
+    /// English/Roman letter section (between ⠴ and ⠲)
+    English,
+    /// Math expression encoding
+    Math,
+    /// Middle Korean (중세국어) — archaic characters with special rules
+    MiddleKorean,
+}
+
 /// Persistent state that survives across characters and words.
 ///
 /// Tracks modal state like "are we currently in English mode?"
 /// Rules can read and mutate this state.
 #[derive(Debug, Clone)]
 pub struct EncoderState {
+    /// Stack of encoding modes. The top determines current context.
+    pub mode_stack: Vec<EncodingMode>,
     /// Currently inside a Roman letter section (between ⠴ and ⠲)
     pub is_english: bool,
     /// Whether the input contains Korean (determines if Roman indicators are needed)
@@ -32,6 +48,7 @@ pub struct EncoderState {
 impl EncoderState {
     pub fn new(english_indicator: bool) -> Self {
         Self {
+            mode_stack: vec![EncodingMode::Korean],
             english_indicator,
             is_english: false,
             triple_big_english: false,
@@ -40,6 +57,28 @@ impl EncoderState {
             parenthesis_stack: Vec::new(),
             is_number: false,
             is_big_english: false,
+        }
+    }
+
+    /// Get the current encoding mode (top of stack, default Korean).
+    pub fn current_mode(&self) -> EncodingMode {
+        self.mode_stack
+            .last()
+            .copied()
+            .unwrap_or(EncodingMode::Korean)
+    }
+
+    /// Push a new encoding mode onto the stack.
+    pub fn push_mode(&mut self, mode: EncodingMode) {
+        self.mode_stack.push(mode);
+    }
+
+    /// Pop the current encoding mode, returning to the previous one.
+    pub fn pop_mode(&mut self) -> Option<EncodingMode> {
+        if self.mode_stack.len() > 1 {
+            self.mode_stack.pop()
+        } else {
+            None
         }
     }
 }

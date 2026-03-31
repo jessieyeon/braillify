@@ -75,11 +75,11 @@ impl TokenRule for MiddleDotSpacingRule {
         }
 
         if prev_text.contains('·') && prev_text.ends_with("를") && next_text.starts_with("샀") {
-            return Ok(TokenAction::Replace(Token::PreEncoded(vec![8, 8, 8, 0])));
+            return Ok(TokenAction::Replace(Token::PreEncoded(vec![0, 0, 0, 0])));
         }
 
         if next_text.contains('·') && !ends_with_particle(prev_text) {
-            return Ok(TokenAction::Replace(Token::PreEncoded(vec![8])));
+            return Ok(TokenAction::Replace(Token::PreEncoded(vec![0])));
         }
 
         if prev_text == "8·15"
@@ -88,7 +88,7 @@ impl TokenRule for MiddleDotSpacingRule {
                 .next()
                 .is_some_and(crate::utils::is_korean_char)
         {
-            return Ok(TokenAction::Replace(Token::PreEncoded(vec![8])));
+            return Ok(TokenAction::Replace(Token::PreEncoded(vec![0])));
         }
 
         Ok(TokenAction::Noop)

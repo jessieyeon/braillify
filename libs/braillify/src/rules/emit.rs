@@ -269,6 +269,7 @@ fn emit_word(
 
             // CoreEncoding via engine (encoder.rs:330-360)
             let mut core_state = EncoderState {
+                mode_stack: state.mode_stack.clone(),
                 is_english: state.is_english,
                 english_indicator: state.english_indicator,
                 triple_big_english: state.triple_big_english,
@@ -297,6 +298,7 @@ fn emit_word(
             state.has_processed_word = core_state.has_processed_word;
             state.needs_english_continuation = core_state.needs_english_continuation;
             state.parenthesis_stack = core_state.parenthesis_stack;
+            state.mode_stack = core_state.mode_stack;
             is_number = core_state.is_number;
             is_big_english = core_state.is_big_english;
 
@@ -310,6 +312,7 @@ fn emit_word(
                     jong: korean.jong,
                 });
                 let mut inter_state = EncoderState {
+                    mode_stack: state.mode_stack.clone(),
                     is_english: state.is_english,
                     english_indicator: state.english_indicator,
                     triple_big_english: state.triple_big_english,
@@ -338,6 +341,7 @@ fn emit_word(
                 state.has_processed_word = inter_state.has_processed_word;
                 state.needs_english_continuation = inter_state.needs_english_continuation;
                 state.parenthesis_stack = inter_state.parenthesis_stack;
+                state.mode_stack = inter_state.mode_stack;
                 is_number = inter_state.is_number;
                 is_big_english = inter_state.is_big_english;
             }
@@ -469,9 +473,6 @@ mod tests {
 
     fn make_token_engine() -> crate::rules::token_engine::TokenRuleEngine {
         let mut engine = crate::rules::token_engine::TokenRuleEngine::new();
-        engine.register(Box::new(
-            crate::rules::token_rules::solvable_case_override::SolvableCaseOverrideRule,
-        ));
         engine.register(Box::new(
             crate::rules::token_rules::normalize::NormalizeEllipsis,
         ));

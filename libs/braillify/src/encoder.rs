@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 
 use crate::rules;
+use crate::rules::context::EncodingMode;
 use crate::rules::token::{Token, WordMeta, WordToken};
 
 pub struct Encoder {
@@ -10,6 +11,7 @@ pub struct Encoder {
     has_processed_word: bool,
     pub(crate) needs_english_continuation: bool,
     parenthesis_stack: Vec<bool>,
+    default_mode: Option<EncodingMode>,
     rule_engine: rules::engine::RuleEngine,
     token_engine: rules::token_engine::TokenRuleEngine,
 }
@@ -29,12 +31,24 @@ impl Encoder {
 
         // ── CoreEncoding ─────────────────────────────────
         rule_engine.register(Box::new(rules::korean::rule_44::Rule44));
+        rule_engine.register(Box::new(rules::korean::rule_66::Rule66));
+        rule_engine.register(Box::new(rules::korean::rule_67::Rule67));
+        rule_engine.register(Box::new(rules::korean::rule_27::Rule27));
+        rule_engine.register(Box::new(rules::korean::rule_19::Rule19));
+        rule_engine.register(Box::new(rules::korean::rule_20::Rule20));
+        rule_engine.register(Box::new(rules::korean::rule_21::Rule21));
+        rule_engine.register(Box::new(rules::korean::rule_22::Rule22));
+        rule_engine.register(Box::new(rules::korean::rule_23::Rule23));
+        rule_engine.register(Box::new(rules::korean::rule_24::Rule24));
+        rule_engine.register(Box::new(rules::korean::rule_25::Rule25));
+        rule_engine.register(Box::new(rules::korean::rule_26::Rule26));
         rule_engine.register(Box::new(rules::korean::rule_16::Rule16));
         rule_engine.register(Box::new(rules::korean::rule_14::Rule14));
         rule_engine.register(Box::new(rules::korean::rule_13::Rule13));
         rule_engine.register(Box::new(rules::korean::rule_korean::RuleKorean));
         rule_engine.register(Box::new(rules::korean::rule_28::Rule28));
         rule_engine.register(Box::new(rules::korean::rule_40::Rule40));
+        rule_engine.register(Box::new(rules::korean::rule_31::Rule31));
         rule_engine.register(Box::new(rules::korean::rule_8::Rule8));
         rule_engine.register(Box::new(rules::korean::rule_2::Rule2));
         rule_engine.register(Box::new(rules::korean::rule_1::Rule1));
@@ -42,6 +56,12 @@ impl Encoder {
         rule_engine.register(Box::new(
             rules::korean::rule_english_symbol::RuleEnglishSymbol,
         ));
+        rule_engine.register(Box::new(rules::korean::rule_68::Rule68));
+        rule_engine.register(Box::new(rules::korean::rule_69::Rule69));
+        rule_engine.register(Box::new(rules::korean::rule_70::Rule70));
+        rule_engine.register(Box::new(rules::korean::rule_71::Rule71));
+        rule_engine.register(Box::new(rules::korean::rule_72::Rule72));
+        rule_engine.register(Box::new(rules::korean::rule_74::Rule74));
         rule_engine.register(Box::new(rules::korean::rule_61::Rule61));
         rule_engine.register(Box::new(rules::korean::rule_41::Rule41));
         rule_engine.register(Box::new(rules::korean::rule_56::Rule56));
@@ -61,7 +81,7 @@ impl Encoder {
 
         let mut token_engine = rules::token_engine::TokenRuleEngine::new();
         token_engine.register(Box::new(
-            rules::token_rules::solvable_case_override::SolvableCaseOverrideRule,
+            rules::token_rules::middle_korean_detector::MiddleKoreanDetectorRule,
         ));
         token_engine.register(Box::new(rules::token_rules::normalize::NormalizeEllipsis));
         token_engine.register(Box::new(rules::token_rules::latex_math::LatexMergeRule));
@@ -82,6 +102,9 @@ impl Encoder {
             rules::token_rules::word_shortcut::WordShortcutRule,
         ));
         token_engine.register(Box::new(
+            rules::token_rules::roman_numeral::RomanNumeralRule,
+        ));
+        token_engine.register(Box::new(
             rules::token_rules::uppercase_passage::UppercasePassageRule,
         ));
         token_engine.register(Box::new(
@@ -99,9 +122,14 @@ impl Encoder {
             has_processed_word: false,
             needs_english_continuation: false,
             parenthesis_stack: Vec::new(),
+            default_mode: None,
             rule_engine,
             token_engine,
         }
+    }
+
+    pub fn set_default_mode(&mut self, mode: EncodingMode) {
+        self.default_mode = Some(mode);
     }
 
     fn encode_via_ir(&mut self, text: &str, result: &mut Vec<u8>) -> Result<(), String> {
@@ -118,6 +146,14 @@ impl Encoder {
         F: FnOnce(&str, &mut Vec<Token<'_>>) -> Result<(), String>,
     {
         let mut ir = rules::token::DocumentIR::parse(text, self.english_indicator);
+
+        if let Some(mode) = self.default_mode
+            && mode != ir.state.current_mode()
+        {
+            while ir.state.pop_mode().is_some() {}
+            ir.state.push_mode(mode);
+        }
+
         let state_before_token_rules = ir.state.clone();
         self.token_engine.apply_all(&mut ir.tokens, &mut ir.state)?;
         ir.state = state_before_token_rules;

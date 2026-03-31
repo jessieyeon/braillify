@@ -65,6 +65,7 @@
   },
   {
     "input": "·",
+    "context": "math",
     "internal": "\"",
     "expected": "16",
     "unicode": "⠐",

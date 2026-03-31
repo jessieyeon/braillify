@@ -68,6 +68,10 @@ pub enum CharType {
 
 impl CharType {
     pub fn new(c: char) -> Result<Self, String> {
+        let code = c as u32;
+        if (0x2800..=0x28FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
         if c.is_ascii_alphabetic() {
             return Ok(Self::English(c));
         }
@@ -86,7 +90,6 @@ impl CharType {
         if is_unicode_fraction(c) {
             return Ok(Self::Fraction(c));
         }
-        let code = c as u32;
         if code == 0x0307 {
             return Ok(Self::CombiningMark);
         }
@@ -105,7 +108,10 @@ impl CharType {
         if code == 0x0332 {
             return Ok(Self::CombiningMark);
         }
-        if (0x3131..=0x3163).contains(&code) {
+        if (0x0300..=0x036F).contains(&code) {
+            return Ok(Self::CombiningMark);
+        }
+        if (0x3131..=0x318E).contains(&code) {
             return Ok(Self::KoreanPart(c));
         }
         // if !(0xAC00 <= code && code <= 0xD7A3) {
@@ -120,6 +126,112 @@ impl CharType {
         // LaTeX delimiters — treat as symbols so partial LaTeX tokens
         // don't cause "Invalid character" errors
         if c == '$' || c == '\\' {
+            return Ok(Self::Symbol(c));
+        }
+
+        // Old Hangul Jamo (initial consonants, medial vowels, final consonants)
+        if (0x1100..=0x115F).contains(&code)
+            || (0x1160..=0x11A7).contains(&code)
+            || (0x11A8..=0x11FF).contains(&code)
+        {
+            return Ok(Self::KoreanPart(c));
+        }
+        // Hangul Jamo Extended-A (old initial consonants)
+        if (0xA960..=0xA97C).contains(&code) {
+            return Ok(Self::KoreanPart(c));
+        }
+        // Hangul Jamo Extended-B (old medial vowels + old final consonants)
+        if (0xD7B0..=0xD7C6).contains(&code) || (0xD7CB..=0xD7FB).contains(&code) {
+            return Ok(Self::KoreanPart(c));
+        }
+        // Extended Hangul Compatibility Jamo (ㆍ, ㆎ, ㆇ-ㆌ, etc.)
+        // Current range is 0x3131-0x318E, extend to cover 0x318F-0x319F and 0x3200-0x321E
+        if (0x318F..=0x319F).contains(&code) {
+            return Ok(Self::KoreanPart(c));
+        }
+        // CJK Unified Ideographs (字, 君, 洪, 侵, 斗, 虛, 後, 狄, 人, 位, 烽, 火, 孟, 子, 禽, etc.)
+        if (0x4E00..=0x9FFF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // CJK Extension A
+        if (0x3400..=0x4DBF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // IPA Extensions
+        if (0x0250..=0x02AF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Spacing Modifier Letters (ː for IPA long vowel mark etc.)
+        if (0x02B0..=0x02FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Latin Extended Additional (for accented characters in IPA contexts)
+        if (0x1E00..=0x1EFF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Latin Extended-A and B (for ŋ, ə, ɛ, etc. used in IPA)
+        if (0x0100..=0x024F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Latin-1 Supplement (for ·, ×, ÷, etc. - middle dot at 0x00B7 is important for 방점)
+        if (0x00A0..=0x00FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Greek and Coptic (θ for IPA, already partly handled via is_symbol_char, but ensure coverage)
+        if (0x0370..=0x03FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Fullwidth Forms (：fullwidth colon at U+FF1A for 상성)
+        if (0xFF00..=0xFFEF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // General Punctuation (various dashes, quotes, etc.)
+        if (0x2000..=0x206F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Letterlike Symbols
+        if (0x2100..=0x214F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Enclosed CJK Letters and Months
+        if (0x3200..=0x32FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // CJK Compatibility
+        if (0x3300..=0x33FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Supplemental Punctuation
+        if (0x2E00..=0x2E7F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // CJK Symbols and Punctuation
+        if (0x3000..=0x303F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Geometric Shapes (◇, ◆, ▷, ◁, etc.)
+        if (0x25A0..=0x25FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Miscellaneous Symbols
+        if (0x2600..=0x26FF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Hangul syllables in the OLD range (U+D7A4-U+D7AF is gap between modern and extended-B)
+        // Already handled by 0xAC00-0xD7A3 check above
+        // Korean Unified Ideographic characters (supplement)
+        if (0xF900..=0xFAFF).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // CJK Unified Ideographs Extension B-F and related supplementary planes
+        if (0x20000..=0x2EBEF).contains(&code) || (0x2F800..=0x2FA1F).contains(&code) {
+            return Ok(Self::Symbol(c));
+        }
+        // Private Use Area (legacy Hangul glyphs in historical corpora)
+        if (0xE000..=0xF8FF).contains(&code)
+            || (0xF0000..=0xFFFFD).contains(&code)
+            || (0x100000..=0x10FFFD).contains(&code)
+        {
             return Ok(Self::Symbol(c));
         }
         Err("Invalid character".to_string())
@@ -166,7 +278,7 @@ mod test {
                 }
                 CharType::KoreanPart(ch) => {
                     let code = ch as u32;
-                    assert!(0x3131 <= code && code <= 0x3163);
+                    assert!((0x3131..=0x318E).contains(&code));
                 }
                 CharType::English(ch) => {
                     assert!(ch.is_ascii_alphabetic());
@@ -175,7 +287,37 @@ mod test {
                     assert!(ch.is_ascii_digit());
                 }
                 CharType::Symbol(ch) => {
-                    assert!(is_symbol_char(ch) || ch == '$' || ch == '\\' || ch == '□');
+                    let code = ch as u32;
+                    assert!(
+                        is_symbol_char(ch)
+                        || ch == '$'
+                        || ch == '\\'
+                        || ch == '□'
+                        || (0x2800..=0x28FF).contains(&code)   // braille patterns
+                        || (0x4E00..=0x9FFF).contains(&code)   // CJK
+                        || (0x3400..=0x4DBF).contains(&code)   // CJK Ext A
+                        || (0x0250..=0x02AF).contains(&code)   // IPA
+                        || (0x02B0..=0x02FF).contains(&code)   // Spacing modifiers
+                        || (0x1E00..=0x1EFF).contains(&code)   // Latin Extended Additional
+                        || (0x0100..=0x024F).contains(&code)   // Latin Extended A/B
+                        || (0x00A0..=0x00FF).contains(&code)   // Latin-1 Supplement
+                        || (0x0370..=0x03FF).contains(&code)   // Greek
+                        || (0xFF00..=0xFFEF).contains(&code)   // Fullwidth
+                        || (0x2000..=0x206F).contains(&code)   // General Punctuation
+                        || (0x2100..=0x214F).contains(&code)   // Letterlike
+                        || (0x3200..=0x32FF).contains(&code)   // Enclosed CJK
+                        || (0x3300..=0x33FF).contains(&code)   // CJK Compat
+                        || (0x2E00..=0x2E7F).contains(&code)   // Supplemental Punct
+                        || (0x25A0..=0x25FF).contains(&code)   // Geometric Shapes
+                        || (0x2600..=0x26FF).contains(&code)   // Misc Symbols
+                        || (0xF900..=0xFAFF).contains(&code)   // CJK Compat Ideographs
+                        || (0x3000..=0x303F).contains(&code)   // CJK Symbols
+                        || (0x20000..=0x2EBEF).contains(&code) // CJK Supplementary
+                        || (0x2F800..=0x2FA1F).contains(&code) // CJK Compat Supplement
+                        || (0xE000..=0xF8FF).contains(&code)   // PUA
+                        || (0xF0000..=0xFFFFD).contains(&code) // Supplementary PUA-A
+                        || (0x100000..=0x10FFFD).contains(&code) // Supplementary PUA-B
+                    );
                 }
                 CharType::MathSymbol(ch) => {
                     assert!(is_math_symbol_char(ch));

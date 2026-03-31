@@ -1,6 +1,7 @@
 [
   {
     "input": "I",
+    "context": "roman_numeral",
     "internal": "0,i4",
     "expected": "52321050",
     "unicode": "⠴⠠⠊⠲",
@@ -9,6 +10,7 @@
   },
   {
     "input": "II",
+    "context": "roman_numeral",
     "internal": "0,,ii4",
     "expected": "523232101050",
     "unicode": "⠴⠠⠠⠊⠊⠲",
@@ -17,6 +19,7 @@
   },
   {
     "input": "III",
+    "context": "roman_numeral",
     "internal": "0,,iii4",
     "expected": "52323210101050",
     "unicode": "⠴⠠⠠⠊⠊⠊⠲",

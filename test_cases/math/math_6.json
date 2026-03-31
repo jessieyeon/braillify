@@ -1,6 +1,7 @@
 [
   {
     "input": "(",
+    "context": "math_bracket_open",
     "note": "소괄호 열기",
     "internal": "8",
     "expected": "38",
@@ -10,6 +11,7 @@
   },
   {
     "input": ")",
+    "context": "math_bracket_close",
     "note": "소괄호 닫기",
     "internal": "0",
     "expected": "52",
@@ -19,6 +21,7 @@
   },
   {
     "input": "{",
+    "context": "math_bracket_open",
     "note": "중괄호 열기",
     "internal": "7",
     "expected": "54",
@@ -28,6 +31,7 @@
   },
   {
     "input": "}",
+    "context": "math_bracket_close",
     "note": "중괄호 닫기",
     "internal": "7",
     "expected": "54",
@@ -37,6 +41,7 @@
   },
   {
     "input": "[",
+    "context": "math_bracket_open",
     "note": "대괄호 열기",
     "internal": "('",
     "expected": "554",
@@ -46,6 +51,7 @@
   },
   {
     "input": "]",
+    "context": "math_bracket_close",
     "note": "대괄호 닫기",
     "internal": ",)",
     "expected": "3262",
@@ -55,6 +61,7 @@
   },
   {
     "input": "{",
+    "context": "math_system_bracket_open",
     "note": "연립식 괄호 열기",
     "internal": "7'",
     "expected": "544",
@@ -64,6 +71,7 @@
   },
   {
     "input": "}",
+    "context": "math_system_bracket_close",
     "note": "연립식 괄호 닫기",
     "internal": ",7",
     "expected": "3254",
@@ -97,6 +105,7 @@
   },
   {
     "input": "(",
+    "context": "math_group_open",
     "note": "묶음 괄호 열기",
     "internal": "(",
     "expected": "55",
@@ -106,6 +115,7 @@
   },
   {
     "input": ")",
+    "context": "math_group_close",
     "note": "묶음 괄호 닫기",
     "internal": ")",
     "expected": "62",

@@ -131,6 +131,7 @@
   },
   {
     "input": "□",
+    "context": "math",
     "internal": "_7",
     "expected": "5654",
     "unicode": "⠸⠶",
