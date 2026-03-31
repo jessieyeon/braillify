@@ -7,11 +7,9 @@ import { TestStatus } from '@/types'
 import { TestCaseDisplayBoundary } from '../TestCaseDisplayBoundary'
 
 function CompetitorCell({
-  label,
   value,
   isSuccess,
 }: {
-  label: string
   value: string
   isSuccess: boolean
 }) {
@@ -59,80 +57,47 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
               jeomsarangIsSuccess,
             ],
             index,
-          ) => (
-            <TestCaseDisplayBoundary
-              key={index}
-              option="failedOnly"
-              value={Number(!isSuccess)}
-            >
-              <Tr
-                key={index + 'desktop'}
+          ) => {
+            const testCaseKey = [
+              text,
+              note ?? '',
+              expected,
+              actual,
+              world,
+              jeomsarang,
+            ].join('::')
+
+            return (
+              <TestCaseDisplayBoundary
+                key={testCaseKey}
+                option="failedOnly"
+                value={Number(!isSuccess)}
+              >
+                <Tr
+                  key={`${testCaseKey}-desktop`}
                 className={css({
                   bg: isSuccess ? 'unset' : '#D8D8D8',
                   display: ['none', null, null, 'table-row'],
                 })}
                 data-responsive="desktop"
-              >
-                <Td>{index + 1}</Td>
-                <Td>
-                  {text}
-                  {note ? ` (${note})` : null}
-                </Td>
-                <Td>{expected}</Td>
-                <Td>{actual}</Td>
-                <Td
-                  className={css({
-                    color: isSuccess ? '$success' : '$error',
-                    textAlign: 'center',
-                  })}
                 >
-                  <Flex alignItems="center" gap="4px">
-                    <Text whiteSpace="nowrap">
-                      {isSuccess ? '성공' : '실패'}
-                    </Text>
-                    <Image
-                      alt={isSuccess ? 'success' : 'error'}
-                      boxSize="24px"
-                      src={
-                        isSuccess
-                          ? '/images/test-case/success.svg'
-                          : '/images/test-case/error.svg'
-                      }
-                    />
-                  </Flex>
-                </Td>
-                <Td>
-                  <CompetitorCell
-                    isSuccess={worldIsSuccess}
-                    label="점자세상"
-                    value={world}
-                  />
-                </Td>
-                <Td>
-                  <CompetitorCell
-                    isSuccess={jeomsarangIsSuccess}
-                    label="점사랑"
-                    value={jeomsarang}
-                  />
-                </Td>
-              </Tr>
-              <Tr
-                key={index + 'mobile'}
-                className={css({
-                  bg: isSuccess ? 'unset' : '#D8D8D8',
-                  display: ['table-row', null, null, 'none'],
-                })}
-                data-responsive="mobile"
-              >
-                <Td className={css({ pb: '16px', pt: '10px' })}>
-                  <VStack gap="8px">
-                    <Flex
-                      alignItems="center"
-                      gap="4px"
-                      justifyContent="space-between"
-                      px="10px"
-                    >
-                      <Text>{index + 1}</Text>
+                  <Td>{index + 1}</Td>
+                  <Td>
+                    {text}
+                    {note ? ` (${note})` : null}
+                  </Td>
+                  <Td>{expected}</Td>
+                  <Td>{actual}</Td>
+                  <Td
+                    className={css({
+                      color: isSuccess ? '$success' : '$error',
+                      textAlign: 'center',
+                    })}
+                  >
+                    <Flex alignItems="center" gap="4px">
+                      <Text whiteSpace="nowrap">
+                        {isSuccess ? '성공' : '실패'}
+                      </Text>
                       <Image
                         alt={isSuccess ? 'success' : 'error'}
                         boxSize="24px"
@@ -143,52 +108,94 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                         }
                       />
                     </Flex>
-                    <Flex alignItems="center" gap="10px" px="10px">
-                      <Text typography="bodyBold">예문</Text>
-                      <Text>
-                        {text}
-                        {note ? ` (${note})` : null}
-                      </Text>
-                    </Flex>
-                    <Flex alignItems="center" gap="10px" px="10px">
-                      <Text typography="bodyBold">정답</Text>
-                      <Text>{expected}</Text>
-                    </Flex>
-                    <Flex alignItems="center" gap="10px" px="10px">
-                      <Text typography="bodyBold">결과</Text>
-                      <Text>{actual}</Text>
-                    </Flex>
-                    {world ? (
+                  </Td>
+                  <Td>
+                    <CompetitorCell
+                      isSuccess={worldIsSuccess}
+                      value={world}
+                    />
+                  </Td>
+                  <Td>
+                    <CompetitorCell
+                      isSuccess={jeomsarangIsSuccess}
+                      value={jeomsarang}
+                    />
+                  </Td>
+                </Tr>
+                <Tr
+                  key={`${testCaseKey}-mobile`}
+                className={css({
+                  bg: isSuccess ? 'unset' : '#D8D8D8',
+                  display: ['table-row', null, null, 'none'],
+                })}
+                data-responsive="mobile"
+                >
+                  <Td className={css({ pb: '16px', pt: '10px' })}>
+                    <VStack gap="8px">
+                      <Flex
+                        alignItems="center"
+                        gap="4px"
+                        justifyContent="space-between"
+                        px="10px"
+                      >
+                        <Text>{index + 1}</Text>
+                        <Image
+                          alt={isSuccess ? 'success' : 'error'}
+                          boxSize="24px"
+                          src={
+                            isSuccess
+                              ? '/images/test-case/success.svg'
+                              : '/images/test-case/error.svg'
+                          }
+                        />
+                      </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">점자세상</Text>
-                        <Text
-                          className={css({
-                            color: worldIsSuccess ? '$success' : '$error',
-                          })}
-                        >
-                          {worldIsSuccess ? '일치' : '불일치'}
+                        <Text typography="bodyBold">예문</Text>
+                        <Text>
+                          {text}
+                          {note ? ` (${note})` : null}
                         </Text>
                       </Flex>
-                    ) : null}
-                    {jeomsarang ? (
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">점사랑</Text>
-                        <Text
-                          className={css({
-                            color: jeomsarangIsSuccess
-                              ? '$success'
-                              : '$error',
-                          })}
-                        >
-                          {jeomsarangIsSuccess ? '일치' : '불일치'}
-                        </Text>
+                        <Text typography="bodyBold">정답</Text>
+                        <Text>{expected}</Text>
                       </Flex>
-                    ) : null}
-                  </VStack>
-                </Td>
-              </Tr>
-            </TestCaseDisplayBoundary>
-          ),
+                      <Flex alignItems="center" gap="10px" px="10px">
+                        <Text typography="bodyBold">결과</Text>
+                        <Text>{actual}</Text>
+                      </Flex>
+                      {world ? (
+                        <Flex alignItems="center" gap="10px" px="10px">
+                          <Text typography="bodyBold">점자세상</Text>
+                          <Text
+                            className={css({
+                              color: worldIsSuccess ? '$success' : '$error',
+                            })}
+                          >
+                            {worldIsSuccess ? '일치' : '불일치'}
+                          </Text>
+                        </Flex>
+                      ) : null}
+                      {jeomsarang ? (
+                        <Flex alignItems="center" gap="10px" px="10px">
+                          <Text typography="bodyBold">점사랑</Text>
+                          <Text
+                            className={css({
+                              color: jeomsarangIsSuccess
+                                ? '$success'
+                                : '$error',
+                            })}
+                          >
+                            {jeomsarangIsSuccess ? '일치' : '불일치'}
+                          </Text>
+                        </Flex>
+                      ) : null}
+                    </VStack>
+                  </Td>
+                </Tr>
+              </TestCaseDisplayBoundary>
+            )
+          },
         )}
       </Tbody>
     </Table>

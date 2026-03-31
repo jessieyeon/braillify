@@ -1,6 +1,8 @@
 import { Box } from '@devup-ui/react'
 import { ComponentProps } from 'react'
 
+import { MIDDLE_KOREAN_FONT_FAMILY } from '@/constants/font'
+
 export function Table(props: ComponentProps<typeof Box<'table'>>) {
   return (
     <Box
@@ -87,6 +89,7 @@ export function Td({
             borderTop: 'solid 1px #2B2B2B',
           },
       }}
+      fontFamily={MIDDLE_KOREAN_FONT_FAMILY}
       styleOrder={1}
       typography={typography}
       wordBreak="break-all"
