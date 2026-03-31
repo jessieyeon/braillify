@@ -14,6 +14,17 @@ fn single_numeric(content: &[MathToken]) -> Option<String> {
     }
 }
 
+fn prev_non_space(tokens: &[MathToken], mut idx: usize) -> Option<&MathToken> {
+    while idx > 0 {
+        idx -= 1;
+        let token = tokens.get(idx)?;
+        if !matches!(token, MathToken::Space) {
+            return Some(token);
+        }
+    }
+    None
+}
+
 fn is_plain_numeric_subscript(content: &[MathToken]) -> bool {
     content
         .iter()
@@ -63,6 +74,17 @@ pub fn encode_subscript(
         return Ok(true);
     }
 
+    if let Some(base) = single_numeric(content)
+        && matches!(prev_non_space(tokens, *i), Some(MathToken::Number(_)))
+    {
+        result.push(48);
+        result.push(38);
+        rule_1::encode_number_literal(&base, result);
+        result.push(52);
+        *i += 1;
+        return Ok(false);
+    }
+
     result.push(48);
     if should_group_subscript(content) {
         result.push(55);
@@ -83,6 +105,27 @@ pub fn encode_subscript(
     }
     *i += 1;
     Ok(false)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::encoder::encode_math_expression;
+
+    #[test]
+    fn encodes_number_base_notation_without_explicit_subscript_parentheses() {
+        assert_eq!(
+            encode_math_expression("1010₂").expect("math encoding should succeed"),
+            vec![60, 1, 26, 1, 26, 48, 38, 60, 3, 52]
+        );
+    }
+
+    #[test]
+    fn encodes_number_base_notation_with_explicit_subscript_parentheses() {
+        assert_eq!(
+            encode_math_expression("1101₍₂₎").expect("math encoding should succeed"),
+            vec![60, 1, 1, 26, 1, 48, 38, 60, 3, 52]
+        );
+    }
 }
 
 pub struct SubscriptRule;

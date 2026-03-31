@@ -68,7 +68,7 @@ fn is_middle_dot_numeric_word(chars: &[char]) -> bool {
         .all(|c| c.is_ascii_digit() || matches!(*c, '\u{00B7}' | '\u{22C5}' | '\u{2212}' | '-'))
 }
 
-fn has_adjacent_korean_word(tokens: &[Token<'_>], index: usize) -> bool {
+fn adjacent_korean_word_flags(tokens: &[Token<'_>], index: usize) -> (bool, bool) {
     let prev_has_korean = index
         .checked_sub(1)
         .and_then(|mut i| {
@@ -95,6 +95,11 @@ fn has_adjacent_korean_word(tokens: &[Token<'_>], index: usize) -> bool {
         }
     };
 
+    (prev_has_korean, next_has_korean)
+}
+
+fn has_adjacent_korean_word(tokens: &[Token<'_>], index: usize) -> bool {
+    let (prev_has_korean, next_has_korean) = adjacent_korean_word_flags(tokens, index);
     prev_has_korean || next_has_korean
 }
 
@@ -130,6 +135,37 @@ fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
         || has_superscript
         || has_subscript
         || has_combining_mark
+}
+
+fn should_wrap_math_sentence(chars: &[char], text: &str) -> bool {
+    if chars.len() <= 1 {
+        return false;
+    }
+
+    let has_letters = chars.iter().any(|c| c.is_ascii_alphabetic());
+    let has_digits = chars.iter().any(|c| c.is_ascii_digit());
+    let has_math_symbol = chars
+        .iter()
+        .any(|c| math_symbol_shortcut::is_math_symbol_char(*c));
+    let has_superscript = chars.iter().any(|c| is_superscript(*c));
+    let has_subscript = chars.iter().any(|c| is_subscript(*c));
+    let has_combining_mark = chars.iter().any(|c| is_combining_math_mark(*c));
+    let has_math_operator = chars.iter().any(|c| {
+        matches!(
+            c,
+            '+' | '=' | '>' | '<' | '.' | ',' | '-' | '\u{2212}' | '/' | '!'
+        )
+    });
+    let has_brackets = chars
+        .iter()
+        .any(|c| matches!(c, '(' | ')' | '[' | ']' | '{' | '}'));
+
+    is_strong_mixed_math_candidate(chars, text)
+        || (has_digits && (has_math_operator || has_math_symbol || has_brackets))
+        || (has_letters && has_digits)
+        || (has_letters && has_brackets)
+        || (has_letters && has_math_operator)
+        || (has_superscript || has_subscript || has_combining_mark)
 }
 
 fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
@@ -247,14 +283,14 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         .first()
         .is_some_and(|c| math_symbol_shortcut::is_math_symbol_char(*c));
 
-    // Number-base notation like 1010₂ should not be treated as generic math expression.
+    // Number-base notation like 1010₂ is a math expression and should use the math engine.
     if chars.first().is_some_and(|c| c.is_ascii_digit())
         && chars.iter().any(|c| matches!(*c, '\u{2080}'..='\u{2089}'))
         && chars
             .iter()
             .all(|c| c.is_ascii_digit() || matches!(*c, '\u{2080}'..='\u{2089}'))
     {
-        return false;
+        return true;
     }
 
     // Common phone/date/range tokens like 02-799-1000 should stay non-math.
@@ -577,7 +613,25 @@ impl TokenRule for MathExpressionTokenRule {
 
         // Try to encode via math engine
         match math::encoder::encode_math_expression(text) {
-            Ok(bytes) => Ok(TokenAction::Replace(Token::PreEncoded(bytes))),
+            Ok(bytes) => {
+                let (prev_has_korean, next_has_korean) = adjacent_korean_word_flags(tokens, index);
+                let should_wrap = should_wrap_math_sentence(&word.chars, text);
+                let mut wrapped = Vec::with_capacity(
+                    bytes.len()
+                        + usize::from(prev_has_korean && should_wrap)
+                        + usize::from(next_has_korean && should_wrap),
+                );
+
+                if prev_has_korean && should_wrap {
+                    wrapped.push(0);
+                }
+                wrapped.extend_from_slice(&bytes);
+                if next_has_korean && should_wrap {
+                    wrapped.push(0);
+                }
+
+                Ok(TokenAction::Replace(Token::PreEncoded(wrapped)))
+            }
             Err(_) => {
                 // If math encoding fails, let the character-level rules handle it
                 Ok(TokenAction::Noop)
@@ -677,6 +731,12 @@ mod tests {
     fn test_is_math_unicode_fraction_char() {
         let chars: Vec<char> = "⅔".chars().collect();
         assert!(is_math_expression(&chars, "⅔"));
+    }
+
+    #[test]
+    fn test_is_math_base_notation() {
+        let chars: Vec<char> = "1010₂".chars().collect();
+        assert!(is_math_expression(&chars, "1010₂"));
     }
 
     #[test]
