@@ -7,8 +7,9 @@
 use crate::math_symbol_shortcut;
 use crate::rules::context::EncoderState;
 use crate::rules::math;
-use crate::rules::token::Token;
+use crate::rules::token::{Token, WordMeta, WordToken};
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
+use std::borrow::Cow;
 
 pub struct MathExpressionTokenRule;
 
@@ -95,6 +96,103 @@ fn has_adjacent_korean_word(tokens: &[Token<'_>], index: usize) -> bool {
     };
 
     prev_has_korean || next_has_korean
+}
+
+fn is_korean_char(c: char) -> bool {
+    let code = c as u32;
+    (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code)
+}
+
+fn build_word_token(text: String) -> Token<'static> {
+    let chars: Vec<char> = text.chars().collect();
+    Token::Word(WordToken {
+        text: Cow::Owned(text),
+        chars: chars.clone(),
+        meta: WordMeta::from_chars(&chars),
+    })
+}
+
+fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
+    if chars.len() <= 1 {
+        return false;
+    }
+
+    let has_superscript = chars.iter().any(|c| is_superscript(*c));
+    let has_subscript = chars.iter().any(|c| is_subscript(*c));
+    let has_combining_mark = chars.iter().any(|c| is_combining_math_mark(*c));
+    let starts_with_function = math::function::starts_with_function(text);
+    let starts_with_root = chars.first() == Some(&'√');
+    let is_absolute_value_form = chars.first() == Some(&'|') && chars.last() == Some(&'|');
+
+    starts_with_function
+        || starts_with_root
+        || is_absolute_value_form
+        || has_superscript
+        || has_subscript
+        || has_combining_mark
+}
+
+fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
+    if chars.is_empty() || chars.iter().any(|c| is_korean_char(*c)) {
+        return None;
+    }
+
+    let text: String = chars.iter().collect();
+    if !is_strong_mixed_math_candidate(chars, &text) {
+        return None;
+    }
+    if !is_math_expression(chars, &text) {
+        return None;
+    }
+
+    math::encoder::encode_math_expression(&text).ok()
+}
+
+fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char]) -> Option<Vec<u8>> {
+    if let Some(bytes) = try_encode_math_slice(prefix) {
+        let text: String = prefix.iter().collect();
+        if !suffix.is_empty()
+            && suffix.iter().all(|c| is_korean_char(*c))
+            && math::rule_46::is_trig_function(&text)
+        {
+            return math::encoder::encode_math_expression(&format!("{text}x")).ok();
+        }
+        return Some(bytes);
+    }
+
+    None
+}
+
+fn split_mixed_math_word(
+    word: &crate::rules::token::WordToken<'_>,
+    leading_delimiter_len: usize,
+) -> Option<Vec<Token<'static>>> {
+    if !word.meta.has_korean || word.chars.iter().all(|c| is_korean_char(*c)) {
+        return None;
+    }
+
+    let chars = &word.chars;
+    let len = chars.len();
+
+    for end in (1..=len).rev() {
+        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..]) else {
+            continue;
+        };
+
+        if end == len {
+            return None;
+        }
+
+        let suffix: String = chars[end..].iter().collect();
+        return Some(vec![
+            Token::PreEncoded(vec![0; leading_delimiter_len]),
+            Token::PreEncoded(bytes),
+            Token::PreEncoded(vec![0, 0]),
+            build_word_token(suffix),
+        ]);
+    }
+
+    None
 }
 
 /// Check if a word is a math expression.
@@ -465,6 +563,15 @@ impl TokenRule for MathExpressionTokenRule {
         }
 
         if !is_math_expression(&word.chars, text) {
+            let leading_delimiter_len =
+                if matches!(tokens.get(index.saturating_sub(1)), Some(Token::Space(_))) {
+                    1
+                } else {
+                    2
+                };
+            if let Some(replacement) = split_mixed_math_word(word, leading_delimiter_len) {
+                return Ok(TokenAction::ReplaceMany(replacement));
+            }
             return Ok(TokenAction::Noop);
         }
 
@@ -482,6 +589,8 @@ impl TokenRule for MathExpressionTokenRule {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rules::token::WordMeta;
+    use std::borrow::Cow;
 
     #[test]
     fn test_is_math_with_operator() {
@@ -568,5 +677,33 @@ mod tests {
     fn test_is_math_unicode_fraction_char() {
         let chars: Vec<char> = "⅔".chars().collect();
         assert!(is_math_expression(&chars, "⅔"));
+    }
+
+    #[test]
+    fn split_mixed_math_word_extracts_math_prefix() {
+        let chars: Vec<char> = "tan의".chars().collect();
+        let word = crate::rules::token::WordToken {
+            text: Cow::Borrowed("tan의"),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        };
+
+        let replacement = split_mixed_math_word(&word, 2).expect("expected split");
+        assert!(matches!(replacement[0], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
+        assert!(matches!(replacement[1], Token::PreEncoded(_)));
+        assert!(matches!(replacement[2], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
+        assert!(matches!(&replacement[3], Token::Word(w) if w.text == "의"));
+    }
+
+    #[test]
+    fn split_mixed_math_word_keeps_plain_mixed_english_korean() {
+        let chars: Vec<char> = "ATM에서".chars().collect();
+        let word = crate::rules::token::WordToken {
+            text: Cow::Borrowed("ATM에서"),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        };
+
+        assert!(split_mixed_math_word(&word, 2).is_none());
     }
 }

@@ -35,6 +35,8 @@ pub mod rule_57; // 제57항: placeholder symbol grouping (○×△☆◇◆)
 pub mod rule_58; // 제58항: blank marks (□)
 pub mod rule_60; // 제60항: asterisk (*) spacing
 pub mod rule_61; // 제61항: apostrophe (') before numbers
+pub mod rule_64; // 제64항: enclosed/circled symbols
+pub mod rule_65; // 제65항: currency symbols
 pub mod rule_english_symbol; // English-context punctuation rendering
 
 // ── Other ───────────────────────────────────────────────

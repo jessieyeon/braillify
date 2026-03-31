@@ -5,8 +5,6 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::math_symbol_shortcut;
-
     fn is_segment_overline(c: char) -> bool {
         matches!(c, '\u{0304}' | '\u{0305}')
     }

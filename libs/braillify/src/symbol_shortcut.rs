@@ -68,6 +68,8 @@ pub fn encode_char_symbol_shortcut(text: char) -> Result<&'static [u8], String> 
 
 pub fn is_symbol_char(text: char) -> bool {
     SHORTCUT_MAP.contains_key(&text)
+        || crate::rules::korean::rule_64::is_enclosed_symbol(text)
+        || crate::rules::korean::rule_65::is_currency_symbol(text)
 }
 
 pub fn encode_english_char_symbol_shortcut(text: char) -> Option<&'static [u8]> {
@@ -100,6 +102,9 @@ mod test {
         assert!(is_symbol_char(')'));
         assert!(is_symbol_char('{'));
         assert!(is_symbol_char('}'));
+        assert!(is_symbol_char('①'));
+        assert!(is_symbol_char('ⓐ'));
+        assert!(is_symbol_char('￦'));
     }
 
     #[test]

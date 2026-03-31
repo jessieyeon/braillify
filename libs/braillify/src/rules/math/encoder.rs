@@ -10,12 +10,22 @@ use super::{
     rule_12, rule_13, rule_14, rule_15, rule_16, rule_17, rule_18, rule_19, rule_20, rule_21,
     rule_22, rule_23, rule_24, rule_25, rule_26, rule_27, rule_28, rule_29, rule_30, rule_31,
     rule_32, rule_33, rule_36, rule_37, rule_38, rule_39, rule_40, rule_41, rule_42, rule_43,
-    rule_44, rule_47, rule_50, rule_52, rule_53, rule_54, rule_55, rule_56, rule_58, rule_59,
-    rule_60, rule_61, rule_65,
+    rule_44, rule_47, rule_50, rule_52, rule_53, rule_54, rule_55, rule_56, rule_57, rule_58,
+    rule_59, rule_60, rule_61, rule_65,
 };
 use crate::math_symbol_shortcut;
 
 struct DigitSeparatorRule;
+
+fn encode_generic_math_symbol(
+    c: char,
+    _is_direct_shortcut_symbol: bool,
+    result: &mut Vec<u8>,
+) -> Result<(), String> {
+    let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(c)?;
+    result.extend_from_slice(encoded);
+    Ok(())
+}
 
 impl MathTokenRule for DigitSeparatorRule {
     fn name(&self) -> &'static str {
@@ -327,18 +337,14 @@ impl MathTokenRule for MathSymbolRule {
             rule_59::encode_contour_integral(*c, result)?;
         } else if rule_65::is_therefore_because(*c) {
             rule_65::encode_therefore_because(*c, result)?;
-        } else if rule_11::is_math_sentence_delimiter(*c)
-            || rule_16::is_base_notation_subscript(*c)
-            || rule_22::is_root_symbol(*c)
-            || rule_60::is_set_symbol(*c)
-            || rule_61::is_logic_symbol(*c)
-            || super::rule_64::is_hat_notation(*c)
-        {
-            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
-            result.extend_from_slice(encoded);
         } else {
-            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
-            result.extend_from_slice(encoded);
+            let is_direct_shortcut_symbol = rule_11::is_math_sentence_delimiter(*c)
+                || rule_16::is_base_notation_subscript(*c)
+                || rule_22::is_root_symbol(*c)
+                || rule_60::is_set_symbol(*c)
+                || rule_61::is_logic_symbol(*c)
+                || super::rule_64::is_hat_notation(*c);
+            encode_generic_math_symbol(*c, is_direct_shortcut_symbol, result)?;
         }
 
         if (matches!(*c, '\u{2234}' | '\u{2235}')
@@ -390,6 +396,8 @@ fn build_math_engine() -> MathTokenEngine {
     engine.register(Box::new(rule_7::ConditionalProbFractionRule));
     engine.register(Box::new(rule_7::FractionReversalRule));
     engine.register(Box::new(rule_12::CombinatoricsRule));
+    engine.register(Box::new(rule_54::PartialDerivativeFractionRule));
+    engine.register(Box::new(rule_57::DefiniteIntegralRule));
 
     // Priority 50 — core token rules
     engine.register(Box::new(rule_1::NumberRule));

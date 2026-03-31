@@ -48,6 +48,8 @@ impl Encoder {
         rule_engine.register(Box::new(rules::korean::rule_57::Rule57));
         rule_engine.register(Box::new(rules::korean::rule_58::Rule58));
         rule_engine.register(Box::new(rules::korean::rule_60::Rule60));
+        rule_engine.register(Box::new(rules::korean::rule_64::Rule64));
+        rule_engine.register(Box::new(rules::korean::rule_65::Rule65));
         rule_engine.register(Box::new(rules::korean::rule_49::Rule49));
         rule_engine.register(Box::new(rules::korean::rule_space::RuleSpace));
         rule_engine.register(Box::new(rules::korean::rule_math::RuleMath));

@@ -54,6 +54,22 @@ pub fn encode_superscript(
         return Ok(true);
     }
 
+    if *i >= 2
+        && matches!(tokens.get(*i - 1), Some(MathToken::Subscript(_)))
+        && matches!(
+            tokens.get(*i - 2),
+            Some(MathToken::CloseParen(BracketKind::Square))
+        )
+    {
+        result.push(0);
+        engine.encode_tokens(content, result)?;
+        if !matches!(tokens.get(*i + 1), Some(MathToken::Space) | None) {
+            result.push(0);
+        }
+        *i += 1;
+        return Ok(true);
+    }
+
     if matches!(tokens.get(*i + 1), Some(MathToken::MathSymbol('\u{221A}'))) {
         if content.len() > 1 {
             result.push(55);
