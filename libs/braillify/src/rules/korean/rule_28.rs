@@ -147,30 +147,27 @@ impl BrailleRule for Rule28 {
             return Ok(RuleResult::Consumed);
         }
 
-        let allow_10_6 = !ctx.is_all_uppercase
-            && !be_boundary_non_alpha
-            && !in_boundary_non_alpha
-            && !(is_whole_lowercase_word && matches!(remaining.as_str(), "be" | "in"));
-        let allow_10_4_entry = !ctx.is_all_uppercase
-            && !in_boundary_non_alpha
-            && !(is_whole_lowercase_word && remaining == "in");
-        let allow_10_4_cont = !in_boundary_non_alpha
-            && !(is_whole_lowercase_word && remaining == "in");
+        let allow_10_6 = !(ctx.is_all_uppercase
+            || be_boundary_non_alpha
+            || in_boundary_non_alpha
+            || (is_whole_lowercase_word && matches!(remaining.as_str(), "be" | "in")));
+        let allow_10_4_entry = !(ctx.is_all_uppercase
+            || in_boundary_non_alpha
+            || (is_whole_lowercase_word && remaining == "in"));
+        let allow_10_4_cont =
+            !(in_boundary_non_alpha || (is_whole_lowercase_word && remaining == "in"));
 
         if !ctx.state.is_english || ctx.index == 0 {
-            if allow_10_6 && let Some((code, len)) = rule_en_10_6(&remaining)
-            {
+            if allow_10_6 && let Some((code, len)) = rule_en_10_6(&remaining) {
                 ctx.emit(code);
                 *ctx.skip_count = len;
-            } else if allow_10_4_entry && let Some((code, len)) = rule_en_10_4(&remaining)
-            {
+            } else if allow_10_4_entry && let Some((code, len)) = rule_en_10_4(&remaining) {
                 ctx.emit(code);
                 *ctx.skip_count = len;
             } else {
                 ctx.emit(english::encode_english(*c)?);
             }
-        } else if allow_10_4_cont && let Some((code, len)) = rule_en_10_4(&remaining)
-        {
+        } else if allow_10_4_cont && let Some((code, len)) = rule_en_10_4(&remaining) {
             ctx.emit(code);
             *ctx.skip_count = len;
         } else {

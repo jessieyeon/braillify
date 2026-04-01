@@ -84,6 +84,9 @@ impl Encoder {
         token_engine.register(Box::new(
             rules::token_rules::middle_korean_detector::MiddleKoreanDetectorRule,
         ));
+        token_engine.register(Box::new(
+            rules::token_rules::historical_gloss_spacing::HistoricalGlossSpacingRule,
+        ));
         token_engine.register(Box::new(rules::token_rules::normalize::NormalizeEllipsis));
         token_engine.register(Box::new(rules::token_rules::latex_math::LatexMergeRule));
         token_engine.register(Box::new(
@@ -104,6 +107,9 @@ impl Encoder {
         ));
         token_engine.register(Box::new(
             rules::token_rules::roman_numeral::RomanNumeralRule,
+        ));
+        token_engine.register(Box::new(
+            rules::token_rules::digital_notation::DigitalNotationRule,
         ));
         token_engine.register(Box::new(
             rules::token_rules::uppercase_passage::UppercasePassageRule,
@@ -157,7 +163,9 @@ impl Encoder {
 
         let state_before_token_rules = ir.state.clone();
         self.token_engine.apply_all(&mut ir.tokens, &mut ir.state)?;
+        let mode_stack_after_token_rules = ir.state.mode_stack.clone();
         ir.state = state_before_token_rules;
+        ir.state.mode_stack = mode_stack_after_token_rules;
         transform(text, &mut ir.tokens)?;
 
         let output = rules::emit::emit(&mut ir, &mut self.rule_engine)?;

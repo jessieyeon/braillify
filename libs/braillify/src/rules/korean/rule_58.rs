@@ -40,11 +40,12 @@ impl BrailleRule for Rule58 {
     }
 
     fn priority(&self) -> u16 {
-        400 // Before rule_49 (500) — intercept □ before generic symbol encoding
+        70 // Before rule_72 (80) and rule_49 (500) — intercept □ before other symbol rules
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
         matches!(ctx.char_type, CharType::Symbol(c) if *c == BLANK_MARK)
+            && (ctx.word_len() != 1 || ctx.remaining_words.is_empty())
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

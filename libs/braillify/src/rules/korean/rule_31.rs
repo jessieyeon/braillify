@@ -13,11 +13,22 @@ pub static META: RuleMeta = RuleMeta {
 
 fn greek_braille(c: char) -> Option<&'static str> {
     match c {
+        'Δ' | 'δ' => Some("⠨⠙"),
+        'Ε' | 'ε' => Some("⠨⠑"),
+        'Η' | 'η' => Some("⠨⠱"),
+        'Ι' | 'ι' => Some("⠨⠊"),
+        'Λ' | 'λ' => Some("⠨⠇"),
+        'Ο' | 'ο' => Some("⠨⠕"),
         'σ' => Some("⠨⠎"),
+        'ς' => Some("⠨⠎"),
         'Φ' => Some("⠨⠋"),
+        'φ' => Some("⠨⠋"),
         'Β' => Some("⠨⠃"),
+        'β' => Some("⠨⠃"),
         'Κ' => Some("⠨⠅"),
+        'κ' => Some("⠨⠅"),
         'Ω' => Some("⠨⠺"),
+        'ω' => Some("⠨⠺"),
         'μ' => Some("⠨⠍"),
         _ => None,
     }
@@ -85,6 +96,9 @@ impl BrailleRule for Rule31 {
             } else if run.len() == 1 && run[0].is_uppercase() {
                 ctx.emit(crate::unicode::decode_unicode('⠠'));
             }
+        } else if run.len() > 1 && run.iter().all(|c| c.is_uppercase()) {
+            ctx.emit(crate::unicode::decode_unicode('⠠'));
+            ctx.emit(crate::unicode::decode_unicode('⠠'));
         } else if run.len() == 1 && run[0].is_uppercase() {
             ctx.emit(crate::unicode::decode_unicode('⠠'));
         }

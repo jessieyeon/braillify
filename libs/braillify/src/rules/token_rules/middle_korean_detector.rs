@@ -101,12 +101,17 @@ impl TokenRule for MiddleKoreanDetectorRule {
 
         let has_middle_korean =
             has_strong_context || (has_tone_punctuation && (prev_has_context || next_has_context));
+        let preserve_explicit_middle_korean_mode = has_tone_punctuation
+            && word.chars.len() == 1
+            && state.current_mode() == EncodingMode::MiddleKorean;
 
         if has_middle_korean {
             if state.current_mode() != EncodingMode::MiddleKorean {
                 state.push_mode(EncodingMode::MiddleKorean);
             }
-        } else if state.current_mode() == EncodingMode::MiddleKorean {
+        } else if state.current_mode() == EncodingMode::MiddleKorean
+            && !preserve_explicit_middle_korean_mode
+        {
             state.pop_mode();
         }
 

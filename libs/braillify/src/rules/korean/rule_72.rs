@@ -57,9 +57,10 @@ impl BrailleRule for Rule72 {
             return Ok(RuleResult::Skip);
         }
 
-        let contextual_marker = ctx
-            .next_char()
-            .is_some_and(|c| c.is_whitespace() || matches!(c, '(' | '\'' | '"'))
+        let contextual_marker = ctx.word_len() == 1
+            || ctx
+                .next_char()
+                .is_some_and(|c| c.is_whitespace() || matches!(c, '(' | '\'' | '"'))
             || matches!(current, '◎' | '▣');
         if !contextual_marker {
             return Ok(RuleResult::Skip);

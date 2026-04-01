@@ -11,6 +11,7 @@
 use crate::char_struct::CharType;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
+use crate::rules::korean::rule_69::encode_ascii_unit;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META_29: RuleMeta = RuleMeta {
@@ -29,7 +30,7 @@ pub const ROMAN_INDICATOR: u8 = 52; // ⠴
 pub const ROMAN_TERMINATOR: u8 = 50; // ⠲
 
 /// English continuation indicator (연속표).
-pub const ENGLISH_CONTINUATION: u8 = 16; // ⠐
+pub const ENGLISH_CONTINUATION: u8 = 48; // ⠰
 
 /// Plugin struct for the rule engine.
 ///
@@ -40,6 +41,19 @@ pub const ENGLISH_CONTINUATION: u8 = 16; // ⠐
 /// This rule runs in the ModeManagement phase, before CoreEncoding.
 /// It inspects the current character and state to decide mode transitions.
 pub struct Rule29;
+
+fn prev_word_is_numeric(prev_word: &str) -> bool {
+    !prev_word.is_empty()
+        && prev_word
+            .chars()
+            .all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
+}
+
+fn should_enter_as_roman_indicator(ctx: &RuleContext) -> bool {
+    encode_ascii_unit(ctx.word_chars, ctx.index).is_some()
+        && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit())
+            || prev_word_is_numeric(ctx.prev_word))
+}
 
 impl BrailleRule for Rule29 {
     fn meta(&self) -> &'static RuleMeta {
@@ -69,7 +83,7 @@ impl BrailleRule for Rule29 {
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         if !ctx.state.is_english && matches!(ctx.char_type, CharType::English(_)) {
             // Enter English mode
-            if ctx.state.needs_english_continuation {
+            if ctx.state.needs_english_continuation && !should_enter_as_roman_indicator(ctx) {
                 ctx.emit(ENGLISH_CONTINUATION); // ⠐ continuation
             } else {
                 ctx.emit(ROMAN_INDICATOR); // ⠴ enter

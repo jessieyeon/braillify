@@ -3,6 +3,7 @@ use crate::english_logic;
 use crate::fraction;
 use crate::rules::context::{EncoderState, RuleContext};
 use crate::rules::engine::RuleEngine;
+use crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix;
 use crate::rules::traits::Phase;
 
 use super::token::{DocumentIR, ModeEvent, SpaceKind, Token, WordMeta, WordToken};
@@ -200,6 +201,16 @@ fn emit_word(
         let has_korean_char = meta.has_korean;
         let has_ascii_alphabetic = meta.has_ascii_alphabetic;
 
+        if word_chars.first().is_some_and(|ch| ch.is_ascii_digit())
+            && let Some((numeric, unit, consumed)) = parse_numeric_ascii_unit_prefix(&word_chars)
+            && consumed == word_chars.len()
+        {
+            let mut encoded = crate::encode(&numeric)?;
+            encoded.extend(unit);
+            result.extend(encoded);
+            return Ok(());
+        }
+
         // English entry (encoder.rs:216-223)
         if state.english_indicator
             && !state.is_english
@@ -237,6 +248,11 @@ fn emit_word(
                             state.english_indicator,
                             state.is_english,
                             &state.parenthesis_stack,
+                            *sym,
+                            &word_chars,
+                            i,
+                            remaining_words,
+                        ) || english_logic::should_keep_english_mode_for_symbol(
                             *sym,
                             &word_chars,
                             i,
@@ -358,57 +374,61 @@ fn emit_word(
 
     // ── [F] Post-loop: English termination for next word (encoder.rs:424-482) ──
     // Space between words is handled by Token::Space, NOT emitted here.
-    if !remaining_words.is_empty()
-        && state.english_indicator
-        && state.is_english
-        && let Some(next_word) = remaining_words.first()
-    {
-        let ascii_letters = next_word
-            .chars()
-            .filter(|c| c.is_ascii_alphabetic())
-            .collect::<Vec<_>>();
-        let has_invalid_symbol = next_word.chars().any(|ch| {
-            !(ch.is_ascii_alphabetic()
-                || english_logic::is_english_symbol(ch)
-                || crate::symbol_shortcut::is_symbol_char(ch)
-                || crate::utils::is_korean_char(ch))
-        });
-        let is_single_letter_word = ascii_letters.len() == 1
-            && !next_word.chars().any(|ch| ch.is_ascii_digit())
-            && !has_invalid_symbol;
+    if state.english_indicator && state.is_english {
+        if remaining_words.is_empty() {
+            result.push(50);
+            exit_english(state, false);
+        } else if let Some(next_word) = remaining_words.first() {
+            let ascii_letters = next_word
+                .chars()
+                .filter(|c| c.is_ascii_alphabetic())
+                .collect::<Vec<_>>();
+            let has_invalid_symbol = next_word.chars().any(|ch| {
+                !(ch.is_ascii_alphabetic()
+                    || english_logic::is_english_symbol(ch)
+                    || crate::symbol_shortcut::is_symbol_char(ch)
+                    || crate::utils::is_korean_char(ch))
+            });
+            let is_single_letter_word = ascii_letters.len() == 1
+                && !next_word.chars().any(|ch| ch.is_ascii_digit())
+                && !has_invalid_symbol;
 
-        if is_single_letter_word
-            && english_logic::requires_single_letter_continuation(ascii_letters[0])
-        {
-            exit_english(state, true);
-        } else if let Some(next_char) = next_word.chars().next() {
-            if let Ok(next_type) = CharType::new(next_char) {
-                match next_type {
-                    CharType::English(_) | CharType::Number(_) => {}
-                    CharType::Symbol(sym) => {
-                        if state.english_indicator
-                            && state.is_english
-                            && english_logic::is_english_symbol(sym)
-                        {
-                            // 연속되는 영어 구절 사이에 오는 영어 문장 부호는
-                            // 로마자 구간을 유지한다.
-                        } else if english_logic::should_force_terminator_before_symbol(sym)
-                            || !english_logic::should_skip_terminator_for_symbol(sym)
-                        {
+            if is_single_letter_word
+                && english_logic::requires_single_letter_continuation(ascii_letters[0])
+            {
+                exit_english(state, true);
+            } else if let Some(next_char) = next_word.chars().next() {
+                if let Ok(next_type) = CharType::new(next_char) {
+                    match next_type {
+                        CharType::English(_) | CharType::Number(_) => {}
+                        CharType::Symbol(sym) => {
+                            if state.english_indicator
+                                && state.is_english
+                                && english_logic::is_english_symbol(sym)
+                            {
+                                // 연속되는 영어 구절 사이에 오는 영어 문장 부호는
+                                // 로마자 구간을 유지한다.
+                            } else if english_logic::should_force_terminator_before_symbol(sym)
+                                || !english_logic::should_skip_terminator_for_symbol(sym)
+                            {
+                                result.push(50);
+                                exit_english(state, false);
+                            } else {
+                                exit_english(
+                                    state,
+                                    english_logic::should_request_continuation(sym),
+                                );
+                            }
+                        }
+                        _ => {
                             result.push(50);
                             exit_english(state, false);
-                        } else {
-                            exit_english(state, english_logic::should_request_continuation(sym));
                         }
                     }
-                    _ => {
-                        result.push(50);
-                        exit_english(state, false);
-                    }
+                } else {
+                    result.push(50);
+                    exit_english(state, false);
                 }
-            } else {
-                result.push(50);
-                exit_english(state, false);
             }
         }
     }

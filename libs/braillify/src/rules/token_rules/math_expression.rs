@@ -141,6 +141,23 @@ fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
         || has_combining_mark
 }
 
+fn is_rule_68_compact_notation(chars: &[char]) -> bool {
+    if chars.len() < 2 || !chars[0].is_ascii_uppercase() {
+        return false;
+    }
+
+    if chars.len() == 2 && chars[1] == '-' {
+        return true;
+    }
+
+    chars[1..]
+        .iter()
+        .all(|c| matches!(*c, '⁺' | '⁻' | '₀'..='₉'))
+        && chars[1..]
+            .iter()
+            .any(|c| is_superscript(*c) || is_subscript(*c))
+}
+
 fn should_wrap_math_sentence(chars: &[char], text: &str) -> bool {
     if chars.len() <= 1 {
         return false;
@@ -244,6 +261,10 @@ fn split_mixed_math_word(
 
 /// Check if a word is a math expression.
 fn is_math_expression(chars: &[char], text: &str) -> bool {
+    if is_rule_68_compact_notation(chars) {
+        return false;
+    }
+
     if chars.len() == 1
         && matches!(
             chars[0],

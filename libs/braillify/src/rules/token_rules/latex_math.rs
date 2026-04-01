@@ -365,6 +365,11 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     }
                 }
                 _ => {
+                    if cmd.len() == 1 && cmd.chars().all(|ch| ch.is_ascii_alphabetic()) {
+                        result.push_str(&cmd);
+                        continue;
+                    }
+
                     // Handle compact forms like \sinx, \coshx, ...
                     let mut handled = false;
                     for known in [

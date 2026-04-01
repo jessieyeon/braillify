@@ -13,6 +13,7 @@ use crate::char_struct::CharType;
 use crate::number;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
+use crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META_40: RuleMeta = RuleMeta {
@@ -57,6 +58,18 @@ impl BrailleRule for Rule40 {
         let CharType::Number(c) = ctx.char_type else {
             return Ok(RuleResult::Skip);
         };
+
+        if ctx.index == 0
+            && let Some((numeric, unit, consumed)) = parse_numeric_ascii_unit_prefix(ctx.word_chars)
+        {
+            let mut encoded = crate::encode(&numeric)?;
+            encoded.extend(unit);
+            ctx.emit_slice(&encoded);
+            ctx.state.is_number = false;
+            *ctx.skip_count = consumed.saturating_sub(1);
+            return Ok(RuleResult::Consumed);
+        }
+
         if !ctx.state.is_number {
             // 제43항: skip prefix after continuation characters (. or ,)
             let needs_prefix = ctx

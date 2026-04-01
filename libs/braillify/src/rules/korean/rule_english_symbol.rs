@@ -76,6 +76,9 @@ impl BrailleRule for RuleEnglishSymbol {
             }
             if let Some(encoded) = symbol_shortcut::encode_english_char_symbol_shortcut(*sym) {
                 ctx.emit_slice(encoded);
+                if *sym == '-' && ctx.state.is_english {
+                    ctx.emit(crate::rules::korean::rule_29::ENGLISH_CONTINUATION);
+                }
                 return Ok(RuleResult::Consumed);
             }
         }

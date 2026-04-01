@@ -13,6 +13,7 @@ pub mod rule_8; // 제8항–제10항: standalone jamo
 pub mod rule_korean; // General Korean syllable encoding (composite fallback)
 
 // ── Chapter 2: 약자와 약어 (Abbreviations) ──────────────
+pub mod middle_korean_gloss;
 pub mod rule_13; // 제13항, 제15항: syllable abbreviations
 pub mod rule_14; // 제14항: no abbreviation before vowel
 pub mod rule_16; // 제16항, 제17항: exception decomposition (팠,껐,셩,쎵,졍,쪙,쳥,겄)

@@ -1,6 +1,6 @@
 use crate::char_struct::CharType;
 use crate::rules::RuleMeta;
-use crate::rules::context::RuleContext;
+use crate::rules::context::{EncodingMode, RuleContext};
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META: RuleMeta = RuleMeta {
@@ -15,6 +15,7 @@ const MAPPINGS: &[(char, &str)] = &[
     ('@', "⠈⠁"),
     ('^', "⠈⠢"),
     ('#', "⠸⠹"),
+    ('|', "⠸⠳"),
     ('\\', "⠸⠡"),
     ('&', "⠈⠯"),
     ('§', "⠈⠯"),
@@ -32,7 +33,18 @@ fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
 }
 
 fn should_wrap_information_symbol(ctx: &RuleContext) -> bool {
-    ctx.word_len() > 1
+    if ctx.word_len() > 1 {
+        return true;
+    }
+
+    let prev_has_korean =
+        !ctx.prev_word.is_empty() && ctx.prev_word.chars().any(crate::utils::is_korean_char);
+    let next_has_korean = ctx
+        .remaining_words
+        .first()
+        .is_some_and(|word| !word.is_empty() && word.chars().any(crate::utils::is_korean_char));
+
+    prev_has_korean || next_has_korean
 }
 
 pub fn is_rule_71_symbol(c: char) -> bool {
@@ -55,7 +67,8 @@ impl BrailleRule for Rule71 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::Symbol(c) if is_rule_71_symbol(*c))
+        ctx.state.current_mode() != EncodingMode::Math
+            && matches!(ctx.char_type, CharType::Symbol(c) if is_rule_71_symbol(*c))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
@@ -65,6 +78,9 @@ impl BrailleRule for Rule71 {
                 encoded.extend(encode_unicode_cells("⠘⠎"));
                 if !ctx.next_char().is_some_and(|ch| ch.is_ascii_digit()) {
                     encoded.push(crate::unicode::decode_unicode('⠲'));
+                }
+                if ctx.index > 0 {
+                    ctx.emit(0);
                 }
                 ctx.emit_slice(&encoded);
                 return Ok(RuleResult::Consumed);

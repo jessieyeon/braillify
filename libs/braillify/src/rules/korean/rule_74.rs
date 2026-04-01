@@ -11,6 +11,38 @@ pub static META: RuleMeta = RuleMeta {
     description: "Digital notation symbols such as slash and hash in URLs and filenames",
 };
 
+fn encode_digital_symbol(symbol: char) -> Option<Vec<u8>> {
+    match symbol {
+        '/' => Some(vec![
+            crate::unicode::decode_unicode('⠸'),
+            crate::unicode::decode_unicode('⠌'),
+        ]),
+        '#' => Some(vec![
+            crate::unicode::decode_unicode('⠸'),
+            crate::unicode::decode_unicode('⠹'),
+        ]),
+        '@' => Some(vec![
+            crate::unicode::decode_unicode('⠈'),
+            crate::unicode::decode_unicode('⠁'),
+        ]),
+        '.' => Some(vec![crate::unicode::decode_unicode('⠲')]),
+        ':' => Some(vec![crate::unicode::decode_unicode('⠒')]),
+        '_' => Some(vec![
+            crate::unicode::decode_unicode('⠨'),
+            crate::unicode::decode_unicode('⠤'),
+        ]),
+        _ => None,
+    }
+}
+
+fn is_digital_notation_context(ctx: &RuleContext) -> bool {
+    let text: String = ctx.word_chars.iter().collect();
+    let has_ascii = ctx.word_chars.iter().any(|ch| ch.is_ascii_alphanumeric());
+
+    has_ascii
+        && (text.contains("//") || text.contains('@') || text.contains('#') || text.contains('_'))
+}
+
 pub struct Rule74;
 
 impl BrailleRule for Rule74 {
@@ -28,25 +60,14 @@ impl BrailleRule for Rule74 {
 
     fn matches(&self, ctx: &RuleContext) -> bool {
         matches!(ctx.char_type, CharType::Symbol(_))
-            && matches!(ctx.current_char(), '/' | '#' | '@' | '.')
+            && is_digital_notation_context(ctx)
+            && matches!(ctx.current_char(), '/' | '#' | '@' | '.' | ':' | '_')
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
-        let encoded: Vec<u8> =
-            match crate::symbol_shortcut::encode_char_symbol_shortcut(ctx.current_char()) {
-                Ok(bytes) => bytes.to_vec(),
-                Err(_) => match ctx.current_char() {
-                    '#' => vec![
-                        crate::unicode::decode_unicode('⠸'),
-                        crate::unicode::decode_unicode('⠹'),
-                    ],
-                    '@' => vec![
-                        crate::unicode::decode_unicode('⠈'),
-                        crate::unicode::decode_unicode('⠁'),
-                    ],
-                    _ => return Err("unsupported digital notation symbol".to_string()),
-                },
-            };
+        let Some(encoded) = encode_digital_symbol(ctx.current_char()) else {
+            return Err("unsupported digital notation symbol".to_string());
+        };
         ctx.emit_slice(&encoded);
         Ok(RuleResult::Consumed)
     }

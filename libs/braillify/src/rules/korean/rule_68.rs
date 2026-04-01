@@ -1,6 +1,8 @@
 use crate::char_struct::CharType;
+use crate::english;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
+use crate::rules::korean::rule_29::ROMAN_INDICATOR;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META: RuleMeta = RuleMeta {
@@ -15,9 +17,20 @@ const MAPPINGS: &[(char, &str)] = &[
     ('㎡', "⠴⠍⠘⠼⠃"),
     ('㏊', "⠴⠓⠁⠲"),
     ('⁺', "⠘⠢"),
+    ('⁻', "⠘⠔"),
     ('₆', "⠰⠼⠋"),
     ('₉', "⠰⠼⠊"),
 ];
+
+const GRADE_MINUS: [u8; 2] = [
+    crate::unicode::decode_unicode('⠘'),
+    crate::unicode::decode_unicode('⠔'),
+];
+const SUPERSCRIPT_PREFIX: u8 = crate::unicode::decode_unicode('⠘');
+const SUBSCRIPT_PREFIX: u8 = crate::unicode::decode_unicode('⠰');
+const NUMBER_PREFIX: u8 = crate::unicode::decode_unicode('⠼');
+const ENGLISH_PREFIX: u8 = crate::unicode::decode_unicode('⠴');
+const UPPERCASE_PREFIX: u8 = crate::unicode::decode_unicode('⠠');
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
     unicode
@@ -26,8 +39,106 @@ fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
         .collect()
 }
 
+fn should_insert_separator_after_symbol(ctx: &RuleContext) -> bool {
+    matches!(ctx.current_char(), '㎡') && matches!(ctx.next_char(), Some('는' | '은'))
+}
+
 pub fn is_rule_68_symbol(c: char) -> bool {
     MAPPINGS.iter().any(|(candidate, _)| *candidate == c)
+}
+
+fn is_superscript_symbol(c: char) -> bool {
+    matches!(c, '⁺' | '⁻')
+}
+
+fn is_subscript_digit(c: char) -> bool {
+    matches!(c, '₀'..='₉')
+}
+
+fn is_grade_notation(word: &[char], index: usize) -> bool {
+    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase())
+        && matches!(word.get(index + 1), Some('-'))
+        && word.len() == index + 2
+}
+
+fn is_compact_ascii_notation(word: &[char], index: usize) -> bool {
+    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase())
+        && word
+            .get(index + 1)
+            .is_some_and(|next| is_superscript_symbol(*next) || is_subscript_digit(*next))
+}
+
+fn encode_compact_ascii_notation(
+    word: &[char],
+    index: usize,
+    needs_roman_indicator: bool,
+) -> Result<Option<(Vec<u8>, usize)>, String> {
+    let Some(base) = word.get(index).copied() else {
+        return Ok(None);
+    };
+
+    if !base.is_ascii_uppercase() {
+        return Ok(None);
+    }
+
+    let mut encoded = Vec::new();
+    if needs_roman_indicator {
+        encoded.push(ENGLISH_PREFIX);
+    }
+    encoded.push(UPPERCASE_PREFIX);
+    encoded.push(english::encode_english(base)?);
+    let mut consumed = 1usize;
+    let mut cursor = index + 1;
+
+    if word.get(cursor) == Some(&'-') {
+        encoded.extend_from_slice(&GRADE_MINUS);
+        consumed += 1;
+        return Ok(Some((encoded, consumed)));
+    }
+
+    if word
+        .get(cursor)
+        .is_some_and(|ch| is_superscript_symbol(*ch))
+    {
+        encoded.push(SUPERSCRIPT_PREFIX);
+        while let Some(ch) = word.get(cursor).copied() {
+            let cell = match ch {
+                '⁺' => crate::unicode::decode_unicode('⠢'),
+                '⁻' => crate::unicode::decode_unicode('⠔'),
+                _ => break,
+            };
+            encoded.push(cell);
+            consumed += 1;
+            cursor += 1;
+        }
+        return Ok(Some((encoded, consumed)));
+    }
+
+    if word.get(cursor).is_some_and(|ch| is_subscript_digit(*ch)) {
+        encoded.push(SUBSCRIPT_PREFIX);
+        encoded.push(NUMBER_PREFIX);
+        while let Some(ch) = word.get(cursor).copied() {
+            let digit = match ch {
+                '₀' => '0',
+                '₁' => '1',
+                '₂' => '2',
+                '₃' => '3',
+                '₄' => '4',
+                '₅' => '5',
+                '₆' => '6',
+                '₇' => '7',
+                '₈' => '8',
+                '₉' => '9',
+                _ => break,
+            };
+            encoded.push(crate::number::encode_number(digit)?);
+            consumed += 1;
+            cursor += 1;
+        }
+        return Ok(Some((encoded, consumed)));
+    }
+
+    Ok(None)
 }
 
 pub struct Rule68;
@@ -42,14 +153,31 @@ impl BrailleRule for Rule68 {
     }
 
     fn priority(&self) -> u16 {
-        160
+        90
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
         matches!(ctx.char_type, CharType::Symbol(c) if is_rule_68_symbol(*c))
+            || matches!(ctx.char_type, CharType::English(_)
+                if is_compact_ascii_notation(ctx.word_chars, ctx.index)
+                    || is_grade_notation(ctx.word_chars, ctx.index))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
+        if matches!(ctx.char_type, CharType::English(_))
+            && let Some((encoded, consumed)) = encode_compact_ascii_notation(
+                ctx.word_chars,
+                ctx.index,
+                !ctx.state.is_english && ctx.result.last().copied() != Some(ROMAN_INDICATOR),
+            )?
+        {
+            ctx.emit_slice(&encoded);
+            ctx.state.is_english = false;
+            ctx.state.needs_english_continuation = false;
+            *ctx.skip_count = consumed.saturating_sub(1);
+            return Ok(RuleResult::Consumed);
+        }
+
         let Some((_, unicode)) = MAPPINGS
             .iter()
             .find(|(candidate, _)| *candidate == ctx.current_char())
@@ -58,6 +186,9 @@ impl BrailleRule for Rule68 {
         };
         let encoded = encode_unicode_cells(unicode);
         ctx.emit_slice(&encoded);
+        if should_insert_separator_after_symbol(ctx) {
+            ctx.emit(0);
+        }
         Ok(RuleResult::Consumed)
     }
 }

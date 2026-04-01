@@ -48,6 +48,10 @@ fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
         return false;
     }
 
+    if ctx.word_len() == 1 {
+        return ctx.state.current_mode() == EncodingMode::MiddleKorean;
+    }
+
     if ctx.prev_char().is_some_and(|prev| prev.is_ascii_digit())
         && ctx.next_char().is_some_and(|next| next.is_ascii_digit())
     {
@@ -55,6 +59,19 @@ fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
     }
 
     (ctx.index == 0 && ctx.next_char().is_some()) || has_historical_context(ctx)
+}
+
+fn is_middle_korean_particle_geoseong(ctx: &RuleContext) -> bool {
+    matches!(ctx.char_type, CharType::Symbol('·'))
+        && ctx.state.current_mode() == EncodingMode::MiddleKorean
+        && ctx.next_char() == Some('에')
+}
+
+fn is_inline_gloss_separator(ctx: &RuleContext) -> bool {
+    matches!(ctx.char_type, CharType::Symbol('·'))
+        && ctx.state.current_mode() == EncodingMode::MiddleKorean
+        && ctx.prev_char() == Some('字')
+        && ctx.next_char() == Some('')
 }
 
 fn is_middle_korean_sangseong(ctx: &RuleContext) -> bool {
@@ -95,6 +112,14 @@ impl BrailleRule for Rule27 {
         };
 
         match c {
+            '·' if is_inline_gloss_separator(ctx) => {}
+            '·' if is_middle_korean_particle_geoseong(ctx) => {
+                ctx.emit(0);
+                ctx.emit_slice(&GEOSEONG);
+            }
+            '·' if ctx.state.current_mode() == EncodingMode::MiddleKorean => {
+                ctx.emit_slice(&GEOSEONG);
+            }
             '·' if is_middle_korean_geoseong(ctx) => ctx.emit_slice(&GEOSEONG),
             '：' => ctx.emit_slice(&SANGSEONG),
             _ => return Ok(RuleResult::Skip),
