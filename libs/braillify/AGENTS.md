@@ -1,14 +1,16 @@
 # CORE LIBRARY (libs/braillify)
 
-Korean Braille encoding engine implementing 2024 Korean Braille Standard.
+Korean + Math Braille encoding engine implementing 2024 Korean Braille Standard.
 
 ## STRUCTURE
 
 ```
 src/
-├── lib.rs              # Main Encoder struct, encode() entry point
+├── lib.rs              # Main encode() entry, encode_for_testcase(), KNOWN_FAILURES
 ├── cli.rs              # CLI: REPL + one-shot mode (feature-gated)
 ├── main.rs             # Binary entry point
+├── encoder.rs          # DocumentIR construction, token + char engine orchestration
+├── char_struct.rs      # CharType enum (Korean/English/Number/Symbol/MathSymbol/Fraction)
 ├── korean_char.rs      # Full Korean syllable encoding
 ├── korean_part.rs      # Standalone jamo (consonant/vowel) encoding
 ├── jauem/              # Consonant handling
@@ -16,72 +18,158 @@ src/
 │   └── jongseong.rs    # Final consonants
 ├── moeum/              # Vowel handling
 │   └── jungsong.rs     # Medial vowels
-├── rule.rs             # Korean Braille rules (11, 12, etc.)
-├── rule_en.rs          # English abbreviation rules (10-4, 10-6)
 ├── english.rs          # English letter encoding
 ├── english_logic.rs    # English context detection
 ├── number.rs           # Number encoding
 ├── fraction.rs         # Fraction handling (Unicode + LaTeX)
-├── *_shortcut.rs       # PHF static lookup tables
-├── unicode.rs          # Internal code to Unicode Braille
+├── math_symbol_shortcut.rs  # PHF math symbol lookup table
+├── symbol_shortcut.rs       # PHF general symbol lookup table
+├── word_shortcut.rs         # PHF word abbreviation lookup table
+├── unicode.rs          # Internal braille code ↔ Unicode Braille conversion
 ├── split.rs            # Korean jamo decomposition
-├── char_struct.rs      # CharType enum (Korean/English/Number/Symbol)
-└── utils.rs            # Helper functions
+├── utils.rs            # Helper functions
+└── rules/              # Rule engine (see below)
 ```
+
+## ENCODING PIPELINE
+
+```
+Input text
+  ↓ DocumentIR::parse()         (tokenize into Word/Space/Mode tokens)
+  ↓ TokenRuleEngine::apply_all() (token-level rules by phase)
+  │   ├── LatexMergeRule         (merge $...$ across spaces)
+  │   ├── LatexFractionRule      (detect $\frac{}{})$)
+  │   ├── LatexMathRule          (strip LaTeX → math notation)
+  │   ├── InlineFractionRule     (detect N/N inline fractions)
+  │   ├── MathExpressionTokenRule (detect & encode math expressions)
+  │   └── ...other token rules
+  ↓ emit()                      (character-level encoding)
+      ├── Token::Word → RuleEngine (BrailleRule trait, char-by-char)
+      ├── Token::Space → braille space byte
+      ├── Token::Fraction → fraction encoding
+      └── Token::PreEncoded → pass-through (from math encoder)
+```
+
+## RULE ARCHITECTURE
+
+### Two parallel rule systems
+
+| System | Trait | Engine | Operates On | Used By |
+|--------|-------|--------|-------------|---------|
+| Korean (char-level) | `BrailleRule` | `RuleEngine` | Individual characters (`CharType`) | Korean text encoding |
+| Math (token-level) | `MathTokenRule` | `MathTokenEngine` | Token sequences (`MathToken`) | Math expression encoding |
+
+### BrailleRule (Korean, character-level)
+
+```rust
+trait BrailleRule: Send + Sync {
+    fn meta(&self) -> &'static RuleMeta;
+    fn phase(&self) -> Phase;           // Preprocessing → CoreEncoding → InterCharacter
+    fn matches(&self, ctx: &RuleContext) -> bool;
+    fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String>;
+}
+```
+
+Registered in `encoder.rs` → processes one character at a time via `RuleContext`.
+
+### MathTokenRule (Math, token-level)
+
+```rust
+trait MathTokenRule: Send + Sync {
+    fn name(&self) -> &'static str;
+    fn priority(&self) -> u16;          // Lower = runs first (10=lookahead, 50=core, 100=symbol)
+    fn matches(&self, tokens: &[MathToken], index: usize, state: &MathEncodeState) -> bool;
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>,
+             state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String>;
+}
+```
+
+Registered in `encoder.rs::build_math_engine()` → processes parsed MathToken sequences with lookahead.
+
+### Math rule structs (in respective rule files)
+
+| Priority | Struct | File | Handles |
+|----------|--------|------|---------|
+| 10 | `FractionReversalRule` | rule_7.rs | Denominator-first simple fractions |
+| 10 | `ConditionalProbFractionRule` | rule_7.rs | =a/b with \| pattern |
+| 10 | `CombinatoricsRule` | rule_12.rs | nPr, nCr |
+| 50 | `NumberRule` | rule_1.rs | Number tokens |
+| 50 | `VariableRule` | rule_12.rs | Lowercase variables |
+| 50 | `UpperVariableRule` | rule_12.rs | Uppercase variables |
+| 50 | `OperatorRule` | rule_2.rs | Arithmetic operators |
+| 50 | `FunctionNameRule` | rule_47.rs | log, lim, sin, cos... |
+| 50 | `BracketRule` | rule_6.rs | Open/close parentheses |
+| 50 | `SuperscriptRule` | rule_18.rs | Superscript content |
+| 50 | `SubscriptRule` | rule_19.rs | Subscript content |
+| 50 | `DecimalPointRule` | rule_8.rs | Decimal points |
+| 50 | `PrimeRule` | rule_53.rs | Prime marks |
+| 100 | `MathSymbolRule` | encoder.rs | All math symbols (30+ dispatch chain) |
 
 ## KEY TYPES
 
-| Type         | Location         | Purpose                                                 |
-| ------------ | ---------------- | ------------------------------------------------------- |
-| `Encoder`    | `lib.rs`         | Stateful encoder tracking English mode, uppercase state |
-| `CharType`   | `char_struct.rs` | Input character classification                          |
-| `KoreanChar` | `korean_char.rs` | Decomposed Korean syllable (cho/jung/jong)              |
+| Type | Location | Purpose |
+|------|----------|---------|
+| `CharType` | `char_struct.rs` | Input character classification |
+| `BrailleRule` | `rules/traits.rs` | Korean char-level rule trait |
+| `MathTokenRule` | `rules/math/math_token_rule.rs` | Math token-level rule trait |
+| `MathTokenEngine` | `rules/math/math_token_rule.rs` | Math rule dispatch engine |
+| `MathToken` | `rules/math/parser.rs` | Parsed math expression token |
+| `MathEncodeState` | `rules/math/math_token_rule.rs` | Shared math encoding state |
+| `TokenRule` | `rules/token_rule.rs` | Token-level rule trait (pre-encoding) |
+| `RuleEngine` | `rules/engine.rs` | Korean BrailleRule dispatch |
+| `TokenRuleEngine` | `rules/token_engine.rs` | Token-level rule dispatch |
 
 ## ENTRY POINTS
 
-| Function                  | Location     | Usage                             |
-| ------------------------- | ------------ | --------------------------------- |
-| `encode(text)`            | `lib.rs:634` | Returns `Result<Vec<u8>, String>` |
-| `encode_to_unicode(text)` | `lib.rs:648` | Returns Braille Unicode string    |
-| `run_cli(args)`           | `cli.rs:16`  | CLI entry (feature: cli)          |
+| Function | Location | Usage |
+|----------|----------|-------|
+| `encode(text)` | `lib.rs` | Returns `Result<Vec<u8>, String>` |
+| `encode_to_unicode(text)` | `lib.rs` | Returns Braille Unicode string |
+| `encode_math_expression(text)` | `rules/math/encoder.rs` | Math-only encoding |
+| `run_cli(args)` | `cli.rs` | CLI entry (feature: cli) |
 
-## RULE IMPLEMENTATION
+## MATH RULES (src/rules/math/)
 
-Korean comments reference rule numbers from 2024 Korean Braille Standard:
+66 rule files (`rule_1.rs` through `rule_66.rs`) matching articles from the 2024 Korean Braille Standard math section (pages 51-84). Each file contains:
 
-- `제8항` - Standalone jamo
-- `제11항` - Vowel + 예 separator
-- `제14항` - 나/다/마... + vowel (no abbreviation)
-- `제28항` - Uppercase handling
-- `제31항` - Roman letter indicators
-- `제40항` - Number prefix
-- `제43항` - Numbers with punctuation
-- `제44항` - Number + Korean spacing
+- `is_xxx()` detection functions (used in MathSymbolRule dispatch chain)
+- `encode_xxx()` encoding functions (produce braille byte sequences)
+- MathTokenRule struct implementations (where applicable)
+- `#[cfg(test)] mod tests` with unit tests
+
+Infrastructure:
+- `encoder.rs` — `encode_math_expression()`, `build_math_engine()`, `MathSymbolRule`
+- `parser.rs` — `parse_math_expression()` → `Vec<MathToken>`
+- `function.rs` — Function name detection (sin, cos, log, etc.)
+- `math_token_rule.rs` — `MathTokenRule` trait, `MathTokenEngine`, `MathEncodeState`
 
 ## CONVENTIONS
 
 - PHF macros (`phf_map!`) for all static lookup tables
-- Error handling via `Result<T, String>` - propagate, never suppress
+- Error handling via `Result<T, String>` — propagate, never suppress
 - Feature flags: `cli` (default), `wasm`
 - Tests inline with `#[cfg(test)]` in each module
+- No `#[allow(dead_code)]` — all functions must be used or tested
+- Math rules: one `.rs` file per standard article (제N항)
 
 ## ANTI-PATTERNS
 
-- **Never use `unwrap()` on user input** - return `Err(String)`
-- **Never hardcode Braille dots** - use constants or PHF tables
-- **Never modify shortcut tables** without updating test CSVs
+- **Never use `unwrap()` on user input** — return `Err(String)`
+- **Never hardcode Braille dots** — use constants or PHF tables
+- **Never modify shortcut tables** without updating test cases
+- **Never add `#[allow(dead_code)]`** — wire functions into encoder or tests instead
+- **Never suppress type errors** — no `as any` equivalents
 
 ## TESTING
 
 ```bash
-# Run all tests with coverage
-cargo tarpaulin -p braillify
-
-# Run specific test
-cargo test test_encode
-
-# Generate test_status.json for landing page
-cargo test test_by_testcase
+cargo test                           # All tests (353+)
+cargo test test_by_testcase          # Testcase suite (2064 cases, tracks KNOWN_FAILURES)
+cargo test test_accuracy_report      # Accuracy report (raw encode, no test routing)
+cargo test test_no_regression        # Regression guard
+cargo fmt && cargo clippy            # Format + lint
 ```
 
-Tests read from `../../test_cases/*.csv` - format: `input,internal_repr,expected,unicode`
+Test cases in `test_cases/korean/*.json` and `test_cases/math/*.json`.
+
+Current status: 1710/2064 passing (354 known failures).

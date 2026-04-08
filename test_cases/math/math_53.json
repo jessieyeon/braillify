@@ -1,0 +1,130 @@
+[
+  {
+    "input": "y′=dy/dx",
+    "internal": "y-33dx/dy",
+    "expected": "613618182545122561",
+    "unicode": "⠽⠤⠒⠒⠙⠭⠌⠙⠽",
+    "world": "⠴⠽⠶⠐⠶⠙⠽⠸⠌⠙⠭⠲",
+    "jeomsarang": "⠴⠽⠶⠒⠒⠴⠙⠽⠸⠌⠙⠭⠲"
+  },
+  {
+    "input": "f′(x)",
+    "internal": "f-8x0",
+    "expected": "1136384552",
+    "unicode": "⠋⠤⠦⠭⠴",
+    "world": "⠴⠋⠶⠐⠣⠭⠠⠴",
+    "jeomsarang": "⠴⠋⠶⠦⠄⠴⠰⠭⠠⠴"
+  },
+  {
+    "input": "dx/dy=dz/dy·dx/dz",
+    "note": "연쇄법칙",
+    "internal": "dx/dy33dz/dy*dx/dz",
+    "expected": "254512256118182553122561332545122553",
+    "unicode": "⠙⠭⠌⠙⠽⠒⠒⠙⠵⠌⠙⠽⠡⠙⠭⠌⠙⠵",
+    "world": "⠴⠙⠭⠸⠌⠙⠽⠐⠶⠙⠵⠸⠌⠙⠽⠈⠡⠙⠭⠸⠌⠙⠵⠲",
+    "jeomsarang": "⠴⠙⠭⠸⠌⠙⠽⠐⠶⠙⠵⠸⠌⠙⠽⠐⠆⠙⠭⠸⠌⠙⠵⠲"
+  },
+  {
+    "input": "y''=d²x/d²y",
+    "internal": "y--33dx^#b/d^#by",
+    "expected": "613636181825452460312252460361",
+    "unicode": "⠽⠤⠤⠒⠒⠙⠭⠘⠼⠃⠌⠙⠘⠼⠃⠽",
+    "world": "⠴⠽⠠⠦⠐⠶⠙⠘⠼⠃⠭⠸⠌⠙⠘⠼⠃⠽⠲",
+    "jeomsarang": "⠴⠽⠠⠦⠴⠄⠒⠒⠰⠙⠰⠘⠼⠃⠭⠸⠌⠙⠰⠘⠼⠃⠰⠽⠲"
+  },
+  {
+    "input": "$y''=d^2x/d^2y$",
+    "note": "LaTeX",
+    "internal": "y--33dx^#b/d^#by",
+    "expected": "613636181825452460312252460361",
+    "unicode": "⠽⠤⠤⠒⠒⠙⠭⠘⠼⠃⠌⠙⠘⠼⠃⠽",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "dx/du·v+u·dx/dv",
+    "note": "곱미분",
+    "internal": "dx/du*v5u*dx/dv",
+    "expected": "254512253733393437332545122539",
+    "unicode": "⠙⠭⠌⠙⠥⠡⠧⠢⠥⠡⠙⠭⠌⠙⠧",
+    "world": "⠴⠙⠭⠸⠌⠙⠥⠈⠡⠧⠐⠖⠥⠈⠡⠙⠭⠸⠌⠙⠧⠲",
+    "jeomsarang": "⠴⠙⠭⠸⠌⠙⠥⠐⠆⠰⠧⠢⠴⠥⠐⠆⠙⠭⠸⠌⠙⠧⠲"
+  },
+  {
+    "input": "dx/d(3x+5)",
+    "note": "합성함수 미분",
+    "internal": "dx/d8#cx5#e0",
+    "expected": "25451225386094534601752",
+    "unicode": "⠙⠭⠌⠙⠦⠼⠉⠭⠢⠼⠑⠴",
+    "world": "⠴⠙⠭⠸⠌⠙⠐⠣⠼⠉⠭⠢⠼⠑⠠⠴",
+    "jeomsarang": "⠴⠙⠭⠸⠌⠙⠐⠣⠼⠉⠭⠢⠼⠑⠐⠜⠲"
+  },
+  {
+    "input": "d²y=f''(x)dx²",
+    "internal": "d^#by33f--8x0dx^#b",
+    "expected": "2524603611818113636384552254524603",
+    "unicode": "⠙⠘⠼⠃⠽⠒⠒⠋⠤⠤⠦⠭⠴⠙⠭⠘⠼⠃",
+    "world": "⠴⠙⠘⠼⠃⠽⠐⠶⠋⠠⠦⠐⠣⠭⠐⠜⠙⠭⠘⠼⠃",
+    "jeomsarang": "⠴⠙⠰⠘⠼⠃⠽⠐⠶⠋⠠⠦⠴⠄⠦⠄⠴⠰⠭⠠⠴⠙⠭⠲⠰⠘⠼⠃"
+  },
+  {
+    "input": "$d^2y=f''(x)dx^2$",
+    "note": "LaTeX",
+    "internal": "d^#by33f--8x0dx^#b",
+    "expected": "2524603611818113636384552254524603",
+    "unicode": "⠙⠘⠼⠃⠽⠒⠒⠋⠤⠤⠦⠭⠴⠙⠭⠘⠼⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "y'''=d³x/d³y",
+    "internal": "y---33dx^#c/d^#cy",
+    "expected": "61363636181825452460912252460961",
+    "unicode": "⠽⠤⠤⠤⠒⠒⠙⠭⠘⠼⠉⠌⠙⠘⠼⠉⠽",
+    "world": "⠴⠽⠠⠦⠄⠐⠶⠙⠘⠼⠉⠭⠸⠌⠙⠘⠼⠉⠽⠲",
+    "jeomsarang": "⠴⠽⠠⠦⠴⠄⠠⠦⠒⠒⠰⠙⠰⠘⠼⠉⠭⠸⠌⠙⠰⠘⠼⠉⠰⠽⠲"
+  },
+  {
+    "input": "$y'''=d^3x/d^3y$",
+    "note": "LaTeX",
+    "internal": "y---33dx^#c/d^#cy",
+    "expected": "61363636181825452460912252460961",
+    "unicode": "⠽⠤⠤⠤⠒⠒⠙⠭⠘⠼⠉⠌⠙⠘⠼⠉⠽",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "y⁴=d⁴x/d⁴y",
+    "internal": "y^8#d033dx^#d/d^#dy",
+    "expected": "61243860255218182545246025122524602561",
+    "unicode": "⠽⠘⠦⠼⠙⠴⠒⠒⠙⠭⠘⠼⠙⠌⠙⠘⠼⠙⠽",
+    "world": "⠴⠽⠘⠼⠙⠐⠶⠙⠘⠼⠙⠭⠸⠌⠙⠘⠼⠙⠽⠲",
+    "jeomsarang": "⠴⠽⠰⠘⠼⠙⠀⠒⠒⠀⠰⠙⠰⠘⠼⠙⠭⠸⠌⠙⠰⠘⠼⠙⠰⠽⠲"
+  },
+  {
+    "input": "$y^4=d^4x/d^4y$",
+    "note": "LaTeX",
+    "internal": "y^8#d033dx^#d/d^#dy",
+    "expected": "61243860255218182545246025122524602561",
+    "unicode": "⠽⠘⠦⠼⠙⠴⠒⠒⠙⠭⠘⠼⠙⠌⠙⠘⠼⠙⠽",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "yⁿ=dⁿx/dⁿy",
+    "internal": "y^8n033dx^n/d^ny",
+    "expected": "61243829521818254524291225242961",
+    "unicode": "⠽⠘⠦⠝⠴⠒⠒⠙⠭⠘⠝⠌⠙⠘⠝⠽",
+    "world": "⠴⠽⠘⠝⠐⠶⠙⠘⠝⠭⠸⠌⠙⠘⠝⠽⠲",
+    "jeomsarang": "⠴⠽⠰⠘⠝⠀⠒⠒⠀⠰⠙⠰⠘⠝⠭⠸⠌⠙⠰⠘⠝⠰⠽⠲"
+  },
+  {
+    "input": "$y^n=d^nx/d^ny$",
+    "note": "LaTeX",
+    "internal": "y^8n033dx^n/d^ny",
+    "expected": "61243829521818254524291225242961",
+    "unicode": "⠽⠘⠦⠝⠴⠒⠒⠙⠭⠘⠝⠌⠙⠘⠝⠽",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

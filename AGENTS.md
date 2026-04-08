@@ -1,100 +1,106 @@
-# PROJECT KNOWLEDGE BASE
+# Braillify
 
-**Generated:** 2026-01-13
-**Commit:** b1d6b2b
-**Branch:** main
+한국어 텍스트를 한국 점자로 변환하는 라이브러리.
 
-## OVERVIEW
+## 프로젝트 구조
 
-Korean Braille (Jeomja) translation library implementing 2024 Korean Braille Standard. Core in Rust with WASM (Node.js) and PyO3 (Python) bindings.
+- `libs/braillify/` — Rust 핵심 변환 엔진
+- `packages/node/` — Node.js WASM 바인딩
+- `packages/python/` — Python 바인딩 (maturin)
+- `apps/landing/` — Next.js 랜딩 페이지
+- `test_cases/` — 점자 변환 테스트 케이스 (JSON)
+- `docs/` — 2024 개정 한국 점자 규정 PDF
+- `braillove-case-collector/` — 점자 내부표기 → 숫자/유니코드 변환기
 
-## STRUCTURE
-
-```
-braillify/
-├── libs/braillify/        # Core Rust library (see libs/braillify/AGENTS.md)
-├── packages/
-│   ├── node/              # WASM bindings via wasm-pack
-│   └── python/            # PyO3 bindings via maturin
-├── apps/landing/          # Next.js 16 docs site (@devup-ui)
-├── test_cases/            # CSV rule test cases (61 files)
-├── test_case_inputs/      # Input-only test CSVs
-├── __tests__/             # Bun JS integration tests
-├── py-test/               # Pytest Python tests
-└── braillove-case-collector/  # Windows automation tool
-```
-
-## WHERE TO LOOK
-
-| Task                      | Location                                   | Notes                                   |
-| ------------------------- | ------------------------------------------ | --------------------------------------- |
-| Braille encoding logic    | `libs/braillify/src/lib.rs`                | Main `Encoder` struct, `encode()`       |
-| Korean character handling | `libs/braillify/src/korean_*.rs`           | Choseong/Jungseong/Jongseong            |
-| Rule implementations      | `libs/braillify/src/rule.rs`, `rule_en.rs` | Korean Braille Standard rules           |
-| Symbol/shortcut tables    | `libs/braillify/src/*_shortcut.rs`         | PHF static maps                         |
-| CLI                       | `libs/braillify/src/cli.rs`                | REPL mode, one-shot mode                |
-| Node.js API               | `packages/node/src/lib.rs`                 | `encode`, `translateToUnicode`          |
-| Python API                | `packages/python/src/lib.rs`               | Same API + CLI entry                    |
-| Landing page              | `apps/landing/src/app/`                    | Next.js App Router                      |
-| Test cases                | `test_cases/*.csv`                         | Format: input,internal,expected,unicode |
-
-## CONVENTIONS
-
-### Rust
-
-- Edition 2024, resolver 3
-- PHF macros for static lookup tables
-- `Result<T, String>` for encoding errors (no custom error type)
-- Feature flags: `cli` (default), `wasm`
-- Tests inline with `#[cfg(test)]` modules
-
-### TypeScript
-
-- `strict: true`, `moduleResolution: bundler`
-- `@/*` path alias to `./src/*`
-- ESLint: `eslint-plugin-devup` recommended config
-- Bun test with a preload plugin for WASM tests
-
-### Python
-
-- Requires Python >= 3.13 (workspace), >= 3.8 (package)
-- `uv` for workspace management
-- `maturin` for building wheels
-- CLI entry: `braillify = "braillify:cli"`
-
-## ANTI-PATTERNS (THIS PROJECT)
-
-- **Never suppress encoding errors** - propagate `Result<T, String>`
-- **Never modify CSV test files without running full test suite** - `rule_map.json` must match
-- **Avoid `as any` or `@ts-ignore`** in TypeScript
-
-## COMMANDS
+## 빌드 & 테스트
 
 ```bash
-# Install dependencies (runs uv sync, wasm-pack install, maturin install)
 bun install
-
-# Build all packages
-bun run build
-
-# Run all tests (Rust coverage + Bun test + Pytest)
-bun run test
-
-# Build landing site (requires test_status.json from test run)
-bun run build:landing
-
-# Dev server for landing
-bun -F landing dev
-
-# Lint
-bun run lint
-bun run lint:fix
+cargo build --release -p braillify
+bun test                    # 전체 테스트 (Rust + Bun + Python)
+bun test test_cases/         # 테스트케이스 무결성 검증만
 ```
 
-## NOTES
+## 테스트 케이스 규칙
 
-- **Test output**: `cargo test test_by_testcase` generates `test_status.json` for landing page
-- **WASM build**: `wasm-pack build --target bundler` in `packages/node`
-- **Python wheel**: `maturin build --release` in `packages/python`
-- **No CI workflows checked in** - build/test orchestrated via root `package.json`
-- **Korean comments** in Rust code reference specific rule numbers (e.g., "제14항")
+### 파일 구조
+
+- `test_cases/korean/rule_{N}.json` — 한글 점자 제N항
+- `test_cases/korean/rule_{N}_b1.json` — 제N항 붙임 1
+- `test_cases/math/math_{N}.json` — 수학 점자 제N항
+- 근거: `docs/2024 개정 한국 점자 규정.pdf`
+
+### 엔트리 형식
+
+```json
+{
+  "input": "입력 텍스트 (묵자 또는 LaTeX)",
+  "note": "설명 (선택, 동일 input이 여럿이거나 맥락 필요 시에만)",
+  "internal": "점자 내부표기",
+  "expected": "브라유셀 인덱스 연결 문자열",
+  "unicode": "점자 유니코드 문자열"
+}
+```
+
+### internal → expected/unicode 변환
+
+`braillove-case-collector/converter.py`의 패턴을 따른다:
+
+```
+pattern: " a1b'k2l@cif/msp"e3h9o6r^djg>ntq,*5<-u8v.%[$+x!&;:4\0z7(_?w]#y)="
+braille: ⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿
+```
+
+특수 매핑: `` ` ``→0, `{`→42, `}`→59, `~`→24, `|`→51
+
+`expected`는 각 문자의 인덱스를 문자열로 이어붙인 것, `unicode`는 대응하는 점자 유니코드 문자를 이어붙인 것이다.
+
+### 무결성 검증
+
+`test_cases/testcase-integrity.test.ts`가 모든 엔트리의 internal → expected/unicode 일치를 검증한다. 대문자(수학 변수 A, B 등)를 포함한 internal은 기본 패턴 외이므로 skip된다.
+
+### 테스트 케이스 작성 원칙
+
+1. **PDF가 유일한 근거** — `docs/2024 개정 한국 점자 규정.pdf`에 없는 예제를 만들지 않는다.
+2. **PDF 순서 준수** — 기호 정의 → 해당 예제 순서로, PDF에 나온 순서 그대로 배치한다.
+3. **기호 단독 엔트리 필수** — 각 기호는 단독 엔트리로 먼저 등록하고, 그 뒤에 해당 기호를 사용하는 예제가 온다.
+4. **note는 필요할 때만** — 동일 input이 다른 의미로 쓰일 때, 또는 맥락이 필요할 때만 추가한다. input을 반복하는 note는 쓰지 않는다.
+5. **소속 정확히** — 각 엔트리는 해당 항 파일에만 존재한다. 다른 항의 예제를 섞지 않는다.
+
+### LaTeX 입력
+
+수학 수식은 LaTeX 형식의 input도 테스트한다. 기존 엔트리의 LaTeX 버전을 추가하는 방식이다:
+
+- 형식: `$<LaTeX 수식>$` (앞에 `$`, 뒤에 `$`)
+- 동일한 `internal`/`expected`/`unicode`를 공유
+- `"note": "LaTeX"` 표기
+- **기존 예제의 변환만** — 새로운 수식을 만들지 않는다
+
+```json
+{
+  "input": "$\\frac{3}{4}$",
+  "note": "LaTeX",
+  "internal": "#d/#c",
+  "expected": "6025129",
+  "unicode": "⠼⠙⠌⠉"
+}
+```
+
+주요 LaTeX 변환:
+
+| 수식 | LaTeX |
+|------|-------|
+| 분수 | `$\frac{분자}{분모}$` |
+| 근호 | `$\sqrt{x}$`, `$\sqrt[n]{x}$` |
+| 위첨자 | `$x^{2}$` |
+| 아래첨자 | `$x_{n}$` |
+| 부등호 | `$\neq$`, `$\geq$`, `$\leq$` |
+| 절댓값 | `$\|x\|$` |
+| 무한대 | `$\infty$` |
+| 적분 | `$\int f(x)dx$` |
+| 집합 | `$\cup$`, `$\cap$`, `$\subset$`, `$\emptyset$` |
+| 논리 | `$\land$`, `$\lor$`, `$\forall$`, `$\exists$` |
+
+### 대문자 수학 변수
+
+수학 점자에서 대문자 변수(A, B, N 등)를 사용하는 internal은 기본 64셀 패턴에 포함되지 않는다. 이런 엔트리는 `expected`/`unicode`가 빈 문자열이며, 무결성 테스트에서 자동으로 skip된다.

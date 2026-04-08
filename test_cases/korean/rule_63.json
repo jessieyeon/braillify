@@ -1,0 +1,10 @@
+[
+  {
+    "input": "밤ː나무",
+    "internal": "^5,'cem",
+    "expected": "243432491713",
+    "unicode": "⠘⠢⠠⠄⠉⠑⠍",
+    "world": "⠘⠢⠠⠄⠉⠑⠍",
+    "jeomsarang": "⠘⠢⠠⠄⠉⠑⠍"
+  }
+]

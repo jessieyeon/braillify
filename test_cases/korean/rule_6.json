@@ -1,0 +1,162 @@
+[
+  {
+    "input": "아",
+    "internal": "<",
+    "expected": "35",
+    "unicode": "⠣",
+    "world": "⠣",
+    "jeomsarang": "⠣"
+  },
+  {
+    "input": "야",
+    "internal": ">",
+    "expected": "28",
+    "unicode": "⠜",
+    "world": "⠜",
+    "jeomsarang": "⠜"
+  },
+  {
+    "input": "어",
+    "internal": "s",
+    "expected": "14",
+    "unicode": "⠎",
+    "world": "⠎",
+    "jeomsarang": "⠎"
+  },
+  {
+    "input": "여",
+    "internal": ":",
+    "expected": "49",
+    "unicode": "⠱",
+    "world": "⠱",
+    "jeomsarang": "⠱"
+  },
+  {
+    "input": "오",
+    "internal": "u",
+    "expected": "37",
+    "unicode": "⠥",
+    "world": "⠥",
+    "jeomsarang": "⠥"
+  },
+  {
+    "input": "요",
+    "internal": "+",
+    "expected": "44",
+    "unicode": "⠬",
+    "world": "⠬",
+    "jeomsarang": "⠬"
+  },
+  {
+    "input": "우",
+    "internal": "m",
+    "expected": "13",
+    "unicode": "⠍",
+    "world": "⠍",
+    "jeomsarang": "⠍"
+  },
+  {
+    "input": "유",
+    "internal": "%",
+    "expected": "41",
+    "unicode": "⠩",
+    "world": "⠩",
+    "jeomsarang": "⠩"
+  },
+  {
+    "input": "으",
+    "internal": "[",
+    "expected": "42",
+    "unicode": "⠪",
+    "world": "⠪",
+    "jeomsarang": "⠪"
+  },
+  {
+    "input": "이",
+    "internal": "o",
+    "expected": "21",
+    "unicode": "⠕",
+    "world": "⠕",
+    "jeomsarang": "⠕"
+  },
+  {
+    "input": "아리랑",
+    "internal": "<\"o\"<7",
+    "expected": "351621163554",
+    "unicode": "⠣⠐⠕⠐⠣⠶",
+    "world": "⠣⠐⠕⠐⠣⠶",
+    "jeomsarang": "⠣⠐⠕⠐⠣⠶"
+  },
+  {
+    "input": "고양이",
+    "internal": "@u>7o",
+    "expected": "837285421",
+    "unicode": "⠈⠥⠜⠶⠕",
+    "world": "⠈⠥⠜⠶⠕",
+    "jeomsarang": "⠈⠥⠜⠶⠕"
+  },
+  {
+    "input": "엄지",
+    "internal": "s5.o",
+    "expected": "14344021",
+    "unicode": "⠎⠢⠨⠕",
+    "world": "⠎⠢⠨⠕",
+    "jeomsarang": "⠎⠢⠨⠕"
+  },
+  {
+    "input": "무역",
+    "internal": "em:a",
+    "expected": "1713491",
+    "unicode": "⠑⠍⠱⠁",
+    "world": "⠑⠍⠱⠁",
+    "jeomsarang": "⠑⠍⠱⠁"
+  },
+  {
+    "input": "호랑이",
+    "internal": "ju\"<7o",
+    "expected": "263716355421",
+    "unicode": "⠚⠥⠐⠣⠶⠕",
+    "world": "⠚⠥⠐⠣⠶⠕",
+    "jeomsarang": "⠚⠥⠐⠣⠶⠕"
+  },
+  {
+    "input": "무용",
+    "internal": "em+7",
+    "expected": "17134454",
+    "unicode": "⠑⠍⠬⠶",
+    "world": "⠑⠍⠬⠶",
+    "jeomsarang": "⠑⠍⠬⠶"
+  },
+  {
+    "input": "국수",
+    "internal": "@ma,m",
+    "expected": "81313213",
+    "unicode": "⠈⠍⠁⠠⠍",
+    "world": "⠈⠍⠁⠠⠍",
+    "jeomsarang": "⠈⠍⠁⠠⠍"
+  },
+  {
+    "input": "법률",
+    "internal": "^sb\"%1",
+    "expected": "2414316412",
+    "unicode": "⠘⠎⠃⠐⠩⠂",
+    "world": "⠘⠎⠃⠐⠩⠂",
+    "jeomsarang": "⠘⠎⠃⠐⠩⠂"
+  },
+  {
+    "input": "특기",
+    "internal": "h[a@o",
+    "expected": "19421821",
+    "unicode": "⠓⠪⠁⠈⠕",
+    "world": "⠓⠪⠁⠈⠕",
+    "jeomsarang": "⠓⠪⠁⠈⠕"
+  },
+  {
+    "input": "코끼리",
+    "internal": "fu,@o\"o",
+    "expected": "1137328211621",
+    "unicode": "⠋⠥⠠⠈⠕⠐⠕",
+    "world": "⠋⠥⠠⠈⠕⠐⠕",
+    "jeomsarang": "⠋⠥⠠⠈⠕⠐⠕"
+  }
+]

@@ -1,0 +1,428 @@
+[
+  {
+    "input": "Α",
+    "note": "대문자 Alpha",
+    "internal": ",.a",
+    "expected": "32401",
+    "unicode": "⠠⠨⠁",
+    "world": "⠴⠠⠨⠁⠲",
+    "jeomsarang": "⠠⠨⠁⠲"
+  },
+  {
+    "input": "Β",
+    "note": "대문자 Beta",
+    "internal": ",.b",
+    "expected": "32403",
+    "unicode": "⠠⠨⠃",
+    "world": "⠴⠠⠨⠃⠲",
+    "jeomsarang": "⠠⠨⠃⠲"
+  },
+  {
+    "input": "Γ",
+    "note": "대문자 Gamma",
+    "internal": ",.g",
+    "expected": "324027",
+    "unicode": "⠠⠨⠛",
+    "world": "⠴⠠⠨⠛⠲",
+    "jeomsarang": "⠠⠨⠛⠲"
+  },
+  {
+    "input": "γ",
+    "note": "소문자 gamma",
+    "internal": ".g",
+    "expected": "4027",
+    "unicode": "⠨⠛",
+    "world": "⠴⠨⠛⠲",
+    "jeomsarang": "⠨⠛⠲"
+  },
+  {
+    "input": "Δ",
+    "note": "대문자 Delta",
+    "internal": ",.d",
+    "expected": "324025",
+    "unicode": "⠠⠨⠙",
+    "world": "⠴⠠⠨⠙⠲",
+    "jeomsarang": "⠠⠨⠙⠲"
+  },
+  {
+    "input": "δ",
+    "note": "소문자 delta",
+    "internal": ".d",
+    "expected": "4025",
+    "unicode": "⠨⠙",
+    "world": "⠴⠨⠙⠲",
+    "jeomsarang": "⠨⠙⠲"
+  },
+  {
+    "input": "Ε",
+    "note": "대문자 Epsilon",
+    "internal": ",.e",
+    "expected": "324017",
+    "unicode": "⠠⠨⠑",
+    "world": "⠴⠠⠨⠑⠲",
+    "jeomsarang": "⠠⠨⠑⠲"
+  },
+  {
+    "input": "ε",
+    "note": "소문자 epsilon",
+    "internal": ".e",
+    "expected": "4017",
+    "unicode": "⠨⠑",
+    "world": "⠴⠨⠑⠲",
+    "jeomsarang": "⠨⠑⠲"
+  },
+  {
+    "input": "Ζ",
+    "note": "대문자 Zeta",
+    "internal": ",.z",
+    "expected": "324053",
+    "unicode": "⠠⠨⠵",
+    "world": "⠴⠠⠨⠵⠲",
+    "jeomsarang": "⠠⠨⠵⠲"
+  },
+  {
+    "input": "ζ",
+    "note": "소문자 zeta",
+    "internal": ".z",
+    "expected": "4053",
+    "unicode": "⠨⠵",
+    "world": "⠴⠨⠵⠲",
+    "jeomsarang": "⠨⠵⠲"
+  },
+  {
+    "input": "Η",
+    "note": "대문자 Eta",
+    "internal": ".:",
+    "expected": "4049",
+    "unicode": "⠨⠱",
+    "world": "⠴⠠⠨⠱⠲",
+    "jeomsarang": "⠠⠨⠱⠲"
+  },
+  {
+    "input": "η",
+    "note": "소문자 eta",
+    "internal": ".:",
+    "expected": "4049",
+    "unicode": "⠨⠱",
+    "world": "⠴⠨⠱⠲",
+    "jeomsarang": "⠨⠱⠲"
+  },
+  {
+    "input": "Θ",
+    "note": "대문자 Theta",
+    "internal": ",.?",
+    "expected": "324057",
+    "unicode": "⠠⠨⠹",
+    "world": "⠴⠠⠨⠹⠲",
+    "jeomsarang": "⠠⠨⠹⠲"
+  },
+  {
+    "input": "Ι",
+    "note": "대문자 Iota",
+    "internal": ",.i",
+    "expected": "324010",
+    "unicode": "⠠⠨⠊",
+    "world": "⠴⠠⠨⠊⠲",
+    "jeomsarang": "⠠⠨⠊⠲"
+  },
+  {
+    "input": "ι",
+    "note": "소문자 iota",
+    "internal": ".i",
+    "expected": "4010",
+    "unicode": "⠨⠊",
+    "world": "⠴⠨⠊⠲",
+    "jeomsarang": "⠨⠊⠲"
+  },
+  {
+    "input": "Κ",
+    "note": "대문자 Kappa",
+    "internal": ",.k",
+    "expected": "32405",
+    "unicode": "⠠⠨⠅",
+    "world": "⠴⠠⠨⠅⠲",
+    "jeomsarang": "⠠⠨⠅⠲"
+  },
+  {
+    "input": "κ",
+    "note": "소문자 kappa",
+    "internal": ".k",
+    "expected": "405",
+    "unicode": "⠨⠅",
+    "world": "⠴⠨⠅⠲",
+    "jeomsarang": "⠨⠅⠲"
+  },
+  {
+    "input": "Λ",
+    "note": "대문자 Lambda",
+    "internal": ",.l",
+    "expected": "32407",
+    "unicode": "⠠⠨⠇",
+    "world": "⠴⠠⠨⠇⠲",
+    "jeomsarang": "⠠⠨⠇⠲"
+  },
+  {
+    "input": "λ",
+    "note": "소문자 lambda",
+    "internal": ".l",
+    "expected": "407",
+    "unicode": "⠨⠇",
+    "world": "⠴⠨⠇⠲",
+    "jeomsarang": "⠨⠇⠲"
+  },
+  {
+    "input": "Μ",
+    "note": "대문자 Mu",
+    "internal": ",.m",
+    "expected": "324013",
+    "unicode": "⠠⠨⠍",
+    "world": "⠴⠠⠨⠍⠲",
+    "jeomsarang": "⠠⠨⠍⠲"
+  },
+  {
+    "input": "μ",
+    "note": "소문자 mu",
+    "internal": ".m",
+    "expected": "4013",
+    "unicode": "⠨⠍",
+    "world": "⠴⠨⠍⠲",
+    "jeomsarang": "⠨⠍⠲"
+  },
+  {
+    "input": "Ν",
+    "note": "대문자 Nu",
+    "internal": ",.n",
+    "expected": "324029",
+    "unicode": "⠠⠨⠝",
+    "world": "⠴⠠⠨⠝⠲",
+    "jeomsarang": "⠠⠨⠝⠲"
+  },
+  {
+    "input": "ν",
+    "note": "소문자 nu",
+    "internal": ".n",
+    "expected": "4029",
+    "unicode": "⠨⠝",
+    "world": "⠴⠨⠝⠲",
+    "jeomsarang": "⠨⠝⠲"
+  },
+  {
+    "input": "Ξ",
+    "note": "대문자 Xi",
+    "internal": ",.x",
+    "expected": "324045",
+    "unicode": "⠠⠨⠭",
+    "world": "⠴⠠⠨⠭⠲",
+    "jeomsarang": "⠠⠨⠭⠲"
+  },
+  {
+    "input": "ξ",
+    "note": "소문자 xi",
+    "internal": ".x",
+    "expected": "4045",
+    "unicode": "⠨⠭",
+    "world": "⠴⠨⠭⠲",
+    "jeomsarang": "⠨⠭⠲"
+  },
+  {
+    "input": "Ο",
+    "note": "대문자 Omicron",
+    "internal": ",.o",
+    "expected": "324021",
+    "unicode": "⠠⠨⠕",
+    "world": "⠴⠠⠨⠕⠲",
+    "jeomsarang": "⠠⠨⠕⠲"
+  },
+  {
+    "input": "ο",
+    "note": "소문자 omicron",
+    "internal": ".o",
+    "expected": "4021",
+    "unicode": "⠨⠕",
+    "world": "⠴⠨⠕⠲",
+    "jeomsarang": "⠨⠕⠲"
+  },
+  {
+    "input": "Π",
+    "note": "대문자 Pi",
+    "internal": ",.p",
+    "expected": "324015",
+    "unicode": "⠠⠨⠏",
+    "world": "⠴⠠⠨⠏⠲",
+    "jeomsarang": "⠠⠨⠏⠲"
+  },
+  {
+    "input": "Ρ",
+    "note": "대문자 Rho",
+    "internal": ",.r",
+    "expected": "324023",
+    "unicode": "⠠⠨⠗",
+    "world": "⠴⠠⠨⠗⠲",
+    "jeomsarang": "⠠⠨⠗⠲"
+  },
+  {
+    "input": "ρ",
+    "note": "소문자 rho",
+    "internal": ".r",
+    "expected": "4023",
+    "unicode": "⠨⠗",
+    "world": "⠴⠨⠗⠲",
+    "jeomsarang": "⠨⠗⠲"
+  },
+  {
+    "input": "Σ",
+    "note": "대문자 Sigma",
+    "internal": ",.s",
+    "expected": "324014",
+    "unicode": "⠠⠨⠎",
+    "world": "⠴⠠⠨⠎⠲",
+    "jeomsarang": "⠠⠨⠎⠲"
+  },
+  {
+    "input": "Τ",
+    "note": "대문자 Tau",
+    "internal": ",.t",
+    "expected": "324030",
+    "unicode": "⠠⠨⠞",
+    "world": "⠴⠠⠨⠞⠲",
+    "jeomsarang": "⠠⠨⠞⠲"
+  },
+  {
+    "input": "τ",
+    "note": "소문자 tau",
+    "internal": ".t",
+    "expected": "4030",
+    "unicode": "⠨⠞",
+    "world": "⠴⠨⠞⠲",
+    "jeomsarang": "⠨⠞⠲"
+  },
+  {
+    "input": "Υ",
+    "note": "대문자 Upsilon",
+    "internal": ",.u",
+    "expected": "324037",
+    "unicode": "⠠⠨⠥",
+    "world": "⠴⠠⠨⠥⠲",
+    "jeomsarang": "⠠⠨⠥⠲"
+  },
+  {
+    "input": "υ",
+    "note": "소문자 upsilon",
+    "internal": ".u",
+    "expected": "4037",
+    "unicode": "⠨⠥",
+    "world": "⠴⠨⠥⠲",
+    "jeomsarang": "⠨⠥⠲"
+  },
+  {
+    "input": "Φ",
+    "note": "대문자 Phi",
+    "internal": ",.f",
+    "expected": "324011",
+    "unicode": "⠠⠨⠋",
+    "world": "⠴⠠⠨⠋⠲",
+    "jeomsarang": "⠠⠨⠋⠲"
+  },
+  {
+    "input": "φ",
+    "note": "소문자 phi",
+    "internal": ".f",
+    "expected": "4011",
+    "unicode": "⠨⠋",
+    "world": "⠴⠨⠋⠲",
+    "jeomsarang": "⠨⠋⠲"
+  },
+  {
+    "input": "Χ",
+    "note": "대문자 Chi",
+    "internal": ",.&",
+    "expected": "324047",
+    "unicode": "⠠⠨⠯",
+    "world": "⠴⠠⠨⠯⠲",
+    "jeomsarang": "⠠⠨⠯⠲"
+  },
+  {
+    "input": "χ",
+    "note": "소문자 chi",
+    "internal": ".&",
+    "expected": "4047",
+    "unicode": "⠨⠯",
+    "world": "⠴⠨⠯⠲",
+    "jeomsarang": "⠨⠯⠲"
+  },
+  {
+    "input": "Ψ",
+    "note": "대문자 Psi",
+    "internal": ",.y",
+    "expected": "324061",
+    "unicode": "⠠⠨⠽",
+    "world": "⠴⠠⠨⠽⠲",
+    "jeomsarang": "⠠⠨⠽⠲"
+  },
+  {
+    "input": "ψ",
+    "note": "소문자 psi",
+    "internal": ".y",
+    "expected": "4061",
+    "unicode": "⠨⠽",
+    "world": "⠴⠨⠽⠲",
+    "jeomsarang": "⠨⠽⠲"
+  },
+  {
+    "input": "Ω",
+    "note": "대문자 Omega",
+    "internal": ",.w",
+    "expected": "324058",
+    "unicode": "⠠⠨⠺",
+    "world": "⠴⠠⠨⠺⠲",
+    "jeomsarang": "⠠⠨⠺⠲"
+  },
+  {
+    "input": "α",
+    "internal": ".a",
+    "expected": "401",
+    "unicode": "⠨⠁",
+    "world": "⠴⠨⠁⠲",
+    "jeomsarang": "⠨⠁⠲"
+  },
+  {
+    "input": "β",
+    "internal": ".b",
+    "expected": "403",
+    "unicode": "⠨⠃",
+    "world": "⠴⠨⠃⠲",
+    "jeomsarang": "⠨⠃⠲"
+  },
+  {
+    "input": "π",
+    "internal": ".p",
+    "expected": "4015",
+    "unicode": "⠨⠏",
+    "world": "⠴⠨⠏⠲",
+    "jeomsarang": "⠨⠏⠲"
+  },
+  {
+    "input": "θ",
+    "internal": ".?",
+    "expected": "4057",
+    "unicode": "⠨⠹",
+    "world": "⠴⠨⠹⠲",
+    "jeomsarang": "⠨⠹⠲"
+  },
+  {
+    "input": "σ",
+    "internal": ".s",
+    "expected": "4014",
+    "unicode": "⠨⠎",
+    "world": "⠴⠨⠎⠲",
+    "jeomsarang": "⠨⠎⠲"
+  },
+  {
+    "input": "ω",
+    "internal": ".w",
+    "expected": "4058",
+    "unicode": "⠨⠺",
+    "world": "⠴⠨⠺⠲",
+    "jeomsarang": "⠨⠺⠲"
+  }
+]

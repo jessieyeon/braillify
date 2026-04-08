@@ -1,8 +1,15 @@
 import { Box, globalCss, ThemeScript } from '@devup-ui/react'
 import type { Metadata } from 'next'
+import localFont from 'next/font/local'
 
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
+
+const middleKoreanFont = localFont({
+  src: './fonts/NanumBarunGothic-YetHangul.woff2',
+  variable: '--font-middle-korean',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Braillify',
@@ -82,25 +89,22 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+        <script>{`
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KHQZ6Z4V')`,
-          }}
-        />
+})(window,document,'script','dataLayer','GTM-KHQZ6Z4V')`}</script>
         <ThemeScript auto />
         <link href="/favicon.svg" rel="shortcut icon" />
       </head>
-      <body>
+      <body className={middleKoreanFont.variable}>
         <noscript>
           <iframe
             height="0"
             src="https://www.googletagmanager.com/ns.html?id=GTM-KHQZ6Z4V"
             style={{ display: 'none', visibility: 'hidden' }}
+            title="Google Tag Manager"
             width="0"
           />
         </noscript>

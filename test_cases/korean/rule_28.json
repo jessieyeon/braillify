@@ -1,0 +1,514 @@
+[
+  {
+    "input": "a",
+    "internal": "a",
+    "expected": "1",
+    "unicode": "⠁",
+    "world": "⠴⠁⠲",
+    "jeomsarang": "⠴⠁"
+  },
+  {
+    "input": "A",
+    "internal": ",a",
+    "expected": "321",
+    "unicode": "⠠⠁",
+    "world": "⠴⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠁⠲"
+  },
+  {
+    "input": "b",
+    "internal": "0b",
+    "expected": "523",
+    "unicode": "⠴⠃",
+    "world": "⠴⠃⠲",
+    "jeomsarang": "⠴⠃"
+  },
+  {
+    "input": "B",
+    "internal": ",b",
+    "expected": "323",
+    "unicode": "⠠⠃",
+    "world": "⠴⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠃⠲"
+  },
+  {
+    "input": "c",
+    "internal": "c",
+    "expected": "9",
+    "unicode": "⠉",
+    "world": "⠴⠉⠲",
+    "jeomsarang": "⠴⠉"
+  },
+  {
+    "input": "C",
+    "internal": ",c",
+    "expected": "329",
+    "unicode": "⠠⠉",
+    "world": "⠴⠠⠉⠲",
+    "jeomsarang": "⠴⠠⠉⠲"
+  },
+  {
+    "input": "d",
+    "internal": "d",
+    "expected": "25",
+    "unicode": "⠙",
+    "world": "⠴⠙⠲",
+    "jeomsarang": "⠴⠙"
+  },
+  {
+    "input": "D",
+    "internal": ",d",
+    "expected": "3225",
+    "unicode": "⠠⠙",
+    "world": "⠴⠠⠙⠲",
+    "jeomsarang": "⠴⠠⠙⠲"
+  },
+  {
+    "input": "e",
+    "internal": "e",
+    "expected": "17",
+    "unicode": "⠑",
+    "world": "⠴⠑⠲",
+    "jeomsarang": "⠴⠑"
+  },
+  {
+    "input": "E",
+    "internal": ",e",
+    "expected": "3217",
+    "unicode": "⠠⠑",
+    "world": "⠴⠠⠑⠲",
+    "jeomsarang": "⠴⠠⠑⠲"
+  },
+  {
+    "input": "f",
+    "internal": "f",
+    "expected": "11",
+    "unicode": "⠋",
+    "world": "⠴⠋⠲",
+    "jeomsarang": "⠴⠋"
+  },
+  {
+    "input": "F",
+    "internal": ",f",
+    "expected": "3211",
+    "unicode": "⠠⠋",
+    "world": "⠴⠠⠋⠲",
+    "jeomsarang": "⠴⠠⠋⠲"
+  },
+  {
+    "input": "g",
+    "internal": "g",
+    "expected": "27",
+    "unicode": "⠛",
+    "world": "⠴⠛⠲",
+    "jeomsarang": "⠴⠛"
+  },
+  {
+    "input": "G",
+    "internal": ",g",
+    "expected": "3227",
+    "unicode": "⠠⠛",
+    "world": "⠴⠠⠛⠲",
+    "jeomsarang": "⠴⠠⠛⠲"
+  },
+  {
+    "input": "h",
+    "internal": "h",
+    "expected": "19",
+    "unicode": "⠓",
+    "world": "⠴⠓⠲",
+    "jeomsarang": "⠴⠓"
+  },
+  {
+    "input": "H",
+    "internal": ",h",
+    "expected": "3219",
+    "unicode": "⠠⠓",
+    "world": "⠴⠠⠓⠲",
+    "jeomsarang": "⠴⠠⠓⠲"
+  },
+  {
+    "input": "i",
+    "internal": "i",
+    "expected": "10",
+    "unicode": "⠊",
+    "world": "⠴⠊⠲",
+    "jeomsarang": "⠴⠊"
+  },
+  {
+    "input": "I",
+    "internal": ",i",
+    "expected": "3210",
+    "unicode": "⠠⠊",
+    "world": "⠴⠠⠊⠲",
+    "jeomsarang": "⠴⠠⠊⠲"
+  },
+  {
+    "input": "j",
+    "internal": "j",
+    "expected": "26",
+    "unicode": "⠚",
+    "world": "⠴⠚⠲",
+    "jeomsarang": "⠴⠚"
+  },
+  {
+    "input": "J",
+    "internal": ",j",
+    "expected": "3226",
+    "unicode": "⠠⠚",
+    "world": "⠴⠠⠚⠲",
+    "jeomsarang": "⠴⠠⠚⠲"
+  },
+  {
+    "input": "k",
+    "internal": "k",
+    "expected": "5",
+    "unicode": "⠅",
+    "world": "⠴⠅⠲",
+    "jeomsarang": "⠴⠅"
+  },
+  {
+    "input": "K",
+    "internal": ",k",
+    "expected": "325",
+    "unicode": "⠠⠅",
+    "world": "⠴⠠⠅⠲",
+    "jeomsarang": "⠴⠠⠅⠲"
+  },
+  {
+    "input": "l",
+    "internal": "l",
+    "expected": "7",
+    "unicode": "⠇",
+    "world": "⠴⠇⠲",
+    "jeomsarang": "⠴⠇"
+  },
+  {
+    "input": "L",
+    "internal": ",l",
+    "expected": "327",
+    "unicode": "⠠⠇",
+    "world": "⠴⠠⠇⠲",
+    "jeomsarang": "⠴⠠⠇⠲"
+  },
+  {
+    "input": "m",
+    "internal": "m",
+    "expected": "13",
+    "unicode": "⠍",
+    "world": "⠴⠍⠲",
+    "jeomsarang": "⠴⠍"
+  },
+  {
+    "input": "M",
+    "internal": ",m",
+    "expected": "3213",
+    "unicode": "⠠⠍",
+    "world": "⠴⠠⠍⠲",
+    "jeomsarang": "⠴⠠⠍⠲"
+  },
+  {
+    "input": "n",
+    "internal": "n",
+    "expected": "29",
+    "unicode": "⠝",
+    "world": "⠴⠝⠲",
+    "jeomsarang": "⠴⠝"
+  },
+  {
+    "input": "N",
+    "internal": ",n",
+    "expected": "3229",
+    "unicode": "⠠⠝",
+    "world": "⠴⠠⠝⠲",
+    "jeomsarang": "⠴⠠⠝⠲"
+  },
+  {
+    "input": "o",
+    "internal": "o",
+    "expected": "21",
+    "unicode": "⠕",
+    "world": "⠴⠕⠲",
+    "jeomsarang": "⠴⠕"
+  },
+  {
+    "input": "O",
+    "internal": ",o",
+    "expected": "3221",
+    "unicode": "⠠⠕",
+    "world": "⠴⠠⠕⠲",
+    "jeomsarang": "⠴⠠⠕⠲"
+  },
+  {
+    "input": "p",
+    "internal": "p",
+    "expected": "15",
+    "unicode": "⠏",
+    "world": "⠴⠏⠲",
+    "jeomsarang": "⠴⠏"
+  },
+  {
+    "input": "P",
+    "internal": ",p",
+    "expected": "3215",
+    "unicode": "⠠⠏",
+    "world": "⠴⠠⠏⠲",
+    "jeomsarang": "⠴⠠⠏⠲"
+  },
+  {
+    "input": "q",
+    "internal": "q",
+    "expected": "31",
+    "unicode": "⠟",
+    "world": "⠴⠟⠲",
+    "jeomsarang": "⠴⠟"
+  },
+  {
+    "input": "Q",
+    "internal": ",q",
+    "expected": "3231",
+    "unicode": "⠠⠟",
+    "world": "⠴⠠⠟⠲",
+    "jeomsarang": "⠴⠠⠟⠲"
+  },
+  {
+    "input": "r",
+    "internal": "r",
+    "expected": "23",
+    "unicode": "⠗",
+    "world": "⠴⠗⠲",
+    "jeomsarang": "⠴⠗"
+  },
+  {
+    "input": "R",
+    "internal": ",r",
+    "expected": "3223",
+    "unicode": "⠠⠗",
+    "world": "⠴⠠⠗⠲",
+    "jeomsarang": "⠴⠠⠗⠲"
+  },
+  {
+    "input": "s",
+    "internal": "s",
+    "expected": "14",
+    "unicode": "⠎",
+    "world": "⠴⠎⠲",
+    "jeomsarang": "⠴⠎"
+  },
+  {
+    "input": "S",
+    "internal": ",s",
+    "expected": "3214",
+    "unicode": "⠠⠎",
+    "world": "⠴⠠⠎⠲",
+    "jeomsarang": "⠴⠠⠎⠲"
+  },
+  {
+    "input": "t",
+    "internal": "t",
+    "expected": "30",
+    "unicode": "⠞",
+    "world": "⠴⠞⠲",
+    "jeomsarang": "⠴⠞"
+  },
+  {
+    "input": "T",
+    "internal": ",t",
+    "expected": "3230",
+    "unicode": "⠠⠞",
+    "world": "⠴⠠⠞⠲",
+    "jeomsarang": "⠴⠠⠞⠲"
+  },
+  {
+    "input": "u",
+    "internal": "u",
+    "expected": "37",
+    "unicode": "⠥",
+    "world": "⠴⠥⠲",
+    "jeomsarang": "⠴⠥"
+  },
+  {
+    "input": "U",
+    "internal": ",u",
+    "expected": "3237",
+    "unicode": "⠠⠥",
+    "world": "⠴⠠⠥⠲",
+    "jeomsarang": "⠴⠠⠥⠲"
+  },
+  {
+    "input": "v",
+    "internal": "v",
+    "expected": "39",
+    "unicode": "⠧",
+    "world": "⠴⠧⠲",
+    "jeomsarang": "⠴⠧"
+  },
+  {
+    "input": "V",
+    "internal": ",v",
+    "expected": "3239",
+    "unicode": "⠠⠧",
+    "world": "⠴⠠⠧⠲",
+    "jeomsarang": "⠴⠠⠧⠲"
+  },
+  {
+    "input": "w",
+    "internal": "w",
+    "expected": "58",
+    "unicode": "⠺",
+    "world": "⠴⠺⠲",
+    "jeomsarang": "⠴⠺"
+  },
+  {
+    "input": "W",
+    "internal": ",w",
+    "expected": "3258",
+    "unicode": "⠠⠺",
+    "world": "⠴⠠⠺⠲",
+    "jeomsarang": "⠴⠠⠺⠲"
+  },
+  {
+    "input": "x",
+    "internal": "x",
+    "expected": "45",
+    "unicode": "⠭",
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠴⠭"
+  },
+  {
+    "input": "X",
+    "internal": ",x",
+    "expected": "3245",
+    "unicode": "⠠⠭",
+    "world": "⠴⠠⠭⠲",
+    "jeomsarang": "⠴⠠⠭⠲"
+  },
+  {
+    "input": "y",
+    "internal": "y",
+    "expected": "61",
+    "unicode": "⠽",
+    "world": "⠴⠽⠲",
+    "jeomsarang": "⠴⠽"
+  },
+  {
+    "input": "Y",
+    "internal": ",y",
+    "expected": "3261",
+    "unicode": "⠠⠽",
+    "world": "⠴⠠⠽⠲",
+    "jeomsarang": "⠴⠠⠽⠲"
+  },
+  {
+    "input": "z",
+    "internal": "z",
+    "expected": "53",
+    "unicode": "⠵",
+    "world": "⠴⠵⠲",
+    "jeomsarang": "⠴⠵"
+  },
+  {
+    "input": "Z",
+    "internal": ",z",
+    "expected": "3253",
+    "unicode": "⠠⠵",
+    "world": "⠴⠠⠵⠲",
+    "jeomsarang": "⠴⠠⠵⠲"
+  },
+  {
+    "input": "book",
+    "internal": "book",
+    "expected": "321215",
+    "unicode": "⠃⠕⠕⠅",
+    "world": "⠴⠃⠕⠕⠅⠲",
+    "jeomsarang": "⠴⠃⠕⠕⠅⠲"
+  },
+  {
+    "input": "happy",
+    "internal": "happy",
+    "expected": "191151561",
+    "unicode": "⠓⠁⠏⠏⠽",
+    "world": "⠴⠓⠁⠏⠏⠽⠲",
+    "jeomsarang": "⠴⠓⠁⠏⠏⠽⠲"
+  },
+  {
+    "input": "moon",
+    "internal": "moon",
+    "expected": "13212129",
+    "unicode": "⠍⠕⠕⠝",
+    "world": "⠴⠍⠕⠕⠝⠲",
+    "jeomsarang": "⠴⠍⠕⠕⠝⠲"
+  },
+  {
+    "input": "purple",
+    "internal": "purple",
+    "expected": "15372315717",
+    "unicode": "⠏⠥⠗⠏⠇⠑",
+    "world": "⠴⠏⠥⠗⠏⠇⠑⠲",
+    "jeomsarang": "⠴⠏⠥⠗⠏⠇⠑⠲"
+  },
+  {
+    "input": "tea",
+    "internal": "tea",
+    "expected": "30171",
+    "unicode": "⠞⠑⠁",
+    "world": "⠴⠞⠑⠁⠲",
+    "jeomsarang": "⠴⠞⠑⠁⠲"
+  },
+  {
+    "input": "welcome",
+    "internal": "welcome",
+    "expected": "581779211317",
+    "unicode": "⠺⠑⠇⠉⠕⠍⠑",
+    "world": "⠴⠺⠑⠇⠉⠕⠍⠑⠲",
+    "jeomsarang": "⠴⠺⠑⠇⠉⠕⠍⠑⠲"
+  },
+  {
+    "input": "New York",
+    "internal": ",new ,york",
+    "expected": "322917580326121235",
+    "unicode": "⠠⠝⠑⠺⠀⠠⠽⠕⠗⠅",
+    "world": "⠴⠠⠝⠑⠺ ⠠⠽⠕⠗⠅⠲",
+    "jeomsarang": "⠴⠠⠝⠑⠺⠀⠠⠽⠕⠗⠅⠲"
+  },
+  {
+    "input": "NEW YORK",
+    "internal": ",,new ,,york",
+    "expected": "3232291758032326121235",
+    "unicode": "⠠⠠⠝⠑⠺⠀⠠⠠⠽⠕⠗⠅",
+    "world": "⠴⠠⠠⠝⠑⠺ ⠠⠠⠽⠕⠗⠅⠲",
+    "jeomsarang": "⠴⠠⠠⠝⠑⠺⠀⠠⠠⠽⠕⠗⠅⠲"
+  },
+  {
+    "input": "McDonald",
+    "internal": ",mc,donald",
+    "expected": "32139322521291725",
+    "unicode": "⠠⠍⠉⠠⠙⠕⠝⠁⠇⠙",
+    "world": "⠴⠠⠍⠉⠠⠙⠕⠝⠁⠇⠙⠲",
+    "jeomsarang": "⠴⠠⠍⠉⠠⠙⠕⠝⠁⠇⠙⠲"
+  },
+  {
+    "input": "IoT",
+    "internal": ",io,t",
+    "expected": "3210213230",
+    "unicode": "⠠⠊⠕⠠⠞",
+    "world": "⠴⠠⠊⠕⠠⠞⠲",
+    "jeomsarang": "⠴⠠⠊⠕⠠⠞⠲"
+  },
+  {
+    "input": "iOS",
+    "internal": "i,,os",
+    "expected": "1032322114",
+    "unicode": "⠊⠠⠠⠕⠎",
+    "world": "⠴⠊⠠⠠⠕⠎⠲",
+    "jeomsarang": "⠴⠊⠠⠠⠕⠎⠲"
+  },
+  {
+    "input": "WELCOME TO KOREA",
+    "internal": ",,,welcome to korea,'",
+    "expected": "32323258177921131703021052123171324",
+    "unicode": "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄",
+    "world": "⠴⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑ ⠞⠕ ⠅⠕⠗⠑⠁⠠⠄⠲",
+    "jeomsarang": "⠴⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄⠲"
+  }
+]

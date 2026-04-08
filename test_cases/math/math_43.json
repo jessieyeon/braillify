@@ -1,0 +1,27 @@
+[
+  {
+    "input": "≡",
+    "internal": "77",
+    "expected": "5454",
+    "unicode": "⠶⠶",
+    "world": "",
+    "jeomsarang": "⠶⠶"
+  },
+  {
+    "input": "△ABC≡△DEF",
+    "internal": "_+,,ABC77_+,,DEF",
+    "expected": "56443232139545456443232251711",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋",
+    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠸⠿⠫⠼⠉⠠⠠⠙⠑⠋⠲",
+    "jeomsarang": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠇⠠⠠⠙⠑⠋⠲"
+  },
+  {
+    "input": "$\\triangle ABC \\equiv \\triangle DEF$",
+    "internal": "_+,,ABC77_+,,DEF",
+    "expected": "56443232139545456443232251711",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉⠶⠶⠸⠬⠠⠠⠙⠑⠋",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

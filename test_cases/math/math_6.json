@@ -1,0 +1,169 @@
+[
+  {
+    "input": "(",
+    "context": "math_bracket_open",
+    "note": "소괄호 열기",
+    "internal": "8",
+    "expected": "38",
+    "unicode": "⠦",
+    "world": "⠦⠄",
+    "jeomsarang": "⠦⠄"
+  },
+  {
+    "input": ")",
+    "context": "math_bracket_close",
+    "note": "소괄호 닫기",
+    "internal": "0",
+    "expected": "52",
+    "unicode": "⠴",
+    "world": "⠠⠴",
+    "jeomsarang": "⠠⠴"
+  },
+  {
+    "input": "{",
+    "context": "math_bracket_open",
+    "note": "중괄호 열기",
+    "internal": "7",
+    "expected": "54",
+    "unicode": "⠶",
+    "world": "⠦⠂",
+    "jeomsarang": ""
+  },
+  {
+    "input": "}",
+    "context": "math_bracket_close",
+    "note": "중괄호 닫기",
+    "internal": "7",
+    "expected": "54",
+    "unicode": "⠶",
+    "world": "⠐⠴",
+    "jeomsarang": "⠐⠴"
+  },
+  {
+    "input": "[",
+    "context": "math_bracket_open",
+    "note": "대괄호 열기",
+    "internal": "('",
+    "expected": "554",
+    "unicode": "⠷⠄",
+    "world": "⠦⠆",
+    "jeomsarang": "⠦⠆"
+  },
+  {
+    "input": "]",
+    "context": "math_bracket_close",
+    "note": "대괄호 닫기",
+    "internal": ",)",
+    "expected": "3262",
+    "unicode": "⠠⠾",
+    "world": "⠰⠴",
+    "jeomsarang": "⠰⠴"
+  },
+  {
+    "input": "{",
+    "context": "math_system_bracket_open",
+    "note": "연립식 괄호 열기",
+    "internal": "7'",
+    "expected": "544",
+    "unicode": "⠶⠄",
+    "world": "⠦⠂",
+    "jeomsarang": ""
+  },
+  {
+    "input": "}",
+    "context": "math_system_bracket_close",
+    "note": "연립식 괄호 닫기",
+    "internal": ",7",
+    "expected": "3254",
+    "unicode": "⠠⠶",
+    "world": "⠐⠴",
+    "jeomsarang": "⠐⠴"
+  },
+  {
+    "input": "58-(17+14)",
+    "internal": "#eh98#ag5#ad0",
+    "expected": "601719203860127346012552",
+    "unicode": "⠼⠑⠓⠔⠦⠼⠁⠛⠢⠼⠁⠙⠴",
+    "world": "⠼⠑⠓⠤⠦⠄⠼⠁⠛⠢⠼⠁⠙⠠⠴",
+    "jeomsarang": "⠼⠑⠓⠤⠦⠄⠼⠁⠛⠢⠼⠁⠙⠠⠴"
+  },
+  {
+    "input": "A={2, 4, 6, ...}",
+    "internal": ",a337#b\"`#d\"`#f\"`,,,7",
+    "expected": "3211818546031606025160601116032323254",
+    "unicode": "⠠⠁⠒⠒⠶⠼⠃⠐⠀⠼⠙⠐⠀⠼⠋⠐⠀⠠⠠⠠⠶",
+    "world": "⠴⠠⠁⠒⠒⠦⠂⠼⠃⠂ ⠼⠙⠂ ⠼⠋⠂ ⠲⠲⠲⠐⠴",
+    "jeomsarang": ""
+  },
+  {
+    "input": "y=[x]",
+    "internal": "y33('x,)",
+    "expected": "611818554453262",
+    "unicode": "⠽⠒⠒⠷⠄⠭⠠⠾",
+    "world": "⠴⠽⠐⠶⠨⠣⠭⠰⠴",
+    "jeomsarang": "⠴⠰⠽⠐⠶⠦⠆⠰⠭⠰⠴"
+  },
+  {
+    "input": "(",
+    "context": "math_group_open",
+    "note": "묶음 괄호 열기",
+    "internal": "(",
+    "expected": "55",
+    "unicode": "⠷",
+    "world": "⠦⠄",
+    "jeomsarang": "⠦⠄"
+  },
+  {
+    "input": ")",
+    "context": "math_group_close",
+    "note": "묶음 괄호 닫기",
+    "internal": ")",
+    "expected": "62",
+    "unicode": "⠾",
+    "world": "⠠⠴",
+    "jeomsarang": "⠠⠴"
+  },
+  {
+    "input": "√(xy)",
+    "internal": ">(xy)",
+    "expected": "2855456162",
+    "unicode": "⠜⠷⠭⠽⠾",
+    "world": "⠦⠄⠴⠭⠽⠠⠴",
+    "jeomsarang": "⠻⠦⠄⠭⠽⠠⠴"
+  },
+  {
+    "input": "sin(x/6)",
+    "internal": "6s(#f/x)",
+    "expected": "2214556011124562",
+    "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾",
+    "world": "⠴⠎⠔⠐⠣⠭⠸⠌⠼⠋⠠⠴",
+    "jeomsarang": "⠴⠎⠔⠐⠣⠭⠲⠘⠌⠼⠋⠐⠜⠲"
+  },
+  {
+    "input": "원의 둘레 = 반지름 × 2 × 3.14",
+    "note": "붙임: 원의 둘레 = 반지름 × 2 × 3.14",
+    "internal": "8p3w`i&\"n0338^3.o\"[50*#b*#c4ad",
+    "expected": "38151858010471629521818382418402116423452336033360950125",
+    "unicode": "⠦⠏⠒⠺⠀⠊⠯⠐⠝⠴⠒⠒⠦⠘⠒⠨⠕⠐⠪⠢⠴⠡⠼⠃⠡⠼⠉⠲⠁⠙",
+    "world": "⠏⠒⠺ ⠊⠯⠐⠝ ⠒⠒ ⠘⠒⠨⠕⠐⠪⠢ ⠡ ⠼⠃ ⠡ ⠼⠉⠲⠁⠙",
+    "jeomsarang": "⠏⠒⠺⠀⠊⠯⠐⠝⠀⠒⠒⠀⠘⠒⠨⠕⠐⠪⠢⠀⠡⠀⠼⠃⠀⠡⠀⠼⠉⠲⠁⠙"
+  },
+  {
+    "input": "(자연수+자연수)/(자연수×자연수)=(1+2)/(1×2)",
+    "note": "붙임: 한글표 _( _)로 묶은 수식",
+    "internal": "_(.<*,m`5`.<*,m_)/_(.<*,m`*`.<*,m_)33(#a5#b)/(#a*#b)",
+    "expected": "565540353332130340403533321356621256554035333213033040353332135662181855601346036212556013360362",
+    "unicode": "⠸⠷⠨⠣⠡⠠⠍⠀⠢⠀⠨⠣⠡⠠⠍⠸⠾⠌⠸⠷⠨⠣⠡⠠⠍⠀⠡⠀⠨⠣⠡⠠⠍⠸⠾⠒⠒⠷⠼⠁⠢⠼⠃⠾⠌⠷⠼⠁⠡⠼⠃⠾",
+    "world": "⠦⠄⠨⠣⠡⠠⠍  ⠢  ⠨⠣⠡⠠⠍⠠⠴⠸⠌⠦⠄⠨⠣⠡⠠⠍⠸⠭⠇⠨⠣⠡⠠⠍⠠⠴⠒⠒⠦⠄⠼⠁⠢⠼⠃⠠⠴⠸⠌⠦⠄⠼⠁⠡⠼⠃⠠⠴",
+    "jeomsarang": "⠦⠄⠨⠣⠡⠠⠍⠀⠢⠀⠨⠣⠡⠠⠍⠠⠴⠸⠌⠦⠄⠨⠣⠡⠠⠍⠀⠡⠀⠨⠣⠡⠠⠍⠠⠴⠒⠒⠦⠄⠼⠁⠢⠼⠃⠠⠴⠸⠌⠦⠄⠼⠁⠡⠼⠃⠠⠴"
+  },
+  {
+    "input": "표준편차=√분산",
+    "note": "붙임: 표준편차 = √분산",
+    "internal": "d+.gd*;<`33>_(^gl3_)",
+    "expected": "25444027253348350181828565524277185662",
+    "unicode": "⠙⠬⠨⠛⠙⠡⠰⠣⠀⠒⠒⠜⠸⠷⠘⠛⠇⠒⠸⠾",
+    "world": "⠙⠬⠨⠛⠙⠡⠰⠣ ⠒⠒ ⠘⠛⠇⠒",
+    "jeomsarang": "⠙⠬⠨⠛⠙⠡⠰⠣⠒⠒⠻⠘⠛⠇⠒"
+  }
+]

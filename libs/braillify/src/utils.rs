@@ -29,7 +29,7 @@ pub fn has_choseong_o(ch: char) -> bool {
 }
 
 pub fn is_korean_char(c: char) -> bool {
-    (c as u32 >= 0x3131 && c as u32 <= 0x3163) || (0xAC00 <= c as u32 && c as u32 <= 0xD7A3)
+    (c as u32 >= 0x3131 && c as u32 <= 0x318E) || (0xAC00 <= c as u32 && c as u32 <= 0xD7A3)
 }
 
 #[cfg(test)]
@@ -44,10 +44,10 @@ mod test {
 
     #[test]
     fn test_has_choseong_o() {
-        assert_eq!(has_choseong_o('ㅇ'), true);
-        assert_eq!(has_choseong_o('ㄱ'), false);
-        assert_eq!(has_choseong_o('아'), true);
-        assert_eq!(has_choseong_o('가'), false);
-        assert_eq!(has_choseong_o('앙'), true);
+        assert!(has_choseong_o('ㅇ'));
+        assert!(!has_choseong_o('ㄱ'));
+        assert!(has_choseong_o('아'));
+        assert!(!has_choseong_o('가'));
+        assert!(has_choseong_o('앙'));
     }
 }

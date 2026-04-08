@@ -1,0 +1,98 @@
+[
+  {
+    "input": "→",
+    "internal": "3o",
+    "expected": "1821",
+    "unicode": "⠒⠕",
+    "world": "⠒⠕",
+    "jeomsarang": "⠒⠕"
+  },
+  {
+    "input": "←",
+    "internal": "[3",
+    "expected": "4218",
+    "unicode": "⠪⠒",
+    "world": "⠪⠒",
+    "jeomsarang": "⠪⠒"
+  },
+  {
+    "input": "↔",
+    "internal": "[3o",
+    "expected": "421821",
+    "unicode": "⠪⠒⠕",
+    "world": "⠪⠒⠕",
+    "jeomsarang": "⠪⠒⠕"
+  },
+  {
+    "input": "↑",
+    "internal": ";3o",
+    "expected": "481821",
+    "unicode": "⠰⠒⠕",
+    "world": "⠰⠒⠕",
+    "jeomsarang": "⠰⠒⠕"
+  },
+  {
+    "input": "↓",
+    "internal": "^3o",
+    "expected": "241821",
+    "unicode": "⠘⠒⠕",
+    "world": "⠘⠒⠕",
+    "jeomsarang": "⠘⠒⠕"
+  },
+  {
+    "input": "↗",
+    "internal": "9o",
+    "expected": "2021",
+    "unicode": "⠔⠕",
+    "world": "⠔⠕",
+    "jeomsarang": "⠔⠕"
+  },
+  {
+    "input": "↘",
+    "internal": "5o",
+    "expected": "3421",
+    "unicode": "⠢⠕",
+    "world": "",
+    "jeomsarang": "⠢⠕"
+  },
+  {
+    "input": "↖",
+    "internal": "[5",
+    "expected": "4234",
+    "unicode": "⠪⠢",
+    "world": "",
+    "jeomsarang": "⠪⠢"
+  },
+  {
+    "input": "↙",
+    "internal": "[9",
+    "expected": "4220",
+    "unicode": "⠪⠔",
+    "world": "⠪⠔",
+    "jeomsarang": "⠪⠔"
+  },
+  {
+    "input": "X → Y",
+    "internal": ",x`3o`,y",
+    "expected": "32450182103261",
+    "unicode": "⠠⠭⠀⠒⠕⠀⠠⠽",
+    "world": "⠴⠠⠭ ⠰⠳⠕ ⠰⠠⠽⠲",
+    "jeomsarang": "⠴⠠⠭⠀⠰⠳⠕⠀⠰⠠⠽⠲"
+  },
+  {
+    "input": "A ← B",
+    "internal": ",a`[3`,b",
+    "expected": "321042180323",
+    "unicode": "⠠⠁⠀⠪⠒⠀⠠⠃",
+    "world": "⠴⠠⠁ ⠰⠳⠪ ⠰⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠀⠰⠳⠪⠀⠰⠠⠃⠲"
+  },
+  {
+    "input": "a ↔ b",
+    "internal": "a`[3o`b",
+    "expected": "1042182103",
+    "unicode": "⠁⠀⠪⠒⠕⠀⠃",
+    "world": "⠴⠁ ⠄⠳⠭⠆⠂⠔⠲⠄ ⠰⠃⠲",
+    "jeomsarang": "⠴⠁⠀⠪⠒⠕⠀⠰⠃⠲"
+  }
+]

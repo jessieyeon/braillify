@@ -1,0 +1,18 @@
+[
+  {
+    "input": "∮",
+    "internal": ")",
+    "expected": "62",
+    "unicode": "⠾",
+    "world": "",
+    "jeomsarang": "⠾"
+  },
+  {
+    "input": "∮_C f(z)dz",
+    "internal": ");,c`f8z0dz",
+    "expected": "62483290113853522553",
+    "unicode": "⠾⠰⠠⠉⠀⠋⠦⠵⠴⠙⠵",
+    "world": "⠸⠤⠴⠠⠉ ⠋⠐⠣⠵⠐⠜⠙⠵⠲",
+    "jeomsarang": "⠾⠸⠤⠠⠉⠀⠋⠦⠄⠵⠠⠴⠙⠵⠲"
+  }
+]

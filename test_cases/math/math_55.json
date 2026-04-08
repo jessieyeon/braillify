@@ -1,0 +1,18 @@
+[
+  {
+    "input": "∇",
+    "internal": "_%",
+    "expected": "5641",
+    "unicode": "⠸⠩",
+    "world": "",
+    "jeomsarang": "⠸⠩"
+  },
+  {
+    "input": "∇f",
+    "internal": "_%f",
+    "expected": "564111",
+    "unicode": "⠸⠩⠋",
+    "world": "⠴⠋⠲",
+    "jeomsarang": "⠸⠩⠋⠲"
+  }
+]

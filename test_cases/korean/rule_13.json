@@ -1,0 +1,354 @@
+[
+  {
+    "input": "가",
+    "internal": "$",
+    "expected": "43",
+    "unicode": "⠫",
+    "world": "⠫",
+    "jeomsarang": "⠫"
+  },
+  {
+    "input": "나",
+    "internal": "c",
+    "expected": "9",
+    "unicode": "⠉",
+    "world": "⠉",
+    "jeomsarang": "⠉"
+  },
+  {
+    "input": "다",
+    "internal": "i",
+    "expected": "10",
+    "unicode": "⠊",
+    "world": "⠊",
+    "jeomsarang": "⠊"
+  },
+  {
+    "input": "마",
+    "internal": "e",
+    "expected": "17",
+    "unicode": "⠑",
+    "world": "⠑",
+    "jeomsarang": "⠑"
+  },
+  {
+    "input": "바",
+    "internal": "^",
+    "expected": "24",
+    "unicode": "⠘",
+    "world": "⠘",
+    "jeomsarang": "⠘"
+  },
+  {
+    "input": "사",
+    "internal": "l",
+    "expected": "7",
+    "unicode": "⠇",
+    "world": "⠇",
+    "jeomsarang": "⠇"
+  },
+  {
+    "input": "자",
+    "internal": ".",
+    "expected": "40",
+    "unicode": "⠨",
+    "world": "⠨",
+    "jeomsarang": "⠨"
+  },
+  {
+    "input": "카",
+    "internal": "f",
+    "expected": "11",
+    "unicode": "⠋",
+    "world": "⠋",
+    "jeomsarang": "⠋"
+  },
+  {
+    "input": "타",
+    "internal": "h",
+    "expected": "19",
+    "unicode": "⠓",
+    "world": "⠓",
+    "jeomsarang": "⠓"
+  },
+  {
+    "input": "파",
+    "internal": "d",
+    "expected": "25",
+    "unicode": "⠙",
+    "world": "⠙",
+    "jeomsarang": "⠙"
+  },
+  {
+    "input": "하",
+    "internal": "j",
+    "expected": "26",
+    "unicode": "⠚",
+    "world": "⠚",
+    "jeomsarang": "⠚"
+  },
+  {
+    "input": "가지",
+    "internal": "$.o",
+    "expected": "434021",
+    "unicode": "⠫⠨⠕",
+    "world": "⠫⠨⠕",
+    "jeomsarang": "⠫⠨⠕"
+  },
+  {
+    "input": "나비",
+    "internal": "c^o",
+    "expected": "92421",
+    "unicode": "⠉⠘⠕",
+    "world": "⠉⠘⠕",
+    "jeomsarang": "⠉⠘⠕"
+  },
+  {
+    "input": "다리미",
+    "internal": "i\"oeo",
+    "expected": "1016211721",
+    "unicode": "⠊⠐⠕⠑⠕",
+    "world": "⠊⠐⠕⠑⠕",
+    "jeomsarang": "⠊⠐⠕⠑⠕"
+  },
+  {
+    "input": "라디오",
+    "internal": "\"<iou",
+    "expected": "1635102137",
+    "unicode": "⠐⠣⠊⠕⠥",
+    "world": "⠐⠣⠊⠕⠥",
+    "jeomsarang": "⠐⠣⠊⠕⠥"
+  },
+  {
+    "input": "고구마",
+    "internal": "@u@me",
+    "expected": "83781317",
+    "unicode": "⠈⠥⠈⠍⠑",
+    "world": "⠈⠥⠈⠍⠑",
+    "jeomsarang": "⠈⠥⠈⠍⠑"
+  },
+  {
+    "input": "바느질",
+    "internal": "^c[.o1",
+    "expected": "2494240212",
+    "unicode": "⠘⠉⠪⠨⠕⠂",
+    "world": "⠘⠉⠪⠨⠕⠂",
+    "jeomsarang": "⠘⠉⠪⠨⠕⠂"
+  },
+  {
+    "input": "사위",
+    "internal": "lmr",
+    "expected": "71323",
+    "unicode": "⠇⠍⠗",
+    "world": "⠇⠍⠗",
+    "jeomsarang": "⠇⠍⠗"
+  },
+  {
+    "input": "아궁이",
+    "internal": "<@m7o",
+    "expected": "358135421",
+    "unicode": "⠣⠈⠍⠶⠕",
+    "world": "⠣⠈⠍⠶⠕",
+    "jeomsarang": "⠣⠈⠍⠶⠕"
+  },
+  {
+    "input": "도자기",
+    "internal": "iu.@o",
+    "expected": "103740821",
+    "unicode": "⠊⠥⠨⠈⠕",
+    "world": "⠊⠥⠨⠈⠕",
+    "jeomsarang": "⠊⠥⠨⠈⠕"
+  },
+  {
+    "input": "기차",
+    "internal": "@o;<",
+    "expected": "8214835",
+    "unicode": "⠈⠕⠰⠣",
+    "world": "⠈⠕⠰⠣",
+    "jeomsarang": "⠈⠕⠰⠣"
+  },
+  {
+    "input": "카메라",
+    "internal": "fen\"<",
+    "expected": "1117291635",
+    "unicode": "⠋⠑⠝⠐⠣",
+    "world": "⠋⠑⠝⠐⠣",
+    "jeomsarang": "⠋⠑⠝⠐⠣"
+  },
+  {
+    "input": "실타래",
+    "internal": ",o1h\"r",
+    "expected": "32212191623",
+    "unicode": "⠠⠕⠂⠓⠐⠗",
+    "world": "⠠⠕⠂⠓⠐⠗",
+    "jeomsarang": "⠠⠕⠂⠓⠐⠗"
+  },
+  {
+    "input": "파도",
+    "internal": "diu",
+    "expected": "251037",
+    "unicode": "⠙⠊⠥",
+    "world": "⠙⠊⠥",
+    "jeomsarang": "⠙⠊⠥"
+  },
+  {
+    "input": "하루",
+    "internal": "j\"m",
+    "expected": "261613",
+    "unicode": "⠚⠐⠍",
+    "world": "⠚⠐⠍",
+    "jeomsarang": "⠚⠐⠍"
+  },
+  {
+    "input": "강산",
+    "internal": "$7l3",
+    "expected": "4354718",
+    "unicode": "⠫⠶⠇⠒",
+    "world": "⠫⠶⠇⠒",
+    "jeomsarang": "⠫⠶⠇⠒"
+  },
+  {
+    "input": "낮잠",
+    "internal": "ck.5",
+    "expected": "954034",
+    "unicode": "⠉⠅⠨⠢",
+    "world": "⠉⠅⠨⠢",
+    "jeomsarang": "⠉⠅⠨⠢"
+  },
+  {
+    "input": "단란",
+    "internal": "i3\"<3",
+    "expected": "1018163518",
+    "unicode": "⠊⠒⠐⠣⠒",
+    "world": "⠊⠒⠐⠣⠒",
+    "jeomsarang": "⠊⠒⠐⠣⠒"
+  },
+  {
+    "input": "만찬",
+    "internal": "e3;<3",
+    "expected": "1718483518",
+    "unicode": "⠑⠒⠰⠣⠒",
+    "world": "⠑⠒⠰⠣⠒",
+    "jeomsarang": "⠑⠒⠰⠣⠒"
+  },
+  {
+    "input": "안방",
+    "internal": "<3^7",
+    "expected": "35182454",
+    "unicode": "⠣⠒⠘⠶",
+    "world": "⠣⠒⠘⠶",
+    "jeomsarang": "⠣⠒⠘⠶"
+  },
+  {
+    "input": "바캉스",
+    "internal": "^f7,[",
+    "expected": "2411543242",
+    "unicode": "⠘⠋⠶⠠⠪",
+    "world": "⠘⠋⠶⠠⠪",
+    "jeomsarang": "⠘⠋⠶⠠⠪"
+  },
+  {
+    "input": "갈비탕",
+    "internal": "$1^oh7",
+    "expected": "43224211954",
+    "unicode": "⠫⠂⠘⠕⠓⠶",
+    "world": "⠫⠂⠘⠕⠓⠶",
+    "jeomsarang": "⠫⠂⠘⠕⠓⠶"
+  },
+  {
+    "input": "판소리",
+    "internal": "d3,u\"o",
+    "expected": "251832371621",
+    "unicode": "⠙⠒⠠⠥⠐⠕",
+    "world": "⠙⠒⠠⠥⠐⠕",
+    "jeomsarang": "⠙⠒⠠⠥⠐⠕"
+  },
+  {
+    "input": "합창",
+    "internal": "jb;<7",
+    "expected": "263483554",
+    "unicode": "⠚⠃⠰⠣⠶",
+    "world": "⠚⠃⠰⠣⠶",
+    "jeomsarang": "⠚⠃⠰⠣⠶"
+  },
+  {
+    "input": "까마귀",
+    "internal": ",$e@mr",
+    "expected": "32431781323",
+    "unicode": "⠠⠫⠑⠈⠍⠗",
+    "world": "⠠⠫⠑⠈⠍⠗",
+    "jeomsarang": "⠠⠫⠑⠈⠍⠗"
+  },
+  {
+    "input": "깜깜하다",
+    "internal": ",$5,$5ji",
+    "expected": "3243343243342610",
+    "unicode": "⠠⠫⠢⠠⠫⠢⠚⠊",
+    "world": "⠠⠫⠢⠠⠫⠢⠚⠊",
+    "jeomsarang": "⠠⠫⠢⠠⠫⠢⠚⠊"
+  },
+  {
+    "input": "따님",
+    "internal": ",ico5",
+    "expected": "321092134",
+    "unicode": "⠠⠊⠉⠕⠢",
+    "world": "⠠⠊⠉⠕⠢",
+    "jeomsarang": "⠠⠊⠉⠕⠢"
+  },
+  {
+    "input": "딱따구리",
+    "internal": ",ia,i@m\"o",
+    "expected": "3210132108131621",
+    "unicode": "⠠⠊⠁⠠⠊⠈⠍⠐⠕",
+    "world": "⠠⠊⠁⠠⠊⠈⠍⠐⠕",
+    "jeomsarang": "⠠⠊⠁⠠⠊⠈⠍⠐⠕"
+  },
+  {
+    "input": "오빠",
+    "internal": "u,^",
+    "expected": "373224",
+    "unicode": "⠥⠠⠘",
+    "world": "⠥⠠⠘",
+    "jeomsarang": "⠥⠠⠘"
+  },
+  {
+    "input": "빵집",
+    "internal": ",^7.ob",
+    "expected": "32245440213",
+    "unicode": "⠠⠘⠶⠨⠕⠃",
+    "world": "⠠⠘⠶⠨⠕⠃",
+    "jeomsarang": "⠠⠘⠶⠨⠕⠃"
+  },
+  {
+    "input": "싸구려",
+    "internal": ",l@m\":",
+    "expected": "3278131649",
+    "unicode": "⠠⠇⠈⠍⠐⠱",
+    "world": "⠠⠇⠈⠍⠐⠱",
+    "jeomsarang": "⠠⠇⠈⠍⠐⠱"
+  },
+  {
+    "input": "찹쌀",
+    "internal": ";<b,l1",
+    "expected": "483533272",
+    "unicode": "⠰⠣⠃⠠⠇⠂",
+    "world": "⠰⠣⠃⠠⠇⠂",
+    "jeomsarang": "⠰⠣⠃⠠⠇⠂"
+  },
+  {
+    "input": "짜장",
+    "internal": ",..7",
+    "expected": "32404054",
+    "unicode": "⠠⠨⠨⠶",
+    "world": "⠠⠨⠨⠶",
+    "jeomsarang": "⠠⠨⠨⠶"
+  },
+  {
+    "input": "짱구",
+    "internal": ",.7@m",
+    "expected": "324054813",
+    "unicode": "⠠⠨⠶⠈⠍",
+    "world": "⠠⠨⠶⠈⠍",
+    "jeomsarang": "⠠⠨⠶⠈⠍"
+  }
+]

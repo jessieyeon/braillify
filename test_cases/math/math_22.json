@@ -1,0 +1,103 @@
+[
+  {
+    "input": "√",
+    "internal": ">",
+    "expected": "28",
+    "unicode": "⠜",
+    "world": "",
+    "jeomsarang": "⠻"
+  },
+  {
+    "input": "√2",
+    "internal": ">#b",
+    "expected": "28603",
+    "unicode": "⠜⠼⠃",
+    "world": "⠼⠃",
+    "jeomsarang": "⠻⠼⠃"
+  },
+  {
+    "input": "$\\sqrt{2}$",
+    "internal": ">#b",
+    "expected": "28603",
+    "unicode": "⠜⠼⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "³√x³",
+    "internal": "#c]x^#c",
+    "expected": "609594524609",
+    "unicode": "⠼⠉⠻⠭⠘⠼⠉",
+    "world": "⠘⠼⠉⠴⠭⠘⠼⠉",
+    "jeomsarang": "⠘⠼⠉⠻⠭⠲⠰⠘⠼⠉"
+  },
+  {
+    "input": "$\\sqrt[3]{x^3}$",
+    "internal": "#c]x^#c",
+    "expected": "609594524609",
+    "unicode": "⠼⠉⠻⠭⠘⠼⠉",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "⁵√32",
+    "internal": "#e]#cb",
+    "expected": "6017596093",
+    "unicode": "⠼⠑⠻⠼⠉⠃",
+    "world": "⠘⠼⠑⠼⠉⠃",
+    "jeomsarang": "⠘⠼⠑⠻⠼⠉⠃"
+  },
+  {
+    "input": "$\\sqrt[5]{32}$",
+    "internal": "#e]#cb",
+    "expected": "6017596093",
+    "unicode": "⠼⠑⠻⠼⠉⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "ᵐ√n",
+    "internal": "m]n",
+    "expected": "135929",
+    "unicode": "⠍⠻⠝",
+    "world": "⠴⠝⠲",
+    "jeomsarang": "⠀⠻⠰⠝⠲"
+  },
+  {
+    "input": "√(xy)",
+    "internal": ">(xy)",
+    "expected": "2855456162",
+    "unicode": "⠜⠷⠭⠽⠾",
+    "world": "⠦⠄⠴⠭⠽⠠⠴",
+    "jeomsarang": "⠻⠦⠄⠭⠽⠠⠴"
+  },
+  {
+    "input": "$\\sqrt{xy}$",
+    "internal": ">(xy)",
+    "expected": "2855456162",
+    "unicode": "⠜⠷⠭⠽⠾",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "ᵐⁿ√y",
+    "internal": "(mn)]y",
+    "expected": "551329625961",
+    "unicode": "⠷⠍⠝⠾⠻⠽",
+    "world": "⠘⠴⠝⠐⠩⠽⠲",
+    "jeomsarang": "⠀⠘⠝⠻⠰⠽⠲"
+  },
+  {
+    "input": "$\\sqrt[mn]{y}$",
+    "note": "LaTeX",
+    "internal": "(mn)]y",
+    "expected": "551329625961",
+    "unicode": "⠷⠍⠝⠾⠻⠽",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

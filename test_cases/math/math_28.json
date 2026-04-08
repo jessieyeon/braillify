@@ -1,0 +1,10 @@
+[
+  {
+    "input": "‖x‖",
+    "internal": "\\\\x\\\\",
+    "expected": "5151455151",
+    "unicode": "⠳⠳⠭⠳⠳",
+    "world": "⠴⠭",
+    "jeomsarang": "⠳⠳⠭⠲⠳⠳"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "input": "⊥",
+    "internal": "0'",
+    "expected": "524",
+    "unicode": "⠴⠄",
+    "world": "",
+    "jeomsarang": "⠴⠄"
+  },
+  {
+    "input": "$AB \\perp DE$",
+    "internal": ",,AB0',,DE",
+    "expected": "32321352432322517",
+    "unicode": "⠠⠠⠁⠃⠴⠄⠠⠠⠙⠑",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

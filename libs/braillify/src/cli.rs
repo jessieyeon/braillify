@@ -16,7 +16,7 @@ struct Cli {
 pub fn run_cli(mut args: Vec<String>) -> Result<()> {
     if args.len() == 1 && !std::io::stdin().is_terminal() {
         let mut buffer = vec![];
-        io::stdin().read(&mut buffer)?;
+        io::stdin().read_to_end(&mut buffer)?;
         if !buffer.is_empty() {
             args.push(String::from_utf8(buffer)?);
         }
@@ -123,7 +123,8 @@ mod tests {
 
     #[test]
     fn test_braillify_invalid_input() {
-        let result = run_one_shot("§");
+        // Use an emoji which is not supported by CharType::new()
+        let result = run_one_shot("😀");
         assert!(result.is_err());
     }
 }

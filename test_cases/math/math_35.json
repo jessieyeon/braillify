@@ -1,0 +1,36 @@
+[
+  {
+    "input": "̅AB",
+    "internal": "@c,,AB",
+    "expected": "89323213",
+    "unicode": "⠈⠉⠠⠠⠁⠃",
+    "world": "⠴⠰⠠⠠⠁⠃⠲",
+    "jeomsarang": "⠀⠠⠠⠁⠃⠲"
+  },
+  {
+    "input": "$\\overline{AB}$",
+    "internal": "@c,,AB",
+    "expected": "89323213",
+    "unicode": "⠈⠉⠠⠠⠁⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A′B′̅",
+    "internal": "@c,,A-B-",
+    "expected": "893232136336",
+    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
+    "world": "⠴⠠⠁⠶⠠⠃⠴⠤",
+    "jeomsarang": "⠴⠠⠁⠶⠠⠃⠲⠶⠀"
+  },
+  {
+    "input": "$\\overline{A'B'}$",
+    "internal": "@c,,A-B-",
+    "expected": "893232136336",
+    "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

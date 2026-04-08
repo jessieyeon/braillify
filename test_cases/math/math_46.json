@@ -1,0 +1,136 @@
+[
+  {
+    "input": "log₅2",
+    "internal": "_,5#b",
+    "expected": "563234603",
+    "unicode": "⠸⠠⠢⠼⠃",
+    "world": "⠴⠇⠕⠛⠰⠼⠑⠃",
+    "jeomsarang": "⠴⠇⠕⠛⠲⠰⠼⠑⠼⠃"
+  },
+  {
+    "input": "$\\log_52$",
+    "internal": "_,5#b",
+    "expected": "563234603",
+    "unicode": "⠸⠠⠢⠼⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "log2",
+    "internal": "_#b",
+    "expected": "56603",
+    "unicode": "⠸⠼⠃",
+    "world": "⠴⠇⠕⠛⠼⠃",
+    "jeomsarang": "⠴⠇⠕⠛⠼⠃"
+  },
+  {
+    "input": "logₐn",
+    "internal": "_;an",
+    "expected": "5648129",
+    "unicode": "⠸⠰⠁⠝",
+    "world": "⠴⠇⠕⠛⠰⠁⠝⠲",
+    "jeomsarang": "⠴⠇⠕⠛⠰⠁⠝⠲"
+  },
+  {
+    "input": "$\\log_an$",
+    "internal": "_;an",
+    "expected": "5648129",
+    "unicode": "⠸⠰⠁⠝",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "lnx=log_ex",
+    "internal": "lnx33_;ex",
+    "expected": "72945181856481745",
+    "unicode": "⠇⠝⠭⠒⠒⠸⠰⠑⠭",
+    "world": "⠴⠇⠝⠭⠐⠶⠇⠕⠛⠨⠤⠑⠭⠲",
+    "jeomsarang": "⠴⠇⠝⠭⠐⠶⠇⠕⠛⠸⠤⠑⠭⠲"
+  },
+  {
+    "input": "2log7",
+    "internal": "#b_#g",
+    "expected": "603566027",
+    "unicode": "⠼⠃⠸⠼⠛",
+    "world": "⠼⠃⠴⠇⠕⠛⠼⠛",
+    "jeomsarang": "⠼⠃⠴⠇⠕⠛⠼⠛"
+  },
+  {
+    "input": "log(x+1)",
+    "internal": "_(x5#a)",
+    "expected": "5655453460162",
+    "unicode": "⠸⠷⠭⠢⠼⠁⠾",
+    "world": "⠴⠇⠕⠛⠐⠣⠭⠢⠼⠁⠠⠴",
+    "jeomsarang": "⠴⠇⠕⠛⠐⠣⠰⠭⠢⠼⠁⠐⠜⠲"
+  },
+  {
+    "input": "log_e(2+h)",
+    "internal": "_;e8#b5h0",
+    "expected": "56481738603341952",
+    "unicode": "⠸⠰⠑⠦⠼⠃⠢⠓⠴",
+    "world": "⠴⠇⠕⠛⠨⠤⠑⠐⠣⠼⠃⠐⠖⠓⠠⠴",
+    "jeomsarang": "⠴⠇⠕⠛⠸⠤⠑⠦⠄⠼⠃⠢⠴⠓⠠⠴"
+  },
+  {
+    "input": "log₍₃/₁₎9",
+    "internal": "_;(#c/#a)#i",
+    "expected": "56485560912601626010",
+    "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊",
+    "world": "⠴⠇⠕⠛⠰⠦⠄⠼⠉⠸⠌⠰⠼⠁⠠⠴⠼⠊",
+    "jeomsarang": "⠴⠇⠕⠛⠲⠰⠦⠰⠼⠉⠸⠌⠰⠼⠁⠰⠴⠼⠊"
+  },
+  {
+    "input": "$\\log_{(3}/_{1)}9$",
+    "note": "LaTeX",
+    "internal": "_;(#c/#a)#i",
+    "expected": "56485560912601626010",
+    "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "log₍₀.₂₎n",
+    "internal": "_;(#j4b),n",
+    "expected": "5648556026503623229",
+    "unicode": "⠸⠰⠷⠼⠚⠲⠃⠾⠠⠝",
+    "world": "⠴⠇⠕⠛⠰⠐⠣⠼⠚⠲⠰⠼⠃⠐⠜⠝⠲",
+    "jeomsarang": "⠴⠇⠕⠛⠰⠦⠠⠴⠲⠰⠼⠃⠰⠴⠰⠝⠲"
+  },
+  {
+    "input": "$\\log_{(0}._{2)}n$",
+    "note": "LaTeX",
+    "internal": "_;(#j4b),n",
+    "expected": "5648556026503623229",
+    "unicode": "⠸⠰⠷⠼⠚⠲⠃⠾⠠⠝",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "log₂(x+1)",
+    "internal": "_,2(8x5#a0)",
+    "expected": "56326553845346015262",
+    "unicode": "⠸⠠⠆⠷⠦⠭⠢⠼⠁⠴⠾",
+    "world": "⠴⠇⠕⠛⠰⠼⠃⠐⠣⠭⠢⠼⠁⠠⠴",
+    "jeomsarang": "⠴⠇⠕⠛⠰⠢⠼⠃⠐⠣⠰⠭⠢⠼⠁⠐⠜⠲"
+  },
+  {
+    "input": "$\\log_2(x+1)$",
+    "internal": "_,2(8x5#a0)",
+    "expected": "56326553845346015262",
+    "unicode": "⠸⠠⠆⠷⠦⠭⠢⠼⠁⠴⠾",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\log_a(V/U)$",
+    "internal": "_;A(V/U)",
+    "expected": "564815539123762",
+    "unicode": "⠸⠰⠁⠷⠧⠌⠥⠾",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

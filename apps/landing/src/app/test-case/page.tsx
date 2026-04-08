@@ -37,9 +37,17 @@ export default async function TestCasePage() {
   const filterMap = createFilterMap(Object.keys(ruleMap))
   let totalTest = 0
   let totalFail = 0
+  let totalWorldTest = 0
+  let totalWorldFail = 0
+  let totalJeomsarangTest = 0
+  let totalJeomsarangFail = 0
   const cases = Object.entries(ruleMap).map(([key, value]) => {
     totalTest += testStatus[key][0]
     totalFail += testStatus[key][1]
+    totalWorldTest += testStatus[key][2]
+    totalWorldFail += testStatus[key][3]
+    totalJeomsarangTest += testStatus[key][4]
+    totalJeomsarangFail += testStatus[key][5]
 
     const isBut = value.title.includes('다만')
 
@@ -63,8 +71,12 @@ export default async function TestCasePage() {
                 </Text>
                 <TestCaseStat
                   fail={testStatus[key][1]}
+                  jeomsarangFail={testStatus[key][5]}
+                  jeomsarangTotal={testStatus[key][4]}
                   success={testStatus[key][0] - testStatus[key][1]}
                   total={testStatus[key][0]}
+                  worldFail={testStatus[key][3]}
+                  worldTotal={testStatus[key][2]}
                 />
               </Flex>
               <Text color="$text" typography="body" wordBreak="keep-all">
@@ -72,10 +84,10 @@ export default async function TestCasePage() {
               </Text>
             </VStack>
             <TestCaseDisplayBoundary option="type" value="table">
-              <TestCaseTable results={testStatus[key][2]} />
+              <TestCaseTable results={testStatus[key][6]} />
             </TestCaseDisplayBoundary>
             <TestCaseDisplayBoundary option="type" value="list">
-              <TestCaseList results={testStatus[key][2]} />
+              <TestCaseList results={testStatus[key][6]} />
             </TestCaseDisplayBoundary>
           </TestCaseRuleContainer>
         </TestCaseDisplayBoundary>
@@ -101,9 +113,13 @@ export default async function TestCasePage() {
             </Text>
             <TestCaseStat
               fail={totalFail}
+              jeomsarangFail={totalJeomsarangFail}
+              jeomsarangTotal={totalJeomsarangTest}
               showTotal
               success={totalTest - totalFail}
               total={totalTest}
+              worldFail={totalWorldFail}
+              worldTotal={totalWorldTest}
             />
           </VStack>
           <Text color="$text" typography="body" wordBreak="keep-all">

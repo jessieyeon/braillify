@@ -1,0 +1,290 @@
+[
+  {
+    "input": "∈",
+    "internal": "6",
+    "expected": "22",
+    "unicode": "⠖",
+    "world": "",
+    "jeomsarang": "⠖"
+  },
+  {
+    "input": "$\\in$",
+    "internal": "6",
+    "expected": "22",
+    "unicode": "⠖",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A∈M",
+    "internal": "A6,M",
+    "expected": "1223213",
+    "unicode": "⠁⠖⠠⠍",
+    "world": "⠴⠠⠁⠘⠑⠠⠍⠲",
+    "jeomsarang": "⠴⠠⠁⠖⠠⠍⠲"
+  },
+  {
+    "input": "∋",
+    "internal": "4",
+    "expected": "50",
+    "unicode": "⠲",
+    "world": "",
+    "jeomsarang": "⠲"
+  },
+  {
+    "input": "∉",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖",
+    "world": "",
+    "jeomsarang": "⠨⠖"
+  },
+  {
+    "input": "$\\notin$",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A∉A",
+    "internal": "A.6,A",
+    "expected": "14022321",
+    "unicode": "⠁⠨⠖⠠⠁",
+    "world": "⠴⠠⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠁⠨⠖⠠⠁⠲"
+  },
+  {
+    "input": "⊂",
+    "internal": "61",
+    "expected": "222",
+    "unicode": "⠖⠂",
+    "world": "",
+    "jeomsarang": "⠖⠂"
+  },
+  {
+    "input": "$\\subset$",
+    "internal": "61",
+    "expected": "222",
+    "unicode": "⠖⠂",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "B⊂A",
+    "internal": ",B61,A",
+    "expected": "323222321",
+    "unicode": "⠠⠃⠖⠂⠠⠁",
+    "world": "⠴⠠⠃⠘⠣⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠃⠖⠂⠠⠁⠲"
+  },
+  {
+    "input": "⊃",
+    "internal": "\"4",
+    "expected": "1650",
+    "unicode": "⠐⠲",
+    "world": "",
+    "jeomsarang": "⠐⠲"
+  },
+  {
+    "input": "$\\supset$",
+    "internal": "\"4",
+    "expected": "1650",
+    "unicode": "⠐⠲",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A⊃B",
+    "internal": ",A\"4,B",
+    "expected": "3211650323",
+    "unicode": "⠠⠁⠐⠲⠠⠃",
+    "world": "⠴⠠⠁⠘⠜⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠐⠲⠠⠃⠲"
+  },
+  {
+    "input": "⊄",
+    "internal": ".61",
+    "expected": "40222",
+    "unicode": "⠨⠖⠂",
+    "world": "",
+    "jeomsarang": "⠨⠖⠂"
+  },
+  {
+    "input": "⊅",
+    "internal": ".\"4",
+    "expected": "401650",
+    "unicode": "⠨⠐⠲",
+    "world": "",
+    "jeomsarang": "⠨⠐⠲"
+  },
+  {
+    "input": "∅",
+    "internal": ".f",
+    "expected": "4011",
+    "unicode": "⠨⠋",
+    "world": "",
+    "jeomsarang": "⠈⠋"
+  },
+  {
+    "input": "$\\emptyset$",
+    "internal": ".f",
+    "expected": "4011",
+    "unicode": "⠨⠋",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∪",
+    "internal": "+",
+    "expected": "44",
+    "unicode": "⠬",
+    "world": "",
+    "jeomsarang": "⠬"
+  },
+  {
+    "input": "$\\cup$",
+    "internal": "+",
+    "expected": "44",
+    "unicode": "⠬",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∩",
+    "internal": "%",
+    "expected": "41",
+    "unicode": "⠩",
+    "world": "",
+    "jeomsarang": "⠩"
+  },
+  {
+    "input": "$\\cap$",
+    "internal": "%",
+    "expected": "41",
+    "unicode": "⠩",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "Aᶜ=U-A",
+    "note": "여집합 Aᶜ=U-A",
+    "internal": ",A^c33,U9,A",
+    "expected": "3212491818323720321",
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
+    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠁⠀⠒⠒⠰⠠⠥⠤⠠⠁⠲"
+  },
+  {
+    "input": "a∉A",
+    "internal": "a.6,a",
+    "expected": "14022321",
+    "unicode": "⠁⠨⠖⠠⠁",
+    "world": "⠴⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
+    "jeomsarang": "⠴⠁⠨⠖⠠⠁⠲"
+  },
+  {
+    "input": "{1, 2, 3}",
+    "internal": "7#a\"`#b\"`#c7",
+    "expected": "5460116060316060954",
+    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶",
+    "world": "⠦⠂⠼⠁⠐ ⠼⠃⠐ ⠼⠉⠐⠴",
+    "jeomsarang": ""
+  },
+  {
+    "input": "B⊂A",
+    "internal": ",b61,a",
+    "expected": "323222321",
+    "unicode": "⠠⠃⠖⠂⠠⠁",
+    "world": "⠴⠠⠃⠘⠣⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠃⠖⠂⠠⠁⠲"
+  },
+  {
+    "input": "A⊃B",
+    "internal": ",a\"4,b",
+    "expected": "3211650323",
+    "unicode": "⠠⠁⠐⠲⠠⠃",
+    "world": "⠴⠠⠁⠘⠜⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠐⠲⠠⠃⠲"
+  },
+  {
+    "input": "A∩B=∅",
+    "internal": ",a`%`,b33.f",
+    "expected": "321041032318184011",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
+    "world": "⠴⠠⠁⠨⠦⠠⠃⠒⠒",
+    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠐⠶⠈⠋"
+  },
+  {
+    "input": "A∪B",
+    "internal": ",a`+`,b",
+    "expected": "3210440323",
+    "unicode": "⠠⠁⠀⠬⠀⠠⠃",
+    "world": "⠴⠠⠁⠨⠖⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠬⠠⠃⠲"
+  },
+  {
+    "input": "Aᶜ=U-A",
+    "internal": ",a^c33,u9,a",
+    "expected": "3212491818323720321",
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
+    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠁⠀⠒⠒⠰⠠⠥⠤⠠⠁⠲"
+  },
+  {
+    "input": "A∩B",
+    "internal": ",a`%`,b",
+    "expected": "3210410323",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃",
+    "world": "⠴⠠⠁⠨⠦⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠲"
+  },
+  {
+    "input": "M∌a",
+    "internal": ",m.4a",
+    "expected": "321340501",
+    "unicode": "⠠⠍⠨⠲⠁",
+    "world": "⠴⠠⠍⠈⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠁⠲",
+    "jeomsarang": "⠴⠠⠍⠨⠲⠁⠲"
+  },
+  {
+    "input": "{x|x는정수}",
+    "internal": "7x\\`0x4cz`.],m7",
+    "expected": "544551052455095304059321354",
+    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶",
+    "world": "⠦⠂⠴⠭⠸⠳⠭⠲⠉⠵⠨⠻⠠⠍⠐⠴",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A⊄M",
+    "internal": ",a.61,m",
+    "expected": "321402223213",
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲",
+    "jeomsarang": "⠴⠠⠁⠨⠖⠂⠠⠍⠲"
+  },
+  {
+    "input": "M⊅A",
+    "internal": ",m.\"4,a",
+    "expected": "3213401650321",
+    "unicode": "⠠⠍⠨⠐⠲⠠⠁",
+    "world": "⠴⠠⠍⠘⠜⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
+    "jeomsarang": "⠴⠠⠍⠨⠐⠲⠠⠁⠲"
+  },
+  {
+    "input": "A⊄M",
+    "internal": ",A.61,M",
+    "expected": "321402223213",
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲",
+    "jeomsarang": "⠴⠠⠁⠨⠖⠂⠠⠍⠲"
+  }
+]

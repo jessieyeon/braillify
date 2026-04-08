@@ -18,10 +18,10 @@
     "apps/landing"
   ],
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "braillify": "workspace:*",
-    "eslint-plugin-devup": "^2.0.17",
-    "oxlint": "^1.55",
+    "eslint-plugin-devup": "^2.0.18",
+    "oxlint": "^1.59",
     "@types/bun": "^1.3"
   },
   "author": "devfive"

@@ -1,0 +1,27 @@
+[
+  {
+    "input": "∠",
+    "internal": "?",
+    "expected": "57",
+    "unicode": "⠹",
+    "world": "",
+    "jeomsarang": "⠹"
+  },
+  {
+    "input": "∠ABC",
+    "internal": "?,,ABC",
+    "expected": "573232139",
+    "unicode": "⠹⠠⠠⠁⠃⠉",
+    "world": "⠴⠠⠠⠁⠃⠉⠲",
+    "jeomsarang": "⠹⠠⠠⠁⠃⠉⠲"
+  },
+  {
+    "input": "$\\angle ABC$",
+    "internal": "?,,ABC",
+    "expected": "573232139",
+    "unicode": "⠹⠠⠠⠁⠃⠉",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

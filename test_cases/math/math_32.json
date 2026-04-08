@@ -1,0 +1,18 @@
+[
+  {
+    "input": "≅",
+    "internal": "@933",
+    "expected": "8201818",
+    "unicode": "⠈⠔⠒⠒",
+    "world": "",
+    "jeomsarang": "⠐⠤⠒⠒"
+  },
+  {
+    "input": "A ≅ B",
+    "internal": ",a`@933`,b",
+    "expected": "321082018180323",
+    "unicode": "⠠⠁⠀⠈⠔⠒⠒⠀⠠⠃",
+    "world": "⠴⠠⠁ ⠐⠸⠔ ⠰⠠⠃⠲",
+    "jeomsarang": "⠴⠠⠁⠀⠐⠤⠒⠒⠀⠰⠠⠃⠲"
+  }
+]

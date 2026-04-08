@@ -47,7 +47,16 @@ export function TestCaseProvider({
   children: React.ReactNode
 }) {
   const [options, setOptions] = useState<TestCaseOptions>({
-    filters: ['korean'],
+    filters: [
+      'korean',
+      'math',
+      'science',
+      'music',
+      'western',
+      'foreign-language',
+      'ipa',
+      'corpus',
+    ],
     failedOnly: false,
     type: 'list',
   })

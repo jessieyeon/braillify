@@ -1,0 +1,86 @@
+[
+  {
+    "input": "△",
+    "context": "math",
+    "internal": "_+",
+    "expected": "5644",
+    "unicode": "⠸⠬",
+    "world": "⠸⠬",
+    "jeomsarang": "⠸⠬"
+  },
+  {
+    "input": "△ABC",
+    "internal": "_+,,ABC",
+    "expected": "56443232139",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉",
+    "world": "⠸⠬⠴⠠⠠⠁⠃⠉⠲",
+    "jeomsarang": "⠸⠬⠠⠠⠁⠃⠉⠲"
+  },
+  {
+    "input": "$\\triangle ABC$",
+    "internal": "_+,,ABC",
+    "expected": "56443232139",
+    "unicode": "⠸⠬⠠⠠⠁⠃⠉",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "□",
+    "context": "math",
+    "internal": "_7",
+    "expected": "5654",
+    "unicode": "⠸⠶",
+    "world": "⠸⠶",
+    "jeomsarang": "⠸⠶"
+  },
+  {
+    "input": "□ABCD",
+    "internal": "_7,,ABCD",
+    "expected": "5654323213925",
+    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
+    "world": "⠸⠶⠴⠠⠠⠁⠃⠉⠙⠲",
+    "jeomsarang": "⠸⠶⠠⠠⠁⠃⠉⠙⠲"
+  },
+  {
+    "input": "$\\square ABCD$",
+    "internal": "_7,,ABCD",
+    "expected": "5654323213925",
+    "unicode": "⠸⠶⠠⠠⠁⠃⠉⠙",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "⌂",
+    "internal": "_[K",
+    "expected": "56425",
+    "unicode": "⠸⠪⠅",
+    "world": "",
+    "jeomsarang": "⠀"
+  },
+  {
+    "input": "⎔",
+    "internal": "_[O",
+    "expected": "564221",
+    "unicode": "⠸⠪⠕",
+    "world": "",
+    "jeomsarang": "⠀"
+  },
+  {
+    "input": "",
+    "internal": "_/*",
+    "expected": "561233",
+    "unicode": "⠸⠌⠡",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "▱",
+    "internal": "_//",
+    "expected": "561212",
+    "unicode": "⠸⠌⠌",
+    "world": "",
+    "jeomsarang": "⠸⠌⠌"
+  }
+]

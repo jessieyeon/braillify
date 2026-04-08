@@ -1,0 +1,302 @@
+[
+  {
+    "input": "a",
+    "context": "math_letter",
+    "note": "로마자 a",
+    "internal": "0a",
+    "expected": "521",
+    "unicode": "⠴⠁",
+    "world": "⠴⠁⠲",
+    "jeomsarang": "⠴⠁"
+  },
+  {
+    "input": "b",
+    "context": "math_letter",
+    "note": "로마자 b",
+    "internal": "0b",
+    "expected": "523",
+    "unicode": "⠴⠃",
+    "world": "⠴⠃⠲",
+    "jeomsarang": "⠴⠃"
+  },
+  {
+    "input": "c",
+    "context": "math_letter",
+    "note": "로마자 c",
+    "internal": "0c",
+    "expected": "529",
+    "unicode": "⠴⠉",
+    "world": "⠴⠉⠲",
+    "jeomsarang": "⠴⠉"
+  },
+  {
+    "input": "d",
+    "context": "math_letter",
+    "note": "로마자 d",
+    "internal": "0d",
+    "expected": "5225",
+    "unicode": "⠴⠙",
+    "world": "⠴⠙⠲",
+    "jeomsarang": "⠴⠙"
+  },
+  {
+    "input": "e",
+    "context": "math_letter",
+    "note": "로마자 e",
+    "internal": "0e",
+    "expected": "5217",
+    "unicode": "⠴⠑",
+    "world": "⠴⠑⠲",
+    "jeomsarang": "⠴⠑"
+  },
+  {
+    "input": "f",
+    "context": "math_letter",
+    "note": "로마자 f",
+    "internal": "0f",
+    "expected": "5211",
+    "unicode": "⠴⠋",
+    "world": "⠴⠋⠲",
+    "jeomsarang": "⠴⠋"
+  },
+  {
+    "input": "g",
+    "context": "math_letter",
+    "note": "로마자 g",
+    "internal": "0g",
+    "expected": "5227",
+    "unicode": "⠴⠛",
+    "world": "⠴⠛⠲",
+    "jeomsarang": "⠴⠛"
+  },
+  {
+    "input": "h",
+    "context": "math_letter",
+    "note": "로마자 h",
+    "internal": "0h",
+    "expected": "5219",
+    "unicode": "⠴⠓",
+    "world": "⠴⠓⠲",
+    "jeomsarang": "⠴⠓"
+  },
+  {
+    "input": "i",
+    "context": "math_letter",
+    "note": "로마자 i",
+    "internal": "0i",
+    "expected": "5210",
+    "unicode": "⠴⠊",
+    "world": "⠴⠊⠲",
+    "jeomsarang": "⠴⠊"
+  },
+  {
+    "input": "j",
+    "context": "math_letter",
+    "note": "로마자 j",
+    "internal": "0j",
+    "expected": "5226",
+    "unicode": "⠴⠚",
+    "world": "⠴⠚⠲",
+    "jeomsarang": "⠴⠚"
+  },
+  {
+    "input": "k",
+    "context": "math_letter",
+    "note": "로마자 k",
+    "internal": "0k",
+    "expected": "525",
+    "unicode": "⠴⠅",
+    "world": "⠴⠅⠲",
+    "jeomsarang": "⠴⠅"
+  },
+  {
+    "input": "l",
+    "context": "math_letter",
+    "note": "로마자 l",
+    "internal": "0l",
+    "expected": "527",
+    "unicode": "⠴⠇",
+    "world": "⠴⠇⠲",
+    "jeomsarang": "⠴⠇"
+  },
+  {
+    "input": "m",
+    "context": "math_letter",
+    "note": "로마자 m",
+    "internal": "0m",
+    "expected": "5213",
+    "unicode": "⠴⠍",
+    "world": "⠴⠍⠲",
+    "jeomsarang": "⠴⠍"
+  },
+  {
+    "input": "n",
+    "context": "math_letter",
+    "note": "로마자 n",
+    "internal": "0n",
+    "expected": "5229",
+    "unicode": "⠴⠝",
+    "world": "⠴⠝⠲",
+    "jeomsarang": "⠴⠝"
+  },
+  {
+    "input": "o",
+    "context": "math_letter",
+    "note": "로마자 o",
+    "internal": "0o",
+    "expected": "5221",
+    "unicode": "⠴⠕",
+    "world": "⠴⠕⠲",
+    "jeomsarang": "⠴⠕"
+  },
+  {
+    "input": "p",
+    "context": "math_letter",
+    "note": "로마자 p",
+    "internal": "0p",
+    "expected": "5215",
+    "unicode": "⠴⠏",
+    "world": "⠴⠏⠲",
+    "jeomsarang": "⠴⠏"
+  },
+  {
+    "input": "q",
+    "context": "math_letter",
+    "note": "로마자 q",
+    "internal": "0q",
+    "expected": "5231",
+    "unicode": "⠴⠟",
+    "world": "⠴⠟⠲",
+    "jeomsarang": "⠴⠟"
+  },
+  {
+    "input": "r",
+    "context": "math_letter",
+    "note": "로마자 r",
+    "internal": "0r",
+    "expected": "5223",
+    "unicode": "⠴⠗",
+    "world": "⠴⠗⠲",
+    "jeomsarang": "⠴⠗"
+  },
+  {
+    "input": "s",
+    "context": "math_letter",
+    "note": "로마자 s",
+    "internal": "0s",
+    "expected": "5214",
+    "unicode": "⠴⠎",
+    "world": "⠴⠎⠲",
+    "jeomsarang": "⠴⠎"
+  },
+  {
+    "input": "t",
+    "context": "math_letter",
+    "note": "로마자 t",
+    "internal": "0t",
+    "expected": "5230",
+    "unicode": "⠴⠞",
+    "world": "⠴⠞⠲",
+    "jeomsarang": "⠴⠞"
+  },
+  {
+    "input": "u",
+    "context": "math_letter",
+    "note": "로마자 u",
+    "internal": "0u",
+    "expected": "5237",
+    "unicode": "⠴⠥",
+    "world": "⠴⠥⠲",
+    "jeomsarang": "⠴⠥"
+  },
+  {
+    "input": "v",
+    "context": "math_letter",
+    "note": "로마자 v",
+    "internal": "0v",
+    "expected": "5239",
+    "unicode": "⠴⠧",
+    "world": "⠴⠧⠲",
+    "jeomsarang": "⠴⠧"
+  },
+  {
+    "input": "w",
+    "context": "math_letter",
+    "note": "로마자 w",
+    "internal": "0w",
+    "expected": "5258",
+    "unicode": "⠴⠺",
+    "world": "⠴⠺⠲",
+    "jeomsarang": "⠴⠺"
+  },
+  {
+    "input": "x",
+    "context": "math_letter",
+    "note": "로마자 x",
+    "internal": "0x",
+    "expected": "5245",
+    "unicode": "⠴⠭",
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠴⠭"
+  },
+  {
+    "input": "y",
+    "context": "math_letter",
+    "note": "로마자 y",
+    "internal": "0y",
+    "expected": "5261",
+    "unicode": "⠴⠽",
+    "world": "⠴⠽⠲",
+    "jeomsarang": "⠴⠽"
+  },
+  {
+    "input": "z",
+    "context": "math_letter",
+    "note": "로마자 z",
+    "internal": "0z",
+    "expected": "5253",
+    "unicode": "⠴⠵",
+    "world": "⠴⠵⠲",
+    "jeomsarang": "⠴⠵"
+  },
+  {
+    "input": "a",
+    "internal": "a",
+    "expected": "1",
+    "unicode": "⠁",
+    "world": "⠴⠁⠲",
+    "jeomsarang": "⠴⠁"
+  },
+  {
+    "input": "x",
+    "internal": "x",
+    "expected": "45",
+    "unicode": "⠭",
+    "world": "⠴⠭⠲",
+    "jeomsarang": "⠴⠭"
+  },
+  {
+    "input": "z",
+    "internal": "z",
+    "expected": "53",
+    "unicode": "⠵",
+    "world": "⠴⠵⠲",
+    "jeomsarang": "⠴⠵"
+  },
+  {
+    "input": "ax+b=0",
+    "internal": "ax5b33#j",
+    "expected": "14534318186026",
+    "unicode": "⠁⠭⠢⠃⠒⠒⠼⠚",
+    "world": "⠴⠁⠭⠐⠖⠃⠒⠒⠼⠚",
+    "jeomsarang": "⠴⠁⠭⠢⠴⠃⠐⠶⠼⠚"
+  },
+  {
+    "input": "3ab",
+    "internal": "#c\"ab",
+    "expected": "6091613",
+    "unicode": "⠼⠉⠐⠁⠃",
+    "world": "⠼⠉⠴⠁⠃⠲",
+    "jeomsarang": "⠼⠉⠴⠁⠃⠲"
+  }
+]

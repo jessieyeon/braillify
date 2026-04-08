@@ -1,0 +1,19 @@
+[
+  {
+    "input": "↔AB",
+    "internal": "[3O,,AB",
+    "expected": "421821323213",
+    "unicode": "⠪⠒⠕⠠⠠⠁⠃",
+    "world": "⠪⠒⠕⠴⠰⠠⠠⠁⠃⠲",
+    "jeomsarang": "⠪⠒⠕⠠⠠⠁⠃⠲"
+  },
+  {
+    "input": "$\\overleftrightarrow{AB}$",
+    "internal": "[3O,,AB",
+    "expected": "421821323213",
+    "unicode": "⠪⠒⠕⠠⠠⠁⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

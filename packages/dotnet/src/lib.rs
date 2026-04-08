@@ -35,6 +35,10 @@ pub extern "C" fn braillify_get_last_error() -> *mut c_char {
 /// Encodes text to braille byte array.
 /// 성공 시 바이트 배열 포인터 반환, 실패 시 null 반환.
 /// Returns byte array pointer on success, null on failure.
+///
+/// # Safety
+/// `text` and `out_len` must be valid non-null pointers for the duration of the call.
+/// `text` must point to a valid NUL-terminated UTF-8 string.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn braillify_encode(text: *const c_char, out_len: *mut usize) -> *mut u8 {
     clear_last_error();
@@ -68,6 +72,9 @@ pub unsafe extern "C" fn braillify_encode(text: *const c_char, out_len: *mut usi
 
 /// 텍스트를 점자 유니코드 문자열로 인코딩합니다.
 /// Encodes text to braille unicode string.
+///
+/// # Safety
+/// `text` must be a valid non-null pointer to a NUL-terminated UTF-8 string.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn braillify_encode_to_unicode(text: *const c_char) -> *mut c_char {
     clear_last_error();
@@ -103,6 +110,9 @@ pub unsafe extern "C" fn braillify_encode_to_unicode(text: *const c_char) -> *mu
 
 /// 텍스트를 점자 폰트 문자열로 인코딩합니다.
 /// Encodes text to braille font string.
+///
+/// # Safety
+/// `text` must be a valid non-null pointer to a NUL-terminated UTF-8 string.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn braillify_encode_to_braille_font(text: *const c_char) -> *mut c_char {
     clear_last_error();
@@ -138,6 +148,10 @@ pub unsafe extern "C" fn braillify_encode_to_braille_font(text: *const c_char) -
 
 /// Rust에서 할당한 문자열을 해제합니다.
 /// Frees a string allocated by Rust.
+///
+/// # Safety
+/// `ptr` must be a pointer previously returned by this library from a string-returning FFI call,
+/// and it must not be freed more than once.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn braillify_free_string(ptr: *mut c_char) {
     if !ptr.is_null() {
@@ -149,6 +163,9 @@ pub unsafe extern "C" fn braillify_free_string(ptr: *mut c_char) {
 
 /// Rust에서 할당한 바이트 배열을 해제합니다.
 /// Frees a byte array allocated by Rust.
+///
+/// # Safety
+/// `ptr` and `len` must come from `braillify_encode`, and `ptr` must not be freed more than once.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn braillify_free_bytes(ptr: *mut u8, len: usize) {
     if !ptr.is_null() {

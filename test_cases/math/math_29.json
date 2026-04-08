@@ -1,0 +1,18 @@
+[
+  {
+    "input": "≈",
+    "internal": "@9@9",
+    "expected": "820820",
+    "unicode": "⠈⠔⠈⠔",
+    "world": "",
+    "jeomsarang": "⠐⠤⠐⠤"
+  },
+  {
+    "input": "X ≈ F/N",
+    "internal": ",x`@9@9`,f_/,n",
+    "expected": "324508208200321156123229",
+    "unicode": "⠠⠭⠀⠈⠔⠈⠔⠀⠠⠋⠸⠌⠠⠝",
+    "world": "⠴⠠⠭ ⠘⠔ ⠠⠋⠸⠌⠠⠝⠲",
+    "jeomsarang": "⠴⠠⠭⠀⠐⠤⠐⠤⠀⠠⠋⠸⠌⠠⠝⠲"
+  }
+]

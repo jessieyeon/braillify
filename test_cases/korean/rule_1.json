@@ -1,0 +1,106 @@
+[
+  {
+    "input": "거리",
+    "internal": "@s\"o",
+    "expected": "8141621",
+    "unicode": "⠈⠎⠐⠕",
+    "world": "⠈⠎⠐⠕",
+    "jeomsarang": "⠈⠎⠐⠕"
+  },
+  {
+    "input": "너비",
+    "internal": "cs^o",
+    "expected": "9142421",
+    "unicode": "⠉⠎⠘⠕",
+    "world": "⠉⠎⠘⠕",
+    "jeomsarang": "⠉⠎⠘⠕"
+  },
+  {
+    "input": "두더지",
+    "internal": "imis.o",
+    "expected": "101310144021",
+    "unicode": "⠊⠍⠊⠎⠨⠕",
+    "world": "⠊⠍⠊⠎⠨⠕",
+    "jeomsarang": "⠊⠍⠊⠎⠨⠕"
+  },
+  {
+    "input": "리코더",
+    "internal": "\"ofuis",
+    "expected": "162111371014",
+    "unicode": "⠐⠕⠋⠥⠊⠎",
+    "world": "⠐⠕⠋⠥⠊⠎",
+    "jeomsarang": "⠐⠕⠋⠥⠊⠎"
+  },
+  {
+    "input": "미소",
+    "internal": "eo,u",
+    "expected": "17213237",
+    "unicode": "⠑⠕⠠⠥",
+    "world": "⠑⠕⠠⠥",
+    "jeomsarang": "⠑⠕⠠⠥"
+  },
+  {
+    "input": "보리",
+    "internal": "^u\"o",
+    "expected": "24371621",
+    "unicode": "⠘⠥⠐⠕",
+    "world": "⠘⠥⠐⠕",
+    "jeomsarang": "⠘⠥⠐⠕"
+  },
+  {
+    "input": "셔츠",
+    "internal": ",:;[",
+    "expected": "32494842",
+    "unicode": "⠠⠱⠰⠪",
+    "world": "⠠⠱⠰⠪",
+    "jeomsarang": "⠠⠱⠰⠪"
+  },
+  {
+    "input": "저고리",
+    "internal": ".s@u\"o",
+    "expected": "40148371621",
+    "unicode": "⠨⠎⠈⠥⠐⠕",
+    "world": "⠨⠎⠈⠥⠐⠕",
+    "jeomsarang": "⠨⠎⠈⠥⠐⠕"
+  },
+  {
+    "input": "추수",
+    "internal": ";m,m",
+    "expected": "48133213",
+    "unicode": "⠰⠍⠠⠍",
+    "world": "⠰⠍⠠⠍",
+    "jeomsarang": "⠰⠍⠠⠍"
+  },
+  {
+    "input": "커피",
+    "internal": "fsdo",
+    "expected": "11142521",
+    "unicode": "⠋⠎⠙⠕",
+    "world": "⠋⠎⠙⠕",
+    "jeomsarang": "⠋⠎⠙⠕"
+  },
+  {
+    "input": "터무니",
+    "internal": "hsemco",
+    "expected": "19141713921",
+    "unicode": "⠓⠎⠑⠍⠉⠕",
+    "world": "⠓⠎⠑⠍⠉⠕",
+    "jeomsarang": "⠓⠎⠑⠍⠉⠕"
+  },
+  {
+    "input": "파리",
+    "internal": "d\"o",
+    "expected": "251621",
+    "unicode": "⠙⠐⠕",
+    "world": "⠙⠐⠕",
+    "jeomsarang": "⠙⠐⠕"
+  },
+  {
+    "input": "호수",
+    "internal": "ju,m",
+    "expected": "26373213",
+    "unicode": "⠚⠥⠠⠍",
+    "world": "⠚⠥⠠⠍",
+    "jeomsarang": "⠚⠥⠠⠍"
+  }
+]

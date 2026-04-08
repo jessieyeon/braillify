@@ -1,0 +1,18 @@
+[
+  {
+    "input": "∶",
+    "internal": "\"1",
+    "expected": "162",
+    "unicode": "⠐⠂",
+    "world": "",
+    "jeomsarang": "⠐⠂"
+  },
+  {
+    "input": "10∶3=5∶x",
+    "internal": "#aj\"1#c33#e\"1x",
+    "expected": "601261626091818601716245",
+    "unicode": "⠼⠁⠚⠐⠂⠼⠉⠒⠒⠼⠑⠐⠂⠭",
+    "world": "⠼⠁⠚⠼⠉⠒⠒⠼⠑⠴⠭⠲",
+    "jeomsarang": "⠼⠁⠚⠐⠂⠼⠉⠒⠒⠼⠑⠐⠂⠭⠲"
+  }
+]

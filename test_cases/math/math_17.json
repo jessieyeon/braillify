@@ -1,0 +1,35 @@
+[
+  {
+    "input": "′",
+    "context": "math",
+    "internal": "-",
+    "expected": "36",
+    "unicode": "⠤",
+    "world": "⠴⠤",
+    "jeomsarang": "⠴⠤"
+  },
+  {
+    "input": "x′",
+    "internal": "x-",
+    "expected": "4536",
+    "unicode": "⠭⠤",
+    "world": "⠴⠭⠴⠤",
+    "jeomsarang": "⠴⠭⠲⠶"
+  },
+  {
+    "input": "y′",
+    "internal": "y-",
+    "expected": "6136",
+    "unicode": "⠽⠤",
+    "world": "⠴⠽⠴⠤",
+    "jeomsarang": "⠴⠽⠲⠶"
+  },
+  {
+    "input": "a′b",
+    "internal": "a-b",
+    "expected": "1363",
+    "unicode": "⠁⠤⠃",
+    "world": "⠴⠁⠶⠃⠲",
+    "jeomsarang": "⠴⠁⠶⠰⠃⠲"
+  }
+]

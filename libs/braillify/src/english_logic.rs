@@ -69,11 +69,20 @@ pub(crate) fn is_english_symbol(symbol: char) -> bool {
 /// 단일 소문자 단어가 연속될 때 연속표가 필요한지 판단한다.
 /// [통일 영어 점자 - 5.2 1급 점자 기호표(⠰)] : 글자 a, i, o 앞에는 1급 점자 기호표가 필요하지 않다.
 pub(crate) fn requires_single_letter_continuation(letter: char) -> bool {
-    letter.is_ascii_lowercase() && !matches!(letter, 'a' | 'i' | 'o')
+    letter.is_ascii_alphabetic() && !matches!(letter.to_ascii_lowercase(), 'a' | 'i' | 'o')
 }
 
 fn is_ascii_letter_or_digit(ch: Option<char>) -> bool {
     ch.is_some_and(|c| c.is_ascii_alphanumeric())
+}
+
+fn is_digital_notation_symbol(symbol: char) -> bool {
+    matches!(symbol, '/' | '@' | '#' | '.' | '_' | ':')
+}
+
+fn has_digital_notation_signature(word_chars: &[char]) -> bool {
+    let text: String = word_chars.iter().collect();
+    text.contains("//") || text.contains('@') || text.contains('#') || text.contains('_')
 }
 
 pub(crate) fn prev_ascii_letter_or_digit(word_chars: &[char], index: usize) -> bool {
@@ -167,8 +176,29 @@ pub(crate) fn should_render_symbol_as_english(
 
             prev_ascii && next_ascii
         }
+        '/' | '@' | '#' | '.' | '_' | ':' | '-' => {
+            let prev_ascii = prev_ascii_letter_or_digit(word_chars, index);
+            let next_ascii = next_ascii_letter_or_digit(word_chars, index, remaining_words);
+
+            (prev_ascii && next_ascii)
+                || (symbol == '/' && prev_char == Some('/') && next_ascii)
+                || (symbol == '/' && next_char == Some('/') && prev_ascii)
+        }
         _ => false,
     }
+}
+
+pub(crate) fn should_keep_english_mode_for_symbol(
+    symbol: char,
+    word_chars: &[char],
+    index: usize,
+    remaining_words: &[&str],
+) -> bool {
+    if !is_digital_notation_symbol(symbol) || !has_digital_notation_signature(word_chars) {
+        return false;
+    }
+
+    should_render_symbol_as_english(true, true, &[], symbol, word_chars, index, remaining_words)
 }
 
 #[cfg(test)]

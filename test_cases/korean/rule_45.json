@@ -1,0 +1,106 @@
+[
+  {
+    "input": "+",
+    "internal": "5",
+    "expected": "34",
+    "unicode": "⠢",
+    "world": "⠢",
+    "jeomsarang": "⠢"
+  },
+  {
+    "input": "−",
+    "internal": "9",
+    "expected": "20",
+    "unicode": "⠔",
+    "world": "⠔",
+    "jeomsarang": "⠔"
+  },
+  {
+    "input": "×",
+    "internal": "*",
+    "expected": "33",
+    "unicode": "⠡",
+    "world": "⠡",
+    "jeomsarang": "⠡"
+  },
+  {
+    "input": "÷",
+    "internal": "//",
+    "expected": "1212",
+    "unicode": "⠌⠌",
+    "world": "⠌⠌",
+    "jeomsarang": "⠌⠌"
+  },
+  {
+    "input": "=",
+    "internal": "33",
+    "expected": "1818",
+    "unicode": "⠒⠒",
+    "world": "⠒⠒",
+    "jeomsarang": "⠒⠒"
+  },
+  {
+    "input": ">",
+    "internal": "55",
+    "expected": "3434",
+    "unicode": "⠢⠢",
+    "world": "⠢⠢",
+    "jeomsarang": "⠢⠢"
+  },
+  {
+    "input": "<",
+    "internal": "99",
+    "expected": "2020",
+    "unicode": "⠔⠔",
+    "world": "⠔⠔",
+    "jeomsarang": "⠔⠔"
+  },
+  {
+    "input": "5+7=12",
+    "internal": "#e5#g33#ab",
+    "expected": "601734602718186013",
+    "unicode": "⠼⠑⠢⠼⠛⠒⠒⠼⠁⠃",
+    "world": "⠼⠑⠢⠼⠛⠒⠒⠼⠁⠃",
+    "jeomsarang": "⠼⠑⠢⠼⠛⠒⠒⠼⠁⠃"
+  },
+  {
+    "input": "9-3=6",
+    "internal": "#i9#c33#f",
+    "expected": "60102060918186011",
+    "unicode": "⠼⠊⠔⠼⠉⠒⠒⠼⠋",
+    "world": "⠼⠊⠤⠼⠉⠒⠒⠼⠋",
+    "jeomsarang": "⠼⠊⠤⠼⠉⠒⠒⠼⠋"
+  },
+  {
+    "input": "4×8=32",
+    "internal": "#d*#h33#cb",
+    "expected": "602533601918186093",
+    "unicode": "⠼⠙⠡⠼⠓⠒⠒⠼⠉⠃",
+    "world": "⠼⠙⠡⠼⠓⠒⠒⠼⠉⠃",
+    "jeomsarang": "⠼⠙⠡⠼⠓⠒⠒⠼⠉⠃"
+  },
+  {
+    "input": "12÷3=4",
+    "internal": "#ab//#c33#d",
+    "expected": "6013121260918186025",
+    "unicode": "⠼⠁⠃⠌⠌⠼⠉⠒⠒⠼⠙",
+    "world": "⠼⠁⠃⠌⠌⠼⠉⠒⠒⠼⠙",
+    "jeomsarang": "⠼⠁⠃⠌⠌⠼⠉⠒⠒⠼⠙"
+  },
+  {
+    "input": "7>5",
+    "internal": "#g55#e",
+    "expected": "602734346017",
+    "unicode": "⠼⠛⠢⠢⠼⠑",
+    "world": "⠼⠛⠢⠢⠼⠑",
+    "jeomsarang": "⠼⠛⠢⠢⠼⠑"
+  },
+  {
+    "input": "6<9",
+    "internal": "#f99#i",
+    "expected": "601120206010",
+    "unicode": "⠼⠋⠔⠔⠼⠊",
+    "world": "⠼⠋⠔⠔⠼⠊",
+    "jeomsarang": "⠼⠋⠔⠔⠼⠊"
+  }
+]

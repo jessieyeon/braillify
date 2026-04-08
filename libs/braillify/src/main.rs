@@ -179,8 +179,8 @@ mod tests {
         let mut cmd = get_built_binary().command();
         cmd.arg("!@#$%^&*()");
         cmd.assert()
-            .failure()
-            .stderr(predicate::str::contains("Invalid character"));
+            .success()
+            .stdout(predicate::str::is_empty().not());
     }
 
     #[test]

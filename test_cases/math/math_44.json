@@ -1,0 +1,19 @@
+[
+  {
+    "input": "∥",
+    "internal": ";2",
+    "expected": "486",
+    "unicode": "⠰⠆",
+    "world": "",
+    "jeomsarang": "⠰⠆"
+  },
+  {
+    "input": "$AB \\parallel CD$",
+    "internal": ",,AB;2,,CD",
+    "expected": "3232134863232925",
+    "unicode": "⠠⠠⠁⠃⠰⠆⠠⠠⠉⠙",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

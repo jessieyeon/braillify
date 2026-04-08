@@ -1,0 +1,34 @@
+[
+  {
+    "input": "아예",
+    "internal": "<-/",
+    "expected": "353612",
+    "unicode": "⠣⠤⠌",
+    "world": "⠣⠤⠌",
+    "jeomsarang": "⠣⠤⠌"
+  },
+  {
+    "input": "도예",
+    "internal": "iu-/",
+    "expected": "10373612",
+    "unicode": "⠊⠥⠤⠌",
+    "world": "⠊⠥⠤⠌",
+    "jeomsarang": "⠊⠥⠤⠌"
+  },
+  {
+    "input": "뭐예요",
+    "internal": "ep-/+",
+    "expected": "1715361244",
+    "unicode": "⠑⠏⠤⠌⠬",
+    "world": "⠑⠏⠤⠌⠬",
+    "jeomsarang": "⠑⠏⠤⠌⠬"
+  },
+  {
+    "input": "서예",
+    "internal": ",s-/",
+    "expected": "32143612",
+    "unicode": "⠠⠎⠤⠌",
+    "world": "⠠⠎⠤⠌",
+    "jeomsarang": "⠠⠎⠤⠌"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "input": "⌢",
+    "internal": "@[",
+    "expected": "842",
+    "unicode": "⠈⠪",
+    "world": "",
+    "jeomsarang": "⠀"
+  },
+  {
+    "input": "⌢AB",
+    "internal": "@[,,AB",
+    "expected": "842323213",
+    "unicode": "⠈⠪⠠⠠⠁⠃",
+    "world": "⠴⠰⠠⠠⠁⠃⠲",
+    "jeomsarang": "⠀⠠⠠⠁⠃⠲"
+  },
+  {
+    "input": "$\\overset{\\frown}{AB}$",
+    "internal": "@[,,AB",
+    "expected": "842323213",
+    "unicode": "⠈⠪⠠⠠⠁⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]

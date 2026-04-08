@@ -1,0 +1,27 @@
+[
+  {
+    "input": "≒",
+    "internal": "\"33",
+    "expected": "161818",
+    "unicode": "⠐⠒⠒",
+    "world": "",
+    "jeomsarang": "⠐⠒⠒"
+  },
+  {
+    "input": "√3≒1.732",
+    "internal": ">#c\"33#a4gcb",
+    "expected": "28609161818601502793",
+    "unicode": "⠜⠼⠉⠐⠒⠒⠼⠁⠲⠛⠉⠃",
+    "world": "⠼⠉⠼⠁⠲⠛⠉⠃",
+    "jeomsarang": "⠻⠼⠉⠐⠒⠒⠼⠁⠲⠛⠉⠃"
+  },
+  {
+    "input": "$\\sqrt{3} \\approx 1.732$",
+    "internal": ">#c\"33#a4gcb",
+    "expected": "28609161818601502793",
+    "unicode": "⠜⠼⠉⠐⠒⠒⠼⠁⠲⠛⠉⠃",
+    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  }
+]
