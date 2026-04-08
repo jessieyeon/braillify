@@ -1,6 +1,6 @@
 [package]
 name = "braillify"
-version = "1.0.11"
+version = "2.0.0"
 edition = "2024"
 authors = ["JeongMin Oh <owjs39@gmail.com>"]
 description = "Rust 기반 크로스플랫폼 한국어 점역 라이브러리"
