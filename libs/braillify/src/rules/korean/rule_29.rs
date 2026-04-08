@@ -105,7 +105,7 @@ mod tests {
     fn indicator_values() {
         assert_eq!(ROMAN_INDICATOR, 52);
         assert_eq!(ROMAN_TERMINATOR, 50);
-        assert_eq!(ENGLISH_CONTINUATION, 16);
+        assert_eq!(ENGLISH_CONTINUATION, 48);
     }
 
     #[test]
