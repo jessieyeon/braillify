@@ -41,6 +41,160 @@
             }
         },
         "typography": {
+            "button": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "15px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "20px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "docsTitle": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "24px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "32px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "docsMenu": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "14px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "15px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "docsMenuBold": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "14px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "15px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "docsCaption": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "13px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "14px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "docsCaptionBold": {
+                "fontFamily": "Spoqa Han Sans Neo",
+                "fontWeight": 700,
+                "fontSize": "14px",
+                "lineHeight": 1.8,
+                "letterSpacing": "-0.06em"
+            },
+            "docsSmall": {
+                "fontFamily": "Spoqa Han Sans Neo",
+                "fontWeight": 500,
+                "fontSize": "12px",
+                "lineHeight": 1.8,
+                "letterSpacing": "-0.06em"
+            },
+            "gnbMenu": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "15px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "18px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "bodyLg": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "15px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "18px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
             "mainText": [
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
@@ -61,11 +215,11 @@
                 },
                 null
             ],
-            "buttonLg": [
+            "gnbMenuBold": [
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "17px",
+                    "fontWeight": 700,
+                    "fontSize": "15px",
                     "lineHeight": "normal",
                     "letterSpacing": "-0.06em"
                 },
@@ -74,18 +228,118 @@
                 null,
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
+                    "fontWeight": 700,
+                    "fontSize": "18px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "title": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "24px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "36px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "featureTitle": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "18px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
                     "fontSize": "24px",
                     "lineHeight": "normal",
                     "letterSpacing": "-0.06em"
                 },
                 null
             ],
-            "mainTextSm": [
+            "featureCount": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "14px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 700,
+                    "fontSize": "18px",
+                    "lineHeight": "normal",
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "body": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "14px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
                     "fontWeight": 500,
                     "fontSize": "16px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "footer": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 400,
+                    "fontSize": "12px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null,
+                null,
+                null,
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 400,
+                    "fontSize": "14px",
+                    "lineHeight": 1.8,
+                    "letterSpacing": "-0.06em"
+                },
+                null
+            ],
+            "buttonLg": [
+                {
+                    "fontFamily": "Spoqa Han Sans Neo",
+                    "fontWeight": 500,
+                    "fontSize": "17px",
                     "lineHeight": "normal",
                     "letterSpacing": "-0.06em"
                 },
@@ -121,111 +375,11 @@
                 },
                 null
             ],
-            "title": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "24px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "36px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "bodyLg": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "15px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "18px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "featureCount": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "14px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "18px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "featureTitle": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "18px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "24px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "body": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "14px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
+            "mainTextSm": [
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
                     "fontWeight": 500,
                     "fontSize": "16px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "button": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "15px",
                     "lineHeight": "normal",
                     "letterSpacing": "-0.06em"
                 },
@@ -235,166 +389,12 @@
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
                     "fontWeight": 500,
-                    "fontSize": "20px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "footer": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 400,
-                    "fontSize": "12px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 400,
-                    "fontSize": "14px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "gnbMenu": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "15px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "18px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "docsMenu": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "14px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "15px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "docsTitle": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
                     "fontSize": "24px",
                     "lineHeight": "normal",
                     "letterSpacing": "-0.06em"
                 },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "32px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
                 null
             ],
-            "gnbMenuBold": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "15px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "18px",
-                    "lineHeight": "normal",
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "docsCaption": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "13px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 500,
-                    "fontSize": "14px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "docsMenuBold": [
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "14px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null,
-                null,
-                null,
-                {
-                    "fontFamily": "Spoqa Han Sans Neo",
-                    "fontWeight": 700,
-                    "fontSize": "15px",
-                    "lineHeight": 1.8,
-                    "letterSpacing": "-0.06em"
-                },
-                null
-            ],
-            "docsCaptionBold": {
-                "fontFamily": "Spoqa Han Sans Neo",
-                "fontWeight": 700,
-                "fontSize": "14px",
-                "lineHeight": 1.8,
-                "letterSpacing": "-0.06em"
-            },
-            "docsSmall": {
-                "fontFamily": "Spoqa Han Sans Neo",
-                "fontWeight": 500,
-                "fontSize": "12px",
-                "lineHeight": 1.8,
-                "letterSpacing": "-0.06em"
-            },
             "progress": [
                 {
                     "fontFamily": "Spoqa Han Sans Neo",
@@ -434,7 +434,28 @@
                     "letterSpacing": "-0.06em"
                 },
                 null
-            ]
+            ],
+            "sideBarButton": {
+                "fontFamily": "Spoqa Han Sans Neo",
+                "fontWeight": 700,
+                "fontSize": "15px",
+                "lineHeight": 1.4,
+                "letterSpacing": "-0.06em"
+            },
+            "tinyBtn": {
+                "fontFamily": "Spoqa Han Sans Neo",
+                "fontWeight": 700,
+                "fontSize": "12px",
+                "lineHeight": 1.4,
+                "letterSpacing": "-0.06em"
+            },
+            "sidBarButton": {
+                "fontFamily": "Spoqa Han Sans Neo",
+                "fontWeight": 700,
+                "fontSize": "13px",
+                "lineHeight": 1.4,
+                "letterSpacing": "-0.06em"
+            }
         }
     }
 }
