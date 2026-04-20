@@ -62,16 +62,18 @@ export function TestCaseList({ results }: { results: TestStatus[6] }) {
                     {world ? (
                       <>
                         <br />
-                        점자세상 :{' '}
-                        <Text wordBreak="break-all">{world}</Text>{' '}
+                        점자세상 : <Text wordBreak="break-all">
+                          {world}
+                        </Text>{' '}
                         {worldIsSuccess ? '✅' : '❌'}
                       </>
                     ) : null}
                     {jeomsarang ? (
                       <>
                         <br />
-                        점사랑 :{' '}
-                        <Text wordBreak="break-all">{jeomsarang}</Text>{' '}
+                        점사랑 : <Text wordBreak="break-all">
+                          {jeomsarang}
+                        </Text>{' '}
                         {jeomsarangIsSuccess ? '✅' : '❌'}
                       </>
                     ) : null}

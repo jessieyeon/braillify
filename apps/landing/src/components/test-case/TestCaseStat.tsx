@@ -74,12 +74,7 @@ export function TestCaseStat({
   const hasJeomsarang = jeomsarangTotal != null && jeomsarangTotal > 0
 
   return (
-    <Flex
-      alignItems="center"
-      flexWrap="wrap"
-      gap="8px"
-      styleOrder={1}
-    >
+    <Flex alignItems="center" flexWrap="wrap" gap="8px" styleOrder={1}>
       <Center
         bg="$menuHover"
         borderRadius="10px"

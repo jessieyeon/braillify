@@ -171,26 +171,28 @@ export default async function TestCasePage() {
               <Text>표 형식</Text>
             </Flex>
           </VStack>
-          <Flex alignItems="center" gap="10px">
-            <FailedOnlyInput
-              className={css({
-                accentColor: '$primary',
-                cursor: 'pointer',
-                boxSize: '18px',
-              })}
-              id="failed-only"
-              name="failed-only"
-              type="checkbox"
-            />
-            <Text
-              as="label"
-              color="$primary"
-              cursor="pointer"
-              htmlFor="failed-only"
-              typography="body"
-            >
-              실패한 케이스만 표시하기
-            </Text>
+          <Flex justifyContent="space-between">
+            <Flex alignItems="center" gap="10px">
+              <FailedOnlyInput
+                className={css({
+                  accentColor: '$primary',
+                  cursor: 'pointer',
+                  boxSize: '18px',
+                })}
+                id="failed-only"
+                name="failed-only"
+                type="checkbox"
+              />
+              <Text
+                as="label"
+                color="$primary"
+                cursor="pointer"
+                htmlFor="failed-only"
+                typography="body"
+              >
+                실패한 케이스만 표시하기
+              </Text>
+            </Flex>
           </Flex>
           <Box bg="$text" h="1px" />
         </TestCaseFilterContainer>

@@ -75,11 +75,11 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
               >
                 <Tr
                   key={`${testCaseKey}-desktop`}
-                className={css({
-                  bg: isSuccess ? 'unset' : '#D8D8D8',
-                  display: ['none', null, null, 'table-row'],
-                })}
-                data-responsive="desktop"
+                  className={css({
+                    bg: isSuccess ? 'unset' : '#D8D8D8',
+                    display: ['none', null, null, 'table-row'],
+                  })}
+                  data-responsive="desktop"
                 >
                   <Td>{index + 1}</Td>
                   <Td>
@@ -110,10 +110,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                     </Flex>
                   </Td>
                   <Td>
-                    <CompetitorCell
-                      isSuccess={worldIsSuccess}
-                      value={world}
-                    />
+                    <CompetitorCell isSuccess={worldIsSuccess} value={world} />
                   </Td>
                   <Td>
                     <CompetitorCell
@@ -124,11 +121,11 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                 </Tr>
                 <Tr
                   key={`${testCaseKey}-mobile`}
-                className={css({
-                  bg: isSuccess ? 'unset' : '#D8D8D8',
-                  display: ['table-row', null, null, 'none'],
-                })}
-                data-responsive="mobile"
+                  className={css({
+                    bg: isSuccess ? 'unset' : '#D8D8D8',
+                    display: ['table-row', null, null, 'none'],
+                  })}
+                  data-responsive="mobile"
                 >
                   <Td className={css({ pb: '16px', pt: '10px' })}>
                     <VStack gap="8px">
