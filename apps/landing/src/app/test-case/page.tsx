@@ -20,6 +20,7 @@ import { TestCaseFilterContainer } from '@/components/test-case/TestCaseFilterCo
 import { TestCaseProvider } from '@/components/test-case/TestCaseProvider'
 import { TestCaseRuleContainer } from '@/components/test-case/TestCaseRuleContainer'
 import { TestCaseStat } from '@/components/test-case/TestCaseStat'
+import { TestCaseTotalBoundary } from '@/components/test-case/TestCaseTotalBoundary'
 import { TestCaseTypeToggle } from '@/components/test-case/TestCaseTypeToggle'
 import { createFilterMap, TEST_CASE_FILTERS } from '@/constants'
 import { TestStatusMap } from '@/types'
@@ -217,44 +218,68 @@ export default async function TestCasePage() {
                   실패한 케이스만 표시하기
                 </Text>
               </Flex>
-              <Flex alignItems="center" gap="10px">
-                <SideBarTrigger>
-                  <Flex
-                    _hover={{
-                      opacity: 0.7,
-                    }}
-                    alignItems="center"
-                    borderRadius="8px"
-                    cursor="pointer"
-                    flexDir={['row-reverse', null, null, 'row']}
-                    gap="8px"
-                    px="12px"
-                    py="8px"
-                    transition="opacity 0.2s ease"
-                  >
-                    <Box
-                      bg="$caption"
-                      boxSize="16px"
-                      maskImage="url(/images/chevron.svg)"
-                      maskPosition="center"
-                      maskRepeat="no-repeat"
-                      maskSize="contain"
-                      transform={['rotate(90deg)', null, null, 'rotate(0deg)']}
-                    />
-                    <Text
-                      color="$primary"
-                      typography="body"
-                      wordBreak="keep-all"
+              <TestCaseTotalBoundary>
+                <Flex alignItems="center" gap="10px">
+                  <SideBarTrigger>
+                    <Flex
+                      _hover={{
+                        opacity: 0.7,
+                      }}
+                      alignItems="center"
+                      borderRadius="8px"
+                      cursor="pointer"
+                      flexDir={['row-reverse', null, null, 'row']}
+                      gap="8px"
+                      px="12px"
+                      py="8px"
+                      transition="opacity 0.2s ease"
                     >
-                      목차 펼치기
-                    </Text>
-                  </Flex>
-                </SideBarTrigger>
-              </Flex>
+                      <Box
+                        bg="$caption"
+                        boxSize="16px"
+                        maskImage="url(/images/chevron.svg)"
+                        maskPosition="center"
+                        maskRepeat="no-repeat"
+                        maskSize="contain"
+                        transform={[
+                          'rotate(90deg)',
+                          null,
+                          null,
+                          'rotate(0deg)',
+                        ]}
+                      />
+                      <Text
+                        color="$primary"
+                        typography="body"
+                        wordBreak="keep-all"
+                      >
+                        목차 펼치기
+                      </Text>
+                    </Flex>
+                  </SideBarTrigger>
+                </Flex>
+              </TestCaseTotalBoundary>
             </Flex>
-            <Box bg="$text" h="1px" />
+            <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
           </TestCaseFilterContainer>
-          {cases}
+          <TestCaseTotalBoundary>{cases}</TestCaseTotalBoundary>
+          <TestCaseTotalBoundary reverse>
+            <Center
+              flexDir="column"
+              my={['30px', null, null, '40px']}
+              px={['16px', null, null, '60px']}
+              py={['24px', null, null, '30px']}
+            >
+              <Text
+                color="$text"
+                typography="body"
+                w="100%"
+                wordBreak="keep-all"
+              >
+                등록된 테스트가 없습니다.
+              </Text>
+            </Center>
+          </TestCaseTotalBoundary>
           <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
         </Box>
         <ScrollTopButton
@@ -295,73 +320,197 @@ export default async function TestCasePage() {
             TOP
           </Text>
         </ScrollTopButton>
-        {/* mobile bottom sheet */}
-        <SideBarContainer
-          className={css({
-            maxH: '467px',
-            borderTop: 'solid 1px $primary',
-            borderLeft: 'solid 1px $primary',
-            borderRight: 'solid 1px $primary',
-            display: ['flex', null, null, 'none'],
-            flexDir: 'column',
-            gap: '20px',
-          })}
-          position="bottom"
-        >
-          <SideBarTrigger className={css({ display: 'contents' })}>
-            <Center
-              bg="$primary"
-              borderRadius="12px 12px 0 0"
-              gap="6px"
-              pos="absolute"
-              px="24px"
-              py="10px"
-              right="30px"
-              top="0"
-              transform="translateY(-100%)"
-            >
-              <Box
-                bg="$base"
-                boxSize="16px"
-                maskImage="url(/images/chevron.svg)"
-                maskPosition="center"
-                maskRepeat="no-repeat"
-                maskSize="contain"
-                transform="rotate(-90deg)"
-              />
+        <TestCaseTotalBoundary>
+          {/* mobile bottom sheet */}
+          <SideBarContainer
+            className={css({
+              maxH: '467px',
+              borderTop: 'solid 1px $primary',
+              borderLeft: 'solid 1px $primary',
+              borderRight: 'solid 1px $primary',
+              display: ['flex', null, null, 'none'],
+              flexDir: 'column',
+              gap: '20px',
+            })}
+            position="bottom"
+          >
+            <SideBarTrigger className={css({ display: 'contents' })}>
+              <Center
+                bg="$primary"
+                borderRadius="12px 12px 0 0"
+                gap="6px"
+                pos="absolute"
+                px="24px"
+                py="10px"
+                right="30px"
+                top="0"
+                transform="translateY(-100%)"
+              >
+                <Box
+                  bg="$base"
+                  boxSize="16px"
+                  maskImage="url(/images/chevron.svg)"
+                  maskPosition="center"
+                  maskRepeat="no-repeat"
+                  maskSize="contain"
+                  transform="rotate(-90deg)"
+                />
+                <Text
+                  color="$base"
+                  typography="sideBarButton"
+                  wordBreak="keep-all"
+                >
+                  접기
+                </Text>
+              </Center>
+            </SideBarTrigger>
+            <VStack gap="8px">
               <Text
-                color="$base"
-                typography="sideBarButton"
+                color="$title"
+                typography="featureTitle"
                 wordBreak="keep-all"
               >
-                접기
+                한글 목차
               </Text>
-            </Center>
-          </SideBarTrigger>
-          <VStack gap="8px">
-            <Text color="$title" typography="featureTitle" wordBreak="keep-all">
-              한글 목차
-            </Text>
-            <Text
-              color="$caption"
-              typography="docsCaption"
-              wordBreak="keep-all"
+              <Text
+                color="$caption"
+                typography="docsCaption"
+                wordBreak="keep-all"
+              >
+                클릭 시 해당 항으로 이동합니다.
+              </Text>
+            </VStack>
+            <Grid
+              gap="4px"
+              gridTemplateColumns="repeat(5, 1fr)"
+              overflowY="auto"
             >
-              클릭 시 해당 항으로 이동합니다.
-            </Text>
-          </VStack>
-          <Grid gap="4px" gridTemplateColumns="repeat(5, 1fr)" overflowY="auto">
-            {Object.entries(ruleMap).map(([key, value]) => {
-              const isBut = value.title.includes('다만')
-              if (isBut) return null
-              return (
-                <TestCaseDisplayBoundary
-                  key={key}
-                  option="failedOnly"
-                  value={testStatus[key][1]}
+              {Object.entries(ruleMap).map(([key, value]) => {
+                const isBut = value.title.includes('다만')
+                if (isBut) return null
+                return (
+                  <TestCaseDisplayBoundary
+                    key={key}
+                    option="failedOnly"
+                    value={testStatus[key][1]}
+                  >
+                    <TestCaseDisplayBoundary option="filters" value={key}>
+                      <SideBarTrigger asChild>
+                        <ScrollToElement
+                          className={css({ display: 'contents' })}
+                          elementId={value.title}
+                        >
+                          <Center
+                            key={key}
+                            _active={{
+                              bg: '$menuActive',
+                            }}
+                            _hover={{
+                              bg: '$menuHover',
+                            }}
+                            cursor="pointer"
+                            flexDir="column"
+                            px="12px"
+                            py="3px"
+                            transition="background-color 0.1s ease"
+                          >
+                            <Text
+                              _active={{
+                                color: '$primary',
+                              }}
+                              _hover={{
+                                color: '$primary',
+                              }}
+                              color="$primary"
+                              typography="body"
+                              wordBreak="keep-all"
+                            >
+                              {value.title.replace(/[^\d~]/g, '')}
+                            </Text>
+                          </Center>
+                        </ScrollToElement>
+                      </SideBarTrigger>
+                    </TestCaseDisplayBoundary>
+                  </TestCaseDisplayBoundary>
+                )
+              })}
+            </Grid>
+          </SideBarContainer>
+          {/* desktop side sheet */}
+          <SideBarContainer
+            className={css({
+              maxH: '800px',
+              top: 'calc(50% - 400px)',
+              borderTop: 'solid 1px $primary',
+              borderLeft: 'solid 1px $primary',
+              borderBottom: 'solid 1px $primary',
+              display: ['none', null, null, 'flex'],
+              flexDir: 'column',
+              gap: '20px',
+            })}
+          >
+            <SideBarTrigger className={css({ display: 'contents' })}>
+              <Center
+                bg="$primary"
+                borderRadius="12px 0 0 12px"
+                cursor="pointer"
+                gap="6px"
+                left="0"
+                pos="absolute"
+                px="10px"
+                py="16px"
+                top="20px"
+                transform="translateX(-100%)"
+              >
+                <Box
+                  bg="$base"
+                  boxSize="16px"
+                  maskImage="url(/images/chevron.svg)"
+                  maskPosition="center"
+                  maskRepeat="no-repeat"
+                  maskSize="contain"
+                  transform="rotate(180deg)"
+                />
+                <Text
+                  color="$base"
+                  typography="sideBarButton"
+                  wordBreak="keep-all"
                 >
-                  <TestCaseDisplayBoundary option="filters" value={key}>
-                    <SideBarTrigger asChild>
+                  접기
+                </Text>
+              </Center>
+            </SideBarTrigger>
+            <VStack gap="8px">
+              <Text
+                color="$title"
+                typography="featureTitle"
+                wordBreak="keep-all"
+              >
+                한글 목차
+              </Text>
+              <Text
+                color="$caption"
+                typography="docsCaption"
+                wordBreak="keep-all"
+              >
+                클릭 시 해당 항으로 이동합니다.
+              </Text>
+            </VStack>
+            <Grid
+              gap="4px"
+              gridTemplateColumns="repeat(5, 1fr)"
+              overflowY="auto"
+            >
+              {Object.entries(ruleMap).map(([key, value]) => {
+                const isBut = value.title.includes('다만')
+                if (isBut) return null
+                return (
+                  <TestCaseDisplayBoundary
+                    key={key}
+                    option="failedOnly"
+                    value={testStatus[key][1]}
+                  >
+                    <TestCaseDisplayBoundary option="filters" value={key}>
                       <ScrollToElement
                         className={css({ display: 'contents' })}
                         elementId={value.title}
@@ -395,119 +544,13 @@ export default async function TestCasePage() {
                           </Text>
                         </Center>
                       </ScrollToElement>
-                    </SideBarTrigger>
+                    </TestCaseDisplayBoundary>
                   </TestCaseDisplayBoundary>
-                </TestCaseDisplayBoundary>
-              )
-            })}
-          </Grid>
-        </SideBarContainer>
-        {/* desktop side sheet */}
-        <SideBarContainer
-          className={css({
-            maxH: '800px',
-            top: 'calc(50% - 400px)',
-            borderTop: 'solid 1px $primary',
-            borderLeft: 'solid 1px $primary',
-            borderBottom: 'solid 1px $primary',
-            display: ['none', null, null, 'flex'],
-            flexDir: 'column',
-            gap: '20px',
-          })}
-        >
-          <SideBarTrigger className={css({ display: 'contents' })}>
-            <Center
-              bg="$primary"
-              borderRadius="12px 0 0 12px"
-              cursor="pointer"
-              gap="6px"
-              left="0"
-              pos="absolute"
-              px="10px"
-              py="16px"
-              top="20px"
-              transform="translateX(-100%)"
-            >
-              <Box
-                bg="$base"
-                boxSize="16px"
-                maskImage="url(/images/chevron.svg)"
-                maskPosition="center"
-                maskRepeat="no-repeat"
-                maskSize="contain"
-                transform="rotate(180deg)"
-              />
-              <Text
-                color="$base"
-                typography="sideBarButton"
-                wordBreak="keep-all"
-              >
-                접기
-              </Text>
-            </Center>
-          </SideBarTrigger>
-          <VStack gap="8px">
-            <Text color="$title" typography="featureTitle" wordBreak="keep-all">
-              한글 목차
-            </Text>
-            <Text
-              color="$caption"
-              typography="docsCaption"
-              wordBreak="keep-all"
-            >
-              클릭 시 해당 항으로 이동합니다.
-            </Text>
-          </VStack>
-          <Grid gap="4px" gridTemplateColumns="repeat(5, 1fr)" overflowY="auto">
-            {Object.entries(ruleMap).map(([key, value]) => {
-              const isBut = value.title.includes('다만')
-              if (isBut) return null
-              return (
-                <TestCaseDisplayBoundary
-                  key={key}
-                  option="failedOnly"
-                  value={testStatus[key][1]}
-                >
-                  <TestCaseDisplayBoundary option="filters" value={key}>
-                    <ScrollToElement
-                      className={css({ display: 'contents' })}
-                      elementId={value.title}
-                    >
-                      <Center
-                        key={key}
-                        _active={{
-                          bg: '$menuActive',
-                        }}
-                        _hover={{
-                          bg: '$menuHover',
-                        }}
-                        cursor="pointer"
-                        flexDir="column"
-                        px="12px"
-                        py="3px"
-                        transition="background-color 0.1s ease"
-                      >
-                        <Text
-                          _active={{
-                            color: '$primary',
-                          }}
-                          _hover={{
-                            color: '$primary',
-                          }}
-                          color="$primary"
-                          typography="body"
-                          wordBreak="keep-all"
-                        >
-                          {value.title.replace(/[^\d~]/g, '')}
-                        </Text>
-                      </Center>
-                    </ScrollToElement>
-                  </TestCaseDisplayBoundary>
-                </TestCaseDisplayBoundary>
-              )
-            })}
-          </Grid>
-        </SideBarContainer>
+                )
+              })}
+            </Grid>
+          </SideBarContainer>
+        </TestCaseTotalBoundary>
       </SideBarProvider>
     </TestCaseProvider>
   )
