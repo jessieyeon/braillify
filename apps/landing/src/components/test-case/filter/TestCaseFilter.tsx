@@ -19,9 +19,7 @@ export function TestCaseFilter({
 
   const handleClick = () => {
     onChangeOptions({
-      filters: isSelected
-        ? options.filters.filter((filter) => filter !== value)
-        : [...options.filters, value],
+      filters: [value],
     })
   }
 
