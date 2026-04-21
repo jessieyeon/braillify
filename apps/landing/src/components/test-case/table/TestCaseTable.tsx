@@ -148,23 +148,31 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                         />
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text wordBreak="keep-all" typography="bodyBold">예문</Text>
+                        <Text typography="bodyBold" wordBreak="keep-all">
+                          예문
+                        </Text>
                         <Text>
                           {text}
                           {note ? ` (${note})` : null}
                         </Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text wordBreak="keep-all" typography="bodyBold">정답</Text>
+                        <Text typography="bodyBold" wordBreak="keep-all">
+                          정답
+                        </Text>
                         <Text>{expected}</Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text wordBreak="keep-all" typography="bodyBold">결과</Text>
+                        <Text typography="bodyBold" wordBreak="keep-all">
+                          결과
+                        </Text>
                         <Text>{actual}</Text>
                       </Flex>
                       {world ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text wordBreak="keep-all" typography="bodyBold">점자세상</Text>
+                          <Text typography="bodyBold" wordBreak="keep-all">
+                            점자세상
+                          </Text>
                           <Text
                             className={css({
                               color: worldIsSuccess ? '$success' : '$error',
@@ -176,7 +184,9 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                       ) : null}
                       {jeomsarang ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text wordBreak="keep-all" typography="bodyBold">점사랑</Text>
+                          <Text typography="bodyBold" wordBreak="keep-all">
+                            점사랑
+                          </Text>
                           <Text
                             className={css({
                               color: jeomsarangIsSuccess
