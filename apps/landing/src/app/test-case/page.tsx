@@ -1,9 +1,15 @@
 import 'katex/dist/katex.min.css'
 
-import { Box, css, Flex, Text, VStack } from '@devup-ui/react'
+import { Box, Center, css, Flex, Grid, Text, VStack } from '@devup-ui/react'
 import { readFile } from 'fs/promises'
 import { Metadata } from 'next'
 
+import { ScrollToElement } from '@/components/scroll-to-element'
+import {
+  SideBarContainer,
+  SideBarProvider,
+  SideBarTrigger,
+} from '@/components/side-bar'
 import { FailedOnlyInput } from '@/components/test-case/FailedOnlyInput'
 import { TestCaseFilter } from '@/components/test-case/filter/TestCaseFilter'
 import { TestCaseList } from '@/components/test-case/list/TestCaseList'
@@ -57,7 +63,6 @@ export default async function TestCasePage() {
         option="failedOnly"
         value={testStatus[key][1]}
       >
-        {/* @todo 필터 관련 JSON 및 상태 관련 처리 */}
         <TestCaseDisplayBoundary option="filters" value={key}>
           <TestCaseRuleContainer key={key} exception={isBut}>
             <VStack gap="20px">
@@ -66,7 +71,12 @@ export default async function TestCasePage() {
                 gap="20px"
                 justifyContent={['space-between', null, null, 'flex-start']}
               >
-                <Text color="$title" typography="docsTitle">
+                <Text
+                  color="$title"
+                  id={value.title}
+                  scrollMarginTop="220px"
+                  typography="docsTitle"
+                >
                   {value.title}
                 </Text>
                 <TestCaseStat
@@ -97,106 +107,369 @@ export default async function TestCasePage() {
 
   return (
     <TestCaseProvider filterMap={filterMap} testStatusMap={testStatus}>
-      <Box maxW="1520px" mx="auto" pb="40px" w="100%">
-        <VStack
-          gap="20px"
-          px={['16px', null, null, '60px']}
-          py={['30px', null, null, '40px']}
-        >
+      <SideBarProvider>
+        <Box maxW="1520px" mx="auto" pb="40px" w="100%">
           <VStack
-            alignItems={['flex-start', null, null, 'center']}
-            flexDir={[null, null, null, 'row']}
-            gap={['10px', null, null, '20px']}
+            gap="20px"
+            px={['16px', null, null, '60px']}
+            py={['30px', null, null, '40px']}
           >
-            <Text color="$title" typography="title">
-              테스트 케이스
-            </Text>
-            <TestCaseStat
-              fail={totalFail}
-              jeomsarangFail={totalJeomsarangFail}
-              jeomsarangTotal={totalJeomsarangTest}
-              showTotal
-              success={totalTest - totalFail}
-              total={totalTest}
-              worldFail={totalWorldFail}
-              worldTotal={totalWorldTest}
-            />
-          </VStack>
-          <Text color="$text" typography="body" wordBreak="keep-all">
-            모든 테스트 케이스는{' '}
-            <Text
-              _hover={{
-                textDecoration: 'underline',
-              }}
-              as="a"
-              color="$link"
-              href="/2024 개정 한국 점자 규정.pdf"
-              target="_blank"
-            >
-              2024 개정 한국 점자 규정
-            </Text>
-            을 기반으로 작성되었습니다.
-          </Text>
-        </VStack>
-        <TestCaseFilterContainer>
-          <VStack
-            alignItems={['flex-end', null, null, 'center']}
-            flexDir={['column-reverse', null, null, 'row']}
-            gap="12px"
-            justifyContent={[null, null, null, 'space-between']}
-          >
-            <Flex
-              gap="10px"
-              overflowX="auto"
-              overflowY="visible"
-              pb="2px"
-              scrollbarWidth="none"
-              w="100%"
-            >
-              {TEST_CASE_FILTERS.map((filter) => (
-                <TestCaseFilter key={filter.value} value={filter.value}>
-                  {filter.label}
-                </TestCaseFilter>
-              ))}
-            </Flex>
-            <Flex
-              alignItems="center"
-              color="$primary"
-              gap="10px"
-              typography="body"
-              whiteSpace="nowrap"
-            >
-              <Text>목록 형식</Text>
-              <TestCaseTypeToggle />
-              <Text>표 형식</Text>
-            </Flex>
-          </VStack>
-          <Flex alignItems="center" gap="10px">
-            <FailedOnlyInput
+            <VStack
+              alignItems={['flex-start', null, null, 'center']}
               className={css({
-                accentColor: '$primary',
-                cursor: 'pointer',
-                boxSize: '18px',
+                selectors: {
+                  '& [aria-label="tooltip"]': {
+                    zIndex: '110',
+                  },
+                },
               })}
-              id="failed-only"
-              name="failed-only"
-              type="checkbox"
-            />
-            <Text
-              as="label"
-              color="$primary"
-              cursor="pointer"
-              htmlFor="failed-only"
-              typography="body"
+              flexDir={[null, null, null, 'row']}
+              gap={['10px', null, null, '20px']}
             >
-              실패한 케이스만 표시하기
+              <Text color="$title" typography="title">
+                테스트 케이스
+              </Text>
+              <TestCaseStat
+                fail={totalFail}
+                jeomsarangFail={totalJeomsarangFail}
+                jeomsarangTotal={totalJeomsarangTest}
+                showTotal
+                success={totalTest - totalFail}
+                total={totalTest}
+                worldFail={totalWorldFail}
+                worldTotal={totalWorldTest}
+              />
+            </VStack>
+            <Text color="$text" typography="body" wordBreak="keep-all">
+              모든 테스트 케이스는{' '}
+              <Text
+                _hover={{
+                  textDecoration: 'underline',
+                }}
+                as="a"
+                color="$link"
+                href="/2024 개정 한국 점자 규정.pdf"
+                target="_blank"
+              >
+                2024 개정 한국 점자 규정
+              </Text>
+              을 기반으로 작성되었습니다.
             </Text>
-          </Flex>
-          <Box bg="$text" h="1px" />
-        </TestCaseFilterContainer>
-        {cases}
-        <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
-      </Box>
+          </VStack>
+          <TestCaseFilterContainer>
+            <VStack
+              alignItems={['flex-end', null, null, 'center']}
+              flexDir={['column-reverse', null, null, 'row']}
+              gap="12px"
+              justifyContent={[null, null, null, 'space-between']}
+            >
+              <Flex
+                gap="10px"
+                overflowX="auto"
+                overflowY="visible"
+                pb="2px"
+                px={['16px', null, null, 'unset']}
+                scrollbarWidth="none"
+                w="100%"
+              >
+                {TEST_CASE_FILTERS.map((filter) => (
+                  <TestCaseFilter key={filter.value} value={filter.value}>
+                    {filter.label}
+                  </TestCaseFilter>
+                ))}
+              </Flex>
+              <Flex
+                alignItems="center"
+                color="$primary"
+                gap="10px"
+                px={['16px', null, null, 'unset']}
+                typography="body"
+                whiteSpace="nowrap"
+              >
+                <Text>목록 형식</Text>
+                <TestCaseTypeToggle />
+                <Text>표 형식</Text>
+              </Flex>
+            </VStack>
+            <Flex
+              justifyContent="space-between"
+              px={['16px', null, null, 'unset']}
+            >
+              <Flex alignItems="center" gap="10px">
+                <FailedOnlyInput
+                  className={css({
+                    accentColor: '$primary',
+                    cursor: 'pointer',
+                    boxSize: '18px',
+                  })}
+                  id="failed-only"
+                  name="failed-only"
+                  type="checkbox"
+                />
+                <Text
+                  as="label"
+                  color="$primary"
+                  cursor="pointer"
+                  htmlFor="failed-only"
+                  typography="body"
+                >
+                  실패한 케이스만 표시하기
+                </Text>
+              </Flex>
+              <Flex alignItems="center" gap="10px">
+                <SideBarTrigger>
+                  <Flex
+                    _hover={{
+                      opacity: 0.7,
+                    }}
+                    alignItems="center"
+                    borderRadius="8px"
+                    cursor="pointer"
+                    flexDir={['row-reverse', null, null, 'row']}
+                    gap="8px"
+                    px="12px"
+                    py="8px"
+                    transition="opacity 0.2s ease"
+                  >
+                    <Box
+                      bg="$caption"
+                      boxSize="16px"
+                      maskImage="url(/images/chevron.svg)"
+                      maskPosition="center"
+                      maskRepeat="no-repeat"
+                      maskSize="contain"
+                      transform={['rotate(90deg)', null, null, 'rotate(0deg)']}
+                    />
+                    <Text
+                      color="$primary"
+                      typography="body"
+                      wordBreak="keep-all"
+                    >
+                      목차 펼치기
+                    </Text>
+                  </Flex>
+                </SideBarTrigger>
+              </Flex>
+            </Flex>
+            <Box bg="$text" h="1px" />
+          </TestCaseFilterContainer>
+          {cases}
+          <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
+        </Box>
+        {/* mobile bottom sheet */}
+        <SideBarContainer
+          className={css({
+            maxH: '467px',
+            borderTop: 'solid 1px $primary',
+            borderLeft: 'solid 1px $primary',
+            borderRight: 'solid 1px $primary',
+            display: ['flex', null, null, 'none'],
+            flexDir: 'column',
+            gap: '20px',
+          })}
+          position="bottom"
+        >
+          <SideBarTrigger className={css({ display: 'contents' })}>
+            <Center
+              bg="$primary"
+              borderRadius="12px 12px 0 0"
+              gap="6px"
+              pos="absolute"
+              px="24px"
+              py="10px"
+              right="30px"
+              top="0"
+              transform="translateY(-100%)"
+            >
+              <Box
+                bg="$base"
+                boxSize="16px"
+                maskImage="url(/images/chevron.svg)"
+                maskPosition="center"
+                maskRepeat="no-repeat"
+                maskSize="contain"
+                transform="rotate(-90deg)"
+              />
+              <Text
+                color="$base"
+                typography="sideBarButton"
+                wordBreak="keep-all"
+              >
+                접기
+              </Text>
+            </Center>
+          </SideBarTrigger>
+          <VStack gap="8px">
+            <Text color="$title" typography="featureTitle" wordBreak="keep-all">
+              한글 목차
+            </Text>
+            <Text
+              color="$caption"
+              typography="docsCaption"
+              wordBreak="keep-all"
+            >
+              클릭 시 해당 항으로 이동합니다.
+            </Text>
+          </VStack>
+          <Grid gap="4px" gridTemplateColumns="repeat(5, 1fr)" overflowY="auto">
+            {Object.entries(ruleMap).map(([key, value]) => {
+              const isBut = value.title.includes('다만')
+              if (isBut) return null
+              return (
+                <TestCaseDisplayBoundary
+                  key={key}
+                  option="failedOnly"
+                  value={testStatus[key][1]}
+                >
+                  <TestCaseDisplayBoundary option="filters" value={key}>
+                    <SideBarTrigger asChild>
+                      <ScrollToElement
+                        className={css({ display: 'contents' })}
+                        elementId={value.title}
+                      >
+                        <Center
+                          key={key}
+                          _active={{
+                            bg: '$menuActive',
+                          }}
+                          _hover={{
+                            bg: '$menuHover',
+                          }}
+                          cursor="pointer"
+                          flexDir="column"
+                          px="12px"
+                          py="3px"
+                          transition="background-color 0.1s ease"
+                        >
+                          <Text
+                            _active={{
+                              color: '$primary',
+                            }}
+                            _hover={{
+                              color: '$primary',
+                            }}
+                            color="$primary"
+                            typography="body"
+                            wordBreak="keep-all"
+                          >
+                            {value.title.replace(/[^\d~]/g, '')}
+                          </Text>
+                        </Center>
+                      </ScrollToElement>
+                    </SideBarTrigger>
+                  </TestCaseDisplayBoundary>
+                </TestCaseDisplayBoundary>
+              )
+            })}
+          </Grid>
+        </SideBarContainer>
+        {/* desktop side sheet */}
+        <SideBarContainer
+          className={css({
+            maxH: '800px',
+            top: 'calc(50% - 400px)',
+            borderTop: 'solid 1px $primary',
+            borderLeft: 'solid 1px $primary',
+            borderBottom: 'solid 1px $primary',
+            display: ['none', null, null, 'flex'],
+            flexDir: 'column',
+            gap: '20px',
+          })}
+        >
+          <SideBarTrigger className={css({ display: 'contents' })}>
+            <Center
+              bg="$primary"
+              borderRadius="12px 0 0 12px"
+              cursor="pointer"
+              gap="6px"
+              left="0"
+              pos="absolute"
+              px="10px"
+              py="16px"
+              top="20px"
+              transform="translateX(-100%)"
+            >
+              <Box
+                bg="$base"
+                boxSize="16px"
+                maskImage="url(/images/chevron.svg)"
+                maskPosition="center"
+                maskRepeat="no-repeat"
+                maskSize="contain"
+                transform="rotate(180deg)"
+              />
+              <Text
+                color="$base"
+                typography="sideBarButton"
+                wordBreak="keep-all"
+              >
+                접기
+              </Text>
+            </Center>
+          </SideBarTrigger>
+          <VStack gap="8px">
+            <Text color="$title" typography="featureTitle" wordBreak="keep-all">
+              한글 목차
+            </Text>
+            <Text
+              color="$caption"
+              typography="docsCaption"
+              wordBreak="keep-all"
+            >
+              클릭 시 해당 항으로 이동합니다.
+            </Text>
+          </VStack>
+          <Grid gap="4px" gridTemplateColumns="repeat(5, 1fr)" overflowY="auto">
+            {Object.entries(ruleMap).map(([key, value]) => {
+              const isBut = value.title.includes('다만')
+              if (isBut) return null
+              return (
+                <TestCaseDisplayBoundary
+                  key={key}
+                  option="failedOnly"
+                  value={testStatus[key][1]}
+                >
+                  <TestCaseDisplayBoundary option="filters" value={key}>
+                    <ScrollToElement
+                      className={css({ display: 'contents' })}
+                      elementId={value.title}
+                    >
+                      <Center
+                        key={key}
+                        _active={{
+                          bg: '$menuActive',
+                        }}
+                        _hover={{
+                          bg: '$menuHover',
+                        }}
+                        cursor="pointer"
+                        flexDir="column"
+                        px="12px"
+                        py="3px"
+                        transition="background-color 0.1s ease"
+                      >
+                        <Text
+                          _active={{
+                            color: '$primary',
+                          }}
+                          _hover={{
+                            color: '$primary',
+                          }}
+                          color="$primary"
+                          typography="body"
+                          wordBreak="keep-all"
+                        >
+                          {value.title.replace(/[^\d~]/g, '')}
+                        </Text>
+                      </Center>
+                    </ScrollToElement>
+                  </TestCaseDisplayBoundary>
+                </TestCaseDisplayBoundary>
+              )
+            })}
+          </Grid>
+        </SideBarContainer>
+      </SideBarProvider>
     </TestCaseProvider>
   )
 }

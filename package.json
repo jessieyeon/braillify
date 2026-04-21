@@ -11,7 +11,8 @@
     "preinstall": "uv sync && (cargo install wasm-pack || node -e \"process.exit(0)\") && (pip install maturin || \"process.exit(0)\")",
     "build": "cargo build --release -p braillify && bun -F braillify build && cd packages/python && maturin build --release --out dist",
     "build:landing": "bun run build && (cargo test test_by_testcase || node -e \"process.exit(0)\") && bun -F landing build",
-    "changepacks": "bunx @changepacks/cli"
+    "changepacks": "bunx @changepacks/cli",
+    "dev": "bun -F landing dev"
   },
   "workspaces": [
     "packages/node",
@@ -23,6 +24,14 @@
     "eslint-plugin-devup": "^2.0.18",
     "oxlint": "^1.59",
     "@types/bun": "^1.3"
+  },
+  "overrides": {
+    "@typescript-eslint/utils": "^8.59.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
+    "@typescript-eslint/type-utils": "^8.59.0",
+    "@typescript-eslint/typescript-estree": "^8.59.0",
+    "typescript-eslint": "^8.59.0"
   },
   "author": "devfive"
 }

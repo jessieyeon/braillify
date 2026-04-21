@@ -65,6 +65,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
               actual,
               world,
               jeomsarang,
+              index,
             ].join('::')
 
             return (
@@ -75,11 +76,11 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
               >
                 <Tr
                   key={`${testCaseKey}-desktop`}
-                className={css({
-                  bg: isSuccess ? 'unset' : '#D8D8D8',
-                  display: ['none', null, null, 'table-row'],
-                })}
-                data-responsive="desktop"
+                  className={css({
+                    bg: isSuccess ? 'unset' : '$menuHover',
+                    display: ['none', null, null, 'table-row'],
+                  })}
+                  data-responsive="desktop"
                 >
                   <Td>{index + 1}</Td>
                   <Td>
@@ -110,10 +111,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                     </Flex>
                   </Td>
                   <Td>
-                    <CompetitorCell
-                      isSuccess={worldIsSuccess}
-                      value={world}
-                    />
+                    <CompetitorCell isSuccess={worldIsSuccess} value={world} />
                   </Td>
                   <Td>
                     <CompetitorCell
@@ -124,11 +122,11 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                 </Tr>
                 <Tr
                   key={`${testCaseKey}-mobile`}
-                className={css({
-                  bg: isSuccess ? 'unset' : '#D8D8D8',
-                  display: ['table-row', null, null, 'none'],
-                })}
-                data-responsive="mobile"
+                  className={css({
+                    bg: isSuccess ? 'unset' : '$menuHover',
+                    display: ['table-row', null, null, 'none'],
+                  })}
+                  data-responsive="mobile"
                 >
                   <Td className={css({ pb: '16px', pt: '10px' })}>
                     <VStack gap="8px">
@@ -150,23 +148,23 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                         />
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">예문</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">예문</Text>
                         <Text>
                           {text}
                           {note ? ` (${note})` : null}
                         </Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">정답</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">정답</Text>
                         <Text>{expected}</Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">결과</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">결과</Text>
                         <Text>{actual}</Text>
                       </Flex>
                       {world ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text typography="bodyBold">점자세상</Text>
+                          <Text wordBreak="keep-all" typography="bodyBold">점자세상</Text>
                           <Text
                             className={css({
                               color: worldIsSuccess ? '$success' : '$error',
@@ -178,7 +176,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                       ) : null}
                       {jeomsarang ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text typography="bodyBold">점사랑</Text>
+                          <Text wordBreak="keep-all" typography="bodyBold">점사랑</Text>
                           <Text
                             className={css({
                               color: jeomsarangIsSuccess

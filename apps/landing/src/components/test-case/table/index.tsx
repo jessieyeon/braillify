@@ -44,17 +44,17 @@ export function Th(props: ComponentProps<typeof Box<'th'>>) {
   return (
     <Box
       as="th"
-      bg="#2B2B2B"
-      borderBottom="solid 1px #2B2B2B"
-      borderRight="solid 1px #EFEEEB"
-      borderTop="solid 1px #2B2B2B"
+      bg="$primary"
+      borderBottom="solid 1px $primary"
+      borderRight="solid 1px $background"
+      borderTop="solid 1px $primary"
       color="$base"
       justifyContent="center"
       px="20px"
       py="8px"
       selectors={{
         '&:last-child': {
-          borderRight: 'solid 1px #2B2B2B',
+          borderRight: 'solid 1px $primary',
           borderTopRightRadius: '10px',
         },
         '&:first-child': {
@@ -75,21 +75,21 @@ export function Td({
   return (
     <Box
       as="td"
-      borderBottom="solid 1px #2B2B2B"
-      borderRight="solid 1px #2B2B2B"
+      borderBottom="solid 1px $primary"
+      borderRight="solid 1px $primary"
+      fontFamily={MIDDLE_KOREAN_FONT_FAMILY}
       justifyContent="center"
       px={[null, null, null, '20px']}
       py="8px"
       selectors={{
         '&:first-child': {
-          borderLeft: 'solid 1px #2B2B2B',
+          borderLeft: 'solid 1px $primary',
         },
         'tr[data-responsive="desktop"]:first-of-type &, tr[data-responsive="mobile"]:nth-of-type(2) &':
           {
-            borderTop: 'solid 1px #2B2B2B',
+            borderTop: 'solid 1px $primary',
           },
       }}
-      fontFamily={MIDDLE_KOREAN_FONT_FAMILY}
       styleOrder={1}
       typography={typography}
       wordBreak="break-all"
