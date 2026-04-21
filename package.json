@@ -23,6 +23,7 @@
     "braillify": "workspace:*",
     "eslint-plugin-devup": "^2.0.18",
     "oxlint": "^1.59",
+    "eslint": "^9",
     "@types/bun": "^1.3"
   },
   "overrides": {

@@ -32,6 +32,7 @@ export default function Header() {
   return (
     <>
       <Box
+        as="header"
         bg={isTestCase ? '$background' : 'transparent'}
         h={['60px', null, null, '100px']}
         left="0"
