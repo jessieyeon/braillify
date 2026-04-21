@@ -40,7 +40,7 @@ export default function Header() {
         right="0"
         top="0"
         w="100%"
-        zIndex="10"
+        zIndex="100"
       >
         <Flex
           alignItems="center"

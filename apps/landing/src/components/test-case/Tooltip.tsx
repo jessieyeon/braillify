@@ -14,8 +14,13 @@ const fadeIn = keyframes({
 })
 
 export default function Tooltip({
+  translateX = '0px',
+  translateY = '10px',
   ...props
-}: ComponentProps<typeof VStack<'div'>>) {
+}: ComponentProps<typeof VStack<'div'>> & {
+  translateX?: string
+  translateY?: string
+}) {
   const [viewportWidth, setViewportWidth] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   if (typeof window !== 'undefined' && viewportWidth !== window.innerWidth)
@@ -44,15 +49,20 @@ export default function Tooltip({
             const target = entry.target as HTMLDivElement
             const { x, width } = target.getBoundingClientRect()
             if (x + width > viewportWidth) {
-              target.style.right = '16px'
-              target.style.left = 'auto'
+              target.style.setProperty(
+                '--translateX',
+                `-${x + width - viewportWidth + 16}px`,
+              )
             }
           })
         })
 
         mo.observe(el)
 
-        return () => mo.disconnect()
+        return () => {
+          mo.disconnect()
+          el.style.setProperty('--translateX', translateX)
+        }
       }}
       _groupHover={{
         display: 'flex',
@@ -60,6 +70,7 @@ export default function Tooltip({
         animationDuration: '0.2s',
         animationFillMode: 'forwards',
       }}
+      aria-label="tooltip"
       bg="rgba(0, 0, 0, 0.75)"
       borderRadius="4px"
       display="none"
@@ -76,8 +87,12 @@ export default function Tooltip({
       px="10px"
       py="8px"
       styleOrder={1}
-      transform="translateY(10px)"
-      zIndex="100"
+      styleVars={{
+        translateY: translateY,
+        translateX: translateX,
+      }}
+      transform="translate(var(--translateX, 0px), var(--translateY, 10px))"
+      zIndex="10"
       {...props}
     />
   )

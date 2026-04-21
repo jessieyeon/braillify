@@ -13,6 +13,7 @@ export function TestCaseFilterContainer({
       pt="10px"
       px={[null, null, null, '60px']}
       top={['60px', null, null, '100px']}
+      zIndex="100"
     >
       {children}
     </VStack>

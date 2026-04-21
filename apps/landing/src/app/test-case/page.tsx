@@ -116,6 +116,13 @@ export default async function TestCasePage() {
           >
             <VStack
               alignItems={['flex-start', null, null, 'center']}
+              className={css({
+                selectors: {
+                  '& [aria-label="tooltip"]': {
+                    zIndex: '110',
+                  },
+                },
+              })}
               flexDir={[null, null, null, 'row']}
               gap={['10px', null, null, '20px']}
             >
@@ -177,8 +184,7 @@ export default async function TestCasePage() {
                 gap="10px"
                 px={['16px', null, null, 'unset']}
                 typography="body"
-                              whiteSpace="nowrap"
-
+                whiteSpace="nowrap"
               >
                 <Text>목록 형식</Text>
                 <TestCaseTypeToggle />
@@ -346,7 +352,7 @@ export default async function TestCasePage() {
                             typography="body"
                             wordBreak="keep-all"
                           >
-                            {value.title}
+                            {value.title.replace(/[^\d~]/g, '')}
                           </Text>
                         </Center>
                       </ScrollToElement>
@@ -463,7 +469,7 @@ export default async function TestCasePage() {
                           typography="body"
                           wordBreak="keep-all"
                         >
-                          {value.title}
+                          {value.title.replace(/[^\d~]/g, '')}
                         </Text>
                       </Center>
                     </ScrollToElement>

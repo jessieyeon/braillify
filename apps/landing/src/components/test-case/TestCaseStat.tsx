@@ -110,8 +110,8 @@ export function TestCaseStat({
             px: '16px',
             bottom: '0',
             left: '0',
-            transform: 'translateY(100%)',
           })}
+          translateY="100%"
         >
           <CompetitorStat fail={fail} label="Braillfy" total={total} />
           {hasWorld && (
