@@ -1,9 +1,9 @@
-import { describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "fs";
-import { join } from "path";
+import { describe, expect, test } from 'bun:test'
+import { readdirSync, readFileSync } from 'fs'
+import { join } from 'path'
 
 // @ts-ignore — WASM loaded via plugin.ts preload
-import { translateToUnicode } from "../packages/node/pkg/index.js";
+import { translateToUnicode } from '../packages/node/pkg/index.js'
 
 /**
  * Braille internal notation → expected (index string) & unicode conversion.

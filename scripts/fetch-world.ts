@@ -60,9 +60,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function processFile(
-  filePath: string,
-): Promise<{
+async function processFile(filePath: string): Promise<{
   total: number
   fetched: number
   skipped: number

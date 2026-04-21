@@ -161,6 +161,7 @@ export default async function TestCasePage() {
                 overflowX="auto"
                 overflowY="visible"
                 pb="2px"
+                px={['16px', null, null, 'unset']}
                 scrollbarWidth="none"
                 w="100%"
               >
@@ -174,15 +175,20 @@ export default async function TestCasePage() {
                 alignItems="center"
                 color="$primary"
                 gap="10px"
+                px={['16px', null, null, 'unset']}
                 typography="body"
-                whiteSpace="nowrap"
+                              whiteSpace="nowrap"
+
               >
                 <Text>목록 형식</Text>
                 <TestCaseTypeToggle />
                 <Text>표 형식</Text>
               </Flex>
             </VStack>
-            <Flex justifyContent="space-between">
+            <Flex
+              justifyContent="space-between"
+              px={['16px', null, null, 'unset']}
+            >
               <Flex alignItems="center" gap="10px">
                 <FailedOnlyInput
                   className={css({

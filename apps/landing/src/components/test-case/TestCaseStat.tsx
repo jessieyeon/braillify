@@ -1,47 +1,33 @@
-import { Center, Flex, Text } from '@devup-ui/react'
+import { Box, Center, css, Flex, Text } from '@devup-ui/react'
 import { ComponentProps } from 'react'
+
+import Tooltip from './Tooltip'
 
 interface CompetitorStatProps {
   label: string
   total: number
   fail: number
-  braillifyPercent: number
-  showTotal: boolean
 }
 
-function CompetitorStat({
-  label,
-  total,
-  fail,
-  braillifyPercent,
-  showTotal,
-}: CompetitorStatProps) {
+function CompetitorStat({ label, total, fail }: CompetitorStatProps) {
   const success = total - fail
   const percent = Math.round((success / total) * 100)
 
   return (
-    <Center bg="#2B2B2B" borderRadius="10px" gap="10px" px="16px" py="10px">
-      <Text color="#888" typography="progress">
+    <Flex alignItems="center" gap="10px" whiteSpace="nowrap">
+      <Text color="#FFF" typography="progress">
         {label}
       </Text>
-      {showTotal && (
-        <Text color="#888" typography="progress">
-          전체 {total.toLocaleString()}
-        </Text>
-      )}
-      <Text color="#888" typography="progress">
-        성공 {success.toLocaleString()}
+      <Text color="#FFF" typography="body" wordBreak="keep-all">
+        성공 {(total - fail).toLocaleString()}
       </Text>
-      <Text color="$error" typography="progress">
+      <Text color="$error" typography="body" wordBreak="keep-all">
         실패 {fail.toLocaleString()}
       </Text>
-      <Text
-        color={percent < braillifyPercent ? '$error' : '$text'}
-        typography="progress"
-      >
+      <Text color="#FFF" typography="body">
         ({percent}%)
       </Text>
-    </Center>
+    </Flex>
   )
 }
 
@@ -101,24 +87,49 @@ export function TestCaseStat({
           ({braillifyPercent}%)
         </Text>
       </Center>
-      {hasWorld && (
-        <CompetitorStat
-          braillifyPercent={braillifyPercent}
-          fail={worldFail!}
-          label="점자세상"
-          showTotal={showTotal}
-          total={worldTotal}
+      <Center
+        bg="$menuHover"
+        borderRadius="10px"
+        p="10px"
+        pos="relative"
+        role="group"
+      >
+        <Box
+          aspectRatio="1"
+          bg="$text"
+          boxSize="20px"
+          maskImage="url('/images/plus.svg')"
+          maskPos="center"
+          maskRepeat="no-repeat"
+          maskSize="contain"
         />
-      )}
-      {hasJeomsarang && (
-        <CompetitorStat
-          braillifyPercent={braillifyPercent}
-          fail={jeomsarangFail!}
-          label="점사랑"
-          showTotal={showTotal}
-          total={jeomsarangTotal}
-        />
-      )}
+        <Tooltip
+          className={css({
+            gap: '8px',
+            py: '12px',
+            px: '16px',
+            bottom: '0',
+            left: '0',
+            transform: 'translateY(100%)',
+          })}
+        >
+          <CompetitorStat fail={fail} label="Braillfy" total={total} />
+          {hasWorld && (
+            <CompetitorStat
+              fail={worldFail!}
+              label="점자세상"
+              total={worldTotal}
+            />
+          )}
+          {hasJeomsarang && (
+            <CompetitorStat
+              fail={jeomsarangFail!}
+              label="점사랑"
+              total={jeomsarangTotal}
+            />
+          )}
+        </Tooltip>
+      </Center>
     </Flex>
   )
 }
