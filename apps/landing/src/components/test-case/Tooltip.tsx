@@ -42,10 +42,10 @@ export default function Tooltip({
         const mo = new ResizeObserver((entries) => {
           entries.forEach((entry) => {
             const target = entry.target as HTMLDivElement
-            const x = target.offsetLeft
-            const width = target.offsetWidth
+            const { x, width } = target.getBoundingClientRect()
             if (x + width > viewportWidth) {
               target.style.right = '16px'
+              target.style.left = 'auto'
             }
           })
         })
@@ -77,9 +77,6 @@ export default function Tooltip({
       py="8px"
       styleOrder={1}
       transform="translateY(10px)"
-      transitionDuration="0.3s"
-      transitionProperty="all"
-      transitionTimingFunction="ease-in-out"
       zIndex="100"
       {...props}
     />
