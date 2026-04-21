@@ -77,6 +77,7 @@ export function Td({
       as="td"
       borderBottom="solid 1px #2B2B2B"
       borderRight="solid 1px #2B2B2B"
+      fontFamily={MIDDLE_KOREAN_FONT_FAMILY}
       justifyContent="center"
       px={[null, null, null, '20px']}
       py="8px"
@@ -89,7 +90,6 @@ export function Td({
             borderTop: 'solid 1px #2B2B2B',
           },
       }}
-      fontFamily={MIDDLE_KOREAN_FONT_FAMILY}
       styleOrder={1}
       typography={typography}
       wordBreak="break-all"
