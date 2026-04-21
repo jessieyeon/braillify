@@ -123,7 +123,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                 <Tr
                   key={`${testCaseKey}-mobile`}
                   className={css({
-                    bg: isSuccess ? 'unset' : '#D8D8D8',
+                    bg: isSuccess ? 'unset' : '$menuHover',
                     display: ['table-row', null, null, 'none'],
                   })}
                   data-responsive="mobile"
@@ -148,23 +148,23 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                         />
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">예문</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">예문</Text>
                         <Text>
                           {text}
                           {note ? ` (${note})` : null}
                         </Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">정답</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">정답</Text>
                         <Text>{expected}</Text>
                       </Flex>
                       <Flex alignItems="center" gap="10px" px="10px">
-                        <Text typography="bodyBold">결과</Text>
+                        <Text wordBreak="keep-all" typography="bodyBold">결과</Text>
                         <Text>{actual}</Text>
                       </Flex>
                       {world ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text typography="bodyBold">점자세상</Text>
+                          <Text wordBreak="keep-all" typography="bodyBold">점자세상</Text>
                           <Text
                             className={css({
                               color: worldIsSuccess ? '$success' : '$error',
@@ -176,7 +176,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                       ) : null}
                       {jeomsarang ? (
                         <Flex alignItems="center" gap="10px" px="10px">
-                          <Text typography="bodyBold">점사랑</Text>
+                          <Text wordBreak="keep-all" typography="bodyBold">점사랑</Text>
                           <Text
                             className={css({
                               color: jeomsarangIsSuccess
