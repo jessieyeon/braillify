@@ -17,8 +17,8 @@
                 "negativeBase": "#000",
                 "title": "#1A1A1A",
                 "caption": "#787878",
-                "menuHover": "#D8D8D8",
-                "menuActive": "#CCC"
+                "menuHover": "#E0DDD8",
+                "menuActive": "#D4D1CC"
             },
             "dark": {
                 "primary": "#EBEBEB",

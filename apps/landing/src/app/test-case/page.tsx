@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises'
 import { Metadata } from 'next'
 
 import { ScrollToElement } from '@/components/scroll-to-element'
+import { ScrollTopButton } from '@/components/scroll-top-button'
 import {
   SideBarContainer,
   SideBarProvider,
@@ -256,6 +257,44 @@ export default async function TestCasePage() {
           {cases}
           <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
         </Box>
+        <ScrollTopButton
+          className={css({
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            bg: '$primary',
+            borderRadius: '100px',
+            flexDir: 'column',
+            gap: [null, null, null, '2px'],
+            pb: ['12px', null, null, '16px'],
+            pt: ['12px', null, null, '12px'],
+            px: ['12px', null, null, '18px'],
+            position: 'fixed',
+            right: '24px',
+            boxSize: ['48px', null, null, '60px'],
+            bottom: '24px',
+            zIndex: '100',
+          })}
+        >
+          <Box
+            bg="$base"
+            boxSize={['24px', null, null, '16px']}
+            flexShrink="0"
+            maskImage="url(/images/chevron.svg)"
+            maskPosition="center"
+            maskRepeat="no-repeat"
+            maskSize="contain"
+            rotate="90deg"
+          />
+          <Text
+            color="$base"
+            display={['none', null, null, 'initial']}
+            typography="tinyBtn"
+          >
+            TOP
+          </Text>
+        </ScrollTopButton>
         {/* mobile bottom sheet */}
         <SideBarContainer
           className={css({
