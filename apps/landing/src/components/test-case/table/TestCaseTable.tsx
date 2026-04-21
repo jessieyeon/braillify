@@ -65,6 +65,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
               actual,
               world,
               jeomsarang,
+              index,
             ].join('::')
 
             return (
@@ -76,7 +77,7 @@ export function TestCaseTable({ results }: { results: TestStatus[6] }) {
                 <Tr
                   key={`${testCaseKey}-desktop`}
                   className={css({
-                    bg: isSuccess ? 'unset' : '#D8D8D8',
+                    bg: isSuccess ? 'unset' : '$menuHover',
                     display: ['none', null, null, 'table-row'],
                   })}
                   data-responsive="desktop"

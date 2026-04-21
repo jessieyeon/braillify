@@ -282,7 +282,7 @@ export default async function TestCasePage() {
               transform="translateY(-100%)"
             >
               <Box
-                bg="#FFF"
+                bg="$base"
                 boxSize="16px"
                 maskImage="url(/images/chevron.svg)"
                 maskPosition="center"
@@ -291,7 +291,7 @@ export default async function TestCasePage() {
                 transform="rotate(-90deg)"
               />
               <Text
-                color="#FFF"
+                color="$base"
                 typography="sideBarButton"
                 wordBreak="keep-all"
               >
@@ -390,7 +390,7 @@ export default async function TestCasePage() {
               transform="translateX(-100%)"
             >
               <Box
-                bg="#FFF"
+                bg="$base"
                 boxSize="16px"
                 maskImage="url(/images/chevron.svg)"
                 maskPosition="center"
@@ -399,7 +399,7 @@ export default async function TestCasePage() {
                 transform="rotate(180deg)"
               />
               <Text
-                color="#FFF"
+                color="$base"
                 typography="sideBarButton"
                 wordBreak="keep-all"
               >
@@ -442,11 +442,6 @@ export default async function TestCasePage() {
                         _hover={{
                           bg: '$menuHover',
                         }}
-                        // bg={
-                        //   {
-                        //     selected: '$primary',
-                        //   }[property1]
-                        // }
                         cursor="pointer"
                         flexDir="column"
                         px="12px"
@@ -460,11 +455,6 @@ export default async function TestCasePage() {
                           _hover={{
                             color: '$primary',
                           }}
-                          // color={
-                          //   {
-                          //     selected: '$base',
-                          //   }[property1]
-                          // }
                           color="$primary"
                           typography="body"
                           wordBreak="keep-all"

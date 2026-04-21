@@ -27,7 +27,7 @@ export default function MobileMenu() {
           inset="0"
           position="fixed"
           w="100%"
-          zIndex="100"
+          zIndex="200"
         >
           <Flex
             borderBottom="1px solid $border"

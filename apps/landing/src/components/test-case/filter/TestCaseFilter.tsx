@@ -36,7 +36,7 @@ export function TestCaseFilter({
         }
       }
       bg={isSelected ? '$primary' : null}
-      border="solid 1px #2B2B2B"
+      border="solid 1px $primary"
       borderRadius="1000px"
       cursor="pointer"
       flexDir="column"
