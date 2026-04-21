@@ -1,10 +1,21 @@
 'use client'
 
-import { VStack } from '@devup-ui/react'
-import { useRef, useState } from 'react'
+import { keyframes, VStack } from '@devup-ui/react'
+import { ComponentProps, useRef, useState } from 'react'
 import { useEffect } from 'react'
 
-export default function Tooltip({ children }: { children: React.ReactNode }) {
+const fadeIn = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+})
+
+export default function Tooltip({
+  ...props
+}: ComponentProps<typeof VStack<'div'>>) {
   const [viewportWidth, setViewportWidth] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   if (typeof window !== 'undefined' && viewportWidth !== window.innerWidth)
@@ -45,6 +56,9 @@ export default function Tooltip({ children }: { children: React.ReactNode }) {
       }}
       _groupHover={{
         display: 'flex',
+        animationName: fadeIn,
+        animationDuration: '0.2s',
+        animationFillMode: 'forwards',
       }}
       bg="rgba(0, 0, 0, 0.75)"
       borderRadius="4px"
@@ -57,13 +71,17 @@ export default function Tooltip({ children }: { children: React.ReactNode }) {
       onMouseLeave={(e) => {
         e.stopPropagation()
       }}
+      opacity={0}
       pos="absolute"
       px="10px"
       py="8px"
+      styleOrder={1}
       transform="translateY(10px)"
-      transition="all 0.3s ease-in-out"
-    >
-      {children}
-    </VStack>
+      transitionDuration="0.3s"
+      transitionProperty="all"
+      transitionTimingFunction="ease-in-out"
+      zIndex="100"
+      {...props}
+    />
   )
 }

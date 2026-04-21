@@ -11,17 +11,20 @@ export function TestCaseList({ results }: { results: TestStatus[6] }) {
   return (
     <Grid gap="8px" gridTemplateColumns="repeat(auto-fill, minmax(16px, 1fr))">
       {results.map(
-        ([
-          text,
-          note,
-          expected,
-          actual,
-          isSuccess,
-          world,
-          worldIsSuccess,
-          jeomsarang,
-          jeomsarangIsSuccess,
-        ]) => {
+        (
+          [
+            text,
+            note,
+            expected,
+            actual,
+            isSuccess,
+            world,
+            worldIsSuccess,
+            jeomsarang,
+            jeomsarangIsSuccess,
+          ],
+          index,
+        ) => {
           const textParts = parseTextWithLaTeX(text)
           const testCaseKey = [
             text,
@@ -30,6 +33,7 @@ export function TestCaseList({ results }: { results: TestStatus[6] }) {
             actual,
             world,
             jeomsarang,
+            index,
           ].join('::')
 
           return (
@@ -62,16 +66,18 @@ export function TestCaseList({ results }: { results: TestStatus[6] }) {
                     {world ? (
                       <>
                         <br />
-                        점자세상 :{' '}
-                        <Text wordBreak="break-all">{world}</Text>{' '}
+                        점자세상 : <Text wordBreak="break-all">
+                          {world}
+                        </Text>{' '}
                         {worldIsSuccess ? '✅' : '❌'}
                       </>
                     ) : null}
                     {jeomsarang ? (
                       <>
                         <br />
-                        점사랑 :{' '}
-                        <Text wordBreak="break-all">{jeomsarang}</Text>{' '}
+                        점사랑 : <Text wordBreak="break-all">
+                          {jeomsarang}
+                        </Text>{' '}
                         {jeomsarangIsSuccess ? '✅' : '❌'}
                       </>
                     ) : null}
