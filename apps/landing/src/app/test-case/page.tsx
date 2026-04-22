@@ -260,7 +260,7 @@ export default async function TestCasePage() {
                 </Flex>
               </TestCaseTotalBoundary>
             </Flex>
-            <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
+            <Box bg="$text" h="1px" mx={['16px', null, null, 'unset']} />
           </TestCaseFilterContainer>
           <TestCaseTotalBoundary>{cases}</TestCaseTotalBoundary>
           <TestCaseTotalBoundary reverse>
