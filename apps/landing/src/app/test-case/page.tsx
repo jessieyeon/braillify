@@ -18,12 +18,22 @@ import { TestCaseTable } from '@/components/test-case/table/TestCaseTable'
 import { TestCaseDisplayBoundary } from '@/components/test-case/TestCaseDisplayBoundary'
 import { TestCaseFilterContainer } from '@/components/test-case/TestCaseFilterContainer'
 import { TestCaseFilterValue } from '@/components/test-case/TestCaseFilterValue'
-import { TestCaseProvider } from '@/components/test-case/TestCaseProvider'
+import {
+  FilterTotalMap,
+  TestCaseFilter as TestCaseFilterType,
+  TestCaseProvider,
+} from '@/components/test-case/TestCaseProvider'
 import { TestCaseRuleContainer } from '@/components/test-case/TestCaseRuleContainer'
 import { TestCaseStat } from '@/components/test-case/TestCaseStat'
+import { TestCaseStatFiltered } from '@/components/test-case/TestCaseStatFiltered'
 import { TestCaseTotalBoundary } from '@/components/test-case/TestCaseTotalBoundary'
 import { TestCaseTypeToggle } from '@/components/test-case/TestCaseTypeToggle'
-import { createFilterMap, TEST_CASE_FILTERS } from '@/constants'
+import {
+  CATEGORY_PREFIX_MAP,
+  createFilterMap,
+  TEST_CASE_FILTERS,
+  TEST_CASE_FILTERS_MAP,
+} from '@/constants'
 import { TestStatusMap } from '@/types'
 
 export const metadata: Metadata = {
@@ -44,13 +54,37 @@ export default async function TestCasePage() {
 
   // Dynamically create filter map based on rule_map keys
   const filterMap = createFilterMap(Object.keys(ruleMap))
+
+  const filterTotalMap = Object.fromEntries(
+    Object.entries(filterMap).map(([key]) => [
+      key,
+      {
+        braillify: { total: 0, fail: 0 },
+        world: { total: 0, fail: 0 },
+        jeomsarang: { total: 0, fail: 0 },
+      },
+    ]),
+  ) as FilterTotalMap
+
   let totalTest = 0
   let totalFail = 0
   let totalWorldTest = 0
   let totalWorldFail = 0
   let totalJeomsarangTest = 0
   let totalJeomsarangFail = 0
-  const cases = Object.entries(ruleMap).map(([key, value]) => {
+  const cases = Object.entries(ruleMap).map(([key, value], index, self) => {
+    const category = Object.entries(CATEGORY_PREFIX_MAP).find(([prefix]) =>
+      key.startsWith(prefix),
+    )?.[1] as TestCaseFilterType | undefined
+    if (category) {
+      filterTotalMap[category].braillify.total += testStatus[key][0]
+      filterTotalMap[category].braillify.fail += testStatus[key][1]
+      filterTotalMap[category].world.total += testStatus[key][2]
+      filterTotalMap[category].world.fail += testStatus[key][3]
+      filterTotalMap[category].jeomsarang.total += testStatus[key][4]
+      filterTotalMap[category].jeomsarang.fail += testStatus[key][5]
+    }
+
     totalTest += testStatus[key][0]
     totalFail += testStatus[key][1]
     totalWorldTest += testStatus[key][2]
@@ -59,6 +93,8 @@ export default async function TestCasePage() {
     totalJeomsarangFail += testStatus[key][5]
 
     const isBut = value.title.includes('다만')
+    const currentClause = key.match(/\d+/)?.[0]
+    const nextClause = self[index + 1]?.[0]?.match(/\d+/)?.[0]
 
     return (
       <TestCaseDisplayBoundary
@@ -103,13 +139,20 @@ export default async function TestCasePage() {
               <TestCaseList results={testStatus[key][6]} />
             </TestCaseDisplayBoundary>
           </TestCaseRuleContainer>
+          {currentClause !== nextClause && (
+            <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
+          )}
         </TestCaseDisplayBoundary>
       </TestCaseDisplayBoundary>
     )
   })
 
   return (
-    <TestCaseProvider filterMap={filterMap} testStatusMap={testStatus}>
+    <TestCaseProvider
+      filterMap={filterMap}
+      filterTotalMap={filterTotalMap}
+      testStatusMap={testStatus}
+    >
       <SideBarProvider>
         <Box maxW="1520px" mx="auto" pb="40px" w="100%">
           <VStack
@@ -133,6 +176,7 @@ export default async function TestCasePage() {
                 테스트 케이스
               </Text>
               <TestCaseStat
+                colorPercentage={false}
                 fail={totalFail}
                 jeomsarangFail={totalJeomsarangFail}
                 jeomsarangTotal={totalJeomsarangTest}
@@ -263,7 +307,25 @@ export default async function TestCasePage() {
             </Flex>
             <Box bg="$text" h="1px" mx={['16px', null, null, 'unset']} />
           </TestCaseFilterContainer>
-          <TestCaseTotalBoundary>{cases}</TestCaseTotalBoundary>
+          <TestCaseTotalBoundary>
+            <TestCaseRuleContainer
+              className={css({ pb: 'unset' })}
+              exception={false}
+            >
+              <VStack
+                alignItems={[null, null, null, 'center']}
+                flexDir={[null, null, null, 'row']}
+                gap="20px"
+                justifyContent={['space-between', null, null, 'flex-start']}
+              >
+                <Text color="$title" typography="title">
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} />
+                </Text>
+                <TestCaseStatFiltered />
+              </VStack>
+            </TestCaseRuleContainer>
+            {cases}
+          </TestCaseTotalBoundary>
           <TestCaseTotalBoundary reverse>
             <Center
               flexDir="column"
@@ -342,19 +404,7 @@ export default async function TestCasePage() {
                   typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  <TestCaseFilterValue
-                    map={{
-                      korean: '한글',
-                      math: '수학',
-                      science: '과학',
-                      music: '음악',
-                      western: '서양음악',
-                      'foreign-language': '외국어',
-                      ipa: '국제음성기호',
-                      corpus: '말뭉치',
-                    }}
-                  />
-                  목차
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} /> 목차
                 </Text>
                 <SideBarTrigger className={css({ display: 'contents' })}>
                   <Center cursor="pointer" gap="6px" p="8px">
@@ -454,18 +504,7 @@ export default async function TestCasePage() {
                   typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  <TestCaseFilterValue
-                    map={{
-                      korean: '한글',
-                      math: '수학',
-                      science: '과학',
-                      music: '음악',
-                      western: '서양',
-                      'foreign-language': '외국어',
-                      ipa: '국제음성기호',
-                      corpus: '말뭉치',
-                    }}
-                  />
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} />
                   목차
                 </Text>
                 <SideBarTrigger className={css({ display: 'contents' })}>
