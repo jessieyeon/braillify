@@ -17,6 +17,7 @@ import { TestCaseList } from '@/components/test-case/list/TestCaseList'
 import { TestCaseTable } from '@/components/test-case/table/TestCaseTable'
 import { TestCaseDisplayBoundary } from '@/components/test-case/TestCaseDisplayBoundary'
 import { TestCaseFilterContainer } from '@/components/test-case/TestCaseFilterContainer'
+import { TestCaseFilterValue } from '@/components/test-case/TestCaseFilterValue'
 import { TestCaseProvider } from '@/components/test-case/TestCaseProvider'
 import { TestCaseRuleContainer } from '@/components/test-case/TestCaseRuleContainer'
 import { TestCaseStat } from '@/components/test-case/TestCaseStat'
@@ -334,44 +335,41 @@ export default async function TestCasePage() {
             })}
             position="bottom"
           >
-            <SideBarTrigger className={css({ display: 'contents' })}>
-              <Center
-                bg="$primary"
-                borderRadius="12px 12px 0 0"
-                gap="6px"
-                pos="absolute"
-                px="24px"
-                py="10px"
-                right="30px"
-                top="0"
-                transform="translateY(-100%)"
-              >
-                <Box
-                  bg="$base"
-                  boxSize="16px"
-                  maskImage="url(/images/chevron.svg)"
-                  maskPosition="center"
-                  maskRepeat="no-repeat"
-                  maskSize="contain"
-                  transform="rotate(-90deg)"
-                />
+            <VStack gap="8px">
+              <Flex alignItems="center" justifyContent="space-between">
                 <Text
-                  color="$base"
-                  typography="sideBarButton"
+                  color="$title"
+                  typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  접기
+                  <TestCaseFilterValue
+                    map={{
+                      korean: '한글',
+                      math: '수학',
+                      science: '과학',
+                      music: '음악',
+                      western: '서양음악',
+                      'foreign-language': '외국어',
+                      ipa: '국제음성기호',
+                      corpus: '말뭉치',
+                    }}
+                  />
+                  목차
                 </Text>
-              </Center>
-            </SideBarTrigger>
-            <VStack gap="8px">
-              <Text
-                color="$title"
-                typography="featureTitle"
-                wordBreak="keep-all"
-              >
-                한글 목차
-              </Text>
+                <SideBarTrigger className={css({ display: 'contents' })}>
+                  <Center cursor="pointer" gap="6px" p="8px">
+                    <Box
+                      bg="$text"
+                      boxSize="24px"
+                      maskImage="url(/images/close.svg)"
+                      maskPosition="center"
+                      maskRepeat="no-repeat"
+                      maskSize="contain"
+                      transform="rotate(180deg)"
+                    />
+                  </Center>
+                </SideBarTrigger>
+              </Flex>
               <Text
                 color="$caption"
                 typography="docsCaption"
@@ -449,45 +447,41 @@ export default async function TestCasePage() {
               gap: '20px',
             })}
           >
-            <SideBarTrigger className={css({ display: 'contents' })}>
-              <Center
-                bg="$primary"
-                borderRadius="12px 0 0 12px"
-                cursor="pointer"
-                gap="6px"
-                left="0"
-                pos="absolute"
-                px="10px"
-                py="16px"
-                top="20px"
-                transform="translateX(-100%)"
-              >
-                <Box
-                  bg="$base"
-                  boxSize="16px"
-                  maskImage="url(/images/chevron.svg)"
-                  maskPosition="center"
-                  maskRepeat="no-repeat"
-                  maskSize="contain"
-                  transform="rotate(180deg)"
-                />
+            <VStack gap="8px">
+              <Flex alignItems="center" justifyContent="space-between">
                 <Text
-                  color="$base"
-                  typography="sideBarButton"
+                  color="$title"
+                  typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  접기
+                  <TestCaseFilterValue
+                    map={{
+                      korean: '한글',
+                      math: '수학',
+                      science: '과학',
+                      music: '음악',
+                      western: '서양',
+                      'foreign-language': '외국어',
+                      ipa: '국제음성기호',
+                      corpus: '말뭉치',
+                    }}
+                  />
+                  목차
                 </Text>
-              </Center>
-            </SideBarTrigger>
-            <VStack gap="8px">
-              <Text
-                color="$title"
-                typography="featureTitle"
-                wordBreak="keep-all"
-              >
-                한글 목차
-              </Text>
+                <SideBarTrigger className={css({ display: 'contents' })}>
+                  <Center cursor="pointer" gap="6px" p="8px">
+                    <Box
+                      bg="$text"
+                      boxSize="24px"
+                      maskImage="url(/images/close.svg)"
+                      maskPosition="center"
+                      maskRepeat="no-repeat"
+                      maskSize="contain"
+                      transform="rotate(180deg)"
+                    />
+                  </Center>
+                </SideBarTrigger>
+              </Flex>
               <Text
                 color="$caption"
                 typography="docsCaption"
@@ -523,6 +517,7 @@ export default async function TestCasePage() {
                           _hover={{
                             bg: '$menuHover',
                           }}
+                          borderRadius="1000px"
                           cursor="pointer"
                           flexDir="column"
                           px="12px"
