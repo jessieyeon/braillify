@@ -1,16 +1,17 @@
 'use client'
 
 import { VStack } from '@devup-ui/react'
+import { ComponentProps } from 'react'
 
 import { useTestCase } from './TestCaseProvider'
 
 export function TestCaseRuleContainer({
   exception,
   children,
+  ...props
 }: {
   exception: boolean
-  children: React.ReactNode
-}) {
+} & ComponentProps<typeof VStack<'div'>>) {
   const { options } = useTestCase()
   const isList = options.type === 'list'
   return (
@@ -20,6 +21,8 @@ export function TestCaseRuleContainer({
       pb={[isList ? '30px' : '40px', null, null, '40px']}
       pt={exception ? null : [isList ? '30px' : '40px', null, null, '40px']}
       px={['16px', null, null, '60px']}
+      styleOrder={1}
+      {...props}
     >
       {children}
     </VStack>

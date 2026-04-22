@@ -33,6 +33,7 @@ function CompetitorStat({ label, total, fail }: CompetitorStatProps) {
 
 interface TestCaseStatProps extends ComponentProps<typeof Center<'div'>> {
   showTotal?: boolean
+  colorPercentage?: boolean
   total: number
   success: number
   fail: number
@@ -44,6 +45,7 @@ interface TestCaseStatProps extends ComponentProps<typeof Center<'div'>> {
 
 export function TestCaseStat({
   showTotal = false,
+  colorPercentage = true,
   total,
   success,
   fail,
@@ -60,7 +62,12 @@ export function TestCaseStat({
   const hasJeomsarang = jeomsarangTotal != null && jeomsarangTotal > 0
 
   return (
-    <Flex alignItems="center" flexWrap="wrap" gap="8px" styleOrder={1}>
+    <Flex
+      alignItems="center"
+      flexWrap="wrap"
+      gap={['4px', null, null, '8px']}
+      styleOrder={1}
+    >
       <Center
         bg="$menuHover"
         borderRadius="10px"
@@ -81,7 +88,7 @@ export function TestCaseStat({
           실패 {fail.toLocaleString()}
         </Text>
         <Text
-          color={showTotal ? '$text' : hasFail ? '$error' : '$success'}
+          color={!colorPercentage ? '$text' : hasFail ? '$error' : '$success'}
           typography="progress"
         >
           ({braillifyPercent}%)
@@ -110,8 +117,9 @@ export function TestCaseStat({
             px: '16px',
             bottom: '0',
             left: '0',
+            borderRadius: '10px',
           })}
-          translateY="100%"
+          translateY="calc(100% + 4px)"
         >
           <CompetitorStat fail={fail} label="Braillfy" total={total} />
           {hasWorld && (

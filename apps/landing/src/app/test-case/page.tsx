@@ -17,12 +17,23 @@ import { TestCaseList } from '@/components/test-case/list/TestCaseList'
 import { TestCaseTable } from '@/components/test-case/table/TestCaseTable'
 import { TestCaseDisplayBoundary } from '@/components/test-case/TestCaseDisplayBoundary'
 import { TestCaseFilterContainer } from '@/components/test-case/TestCaseFilterContainer'
-import { TestCaseProvider } from '@/components/test-case/TestCaseProvider'
+import { TestCaseFilterValue } from '@/components/test-case/TestCaseFilterValue'
+import {
+  FilterTotalMap,
+  TestCaseFilter as TestCaseFilterType,
+  TestCaseProvider,
+} from '@/components/test-case/TestCaseProvider'
 import { TestCaseRuleContainer } from '@/components/test-case/TestCaseRuleContainer'
 import { TestCaseStat } from '@/components/test-case/TestCaseStat'
+import { TestCaseStatFiltered } from '@/components/test-case/TestCaseStatFiltered'
 import { TestCaseTotalBoundary } from '@/components/test-case/TestCaseTotalBoundary'
 import { TestCaseTypeToggle } from '@/components/test-case/TestCaseTypeToggle'
-import { createFilterMap, TEST_CASE_FILTERS } from '@/constants'
+import {
+  CATEGORY_PREFIX_MAP,
+  createFilterMap,
+  TEST_CASE_FILTERS,
+  TEST_CASE_FILTERS_MAP,
+} from '@/constants'
 import { TestStatusMap } from '@/types'
 
 export const metadata: Metadata = {
@@ -43,13 +54,37 @@ export default async function TestCasePage() {
 
   // Dynamically create filter map based on rule_map keys
   const filterMap = createFilterMap(Object.keys(ruleMap))
+
+  const filterTotalMap = Object.fromEntries(
+    Object.entries(filterMap).map(([key]) => [
+      key,
+      {
+        braillify: { total: 0, fail: 0 },
+        world: { total: 0, fail: 0 },
+        jeomsarang: { total: 0, fail: 0 },
+      },
+    ]),
+  ) as FilterTotalMap
+
   let totalTest = 0
   let totalFail = 0
   let totalWorldTest = 0
   let totalWorldFail = 0
   let totalJeomsarangTest = 0
   let totalJeomsarangFail = 0
-  const cases = Object.entries(ruleMap).map(([key, value]) => {
+  const cases = Object.entries(ruleMap).map(([key, value], index, self) => {
+    const category = Object.entries(CATEGORY_PREFIX_MAP).find(([prefix]) =>
+      key.startsWith(prefix),
+    )?.[1] as TestCaseFilterType | undefined
+    if (category) {
+      filterTotalMap[category].braillify.total += testStatus[key][0]
+      filterTotalMap[category].braillify.fail += testStatus[key][1]
+      filterTotalMap[category].world.total += testStatus[key][2]
+      filterTotalMap[category].world.fail += testStatus[key][3]
+      filterTotalMap[category].jeomsarang.total += testStatus[key][4]
+      filterTotalMap[category].jeomsarang.fail += testStatus[key][5]
+    }
+
     totalTest += testStatus[key][0]
     totalFail += testStatus[key][1]
     totalWorldTest += testStatus[key][2]
@@ -58,6 +93,8 @@ export default async function TestCasePage() {
     totalJeomsarangFail += testStatus[key][5]
 
     const isBut = value.title.includes('다만')
+    const currentClause = key.match(/\d+/)?.[0]
+    const nextClause = self[index + 1]?.[0]?.match(/\d+/)?.[0]
 
     return (
       <TestCaseDisplayBoundary
@@ -102,13 +139,20 @@ export default async function TestCasePage() {
               <TestCaseList results={testStatus[key][6]} />
             </TestCaseDisplayBoundary>
           </TestCaseRuleContainer>
+          {currentClause !== nextClause && (
+            <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
+          )}
         </TestCaseDisplayBoundary>
       </TestCaseDisplayBoundary>
     )
   })
 
   return (
-    <TestCaseProvider filterMap={filterMap} testStatusMap={testStatus}>
+    <TestCaseProvider
+      filterMap={filterMap}
+      filterTotalMap={filterTotalMap}
+      testStatusMap={testStatus}
+    >
       <SideBarProvider>
         <Box maxW="1520px" mx="auto" pb="40px" w="100%">
           <VStack
@@ -132,6 +176,7 @@ export default async function TestCasePage() {
                 테스트 케이스
               </Text>
               <TestCaseStat
+                colorPercentage={false}
                 fail={totalFail}
                 jeomsarangFail={totalJeomsarangFail}
                 jeomsarangTotal={totalJeomsarangTest}
@@ -260,9 +305,27 @@ export default async function TestCasePage() {
                 </Flex>
               </TestCaseTotalBoundary>
             </Flex>
-            <Box bg="$text" h="1px" mx={['16px', null, null, '60px']} />
+            <Box bg="$text" h="1px" mx={['16px', null, null, 'unset']} />
           </TestCaseFilterContainer>
-          <TestCaseTotalBoundary>{cases}</TestCaseTotalBoundary>
+          <TestCaseTotalBoundary>
+            <TestCaseRuleContainer
+              className={css({ pb: 'unset' })}
+              exception={false}
+            >
+              <VStack
+                alignItems={[null, null, null, 'center']}
+                flexDir={[null, null, null, 'row']}
+                gap="20px"
+                justifyContent={['space-between', null, null, 'flex-start']}
+              >
+                <Text color="$title" typography="title">
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} />
+                </Text>
+                <TestCaseStatFiltered />
+              </VStack>
+            </TestCaseRuleContainer>
+            {cases}
+          </TestCaseTotalBoundary>
           <TestCaseTotalBoundary reverse>
             <Center
               flexDir="column"
@@ -334,44 +397,29 @@ export default async function TestCasePage() {
             })}
             position="bottom"
           >
-            <SideBarTrigger className={css({ display: 'contents' })}>
-              <Center
-                bg="$primary"
-                borderRadius="12px 12px 0 0"
-                gap="6px"
-                pos="absolute"
-                px="24px"
-                py="10px"
-                right="30px"
-                top="0"
-                transform="translateY(-100%)"
-              >
-                <Box
-                  bg="$base"
-                  boxSize="16px"
-                  maskImage="url(/images/chevron.svg)"
-                  maskPosition="center"
-                  maskRepeat="no-repeat"
-                  maskSize="contain"
-                  transform="rotate(-90deg)"
-                />
+            <VStack gap="8px">
+              <Flex alignItems="center" justifyContent="space-between">
                 <Text
-                  color="$base"
-                  typography="sideBarButton"
+                  color="$title"
+                  typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  접기
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} /> 목차
                 </Text>
-              </Center>
-            </SideBarTrigger>
-            <VStack gap="8px">
-              <Text
-                color="$title"
-                typography="featureTitle"
-                wordBreak="keep-all"
-              >
-                한글 목차
-              </Text>
+                <SideBarTrigger className={css({ display: 'contents' })}>
+                  <Center cursor="pointer" gap="6px" p="8px">
+                    <Box
+                      bg="$text"
+                      boxSize="24px"
+                      maskImage="url(/images/close.svg)"
+                      maskPosition="center"
+                      maskRepeat="no-repeat"
+                      maskSize="contain"
+                      transform="rotate(180deg)"
+                    />
+                  </Center>
+                </SideBarTrigger>
+              </Flex>
               <Text
                 color="$caption"
                 typography="docsCaption"
@@ -449,45 +497,30 @@ export default async function TestCasePage() {
               gap: '20px',
             })}
           >
-            <SideBarTrigger className={css({ display: 'contents' })}>
-              <Center
-                bg="$primary"
-                borderRadius="12px 0 0 12px"
-                cursor="pointer"
-                gap="6px"
-                left="0"
-                pos="absolute"
-                px="10px"
-                py="16px"
-                top="20px"
-                transform="translateX(-100%)"
-              >
-                <Box
-                  bg="$base"
-                  boxSize="16px"
-                  maskImage="url(/images/chevron.svg)"
-                  maskPosition="center"
-                  maskRepeat="no-repeat"
-                  maskSize="contain"
-                  transform="rotate(180deg)"
-                />
+            <VStack gap="8px">
+              <Flex alignItems="center" justifyContent="space-between">
                 <Text
-                  color="$base"
-                  typography="sideBarButton"
+                  color="$title"
+                  typography="featureTitle"
                   wordBreak="keep-all"
                 >
-                  접기
+                  <TestCaseFilterValue map={TEST_CASE_FILTERS_MAP} />
+                  목차
                 </Text>
-              </Center>
-            </SideBarTrigger>
-            <VStack gap="8px">
-              <Text
-                color="$title"
-                typography="featureTitle"
-                wordBreak="keep-all"
-              >
-                한글 목차
-              </Text>
+                <SideBarTrigger className={css({ display: 'contents' })}>
+                  <Center cursor="pointer" gap="6px" p="8px">
+                    <Box
+                      bg="$text"
+                      boxSize="24px"
+                      maskImage="url(/images/close.svg)"
+                      maskPosition="center"
+                      maskRepeat="no-repeat"
+                      maskSize="contain"
+                      transform="rotate(180deg)"
+                    />
+                  </Center>
+                </SideBarTrigger>
+              </Flex>
               <Text
                 color="$caption"
                 typography="docsCaption"
@@ -523,6 +556,7 @@ export default async function TestCasePage() {
                           _hover={{
                             bg: '$menuHover',
                           }}
+                          borderRadius="1000px"
                           cursor="pointer"
                           flexDir="column"
                           px="12px"

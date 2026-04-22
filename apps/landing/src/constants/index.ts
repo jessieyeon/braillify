@@ -29,7 +29,11 @@ export const TEST_CASE_FILTERS: { label: string; value: TestCaseFilter }[] = [
   },
 ]
 
-const CATEGORY_PREFIX_MAP: Record<string, TestCaseFilter> = {
+export const TEST_CASE_FILTERS_MAP = Object.fromEntries(
+  TEST_CASE_FILTERS.map((filter) => [filter.value, filter.label]),
+) as Record<TestCaseFilter, string>
+
+export const CATEGORY_PREFIX_MAP: Record<string, TestCaseFilter> = {
   'korean/': 'korean',
   'math/': 'math',
   'science/': 'science',
