@@ -11,9 +11,12 @@ coverage
 cobertura.xml
 codecov
 codecov.*
+*.profraw
 .DS_Store
 ._.DS_Store 
 **/.DS_Store 
 **/._.DS_Store
 .claude
 .omc
+.sisyphus/
+.sisyplus/

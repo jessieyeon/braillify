@@ -19,20 +19,11 @@
     "apps/landing"
   ],
   "devDependencies": {
-    "@types/node": "^25.5.2",
+    "@types/bun": "^1.3.13",
+    "@types/node": "^25.6.2",
     "braillify": "workspace:*",
-    "eslint-plugin-devup": "^2.0.18",
-    "oxlint": "^1.59",
-    "eslint": "^9",
-    "@types/bun": "^1.3"
-  },
-  "overrides": {
-    "@typescript-eslint/utils": "^8.59.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.0",
-    "@typescript-eslint/parser": "^8.59.0",
-    "@typescript-eslint/type-utils": "^8.59.0",
-    "@typescript-eslint/typescript-estree": "^8.59.0",
-    "typescript-eslint": "^8.59.0"
+    "eslint-plugin-devup": "^2.0.19",
+    "oxlint": "^1.63.0"
   },
   "author": "devfive"
 }
