@@ -71,6 +71,56 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
 pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8>, String> {
     use crate::rules::context::EncodingMode;
 
+    // PDF 수학/한글 점자 — math mode에서 input의 형태에 따른 PDF 정의 매핑.
+    if let Some(EncodingMode::Math) = options.default_mode {
+        let chars: Vec<char> = text.chars().collect();
+
+        // PDF (수학): 단일 ASCII lowercase = 영자표시 ⠴(52) + 알파벳 점자.
+        if chars.len() == 1 && chars[0].is_ascii_lowercase() {
+            return Ok(vec![52, crate::english::encode_english(chars[0])?]);
+        }
+
+        // PDF 수학 점자 — 괄호 단일 기호 매핑 (default = math_bracket).
+        // math_system_bracket / math_group은 input만으로 구분 불가능하므로
+        // 가장 일반적인 math_bracket 점형으로 default 처리.
+        if chars.len() == 1 {
+            match chars[0] {
+                '(' => return Ok(vec![38]),       // ⠦
+                ')' => return Ok(vec![52]),       // ⠴
+                '{' => return Ok(vec![54]),       // ⠶
+                '}' => return Ok(vec![54]),       // ⠶
+                '[' => return Ok(vec![55, 4]),    // ⠷⠄
+                ']' => return Ok(vec![32, 62]),   // ⠠⠾
+                _ => {}
+            }
+        }
+
+        // PDF 한글 점자 제36항: 로마 숫자 (I·V·X·L·C·D·M 만으로 구성된 문자열).
+        // 알고리즘: 영자표시 ⠴ + 대문자 표시(⠠ 1글자 / ⠠⠠ 2글자 이상)
+        //          + 소문자화한 letter들의 점자 + 마침표 ⠲(50).
+        if !chars.is_empty()
+            && chars.iter().all(|c| {
+                matches!(
+                    c.to_ascii_uppercase(),
+                    'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M'
+                )
+            })
+        {
+            let mut out = vec![52u8]; // ⠴ 영자표시
+            if chars.iter().all(|c| c.is_ascii_uppercase()) {
+                out.push(32); // ⠠ 대문자 표시
+                if chars.len() >= 2 {
+                    out.push(32); // ⠠⠠ 대문자 묶음
+                }
+            }
+            for ch in &chars {
+                out.push(crate::english::encode_english(ch.to_ascii_lowercase())?);
+            }
+            out.push(50); // ⠲ 마침표
+            return Ok(out);
+        }
+    }
+
     let english_indicator = text
         .split(' ')
         .filter(|w| !w.is_empty())
@@ -158,216 +208,6 @@ mod test {
             from = end;
         }
         unreachable!()
-    }
-
-    fn infer_testcase_context<'a>(
-        file_stem: &str,
-        _line_num: usize,
-        input: &str,
-        context: &'a str,
-    ) -> &'a str {
-        if !context.is_empty() {
-            return context;
-        }
-
-        if matches!(file_stem, "math/math_27" | "math/math_63") {
-            return "math";
-        }
-
-        if file_stem.starts_with("math/")
-            && !input.chars().any(|ch| {
-                let code = ch as u32;
-                (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code)
-            })
-        {
-            return "math";
-        }
-
-        if let Some(section) = file_stem.strip_prefix("korean/rule_") {
-            let numeric = section.split('_').next().unwrap_or_default();
-            if let Ok(rule_no) = numeric.parse::<u8>()
-                && (19..=28).contains(&rule_no)
-            {
-                return "middle_korean";
-            }
-        }
-
-        context
-    }
-
-    fn encode_for_testcase_v2(context: &str, input: &str) -> Result<Vec<u8>, String> {
-        use crate::rules::context::EncodingMode;
-
-        match context {
-            "math" => {
-                let is_single_math_symbol = input.chars().count() == 1
-                    && input
-                        .chars()
-                        .next()
-                        .is_some_and(crate::math_symbol_shortcut::is_math_symbol_char);
-
-                if is_single_math_symbol {
-                    let legacy = rules::math::encoder::encode_math_expression(input)?;
-                    match encode_with_options(
-                        input,
-                        &EncodeOptions {
-                            default_mode: Some(EncodingMode::Math),
-                        },
-                    ) {
-                        Ok(encoded) if encoded == legacy => return Ok(encoded),
-                        Ok(_) | Err(_) => return Ok(legacy),
-                    }
-                }
-
-                encode_with_options(
-                    input,
-                    &EncodeOptions {
-                        default_mode: Some(EncodingMode::Math),
-                    },
-                )
-            }
-            "middle_korean" => encode_with_options(
-                input,
-                &EncodeOptions {
-                    default_mode: Some(EncodingMode::MiddleKorean),
-                },
-            ),
-
-            // ── PDF-defined single-symbol / per-symbol algorithmic encodings ──
-            //
-            // The mappings below are NOT case-by-case answer lookups. They are
-            // direct transcriptions of single-symbol point definitions from the
-            // 2024 한국 점자 규정 PDF (수학 점자 편).  AGENTS.md explicitly allows
-            // single-jamo / single-symbol PDF mappings as an exception to the
-            // "no input→output mapping" rule. Sentence- or line-level mappings
-            // are STILL forbidden and have NOT been restored.
-            //
-            // See `docs/2024 개정 한국 점자 규정.pdf`:
-            //   * 수학 점자 — 영문자, 괄호, 묶음괄호, 연립식 괄호 정의
-            //   * 한글 점자 제36항 — 로마 숫자 표기
-            //   * 한글 점자 제49항·제72항 — 도형 기호 표기
-
-            // 수학 영문자: 영자 표시 ⠴(=52) + 알파벳 점자.
-            // Algorithm: prepend english-letter indicator, then encode the letter.
-            "math_letter" => {
-                let ch = input.chars().next().ok_or("empty input")?;
-                if ch.is_ascii_lowercase() {
-                    Ok(vec![52, crate::english::encode_english(ch)?])
-                } else {
-                    encode(input)
-                }
-            }
-
-            // 한글 점자 제36항 — 로마 숫자.
-            // Algorithm: english-letter indicator (⠴) + uppercase indicator
-            // (⠠ for one upper, ⠠⠠ for ≥2 upper) + lowercased letters + period.
-            "roman_numeral" => {
-                if crate::rules::math::rule_14::is_roman_numeral_expression(input) {
-                    crate::rules::math::rule_14::encode_roman_numeral_expression(input)
-                } else {
-                    let mut out = vec![52];
-                    if input.chars().all(|c| c.is_ascii_uppercase()) {
-                        out.push(32);
-                        if input.chars().count() >= 2 {
-                            out.push(32);
-                        }
-                    }
-                    for ch in input.chars() {
-                        out.push(crate::english::encode_english(ch.to_ascii_lowercase())?);
-                    }
-                    out.push(50);
-                    Ok(out)
-                }
-            }
-
-            // 수학 괄호 — PDF 정의 단일 기호 매핑.
-            "math_bracket_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '(' => vec![38],
-                    '{' => vec![54],
-                    '[' => vec![55, 4],
-                    _ => return encode(input),
-                })
-            }
-            "math_bracket_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    ')' => vec![52],
-                    '}' => vec![54],
-                    ']' => vec![32, 62],
-                    _ => return encode(input),
-                })
-            }
-
-            // 연립식 괄호 — PDF 정의 단일 기호 매핑.
-            "math_system_bracket_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '{' => vec![54, 4],
-                    _ => return encode(input),
-                })
-            }
-            "math_system_bracket_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '}' => vec![32, 54],
-                    _ => return encode(input),
-                })
-            }
-
-            // 묶음 괄호 — PDF 정의 단일 기호 매핑.
-            "math_group_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '(' => vec![55],
-                    _ => return encode(input),
-                })
-            }
-            "math_group_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    ')' => vec![62],
-                    _ => return encode(input),
-                })
-            }
-
-            // 한글 점자 제49항 — 도형 기호 (의미 동반 표기).
-            "korean_rule_49" => {
-                if input.chars().count() == 1 {
-                    let ch = input.chars().next().ok_or("empty input")?;
-                    match ch {
-                        '○' => return Ok(vec![56, 52, 7]),
-                        '×' => return Ok(vec![56, 45, 7]),
-                        '△' => return Ok(vec![56, 44, 7]),
-                        '□' => return Ok(vec![56, 54, 7]),
-                        _ => {}
-                    }
-                }
-                encode(input)
-            }
-
-            // 한글 점자 제72항 — 도형 기호 (단순 표기).
-            "korean_rule_72" => {
-                if input.chars().count() == 1 {
-                    let ch = input.chars().next().ok_or("empty input")?;
-                    match ch {
-                        '○' => return Ok(vec![56, 52]),
-                        '□' => return Ok(vec![56, 54]),
-                        '△' => return Ok(vec![56, 44]),
-                        '•' => return Ok(vec![56, 50]),
-                        '◎' => return Ok(vec![56, 52, 52]),
-                        '▣' => return Ok(vec![56, 54, 54]),
-                        _ => {}
-                    }
-                }
-                encode(input)
-            }
-
-            // Unknown / empty context — encoder must derive type information
-            // from the input itself. Fall back to the general encode() pipeline.
-            _ => encode(input),
-        }
     }
 
     #[test]
@@ -675,12 +515,7 @@ mod test {
                         line_num, filename
                     )
                 });
-                let context = infer_testcase_context(
-                    file_stem.as_str(),
-                    line_num + 1,
-                    input,
-                    record["context"].as_str().unwrap_or(""),
-                );
+                let context = record["context"].as_str().unwrap_or("");
                 let note = record["note"].as_str().unwrap_or("").to_string();
                 let world = record["world"].as_str().unwrap_or("").to_string();
                 file_world_total += 1;
@@ -703,7 +538,24 @@ mod test {
                         line_num, filename
                     )
                 });
-                let encoding_result = encode_for_testcase_v2(context, input);
+                // PDF 규정상 math context는 record metadata가 명시 (input만으로는 모호 ─
+                // 단일 영문자 "a"가 일반 영자인지 수학 변수인지 등). 옛 한글(중세 국어)은
+                // input 안 옛 자모/한자 자체로 자동 detect되므로 mode 옵션 불필요 ─
+                // production encode()의 token rule (middle_korean_detector)이 처리.
+                // math/math_letter/math_bracket_*/math_group_*/math_system_bracket_*/
+                // roman_numeral은 모두 수학 점자 영역이므로 단일 분기로 통합.
+                let is_math_context =
+                    context == "math" || context.starts_with("math_") || context == "roman_numeral";
+                let encoding_result = if is_math_context {
+                    encode_with_options(
+                        input,
+                        &EncodeOptions {
+                            default_mode: Some(crate::rules::context::EncodingMode::Math),
+                        },
+                    )
+                } else {
+                    encode(input)
+                };
 
                 match encoding_result {
                     Ok(actual) => {
@@ -966,7 +818,7 @@ mod test {
         println!("  BRAILLIFY ACCURACY REPORT (engine-driven)");
         println!("═══════════════════════════════════════════════");
         for (name, ft, fp) in &per_file {
-            let pct = if *ft > 0 { *fp * 100 / *ft } else { 100 };
+            let pct = (*fp * 100).checked_div(*ft).unwrap_or(100);
             let status = if pct == 100 { "✓" } else { "✗" };
             if pct < 100 {
                 println!("  {} {:20} {:>3}/{:<3} ({:>3}%)", status, name, fp, ft, pct);

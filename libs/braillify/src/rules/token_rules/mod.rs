@@ -1,5 +1,6 @@
 pub mod digital_notation;
 pub mod emphasis_ring;
+pub mod english_dominant_korean_wrap;
 pub mod historical_gloss_spacing;
 pub mod inline_fraction;
 pub mod latex_fraction;

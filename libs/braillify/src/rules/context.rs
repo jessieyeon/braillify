@@ -37,6 +37,8 @@ pub struct EncoderState {
     pub has_processed_word: bool,
     /// Need to emit English continuation marker (⠐) on next English char
     pub needs_english_continuation: bool,
+    /// Rule 35 chain: English followed by digits may resume English without indicators
+    pub roman_number_chain: bool,
     /// Stack tracking whether parentheses were opened in English context
     pub parenthesis_stack: Vec<bool>,
     /// Currently in a number sequence (수표 already emitted)
@@ -54,6 +56,7 @@ impl EncoderState {
             triple_big_english: false,
             has_processed_word: false,
             needs_english_continuation: false,
+            roman_number_chain: false,
             parenthesis_stack: Vec::new(),
             is_number: false,
             is_big_english: false,

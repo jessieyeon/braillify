@@ -52,11 +52,13 @@ fn emit_mode_event(event: ModeEvent, state: &mut EncoderState, result: &mut Vec<
             result.push(52);
             state.is_english = true;
             state.needs_english_continuation = false;
+            state.roman_number_chain = false;
         }
         ModeEvent::EnterEnglishContinue => {
             result.push(48);
             state.is_english = true;
             state.needs_english_continuation = false;
+            state.roman_number_chain = false;
         }
         ModeEvent::CapsWord => {
             result.push(32);
@@ -142,6 +144,7 @@ fn apply_inter_character_rules(
 fn exit_english(state: &mut EncoderState, needs_continuation: bool) {
     state.is_english = false;
     state.needs_english_continuation = needs_continuation;
+    state.roman_number_chain = false;
 }
 
 fn enter_english(state: &mut EncoderState, result: &mut Vec<u8>) {
@@ -152,6 +155,18 @@ fn enter_english(state: &mut EncoderState, result: &mut Vec<u8>) {
     }
     state.is_english = true;
     state.needs_english_continuation = false;
+    state.roman_number_chain = false;
+}
+
+fn exit_english_for_roman_number_chain(state: &mut EncoderState) {
+    exit_english(state, false);
+    state.roman_number_chain = true;
+}
+
+fn resume_english_from_roman_number_chain(state: &mut EncoderState) {
+    state.is_english = true;
+    state.needs_english_continuation = false;
+    state.roman_number_chain = false;
 }
 
 fn extract_word_context<'a>(
@@ -217,7 +232,11 @@ fn emit_word(
             && has_ascii_alphabetic
             && word_chars[0].is_ascii_alphabetic()
         {
-            enter_english(state, result);
+            if state.roman_number_chain {
+                resume_english_from_roman_number_chain(state);
+            } else {
+                enter_english(state, result);
+            }
         }
 
         let first_ascii_index = word_chars.iter().position(|c| c.is_ascii_alphabetic());
@@ -241,7 +260,7 @@ fn emit_word(
                 match &char_type {
                     CharType::English(_) => {}
                     CharType::Number(_) => {
-                        exit_english(state, true);
+                        exit_english_for_roman_number_chain(state);
                     }
                     CharType::Symbol(sym) => {
                         if english_logic::should_render_symbol_as_english(
@@ -275,6 +294,18 @@ fn emit_word(
             }
 
             // Pre-engine type-specific checks (encoder.rs:296-327)
+            if state.roman_number_chain && !state.is_english {
+                match &char_type {
+                    CharType::English(_) => {
+                        resume_english_from_roman_number_chain(state);
+                    }
+                    CharType::Number(_) => {}
+                    _ => {
+                        state.roman_number_chain = false;
+                    }
+                }
+            }
+
             match &char_type {
                 CharType::Korean(_) | CharType::KoreanPart(_) => {
                     state.needs_english_continuation = false;
@@ -291,6 +322,7 @@ fn emit_word(
                 triple_big_english: state.triple_big_english,
                 has_processed_word: state.has_processed_word,
                 needs_english_continuation: state.needs_english_continuation,
+                roman_number_chain: state.roman_number_chain,
                 parenthesis_stack: state.parenthesis_stack.clone(),
                 is_number,
                 is_big_english,
@@ -313,6 +345,7 @@ fn emit_word(
             state.triple_big_english = core_state.triple_big_english;
             state.has_processed_word = core_state.has_processed_word;
             state.needs_english_continuation = core_state.needs_english_continuation;
+            state.roman_number_chain = core_state.roman_number_chain;
             state.parenthesis_stack = core_state.parenthesis_stack;
             state.mode_stack = core_state.mode_stack;
             is_number = core_state.is_number;
@@ -334,6 +367,7 @@ fn emit_word(
                     triple_big_english: state.triple_big_english,
                     has_processed_word: state.has_processed_word,
                     needs_english_continuation: state.needs_english_continuation,
+                    roman_number_chain: state.roman_number_chain,
                     parenthesis_stack: state.parenthesis_stack.clone(),
                     is_number,
                     is_big_english,
@@ -356,6 +390,7 @@ fn emit_word(
                 state.triple_big_english = inter_state.triple_big_english;
                 state.has_processed_word = inter_state.has_processed_word;
                 state.needs_english_continuation = inter_state.needs_english_continuation;
+                state.roman_number_chain = inter_state.roman_number_chain;
                 state.parenthesis_stack = inter_state.parenthesis_stack;
                 state.mode_stack = inter_state.mode_stack;
                 is_number = inter_state.is_number;
