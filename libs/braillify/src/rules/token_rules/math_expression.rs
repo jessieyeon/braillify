@@ -337,6 +337,16 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         return false;
     }
 
+    // PDF 제43항: 숫자 사이에 마침표(소수점)는 일반 수표(⠼)로 처리.
+    // 첫 글자가 숫자인 순수 소수(96.7, 3.14 등)는 한글 점자 number rule로 처리.
+    // ".47"처럼 점으로 시작하는 형태는 math expression으로 처리.
+    if !has_letters
+        && chars.first().is_some_and(|c| c.is_ascii_digit())
+        && chars.iter().all(|c| c.is_ascii_digit() || *c == '.')
+    {
+        return false;
+    }
+
     // Slash-only numeric tokens are often dates/ranges; keep only simple 1-digit fractions as math.
     if !has_letters && chars.contains(&'/') && chars.iter().all(|c| c.is_ascii_digit() || *c == '/')
     {
@@ -488,6 +498,13 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
     // Digit-then-letter transition at start of word (like "3ab" → math multiplication)
     // But NOT letter-then-digit (like "MP3" which is NOT math)
     if chars.len() >= 2 && chars[0].is_ascii_digit() {
+        // PDF 제69항: 숫자+단위 (180cm, 5kg, 1in 등)은 math가 아닌 단위 표기로 처리.
+        if let Some((_, _, consumed)) =
+            crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix(chars)
+            && consumed == chars.len()
+        {
+            return false;
+        }
         let has_letter_after_digit = chars.iter().skip(1).any(|c| c.is_ascii_lowercase());
         if has_letter_after_digit {
             return true;
