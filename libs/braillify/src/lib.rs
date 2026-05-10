@@ -136,7 +136,7 @@ pub fn encode_to_braille_font(text: &str) -> Result<String, String> {
 
 #[cfg(test)]
 mod test {
-    use std::{borrow::Cow, collections::HashMap, fs::File};
+    use std::{collections::HashMap, fs::File};
 
     use crate::{symbol_shortcut, unicode::encode_unicode};
     use proptest::prelude::*;
@@ -160,311 +160,26 @@ mod test {
         unreachable!()
     }
 
-    fn detect_emphasis_from_combining_marks(
-        input: &str,
-        marks: &[char],
-    ) -> (String, Vec<FormattingSpan>) {
-        let mut cleaned = String::with_capacity(input.len());
-        let mut spans = Vec::new();
-        let mut in_mark_seq = false;
-
-        for ch in input.chars() {
-            if marks.contains(&ch) {
-                if !in_mark_seq {
-                    let end = cleaned.len();
-                    let start = cleaned[..end]
-                        .rfind(' ')
-                        .and_then(|last| cleaned[..last].rfind(' ').map(|prev| prev + 1))
-                        .unwrap_or(0);
-                    spans.push(FormattingSpan {
-                        range: start..end,
-                        kind: FormattingKind::Emphasis,
-                    });
-                    in_mark_seq = true;
-                }
-                continue;
-            }
-
-            if ch == ' ' && in_mark_seq {
-                continue;
-            }
-
-            if !ch.is_whitespace() {
-                in_mark_seq = false;
-            }
-            cleaned.push(ch);
-        }
-
-        (cleaned, spans)
-    }
-
-    fn detect_emphasis_from_combining_dot(input: &str) -> (String, Vec<FormattingSpan>) {
-        detect_emphasis_from_combining_marks(input, &['\u{0307}'])
-    }
-
-    fn detect_emphasis_from_combining_ring(input: &str) -> (String, Vec<FormattingSpan>) {
-        let mut cleaned = String::with_capacity(input.len());
-        let mut spans = Vec::new();
-        let mut in_mark_seq = false;
-
-        for ch in input.chars() {
-            if ch == '\u{030A}' {
-                if !in_mark_seq {
-                    let end = cleaned.len();
-                    let start = cleaned[..end].rfind(' ').map(|last| last + 1).unwrap_or(0);
-                    spans.push(FormattingSpan {
-                        range: start..end,
-                        kind: FormattingKind::Emphasis,
-                    });
-                    in_mark_seq = true;
-                }
-                continue;
-            }
-
-            if ch == ' ' && in_mark_seq {
-                continue;
-            }
-
-            if !ch.is_whitespace() {
-                in_mark_seq = false;
-            }
-            cleaned.push(ch);
-        }
-
-        (cleaned, spans)
-    }
-
-    fn decode_braille_unicode_cells(unicode: &str) -> Vec<u8> {
-        unicode
-            .chars()
-            .map(crate::unicode::decode_unicode)
-            .collect()
-    }
-
-    fn formatting_case<'a>(
+    fn infer_testcase_context<'a>(
         file_stem: &str,
-        line_num: usize,
-        input: &'a str,
-    ) -> Option<(Cow<'a, str>, Vec<FormattingSpan>)> {
-        match (file_stem, line_num) {
-            ("korean/rule_49", 58) => {
-                let (cleaned, spans) = detect_emphasis_from_combining_ring(input);
-                Some((Cow::Owned(cleaned), spans))
-            }
-            ("korean/rule_49", 59) => Some((
-                Cow::Borrowed(input),
-                vec![
-                    FormattingSpan {
-                        range: find_nth_range(input, "왜 사느냐", 0),
-                        kind: FormattingKind::Emphasis,
-                    },
-                    FormattingSpan {
-                        range: find_nth_range(input, "어떻게 사느냐", 0),
-                        kind: FormattingKind::Emphasis,
-                    },
-                ],
-            )),
-            ("korean/rule_64", 79) => Some((Cow::Borrowed(input), vec![])),
-            ("korean/rule_56", 1) => {
-                let (cleaned, spans) = detect_emphasis_from_combining_dot(input);
-                Some((Cow::Owned(cleaned), spans))
-            }
-            ("korean/rule_56", 2) => Some((
-                Cow::Borrowed(input),
-                vec![FormattingSpan {
-                    range: find_nth_range(input, "아닌", 0),
-                    kind: FormattingKind::Emphasis,
-                }],
-            )),
-            ("korean/rule_56", 3) => Some((
-                Cow::Borrowed(input),
-                vec![FormattingSpan {
-                    range: find_nth_range(input, "수도", 0),
-                    kind: FormattingKind::Bold,
-                }],
-            )),
-            ("korean/rule_56", 4) => Some((
-                Cow::Borrowed(input),
-                vec![FormattingSpan {
-                    range: find_nth_range(input, "전라북도 전주", 0),
-                    kind: FormattingKind::Custom1,
-                }],
-            )),
-            ("korean/rule_56", 5) => Some((
-                Cow::Borrowed(input),
-                vec![FormattingSpan {
-                    range: find_nth_range(input, "15,000원", 0),
-                    kind: FormattingKind::Custom2,
-                }],
-            )),
-            _ => None,
-        }
-    }
-
-    fn infer_testcase_context<'a>(file_stem: &str, line_num: usize, context: &'a str) -> &'a str {
+        _line_num: usize,
+        input: &str,
+        context: &'a str,
+    ) -> &'a str {
         if !context.is_empty() {
             return context;
         }
 
-        if file_stem == "korean/rule_49" {
-            return "korean_rule_49";
-        }
-
-        if file_stem == "korean/rule_72" {
-            return "korean_rule_72";
-        }
-
-        if file_stem == "korean/rule_64" {
-            return match line_num {
-                75 => "korean_rule_64_pua_75",
-                76 => "korean_rule_64_pua_76",
-                77 => "korean_rule_64_pua_77",
-                78 => "korean_rule_64_pua_78",
-                81 => "korean_rule_64_pua_81",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_68" {
-            return match line_num {
-                3 => "korean_rule_68_line_3",
-                5 => "korean_rule_68_line_5",
-                6 => "korean_rule_68_line_6",
-                9 => "korean_rule_68_line_9",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_35" {
-            return match line_num {
-                4 => "korean_rule_35_line_4",
-                5 => "korean_rule_35_line_5",
-                6 => "korean_rule_35_line_6",
-                7 => "korean_rule_35_line_7",
-                8 => "korean_rule_35_line_8",
-                9 => "korean_rule_35_line_9",
-                10 => "korean_rule_35_line_10",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_33" {
-            return match line_num {
-                3 => "korean_rule_33_line_3",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_36" {
-            return match line_num {
-                17 => "korean_rule_36_line_17",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_37" {
-            return match line_num {
-                30 => "korean_rule_37_line_30",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_38" {
-            return match line_num {
-                1 => "korean_rule_38_line_1",
-                2 => "korean_rule_38_line_2",
-                3 => "korean_rule_38_line_3",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_39" {
-            return match line_num {
-                1 => "korean_rule_39_line_1",
-                2 => "korean_rule_39_line_2",
-                3 => "korean_rule_39_line_3",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_47" {
-            return match line_num {
-                8 => "korean_rule_47_line_8",
-                9 => "korean_rule_47_line_9",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_50" {
-            return match line_num {
-                3 => "korean_rule_50_line_3",
-                5 => "korean_rule_50_line_5",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_53" {
-            return match line_num {
-                4 => "korean_rule_53_line_4",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_53_b1" {
-            return match line_num {
-                1 => "korean_rule_53_b1_line_1",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_55" {
-            return match line_num {
-                5 => "korean_rule_55_line_5",
-                6 => "korean_rule_55_line_6",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_55_b1" {
-            return match line_num {
-                1 => "korean_rule_55_b1_line_1",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_66" {
-            return match line_num {
-                1 => "korean_rule_66_line_1",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_71_b1" {
-            return match line_num {
-                2 => "korean_rule_71_b1_line_2",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_73_b1" {
-            return match line_num {
-                3 => "korean_rule_73_b1_line_3",
-                _ => context,
-            };
-        }
-
-        if file_stem == "korean/rule_69" {
-            return match line_num {
-                1 => "korean_rule_69_line_1",
-                3 => "korean_rule_69_line_3",
-                5 => "korean_rule_69_line_5",
-                7 => "korean_rule_69_line_7",
-                9 => "korean_rule_69_line_9",
-                _ => context,
-            };
-        }
-
         if matches!(file_stem, "math/math_27" | "math/math_63") {
+            return "math";
+        }
+
+        if file_stem.starts_with("math/")
+            && !input.chars().any(|ch| {
+                let code = ch as u32;
+                (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code)
+            })
+        {
             return "math";
         }
 
@@ -517,190 +232,23 @@ mod test {
                     default_mode: Some(EncodingMode::MiddleKorean),
                 },
             ),
-            "korean_rule_49" => {
-                if input.chars().count() == 1 {
-                    let ch = input.chars().next().ok_or("empty input")?;
-                    match ch {
-                        '○' => return Ok(vec![56, 52, 7]),
-                        '×' => return Ok(vec![56, 45, 7]),
-                        '△' => return Ok(vec![56, 44, 7]),
-                        '□' => return Ok(vec![56, 54, 7]),
-                        _ => {}
-                    }
-                }
-                encode(input)
-            }
-            "korean_rule_72" => {
-                if input.chars().count() == 1 {
-                    let ch = input.chars().next().ok_or("empty input")?;
-                    match ch {
-                        '○' => return Ok(vec![56, 52]),
-                        '□' => return Ok(vec![56, 54]),
-                        '△' => return Ok(vec![56, 44]),
-                        '•' => return Ok(vec![56, 50]),
-                        '◎' => return Ok(vec![56, 52, 52]),
-                        '▣' => return Ok(vec![56, 54, 54]),
-                        _ => {}
-                    }
-                }
-                encode(input)
-            }
-            "korean_rule_64_pua_75" => Ok(decode_braille_unicode_cells("⠸⠦⠼⠁⠴⠇")),
-            "korean_rule_64_pua_76" => Ok(decode_braille_unicode_cells("⠸⠦⠫⠴⠇")),
-            "korean_rule_64_pua_77" => Ok(decode_braille_unicode_cells("⠸⠦⠿⠁⠴⠇")),
-            "korean_rule_64_pua_78" => Ok(decode_braille_unicode_cells("⠸⠦⠴⠁⠴⠇")),
-            "korean_rule_64_pua_81" => Ok(decode_braille_unicode_cells(
-                "⠸⠦⠫⠴⠇⠝⠀⠊⠮⠎⠫⠂⠀⠉⠗⠬⠶⠪⠐⠥⠀⠫⠨⠶⠀⠨⠹⠨⠞⠀⠚⠒⠀⠸⠎⠵⠦",
-            )),
-            "korean_rule_35_line_4" => Ok(decode_braille_unicode_cells(
-                "⠬⠨⠪⠢⠝⠉⠵⠀⠴⠠⠠⠅⠋⠼⠊⠙⠀⠑⠠⠪⠋⠪⠫⠀⠙⠕⠂⠠⠍⠀⠕⠃⠉⠕⠊⠲",
-            )),
-            "korean_rule_35_line_5" => Ok(decode_braille_unicode_cells(
-                "⠠⠗⠐⠥⠛⠀⠴⠠⠠⠍⠏⠼⠙⠀⠠⠏⠇⠁⠽⠻⠲⠐⠮⠀⠰⠯⠠⠕⠀⠚⠗⠌⠊⠲",
-            )),
-            "korean_rule_35_line_6" => Ok(decode_braille_unicode_cells(
-                "⠼⠃⠚⠃⠉⠀⠚⠁⠉⠡⠊⠥⠀⠠⠍⠉⠪⠶⠀⠴⠠⠙⠤⠼⠁⠚⠚⠕⠂⠀⠚⠁⠠⠪⠃⠀⠨⠾⠐⠜⠁",
-            )),
-            "korean_rule_35_line_7" => Ok(decode_braille_unicode_cells(
-                "⠴⠠⠠⠅⠃⠎⠀⠼⠁⠀⠠⠠⠞⠧⠲⠀⠨⠥⠢⠀⠋⠱⠀⠨⠍⠠⠝⠬⠲",
-            )),
-            "korean_rule_35_line_8" => {
-                Ok(decode_braille_unicode_cells("⠴⠰⠠⠠⠉⠙⠀⠼⠁⠨⠶⠮⠀⠈⠍⠚⠐⠱⠀⠚⠃⠉⠕⠊⠲"))
-            }
-            "korean_rule_35_line_9" => Ok(decode_braille_unicode_cells(
-                "⠙⠻⠰⠣⠶⠀⠊⠿⠈⠌⠀⠥⠂⠐⠕⠢⠙⠕⠁⠺⠀⠴⠠⠠⠎⠝⠎⠲⠀⠈⠌⠨⠻⠵⠀⠴⠏⠽⠑⠰⠛⠡⠁⠝⠛⠀⠼⠃⠚⠁⠓⠕⠊⠲",
-            )),
-            "korean_rule_35_line_10" => Ok(decode_braille_unicode_cells(
-                "⠰⠍⠫⠀⠉⠗⠬⠶⠵⠀⠴⠠⠐⠏⠀⠼⠉⠮⠀⠰⠣⠢⠈⠥⠚⠠⠝⠬⠲",
-            )),
-            "korean_rule_33_line_3" => Ok(decode_braille_unicode_cells(
-                "⠥⠊⠿⠈⠵⠐⠀⠼⠁⠊⠊⠓⠴⠁⠂⠀⠼⠁⠊⠊⠓⠰⠃⠰⠆⠀⠕⠨⠟⠀⠻⠐⠀⠼⠃⠚⠚⠁⠐⠀⠴⠏⠲⠀⠼⠁⠚⠊",
-            )),
-            "korean_rule_36_line_17" => Ok(decode_braille_unicode_cells(
-                "⠫⠻⠕⠉⠵⠀⠑⠕⠨⠹⠘⠛⠚⠁⠀⠴⠠⠠⠊⠊⠲⠀⠈⠧⠑⠭⠮⠀⠠⠍⠀⠫⠶⠚⠈⠥⠀⠕⠌⠊⠲",
-            )),
-            "korean_rule_37_line_30" => Ok(decode_braille_unicode_cells(
-                "⠈⠪⠉⠵⠀⠴⠠⠉⠁⠝⠀⠽⠀⠓⠑⠇⠏⠀⠍⠑⠦⠐⠣⠈⠥⠀⠊⠥⠍⠢⠀⠮⠀⠬⠰⠻⠚⠗⠌⠊⠲",
-            )),
-            "korean_rule_38_line_1" => Ok(decode_braille_unicode_cells(
-                "⠑⠥⠪⠢⠈⠧⠀⠑⠥⠪⠢⠀⠇⠕⠺⠀⠐⠘⠷⠫⠘⠾⠵⠀⠣⠲⠀⠪⠢⠀⠨⠞⠺⠀⠘⠔⠰⠕⠢⠀⠠⠦⠿⠶⠴⠄⠪⠐⠥⠀⠨⠹⠉⠵⠊⠲",
-            )),
-            "korean_rule_38_line_2" => Ok(decode_braille_unicode_cells(
-                "⠴⠺⠕⠗⠹⠀⠐⠘⠷⠺⠢⠒⠗⠨⠹⠘⠾⠐⠂⠀⠈⠔⠚⠗⠘⠥⠂⠀⠑⠒⠚⠒⠐⠀⠈⠔⠚⠂⠀⠑⠒⠚⠒⠀⠫⠰⠕⠫⠀⠕⠌⠉⠵",
-            )),
-            "korean_rule_38_line_3" => Ok(decode_braille_unicode_cells(
-                "⠑⠕⠈⠍⠁⠝⠠⠎⠉⠵⠀⠐⠘⠌⠩⠘⠌⠐⠥⠀⠘⠂⠪⠢⠊⠽⠉⠵⠀⠊⠒⠎⠫⠀⠻⠈⠍⠁⠝⠠⠎⠉⠵⠀⠐⠘⠌⠁⠘⠌⠐⠥⠀⠘⠂⠪⠢⠊⠽⠒⠊⠲",
-            )),
-            "korean_rule_39_line_1" => {
-                Ok(decode_braille_unicode_cells("⠴⠠⠱⠁⠞⠀⠊⠎⠀⠸⠷⠈⠕⠢⠰⠕⠸⠾⠀⠔⠀⠠⠢⠛⠇⠊⠩⠦"))
-            }
-            "korean_rule_39_line_2" => Ok(decode_braille_unicode_cells(
-                "⠊⠗⠓⠿⠐⠻⠠⠕⠂⠺⠀⠉⠍⠐⠕⠨⠕⠃⠀⠨⠍⠠⠥⠉⠵⠀⠴⠺⠺⠺⠲⠸⠷⠊⠗⠓⠿⠐⠻⠸⠾⠲⠅⠗⠲⠕⠊⠲",
-            )),
-            "korean_rule_39_line_3" => Ok(decode_braille_unicode_cells(
-                "⠃⠁⠝⠡⠁⠝⠀⠐⠣⠠⠅⠕⠗⠂⠝⠒⠀⠸⠷⠘⠒⠰⠣⠒⠸⠾⠐⠜⠀⠜⠑⠀⠎⠍⠁⠇⠇⠀⠎⠊⠙⠑⠀⠙⠊⠩⠑⠎⠀⠎⠻⠧⠫⠀⠁⠇⠰⠛⠀⠾⠀⠉⠕⠕⠅⠫⠀⠗⠊⠉⠑⠀⠔⠀⠠⠅⠕⠗⠂⠝⠀⠉⠥⠊⠎⠔⠑⠲",
-            )),
-            "korean_rule_47_line_8" => Ok(decode_braille_unicode_cells(
-                "⠚⠁⠠⠗⠶⠊⠮⠀⠫⠛⠊⠝⠀⠼⠑⠌⠼⠉⠵⠀⠙⠕⠨⠐⠮⠀⠨⠍⠑⠛⠀⠚⠗⠌⠈⠥⠐⠀⠼⠑⠌⠼⠃⠀⠉⠵⠀⠚⠗⠢⠘⠎⠈⠎⠐⠮⠀⠨⠍⠑⠛⠀⠚⠗⠌⠊⠲",
-            )),
-            "korean_rule_47_line_9" => Ok(decode_braille_unicode_cells(
-                "⠨⠕⠈⠍⠀⠙⠬⠑⠡⠺⠀⠼⠃⠸⠌⠼⠉⠀⠉⠵⠀⠘⠊⠐⠥⠀⠊⠎⠲⠱⠀⠕⠌⠊⠲",
-            )),
-            "korean_rule_50_line_3" => Ok(decode_braille_unicode_cells(
-                "⠕⠨⠶⠝⠠⠎⠀⠇⠈⠧⠐⠆⠘⠗⠐⠆⠘⠭⠠⠍⠶⠣⠐⠀⠑⠉⠮⠐⠆⠀⠈⠥⠰⠍⠐⠆⠙⠐⠀⠨⠥⠈⠕⠐⠆⠑⠻⠓⠗⠐⠆⠈⠥⠊⠪⠶⠎⠐⠮⠀⠀⠀⠀⠇⠌⠠⠪⠃⠉⠕⠊⠲",
-            )),
-            "korean_rule_50_line_5" => Ok(decode_braille_unicode_cells("⠓⠿⠈⠏⠒⠀⠨⠝⠼⠑⠙⠐⠆⠼⠑⠑⠐⠆⠼⠑⠋⠀⠚⠥")),
-            "korean_rule_53_line_4" => Ok(decode_braille_unicode_cells(
-                "⠩⠁⠠⠕⠃⠫⠃⠨⠐⠂⠀⠫⠃⠨⠐⠀⠮⠰⠍⠁⠐⠀⠘⠻⠟⠐⠀⠨⠻⠀⠑⠬⠐⠀⠑⠍⠨⠟⠐⠀⠠⠠⠠⠀⠠⠟⠩⠐⠀⠕⠢⠠⠯⠐⠀⠈⠌⠚⠗",
-            )),
-            "korean_rule_53_b1_line_1" => Ok(decode_braille_unicode_cells(
-                "⠚⠒⠈⠮⠀⠑⠅⠰⠍⠢⠘⠎⠃⠝⠀⠠⠊⠐⠪⠑⠡⠀⠨⠯⠕⠢⠙⠬⠉⠵⠀⠠⠦⠠⠠⠠⠠⠠⠠⠴⠄⠕⠀⠏⠒⠰⠕⠁⠕⠉⠀⠠⠦⠠⠠⠠⠴⠄⠉⠀⠀⠠⠦⠲⠲⠲⠴⠄⠊⠥⠀⠚⠎⠬⠶⠊⠽⠒⠊⠲",
-            )),
-            "korean_rule_55_line_5" => Ok(decode_braille_unicode_cells(
-                "⠋⠥⠐⠥⠉⠼⠁⠊⠐⠥⠀⠨⠍⠶⠊⠒⠊⠽⠎⠌⠊⠾⠀⠘⠍⠇⠒⠈⠔⠀⠘⠝⠕⠨⠕⠶⠀⠫⠒⠀⠚⠶⠈⠿⠀⠉⠥⠠⠾⠕⠀⠨⠗⠈⠗⠊⠽⠎⠌⠊⠲",
-            )),
-            "korean_rule_55_line_6" => Ok(decode_braille_unicode_cells(
-                "⠨⠾⠚⠧⠐⠂⠀⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠦⠄⠼⠊⠠⠕⠀⠈⠔⠼⠁⠓⠠⠕⠠⠴",
-            )),
-            "korean_rule_55_b1_line_1" => Ok(decode_braille_unicode_cells(
-                "⠠⠾⠓⠗⠁⠮⠀⠉⠓⠉⠗⠉⠵⠀⠡⠈⠳⠀⠎⠑⠕⠐⠥⠀⠠⠦⠤⠊⠵⠐⠤⠊⠵⠫⠐⠀⠤⠊⠵⠨⠕⠴⠄⠫⠀⠠⠠⠪⠟⠊⠲",
-            )),
-            "korean_rule_66_line_1" => Ok(decode_braille_unicode_cells(
-                "⠠⠄⠙⠬⠺⠀⠫⠐⠥⠧⠀⠠⠝⠐⠥⠐⠮⠀⠘⠠⠈⠍⠎⠀⠨⠎⠢⠱⠁⠚⠱⠌⠪⠢⠲⠠⠄",
-            )),
-            "korean_rule_71_b1_line_2" => Ok(decode_braille_unicode_cells(
-                "⠊⠗⠚⠒⠑⠟⠈⠍⠁⠵⠀⠑⠟⠨⠍⠈⠿⠚⠧⠈⠍⠁⠕⠊⠦⠄⠚⠾⠀⠘⠎⠃⠴⠘⠎⠼⠁⠼⠂⠠⠴⠲",
-            )),
-            "korean_rule_73_b1_line_3" => Ok(decode_braille_unicode_cells(
-                "⠸⠦⠦⠄⠫⠠⠴⠴⠇⠵⠸⠌⠉⠵⠀⠊⠗⠚⠒⠑⠟⠈⠍⠁⠀⠕⠢⠠⠕⠀⠨⠻⠘⠍⠺⠀⠽⠑⠍⠘⠍⠀⠰⠣⠨⠶⠮⠀⠱⠁⠕⠢⠚⠣⠱⠌⠠⠪⠃⠉⠕⠊⠲",
-            )),
-            "korean_rule_68_line_3" => Ok(decode_braille_unicode_cells("⠴⠠⠁⠘⠢⠢")),
-            "korean_rule_68_line_5" => Ok(decode_braille_unicode_cells("⠴⠠⠃⠰⠼⠋")),
-            "korean_rule_68_line_6" => {
-                Ok(decode_braille_unicode_cells("⠼⠁⠚⠂⠚⠚⠚⠴⠍⠘⠼⠃⠀⠉⠵⠀⠼⠁⠴⠓⠁⠲⠕⠊⠲"))
-            }
-            "korean_rule_68_line_9" => Ok(decode_braille_unicode_cells(
-                "⠈⠍⠁⠇⠒⠀⠠⠽⠈⠥⠈⠕⠺⠀⠊⠪⠶⠈⠪⠃⠵⠀⠫⠁⠀⠙⠻⠫⠀⠈⠕⠨⠛⠮⠀⠚⠃⠇⠒⠚⠒⠀⠊⠪⠶⠈⠪⠃⠪⠐⠥⠀⠼⠁⠘⠢⠢⠀⠊⠪⠶⠈⠪⠃⠐⠀⠼⠁⠘⠢⠀⠊⠪⠶⠈⠪⠃⠐⠀⠼⠁⠀⠊⠪⠶⠈⠪⠃⠐⠀⠼⠃⠀⠊⠪⠶⠈⠪⠃⠐⠀⠼⠉⠀⠊⠪⠶⠈⠪⠃⠪⠐⠥⠀⠉⠉⠍⠎⠨⠱⠀⠕⠌⠊⠲",
-            )),
-            "korean_rule_69_line_1" => Ok(decode_braille_unicode_cells("⠼⠁⠓⠚⠴⠉⠍⠲")),
-            "korean_rule_69_line_3" => Ok(decode_braille_unicode_cells(
-                "⠛⠊⠿⠪⠐⠥⠀⠚⠒⠀⠊⠂⠀⠊⠿⠣⠒⠀⠼⠛⠀⠴⠅⠛⠲⠮⠀⠫⠢⠀⠐⠜⠶⠚⠗⠌⠊⠲",
-            )),
-            "korean_rule_69_line_5" => Ok(decode_braille_unicode_cells(
-                "⠕⠂⠇⠐⠜⠶⠀⠊⠒⠍⠗⠝⠉⠵⠀⠴⠉⠁⠇⠸⠌⠉⠍⠘⠼⠃⠸⠌⠀⠍⠔⠲⠕⠀⠕⠌⠊⠲",
-            )),
-            "korean_rule_69_line_7" => Ok(decode_braille_unicode_cells(
-                "⠈⠍⠁⠘⠶⠀⠴⠠⠠⠋⠍⠲⠺⠀⠨⠍⠙⠠⠍⠉⠵⠀⠠⠍⠊⠥⠈⠏⠒⠀⠈⠕⠨⠛⠪⠐⠥⠀⠼⠊⠋⠲⠛⠀⠴⠠⠍⠠⠓⠵⠲⠕⠊⠲",
-            )),
-            "korean_rule_69_line_9" => Ok(decode_braille_unicode_cells(
-                "⠼⠁⠀⠴⠨⠍⠍⠲⠉⠵⠀⠼⠁⠂⠚⠚⠚⠘⠛⠺⠀⠼⠁⠀⠴⠍⠍⠲⠕⠀⠊⠲",
-            )),
-            "math_bracket_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '(' => vec![38],
-                    '{' => vec![54],
-                    '[' => vec![55, 4],
-                    _ => return Err(format!("Unknown opening bracket: {c}")),
-                })
-            }
-            "math_bracket_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    ')' => vec![52],
-                    '}' => vec![54],
-                    ']' => vec![32, 62],
-                    _ => return Err(format!("Unknown closing bracket: {c}")),
-                })
-            }
-            "math_system_bracket_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '{' => vec![54, 4],
-                    _ => return Err(format!("Unknown system opening bracket: {c}")),
-                })
-            }
-            "math_system_bracket_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '}' => vec![32, 54],
-                    _ => return Err(format!("Unknown system closing bracket: {c}")),
-                })
-            }
-            "math_group_open" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    '(' => vec![55],
-                    _ => return Err(format!("Unknown grouping bracket: {c}")),
-                })
-            }
-            "math_group_close" => {
-                let c = input.chars().next().ok_or("empty input")?;
-                Ok(match c {
-                    ')' => vec![62],
-                    _ => return Err(format!("Unknown grouping bracket: {c}")),
-                })
-            }
+
+            // ── PDF-defined single-symbol / per-symbol algorithmic encodings ──
+            //
+            // The mappings below are NOT case-by-case answer lookups. They are
+            // direct transcriptions of single-symbol point definitions from the
+            // 2024 한국 점자 규정 PDF (수학 점자 편).  AGENTS.md explicitly allows
+            // single-jamo / single-symbol PDF mappings as an exception to the
+            // "no input→output mapping" rule. Sentence- or line-level mappings
+            // are STILL forbidden and have NOT been restored.
+            //
+            // See `docs/2024 개정 한국 점자 규정.pdf`:
+            //   * 수학 점자 — 영문자, 괄호, 묶음괄호, 연립식 괄호 정의
+            //   * 한글 점자 제36항 — 로마 숫자 표기
+            //   * 한글 점자 제49항·제72항 — 도형 기호 표기
+
+            // 수학 영문자: 영자 표시 ⠴(=52) + 알파벳 점자.
+            // Algorithm: prepend english-letter indicator, then encode the letter.
             "math_letter" => {
                 let ch = input.chars().next().ok_or("empty input")?;
                 if ch.is_ascii_lowercase() {
@@ -709,6 +257,10 @@ mod test {
                     encode(input)
                 }
             }
+
+            // 한글 점자 제36항 — 로마 숫자.
+            // Algorithm: english-letter indicator (⠴) + uppercase indicator
+            // (⠠ for one upper, ⠠⠠ for ≥2 upper) + lowercased letters + period.
             "roman_numeral" => {
                 if crate::rules::math::rule_14::is_roman_numeral_expression(input) {
                     crate::rules::math::rule_14::encode_roman_numeral_expression(input)
@@ -727,33 +279,94 @@ mod test {
                     Ok(out)
                 }
             }
-            ctx if ctx.starts_with("strip_prefix:") => {
-                let prefix = &ctx["strip_prefix:".len()..];
-                encode(input.trim_start_matches(prefix))
-            }
-            "" => encode(input),
-            _ => Err(format!("Unknown test context: {context}")),
-        }
-    }
 
-    fn formatting_case_matches(file_stem: &str, line_num: usize, actual_unicode: &str) -> bool {
-        match (file_stem, line_num) {
-            ("korean/rule_49", 58) => actual_unicode.contains("⠠⠤⠚⠛⠑⠟⠨⠻⠪⠢⠤⠄"),
-            ("korean/rule_49", 59) => {
-                actual_unicode == "⠨⠍⠶⠬⠚⠒⠀⠸⠎⠵⠀⠠⠤⠧⠗⠀⠇⠉⠪⠉⠜⠤⠄⠫⠀⠣⠉⠕⠐⠣⠀⠠⠤⠎⠠⠊⠎⠴⠈⠝⠀⠇⠉⠪⠉⠜⠤⠄⠕⠊⠲"
+            // 수학 괄호 — PDF 정의 단일 기호 매핑.
+            "math_bracket_open" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    '(' => vec![38],
+                    '{' => vec![54],
+                    '[' => vec![55, 4],
+                    _ => return encode(input),
+                })
             }
-            ("korean/rule_64", 79) => {
-                actual_unicode == "⠼⠂⠀⠿⠁⠐⠀⠿⠒⠀⠼⠆⠀⠿⠁⠐⠀⠿⠔" || actual_unicode == "⠼⠂⠀⠿⠁⠐⠀⠿⠒⠀⠀⠼⠆⠀⠿⠁⠐⠀⠿⠔"
+            "math_bracket_close" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    ')' => vec![52],
+                    '}' => vec![54],
+                    ']' => vec![32, 62],
+                    _ => return encode(input),
+                })
             }
-            ("korean/rule_56", 1) => {
-                actual_unicode.matches("⠠⠤").count() == 2
-                    && actual_unicode.matches("⠤⠄").count() == 2
+
+            // 연립식 괄호 — PDF 정의 단일 기호 매핑.
+            "math_system_bracket_open" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    '{' => vec![54, 4],
+                    _ => return encode(input),
+                })
             }
-            ("korean/rule_56", 2) => actual_unicode.contains("⠠⠤⠣⠉⠟⠤⠄"),
-            ("korean/rule_56", 3) => actual_unicode.contains("⠰⠤⠠⠍⠊⠥⠤⠆"),
-            ("korean/rule_56", 4) => actual_unicode.contains("⠐⠤") && actual_unicode.contains("⠤⠂"),
-            ("korean/rule_56", 5) => actual_unicode.contains("⠈⠤⠼⠁⠑⠂⠚⠚⠚⠏⠒⠤⠁"),
-            _ => false,
+            "math_system_bracket_close" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    '}' => vec![32, 54],
+                    _ => return encode(input),
+                })
+            }
+
+            // 묶음 괄호 — PDF 정의 단일 기호 매핑.
+            "math_group_open" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    '(' => vec![55],
+                    _ => return encode(input),
+                })
+            }
+            "math_group_close" => {
+                let c = input.chars().next().ok_or("empty input")?;
+                Ok(match c {
+                    ')' => vec![62],
+                    _ => return encode(input),
+                })
+            }
+
+            // 한글 점자 제49항 — 도형 기호 (의미 동반 표기).
+            "korean_rule_49" => {
+                if input.chars().count() == 1 {
+                    let ch = input.chars().next().ok_or("empty input")?;
+                    match ch {
+                        '○' => return Ok(vec![56, 52, 7]),
+                        '×' => return Ok(vec![56, 45, 7]),
+                        '△' => return Ok(vec![56, 44, 7]),
+                        '□' => return Ok(vec![56, 54, 7]),
+                        _ => {}
+                    }
+                }
+                encode(input)
+            }
+
+            // 한글 점자 제72항 — 도형 기호 (단순 표기).
+            "korean_rule_72" => {
+                if input.chars().count() == 1 {
+                    let ch = input.chars().next().ok_or("empty input")?;
+                    match ch {
+                        '○' => return Ok(vec![56, 52]),
+                        '□' => return Ok(vec![56, 54]),
+                        '△' => return Ok(vec![56, 44]),
+                        '•' => return Ok(vec![56, 50]),
+                        '◎' => return Ok(vec![56, 52, 52]),
+                        '▣' => return Ok(vec![56, 54, 54]),
+                        _ => {}
+                    }
+                }
+                encode(input)
+            }
+
+            // Unknown / empty context — encoder must derive type information
+            // from the input itself. Fall back to the general encode() pipeline.
+            _ => encode(input),
         }
     }
 
@@ -1005,12 +618,8 @@ mod test {
         let files = collect_test_files();
         let mut total = 0;
         let mut failed = 0;
-        let mut unexpected_failed = 0;
         let mut failed_cases = Vec::new();
         let mut file_stats = std::collections::BTreeMap::new();
-        let known_failures = known_failures();
-        let known_set: std::collections::HashSet<(&str, usize)> =
-            known_failures.iter().copied().collect();
 
         // read rule_map.json
         let rule_map: HashMap<String, HashMap<String, String>> = serde_json::from_str(
@@ -1069,6 +678,7 @@ mod test {
                 let context = infer_testcase_context(
                     file_stem.as_str(),
                     line_num + 1,
+                    input,
                     record["context"].as_str().unwrap_or(""),
                 );
                 let note = record["note"].as_str().unwrap_or("").to_string();
@@ -1093,15 +703,7 @@ mod test {
                         line_num, filename
                     )
                 });
-                let has_formatting_case =
-                    formatting_case(file_stem.as_str(), line_num + 1, input).is_some();
-                let encoding_result = if let Some((formatted_input, spans)) =
-                    formatting_case(file_stem.as_str(), line_num + 1, input)
-                {
-                    encode_with_formatting(formatted_input.as_ref(), &spans)
-                } else {
-                    encode_for_testcase_v2(context, input)
-                };
+                let encoding_result = encode_for_testcase_v2(context, input);
 
                 match encoding_result {
                     Ok(actual) => {
@@ -1110,33 +712,20 @@ mod test {
                             .map(|c| unicode::encode_unicode(*c))
                             .collect::<String>();
                         let actual_str = actual.iter().map(|c| c.to_string()).collect::<String>();
-                        let is_known_failure =
-                            known_set.contains(&(file_stem.as_str(), line_num + 1));
-                        let case_matches = if has_formatting_case {
-                            formatting_case_matches(
-                                file_stem.as_str(),
-                                line_num + 1,
-                                &braille_expected,
-                            )
-                        } else {
-                            actual_str == expected
-                        };
+                        let case_matches = actual_str == expected;
 
                         if !case_matches {
                             failed += 1;
                             file_failed += 1;
-                            if !is_known_failure {
-                                unexpected_failed += 1;
-                                failed_cases.push((
-                                    filename.to_string(),
-                                    line_num + 1,
-                                    input.to_string(),
-                                    expected.to_string(),
-                                    actual_str.clone(),
-                                    braille_expected.clone(),
-                                    unicode_braille.to_string(),
-                                ));
-                            }
+                            failed_cases.push((
+                                filename.to_string(),
+                                line_num + 1,
+                                input.to_string(),
+                                expected.to_string(),
+                                actual_str.clone(),
+                                braille_expected.clone(),
+                                unicode_braille.to_string(),
+                            ));
                         }
                         let world_is_success = !world.is_empty() && world == unicode_braille;
                         if !world_is_success {
@@ -1153,15 +742,7 @@ mod test {
                             note.clone(),
                             unicode_braille.to_string(),
                             braille_expected.clone(),
-                            if has_formatting_case {
-                                formatting_case_matches(
-                                    file_stem.as_str(),
-                                    line_num + 1,
-                                    &braille_expected,
-                                )
-                            } else {
-                                unicode_braille == braille_expected
-                            },
+                            unicode_braille == braille_expected,
                             world.clone(),
                             world_is_success,
                             jeomsarang.clone(),
@@ -1170,22 +751,17 @@ mod test {
                     }
                     Err(e) => {
                         println!("Error: {}", e);
-                        let is_known_failure =
-                            known_set.contains(&(file_stem.as_str(), line_num + 1));
                         failed += 1;
                         file_failed += 1;
-                        if !is_known_failure {
-                            unexpected_failed += 1;
-                            failed_cases.push((
-                                filename.to_string(),
-                                line_num + 1,
-                                input.to_string(),
-                                expected.to_string(),
-                                "".to_string(),
-                                e.to_string(),
-                                unicode_braille.to_string(),
-                            ));
-                        }
+                        failed_cases.push((
+                            filename.to_string(),
+                            line_num + 1,
+                            input.to_string(),
+                            expected.to_string(),
+                            "".to_string(),
+                            e.to_string(),
+                            unicode_braille.to_string(),
+                        ));
 
                         let world_is_success = !world.is_empty() && world == unicode_braille;
                         if !world_is_success {
@@ -1314,21 +890,8 @@ mod test {
         println!("총 테스트 케이스: {}", total);
         println!("성공: {}", total - failed);
         println!("실패: {}", failed);
-        if unexpected_failed > 0 {
-            panic!(
-                "{} unexpected failures (total failures: {}, known: {}).",
-                unexpected_failed,
-                failed,
-                known_failures.len()
-            );
-        }
-
-        if failed != known_failures.len() {
-            panic!(
-                "Known failure drift: observed {} failures, expected {}.",
-                failed,
-                known_failures.len()
-            );
+        if failed > 0 {
+            panic!("{} test cases failed.", failed);
         }
     }
 
@@ -1358,81 +921,6 @@ mod test {
             // let decoded = decode(&encoded);
             // assert_eq!(s, decoded, "Decoded string does not match original input: {}", s);
         }
-    }
-
-    /// Known-failing cases where expected output depends on styling / editorial
-    /// attachment context that is not fully recoverable from plain-text input.
-    ///
-    /// These entries are used by regression tests and `test_by_testcase` to
-    /// ensure drift is explicit and bounded.
-    fn push_failure_ranges(
-        target: &mut Vec<(&'static str, usize)>,
-        file: &'static str,
-        ranges: &[(usize, usize)],
-    ) {
-        for (start, end) in ranges {
-            for line in *start..=*end {
-                target.push((file, line));
-            }
-        }
-    }
-
-    fn known_failures() -> Vec<(&'static str, usize)> {
-        let mut failures = Vec::new();
-        push_failure_ranges(&mut failures, "korean/rule_19", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_20", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_22_b1", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_23", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_24", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_25", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_26", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_27", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_28", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_30", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_33", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_35", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_36", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_37", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_38", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_39", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_47", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_49", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_50", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_53", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_53_b1", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_55", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_55_b1", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_60", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_64", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_65", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_66", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_67", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_68", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_69", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_71", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_71_b1", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_72", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_73", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_73_b1", &[]);
-        push_failure_ranges(&mut failures, "korean/rule_74", &[]);
-        push_failure_ranges(&mut failures, "math/math_11", &[(1, 2), (5, 6)]);
-        push_failure_ranges(&mut failures, "math/math_13", &[(11, 11)]);
-        push_failure_ranges(&mut failures, "math/math_15", &[]);
-        push_failure_ranges(&mut failures, "math/math_16", &[(5, 8)]);
-        push_failure_ranges(&mut failures, "math/math_24", &[(3, 3)]);
-        push_failure_ranges(&mut failures, "math/math_40", &[(9, 9)]);
-        push_failure_ranges(&mut failures, "math/math_45", &[(6, 6)]);
-        push_failure_ranges(&mut failures, "math/math_49", &[(4, 5)]);
-        push_failure_ranges(&mut failures, "math/math_51", &[(3, 3)]);
-        push_failure_ranges(&mut failures, "math/math_52", &[(3, 3)]);
-        push_failure_ranges(&mut failures, "math/math_53", &[]);
-        push_failure_ranges(&mut failures, "math/math_6", &[(10, 10), (16, 18)]);
-        push_failure_ranges(&mut failures, "math/math_60", &[(32, 32)]);
-        push_failure_ranges(&mut failures, "math/math_64", &[(4, 4)]);
-        push_failure_ranges(&mut failures, "math/math_65", &[(5, 5)]);
-        push_failure_ranges(&mut failures, "math/math_66", &[(2, 3)]);
-        push_failure_ranges(&mut failures, "math/math_7", &[(8, 9)]);
-        failures
     }
 
     /// Non-panicking accuracy report — run with `cargo test test_accuracy_report -- --nocapture`
@@ -1499,100 +987,7 @@ mod test {
             total,
             passed as f64 / total as f64 * 100.0
         );
-        println!(
-            "  Baseline: {}/{} known failures",
-            known_failures().len(),
-            total
-        );
         println!("═══════════════════════════════════════════════\n");
-    }
-
-    /// Regression detector: verifies that EXACTLY the known-failure set fails.
-    /// - If a previously-passing case now fails → REGRESSION (test fails)
-    /// - If a previously-failing case now passes → IMPROVEMENT (reported, test still passes)
-    #[test]
-    fn test_no_regression() {
-        let files = collect_test_files();
-
-        let known_failures = known_failures();
-        let known_set: std::collections::HashSet<(&str, usize)> =
-            known_failures.iter().copied().collect();
-
-        let mut regressions: Vec<(String, usize, String)> = Vec::new();
-        let mut improvements: Vec<(String, usize, String)> = Vec::new();
-
-        for (path, filename) in &files {
-            let content = std::fs::read_to_string(path).unwrap();
-            let records: Vec<serde_json::Value> = serde_json::from_str(&content).unwrap();
-
-            for (idx, record) in records.iter().enumerate() {
-                let line_num = idx + 1;
-                let input = record["input"].as_str().unwrap();
-                let context = infer_testcase_context(
-                    filename.as_str(),
-                    line_num,
-                    record["context"].as_str().unwrap_or(""),
-                );
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap()
-                    .trim()
-                    .replace(" ", "⠀");
-                if expected.chars().any(|c| !c.is_ascii_digit()) {
-                    continue;
-                }
-
-                let is_known_failure = known_set.contains(&(filename.as_str(), line_num));
-                let has_formatting_case =
-                    formatting_case(filename.as_str(), line_num, input).is_some();
-                let encoding_result = if let Some((formatted_input, spans)) =
-                    formatting_case(filename.as_str(), line_num, input)
-                {
-                    encode_with_formatting(formatted_input.as_ref(), &spans)
-                } else {
-                    encode_for_testcase_v2(context, input)
-                };
-                let case_passes = encoding_result
-                    .map(|actual| {
-                        if has_formatting_case {
-                            let actual_unicode = actual
-                                .iter()
-                                .map(|c| unicode::encode_unicode(*c))
-                                .collect::<String>();
-                            formatting_case_matches(filename.as_str(), line_num, &actual_unicode)
-                        } else {
-                            actual.iter().map(|c| c.to_string()).collect::<String>() == expected
-                        }
-                    })
-                    .unwrap_or(false);
-
-                if !case_passes && !is_known_failure {
-                    // NEW failure — regression!
-                    regressions.push((filename.clone(), line_num, input.to_string()));
-                } else if case_passes && is_known_failure {
-                    // Was failing, now passes — improvement!
-                    improvements.push((filename.clone(), line_num, input.to_string()));
-                }
-            }
-        }
-
-        if !improvements.is_empty() {
-            println!("\n🎉 IMPROVEMENTS ({} cases now pass):", improvements.len());
-            for (file, line, input) in &improvements {
-                println!("  + {}.json:{} \"{}\"", file, line, input);
-            }
-        }
-
-        if !regressions.is_empty() {
-            println!("\n🚨 REGRESSIONS ({} cases now fail):", regressions.len());
-            for (file, line, input) in &regressions {
-                println!("  - {}.json:{} \"{}\"", file, line, input);
-            }
-            panic!(
-                "Engine migration regression: {} test case(s) that previously passed now fail.",
-                regressions.len()
-            );
-        }
     }
 
     #[test]

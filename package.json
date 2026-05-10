@@ -8,6 +8,7 @@
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
     "test": "cargo tarpaulin --out xml --out stdout -- --skip test_by_testcase && bun test --coverage && cd py-test && uv run pytest __init__.py",
+    "test:testcase": "cargo test -p braillify test_by_testcase -- --nocapture",
     "preinstall": "uv sync && (cargo install wasm-pack || node -e \"process.exit(0)\") && (pip install maturin || \"process.exit(0)\")",
     "build": "cargo build --release -p braillify && bun -F braillify build && cd packages/python && maturin build --release --out dist",
     "build:landing": "bun run build && (cargo test test_by_testcase || node -e \"process.exit(0)\") && bun -F landing build",
