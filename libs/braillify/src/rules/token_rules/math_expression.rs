@@ -798,9 +798,19 @@ mod tests {
     }
 
     #[test]
-    fn test_is_math_decimal_number() {
+    fn test_decimal_starting_with_digit_is_not_math() {
+        // PDF 제43항: 첫 글자가 숫자인 순수 소수는 한글 number rule로 처리.
         let chars: Vec<char> = "0.17".chars().collect();
-        assert!(is_math_expression(&chars, "0.17"));
+        assert!(!is_math_expression(&chars, "0.17"));
+        let chars: Vec<char> = "96.7".chars().collect();
+        assert!(!is_math_expression(&chars, "96.7"));
+    }
+
+    #[test]
+    fn test_decimal_starting_with_dot_is_math() {
+        // ".47"처럼 점으로 시작하는 형태는 math expression.
+        let chars: Vec<char> = ".47".chars().collect();
+        assert!(is_math_expression(&chars, ".47"));
     }
 
     #[test]
