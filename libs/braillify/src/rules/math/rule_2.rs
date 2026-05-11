@@ -162,6 +162,27 @@ impl MathTokenRule for OperatorRule {
             return Ok(MathTokenResult::Skip);
         };
 
+        let korean_group_operator = matches!(*c, '+' | '×')
+            && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_)))
+            && matches!(tokens.get(index + 1), Some(MathToken::KoreanWord(_)));
+        if korean_group_operator {
+            result.push(0);
+            encode_operator(*c, tokens, index, result)?;
+            result.push(0);
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(1));
+        }
+
+        let label_equation = *c == '='
+            && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_)))
+            && matches!(tokens.get(index + 1), Some(MathToken::MathSymbol('\u{221A}')));
+        if label_equation {
+            result.push(0);
+            encode_operator(*c, tokens, index, result)?;
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(1));
+        }
+
         let should_pad = needs_binary_spacing(*c)
             && index > 0
             && is_algebraic_neighbor(tokens.get(index - 1))

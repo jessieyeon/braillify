@@ -14,6 +14,8 @@ pub enum BracketKind {
     MathParen,
     /// Grouping brackets used in braille-only notation
     Grouping,
+    /// Hangul-wrapped math group _( ... _)
+    Hangul,
     /// Square brackets: [x]
     Square,
     /// Curly braces: {1, 2, 3}
@@ -37,6 +39,8 @@ pub enum MathToken {
     Operator(char),
     /// Known function name (sin, cos, etc.)
     FunctionName(String),
+    /// Korean word or phrase inside a math expression.
+    KoreanWord(String),
     /// Opening bracket
     OpenParen(BracketKind),
     /// Closing bracket
@@ -53,6 +57,20 @@ pub enum MathToken {
     Prime,
     /// Unrecognized character (fallback)
     Raw(char),
+}
+
+#[derive(Debug, Clone, Copy)]
+struct GroupState {
+    kind: BracketKind,
+    token_index: usize,
+    contains_korean: bool,
+    contains_arithmetic: bool,
+    promote_grouping: bool,
+}
+
+fn is_korean_char(c: char) -> bool {
+    let code = c as u32;
+    (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code)
 }
 
 /// Check if a character is a Unicode superscript digit.
@@ -196,7 +214,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
 
     let chars: Vec<char> = input.chars().collect();
     let mut tokens = Vec::new();
-    let mut bracket_stack: Vec<BracketKind> = Vec::new();
+    let mut bracket_stack: Vec<GroupState> = Vec::new();
     let mut i = 0;
 
     // Some notations (e.g., segment AB with overline) use expression-level overline prefix.
@@ -238,6 +256,41 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         if c.is_whitespace() {
             tokens.push(MathToken::Space);
             i += 1;
+            continue;
+        }
+
+        if is_korean_char(c) {
+            let mut phrase = String::new();
+            while i < chars.len() {
+                let current = chars[i];
+                if is_korean_char(current) {
+                    phrase.push(current);
+                    i += 1;
+                    continue;
+                }
+
+                if current.is_whitespace() {
+                    let mut j = i;
+                    while j < chars.len() && chars[j].is_whitespace() {
+                        j += 1;
+                    }
+
+                    if j < chars.len() && is_korean_char(chars[j]) {
+                        if !phrase.ends_with(' ') {
+                            phrase.push(' ');
+                        }
+                        i = j;
+                        continue;
+                    }
+                }
+
+                break;
+            }
+
+            for group in &mut bracket_stack {
+                group.contains_korean = true;
+            }
+            tokens.push(MathToken::KoreanWord(phrase));
             continue;
         }
 
@@ -537,37 +590,76 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     Some(MathToken::Operator('/')) => BracketKind::Grouping,
                     _ => BracketKind::MathParen,
                 };
-                bracket_stack.push(kind);
+                let promote_grouping = matches!(tokens.last(), Some(MathToken::Operator('=')));
+                bracket_stack.push(GroupState {
+                    kind,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    promote_grouping,
+                });
                 tokens.push(MathToken::OpenParen(kind));
                 i += 1;
                 continue;
             }
             ')' => {
-                let kind = bracket_stack.pop().unwrap_or(BracketKind::MathParen);
+                let kind = if let Some(group) = bracket_stack.pop() {
+                    let resolved_kind = if group.contains_korean
+                        && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping)
+                    {
+                        BracketKind::Hangul
+                    } else if group.promote_grouping
+                        && group.contains_arithmetic
+                        && matches!(group.kind, BracketKind::MathParen)
+                    {
+                        BracketKind::Grouping
+                    } else {
+                        group.kind
+                    };
+
+                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index) {
+                        *open_kind = resolved_kind;
+                    }
+                    resolved_kind
+                } else {
+                    BracketKind::MathParen
+                };
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
             }
             '[' => {
-                bracket_stack.push(BracketKind::Square);
+                bracket_stack.push(GroupState {
+                    kind: BracketKind::Square,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    promote_grouping: false,
+                });
                 tokens.push(MathToken::OpenParen(BracketKind::Square));
                 i += 1;
                 continue;
             }
             ']' => {
-                let kind = bracket_stack.pop().unwrap_or(BracketKind::Square);
+                let kind = bracket_stack.pop().map_or(BracketKind::Square, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
             }
             '{' => {
-                bracket_stack.push(BracketKind::Curly);
+                bracket_stack.push(GroupState {
+                    kind: BracketKind::Curly,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    promote_grouping: false,
+                });
                 tokens.push(MathToken::OpenParen(BracketKind::Curly));
                 i += 1;
                 continue;
             }
             '}' => {
-                let kind = bracket_stack.pop().unwrap_or(BracketKind::Curly);
+                let kind = bracket_stack.pop().map_or(BracketKind::Curly, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
@@ -578,7 +670,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         // Math operators (basic)
         if matches!(
             c,
-            '+' | '=' | '>' | '<' | '/' | '-' | '!' | '\u{2212}' | '\u{2044}'
+            '+' | '=' | '>' | '<' | '/' | '-' | '!' | '×' | '÷' | '\u{2212}' | '\u{2044}'
         ) {
             // In chained inequalities like -5 < x < -2, the second minus is omitted.
             if c == '-'
@@ -598,6 +690,11 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             } else {
                 c
             };
+            if matches!(op, '+' | '×' | '/') {
+                for group in &mut bracket_stack {
+                    group.contains_arithmetic = true;
+                }
+            }
             tokens.push(MathToken::Operator(op));
             i += 1;
             continue;

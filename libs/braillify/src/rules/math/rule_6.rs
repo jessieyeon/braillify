@@ -10,6 +10,10 @@ pub fn encode_open_paren(kind: BracketKind, result: &mut Vec<u8>) {
     match kind {
         BracketKind::MathParen => result.push(38),
         BracketKind::Grouping => result.push(55),
+        BracketKind::Hangul => {
+            result.push(56);
+            result.push(55);
+        }
         BracketKind::Square => {
             result.push(55);
             result.push(4);
@@ -22,6 +26,10 @@ pub fn encode_close_paren(kind: BracketKind, result: &mut Vec<u8>) {
     match kind {
         BracketKind::MathParen => result.push(52),
         BracketKind::Grouping => result.push(62),
+        BracketKind::Hangul => {
+            result.push(56);
+            result.push(62);
+        }
         BracketKind::Square => {
             result.push(32);
             result.push(62);

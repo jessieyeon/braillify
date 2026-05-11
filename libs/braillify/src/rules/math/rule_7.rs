@@ -5,7 +5,7 @@
 use crate::rules::math::parser::MathToken;
 
 use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
-use super::{rule_1, rule_12};
+use super::{rule_1, rule_12, rule_6};
 
 /// 분수 기호형 슬래시(_/)를 써야 하는 문맥인지 판별한다.
 pub fn slash_as_fraction_symbol(tokens: &[MathToken], i: usize) -> bool {
@@ -26,6 +26,53 @@ pub fn slash_as_fraction_symbol(tokens: &[MathToken], i: usize) -> bool {
 }
 
 pub struct FractionReversalRule;
+
+pub struct GroupedFractionReversalRule;
+
+impl MathTokenRule for GroupedFractionReversalRule {
+    fn name(&self) -> &'static str {
+        "GroupedFractionReversalRule"
+    }
+
+    fn priority(&self) -> u16 {
+        10
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::OpenParen(_)))
+            && rule_6::find_matching_paren(tokens, index)
+                .is_some_and(|close| matches!(tokens.get(close + 1), Some(MathToken::Operator('/'))))
+    }
+
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        let Some(left_close) = rule_6::find_matching_paren(tokens, index) else {
+            return Ok(MathTokenResult::Skip);
+        };
+        if !matches!(tokens.get(left_close + 1), Some(MathToken::Operator('/'))) {
+            return Ok(MathTokenResult::Skip);
+        }
+        let right_start = left_close + 2;
+        if !matches!(tokens.get(right_start), Some(MathToken::OpenParen(_))) {
+            return Ok(MathTokenResult::Skip);
+        }
+        let Some(right_close) = rule_6::find_matching_paren(tokens, right_start) else {
+            return Ok(MathTokenResult::Skip);
+        };
+
+        engine.encode_tokens(&tokens[right_start..=right_close], result)?;
+        result.push(12);
+        engine.encode_tokens(&tokens[index..=left_close], result)?;
+        state.prev_was_number = false;
+        Ok(MathTokenResult::Consumed(right_close + 1 - index))
+    }
+}
 
 impl MathTokenRule for FractionReversalRule {
     fn name(&self) -> &'static str {

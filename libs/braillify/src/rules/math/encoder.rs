@@ -55,6 +55,39 @@ impl MathTokenRule for DigitSeparatorRule {
 
 struct SpaceRule;
 
+fn prev_non_space(tokens: &[MathToken], index: usize) -> Option<&MathToken> {
+    tokens[..index]
+        .iter()
+        .rev()
+        .find(|token| !matches!(token, MathToken::Space))
+}
+
+fn next_non_space(tokens: &[MathToken], index: usize) -> Option<&MathToken> {
+    tokens[index + 1..]
+        .iter()
+        .find(|token| !matches!(token, MathToken::Space))
+}
+
+fn prev_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
+    (0..index).rev().find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
+}
+
+fn next_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
+    (index + 1..tokens.len()).find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
+}
+
+fn is_glue_operator(token: Option<&MathToken>) -> bool {
+    matches!(token, Some(MathToken::Operator('+' | '×' | '=' | '/')))
+}
+
+fn should_suppress_space(tokens: &[MathToken], index: usize) -> bool {
+    let prev_idx = prev_non_space_index(tokens, index);
+    let next_idx = next_non_space_index(tokens, index);
+
+    prev_idx.is_some_and(|i| should_suppress_after_operator(tokens, i))
+        || next_idx.is_some_and(|i| should_suppress_before_operator(tokens, i))
+}
+
 impl MathTokenRule for SpaceRule {
     fn name(&self) -> &'static str {
         "SpaceRule"
@@ -70,13 +103,149 @@ impl MathTokenRule for SpaceRule {
 
     fn apply(
         &self,
-        _tokens: &[MathToken],
-        _index: usize,
+        tokens: &[MathToken],
+        index: usize,
         result: &mut Vec<u8>,
         state: &mut MathEncodeState,
         _engine: &MathTokenEngine,
     ) -> Result<MathTokenResult, String> {
-        result.push(0);
+        if !should_suppress_space(tokens, index) {
+            result.push(0);
+        }
+        state.prev_was_number = false;
+        Ok(MathTokenResult::Consumed(1))
+    }
+}
+
+struct KoreanWordRule;
+
+impl KoreanWordRule {
+    fn wrap_kind(tokens: &[MathToken], index: usize) -> Option<BracketKind> {
+        let prev = prev_non_space(tokens, index);
+        let next = next_non_space(tokens, index);
+        let Some(MathToken::KoreanWord(text)) = tokens.get(index) else {
+            return None;
+        };
+
+        if matches!(prev, Some(MathToken::OpenParen(BracketKind::Hangul)))
+            || matches!(next, Some(MathToken::CloseParen(BracketKind::Hangul)))
+        {
+            return None;
+        }
+
+        if matches!(prev, Some(MathToken::MathSymbol('\u{221A}'))) {
+            return Some(BracketKind::Hangul);
+        }
+
+        if text.contains(' ')
+            || matches!(prev, Some(MathToken::Operator('×')))
+            || matches!(next, Some(MathToken::Operator('×')))
+        {
+            return Some(BracketKind::MathParen);
+        }
+
+        None
+    }
+}
+
+fn token_is_grouped_operand(tokens: &[MathToken], index: usize) -> bool {
+    match tokens.get(index) {
+        Some(MathToken::OpenParen(_) | MathToken::CloseParen(_)) => true,
+        Some(MathToken::KoreanWord(_)) => KoreanWordRule::wrap_kind(tokens, index).is_some(),
+        Some(MathToken::MathSymbol('\u{221A}')) => true,
+        _ => false,
+    }
+}
+
+fn is_plain_unwrapped_korean(tokens: &[MathToken], index: usize) -> bool {
+    matches!(tokens.get(index), Some(MathToken::KoreanWord(_)))
+        && KoreanWordRule::wrap_kind(tokens, index).is_none()
+}
+
+fn is_mixed_times_context(tokens: &[MathToken], index: usize) -> bool {
+    let Some(MathToken::Operator('×')) = tokens.get(index) else {
+        return false;
+    };
+
+    let prev_idx = prev_non_space_index(tokens, index);
+    let next_idx = next_non_space_index(tokens, index);
+    let plain_korean_both_sides = prev_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i))
+        && next_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i));
+
+    if plain_korean_both_sides {
+        return false;
+    }
+
+    tokens.iter().enumerate().any(|(i, token)| {
+        matches!(token, MathToken::KoreanWord(_)) && KoreanWordRule::wrap_kind(tokens, i).is_some()
+    })
+}
+
+fn should_suppress_before_operator(tokens: &[MathToken], index: usize) -> bool {
+    let Some(MathToken::Operator(op)) = tokens.get(index) else {
+        return false;
+    };
+
+    if *op == '×' {
+        return is_mixed_times_context(tokens, index);
+    }
+
+    if !is_glue_operator(tokens.get(index)) {
+        return false;
+    }
+
+    prev_non_space_index(tokens, index).is_some_and(|i| token_is_grouped_operand(tokens, i))
+}
+
+fn should_suppress_after_operator(tokens: &[MathToken], index: usize) -> bool {
+    let Some(MathToken::Operator(op)) = tokens.get(index) else {
+        return false;
+    };
+
+    if *op == '×' {
+        return is_mixed_times_context(tokens, index);
+    }
+
+    if !is_glue_operator(tokens.get(index)) {
+        return false;
+    }
+
+    next_non_space_index(tokens, index).is_some_and(|i| token_is_grouped_operand(tokens, i))
+}
+
+impl MathTokenRule for KoreanWordRule {
+    fn name(&self) -> &'static str {
+        "KoreanWordRule"
+    }
+
+    fn priority(&self) -> u16 {
+        50
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        matches!(tokens.get(index), Some(MathToken::KoreanWord(_)))
+    }
+
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        let Some(MathToken::KoreanWord(text)) = tokens.get(index) else {
+            return Ok(MathTokenResult::Skip);
+        };
+
+        if let Some(kind) = Self::wrap_kind(tokens, index) {
+            rule_6::encode_open_paren(kind, result);
+            result.extend(crate::encode(text)?);
+            rule_6::encode_close_paren(kind, result);
+        } else {
+            result.extend(crate::encode(text)?);
+        }
+
         state.prev_was_number = false;
         Ok(MathTokenResult::Consumed(1))
     }
@@ -407,6 +576,7 @@ fn build_math_engine() -> MathTokenEngine {
 
     // Priority 10 — lookahead rules
     engine.register(Box::new(rule_7::ConditionalProbFractionRule));
+    engine.register(Box::new(rule_7::GroupedFractionReversalRule));
     engine.register(Box::new(rule_7::FractionReversalRule));
     engine.register(Box::new(rule_12::CombinatoricsRule));
     engine.register(Box::new(rule_54::PartialDerivativeFractionRule));
@@ -416,6 +586,7 @@ fn build_math_engine() -> MathTokenEngine {
     engine.register(Box::new(rule_1::NumberRule));
     engine.register(Box::new(rule_12::VariableRule));
     engine.register(Box::new(rule_12::UpperVariableRule));
+    engine.register(Box::new(KoreanWordRule));
     engine.register(Box::new(rule_2::OperatorRule));
     engine.register(Box::new(rule_47::FunctionNameRule));
     engine.register(Box::new(rule_6::BracketRule));

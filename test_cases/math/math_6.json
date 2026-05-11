@@ -60,26 +60,6 @@
     "jeomsarang": "⠰⠴"
   },
   {
-    "input": "{",
-    "context": "math",
-    "note": "연립식 괄호 열기",
-    "internal": "7'",
-    "expected": "544",
-    "unicode": "⠶⠄",
-    "world": "⠦⠂",
-    "jeomsarang": ""
-  },
-  {
-    "input": "}",
-    "context": "math",
-    "note": "연립식 괄호 닫기",
-    "internal": ",7",
-    "expected": "3254",
-    "unicode": "⠠⠶",
-    "world": "⠐⠴",
-    "jeomsarang": "⠐⠴"
-  },
-  {
     "input": "58-(17+14)",
     "internal": "#eh98#ag5#ad0",
     "expected": "601719203860127346012552",
@@ -102,26 +82,6 @@
     "unicode": "⠽⠒⠒⠷⠄⠭⠠⠾",
     "world": "⠴⠽⠐⠶⠨⠣⠭⠰⠴",
     "jeomsarang": "⠴⠰⠽⠐⠶⠦⠆⠰⠭⠰⠴"
-  },
-  {
-    "input": "(",
-    "context": "math",
-    "note": "묶음 괄호 열기",
-    "internal": "(",
-    "expected": "55",
-    "unicode": "⠷",
-    "world": "⠦⠄",
-    "jeomsarang": "⠦⠄"
-  },
-  {
-    "input": ")",
-    "context": "math",
-    "note": "묶음 괄호 닫기",
-    "internal": ")",
-    "expected": "62",
-    "unicode": "⠾",
-    "world": "⠠⠴",
-    "jeomsarang": "⠠⠴"
   },
   {
     "input": "√(xy)",

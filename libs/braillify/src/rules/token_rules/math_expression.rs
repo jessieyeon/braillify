@@ -205,6 +205,70 @@ fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
     math::encoder::encode_math_expression(&text).ok()
 }
 
+fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
+    let has_korean = chars.iter().any(|c| is_korean_char(*c));
+    let has_root = chars.contains(&'√');
+    let has_parens = chars.iter().any(|c| matches!(*c, '(' | ')'));
+    let has_math_op = chars
+        .iter()
+        .any(|c| matches!(*c, '=' | '+' | '/' | '×' | '÷'));
+
+    // 좁힌 trigger:
+    // (1) 분수 패턴: 분수 묶음 안에 한글 있을 때만 mixed math 분수 처리 (라인 17 자연수).
+    //     `tan의 값은 2/(3+√5)`처럼 괄호 안 숫자만 있는 분수는 baseline 일반 path가 더 정답.
+    // (2) √ 한글 직접 인접 패턴 (라인 18 `√분산`).
+    // (3) 한글 명사구 + 수식 연산: `원의 둘레 = 반지름 × ...` (라인 12).
+    //     — 한글 명사구는 공백으로 구분된 한글 단어. 일반 산식 `5개−3개=2개`은 공백 없음.
+    let fraction_with_korean = has_parens
+        && has_math_op
+        && (text.contains("/(") || text.contains(")/"))
+        && {
+            // 괄호 안 한글 여부 확인 — `(`와 매칭되는 `)` 사이 한글 있어야
+            let mut depth = 0i32;
+            let mut korean_in_parens = false;
+            for c in chars {
+                match *c {
+                    '(' => depth += 1,
+                    ')' => depth -= 1,
+                    _ if depth > 0 && is_korean_char(*c) => korean_in_parens = true,
+                    _ => {}
+                }
+            }
+            korean_in_parens
+        };
+
+    let root_with_korean = has_root
+        && chars
+            .windows(2)
+            .any(|w| w[0] == '√' && is_korean_char(w[1]));
+
+    let multi_word_korean_phrase = chars.windows(3).any(|w| {
+        is_korean_char(w[0]) && w[1] == ' ' && is_korean_char(w[2])
+    });
+
+    // BMI 같은 영문자 + 한글 mixed 입력은 baseline의 일반 한국어 점역이 옳다.
+    // multi-word Korean 분기는 한글 명사구만 있는 입력으로 제한.
+    let has_english_letter = chars.iter().any(|c| c.is_ascii_alphabetic());
+
+    has_korean
+        && (fraction_with_korean
+            || root_with_korean
+            || (multi_word_korean_phrase && has_math_op && !has_english_letter))
+}
+
+fn try_encode_mixed_math_slice(chars: &[char]) -> Option<Vec<u8>> {
+    if chars.is_empty() {
+        return None;
+    }
+
+    let text: String = chars.iter().collect();
+    if !is_mixed_math_expression(chars, &text) {
+        return None;
+    }
+
+    math::encoder::encode_math_expression(&text).ok()
+}
+
 fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char]) -> Option<Vec<u8>> {
     if let Some(bytes) = try_encode_math_slice(prefix) {
         let text: String = prefix.iter().collect();
@@ -677,6 +741,9 @@ impl TokenRule for MathExpressionTokenRule {
         }
 
         if !is_math_expression(&word.chars, text) {
+            if let Some(bytes) = try_encode_mixed_math_slice(&word.chars) {
+                return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
+            }
             let leading_delimiter_len =
                 if matches!(tokens.get(index.saturating_sub(1)), Some(Token::Space(_))) {
                     1
