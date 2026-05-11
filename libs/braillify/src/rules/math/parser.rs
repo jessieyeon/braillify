@@ -525,29 +525,50 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             continue;
         }
 
-        // Digits
+        // Digits (with optional repeating-decimal dot-above marks).
+        //
+        // PDF 수학 제8항 2.: 순환마디의 점은 ⠈으로 적되, 순환마디 앞에만 적는다.
+        // 묵자 표기에서 순환마디는 양 끝 자리 위에 dot(̇, U+0307)을 붙인다
+        // (1자리면 그 자리 하나, 다자리면 시작과 끝 두 자리). 알고리즘:
+        //   - 첫 dot이 등장한 자리 = 순환마디 시작
+        //   - 마지막 dot이 등장한 자리 = 순환마디 끝
+        //   - prefix(첫 dot 직전까지) emit → dot marker(⠈) emit
+        //   - 순환마디(첫~마지막 dot) emit → suffix(마지막 dot 이후) emit
         if c.is_ascii_digit() {
             let mut num = String::new();
-            while i < chars.len() && chars[i].is_ascii_digit() {
-                num.push(chars[i]);
-                i += 1;
+            let mut first_dot: Option<usize> = None;
+            let mut last_dot: Option<usize> = None;
+            while i < chars.len() {
+                if chars[i].is_ascii_digit() {
+                    num.push(chars[i]);
+                    i += 1;
+                } else if chars[i] == '\u{0307}' {
+                    if !num.is_empty() {
+                        let pos = num.len() - 1;
+                        if first_dot.is_none() {
+                            first_dot = Some(pos);
+                        }
+                        last_dot = Some(pos);
+                    }
+                    i += 1;
+                } else {
+                    break;
+                }
             }
-            if i < chars.len() && chars[i] == '\u{0307}' {
-                // Repeating-decimal mark after trailing digit.
-                // Most forms repeat from the first digit; keep one compatibility
-                // split for 0.739̇ style notation from testcase corpus.
-                let split_idx = if num == "739" { 1 } else { 0 };
-                if split_idx > 0 {
-                    tokens.push(MathToken::Number(num[..split_idx].to_string()));
+            match (first_dot, last_dot) {
+                (Some(start), Some(end)) => {
+                    if start > 0 {
+                        tokens.push(MathToken::Number(num[..start].to_string()));
+                    }
+                    tokens.push(MathToken::MathSymbol('\u{0307}'));
+                    tokens.push(MathToken::Number(num[start..=end].to_string()));
+                    if end + 1 < num.len() {
+                        tokens.push(MathToken::Number(num[end + 1..].to_string()));
+                    }
                 }
-                tokens.push(MathToken::MathSymbol('\u{0307}'));
-                let repeat_part = &num[split_idx..];
-                if !repeat_part.is_empty() {
-                    tokens.push(MathToken::Number(repeat_part.to_string()));
+                _ => {
+                    tokens.push(MathToken::Number(num));
                 }
-                i += 1;
-            } else {
-                tokens.push(MathToken::Number(num));
             }
             continue;
         }

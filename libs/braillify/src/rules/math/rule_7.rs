@@ -8,6 +8,9 @@ use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, 
 use super::{rule_1, rule_12, rule_6};
 
 /// 분수 기호형 슬래시(_/)를 써야 하는 문맥인지 판별한다.
+///
+/// PDF 수학 제7항: 숫자 분자/분모로 구성된 N/M 분수는 분수 기호형(_/)로 적는다.
+/// 알파벳 대문자(예: A/B) 분수도 동일.
 pub fn slash_as_fraction_symbol(tokens: &[MathToken], i: usize) -> bool {
     let left = tokens.get(i.saturating_sub(1));
     let right = tokens.get(i + 1);
@@ -21,7 +24,8 @@ pub fn slash_as_fraction_symbol(tokens: &[MathToken], i: usize) -> bool {
     ) || matches!(
         (left, right),
         (Some(MathToken::Number(l)), Some(MathToken::Number(r)))
-            if (l == "2" && r == "3") || (l == "1" && r == "2")
+            if l.chars().all(|c| c.is_ascii_digit())
+                && r.chars().all(|c| c.is_ascii_digit())
     )
 }
 

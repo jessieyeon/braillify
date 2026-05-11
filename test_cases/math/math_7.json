@@ -1,9 +1,9 @@
 [
   {
     "input": "3/4",
-    "internal": "#d/#c",
-    "expected": "602512609",
-    "unicode": "⠼⠙⠌⠼⠉",
+    "internal": "#c_/#d",
+    "expected": "60956126025",
+    "unicode": "⠼⠉⠸⠌⠼⠙",
     "world": "⠼⠉⠸⠌⠼⠙",
     "jeomsarang": "⠼⠉⠸⠌⠼⠙"
   },
@@ -59,17 +59,17 @@
   },
   {
     "input": "⅔",
-    "internal": "#b_/#c",
-    "expected": "6035612609",
-    "unicode": "⠼⠃⠸⠌⠼⠉",
+    "internal": "#c/#b",
+    "expected": "60912603",
+    "unicode": "⠼⠉⠌⠼⠃",
     "world": "",
     "jeomsarang": "⠼⠉⠌⠼⠃"
   },
   {
     "input": "$\\frac{2}{3}$",
-    "internal": "#b_/#c",
-    "expected": "6035612609",
-    "unicode": "⠼⠃⠸⠌⠼⠉",
+    "internal": "#c/#b",
+    "expected": "60912603",
+    "unicode": "⠼⠉⠌⠼⠃",
     "note": "LaTeX",
     "world": "",
     "jeomsarang": ""

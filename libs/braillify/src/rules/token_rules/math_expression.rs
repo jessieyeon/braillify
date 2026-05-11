@@ -411,14 +411,15 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         return false;
     }
 
-    // Slash-only numeric tokens are often dates/ranges; keep only simple 1-digit fractions as math.
+    // Slash-only numeric tokens: 2-part (N/M) is a fraction expression for any digit count;
+    // 3-or-more parts (e.g. 2024/12/31) is a date/range and stays non-math.
     if !has_letters && chars.contains(&'/') && chars.iter().all(|c| c.is_ascii_digit() || *c == '/')
     {
         let parts: Vec<&str> = text.split('/').collect();
         if parts.len() == 2
             && parts
                 .iter()
-                .all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()) && p.len() == 1)
+                .all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
         {
             return true;
         }

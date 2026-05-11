@@ -1,9 +1,9 @@
 [
   {
     "input": "3/4",
-    "internal": "#d/#c",
-    "expected": "602512609",
-    "unicode": "⠼⠙⠌⠼⠉",
+    "internal": "#c_/#d",
+    "expected": "60956126025",
+    "unicode": "⠼⠉⠸⠌⠼⠙",
     "world": "⠼⠉⠸⠌⠼⠙",
     "jeomsarang": "⠼⠉⠸⠌⠼⠙"
   },

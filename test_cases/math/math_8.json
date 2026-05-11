@@ -41,7 +41,7 @@
     "jeomsarang": ""
   },
   {
-    "input": "0.739̇",
+    "input": "0.73̇9̇",
     "internal": "#j4g@ci",
     "expected": "602650278910",
     "unicode": "⠼⠚⠲⠛⠈⠉⠊",
@@ -49,7 +49,7 @@
     "jeomsarang": "⠼⠚⠲⠛⠉⠊⠀"
   },
   {
-    "input": "$\\0.73\\dot{9}$",
+    "input": "$\\0.7\\dot{3}\\dot{9}$",
     "internal": "#j4g@ci",
     "expected": "602650278910",
     "unicode": "⠼⠚⠲⠛⠈⠉⠊",
@@ -58,7 +58,7 @@
     "jeomsarang": ""
   },
   {
-    "input": "0.123̇",
+    "input": "0.1̇23̇",
     "internal": "#j4@abc",
     "expected": "6026508139",
     "unicode": "⠼⠚⠲⠈⠁⠃⠉",
@@ -66,7 +66,7 @@
     "jeomsarang": "⠼⠚⠲⠁⠃⠉⠀"
   },
   {
-    "input": "$\\0.12\\dot{3}$",
+    "input": "$\\0.\\dot{1}2\\dot{3}$",
     "internal": "#j4@abc",
     "expected": "6026508139",
     "unicode": "⠼⠚⠲⠈⠁⠃⠉",
