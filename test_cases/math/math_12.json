@@ -1,7 +1,7 @@
 [
   {
     "input": "a",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 a",
     "internal": "0a",
     "expected": "521",
@@ -11,7 +11,7 @@
   },
   {
     "input": "b",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 b",
     "internal": "0b",
     "expected": "523",
@@ -21,7 +21,7 @@
   },
   {
     "input": "c",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 c",
     "internal": "0c",
     "expected": "529",
@@ -31,7 +31,7 @@
   },
   {
     "input": "d",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 d",
     "internal": "0d",
     "expected": "5225",
@@ -41,7 +41,7 @@
   },
   {
     "input": "e",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 e",
     "internal": "0e",
     "expected": "5217",
@@ -51,7 +51,7 @@
   },
   {
     "input": "f",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 f",
     "internal": "0f",
     "expected": "5211",
@@ -61,7 +61,7 @@
   },
   {
     "input": "g",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 g",
     "internal": "0g",
     "expected": "5227",
@@ -71,7 +71,7 @@
   },
   {
     "input": "h",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 h",
     "internal": "0h",
     "expected": "5219",
@@ -81,7 +81,7 @@
   },
   {
     "input": "i",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 i",
     "internal": "0i",
     "expected": "5210",
@@ -91,7 +91,7 @@
   },
   {
     "input": "j",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 j",
     "internal": "0j",
     "expected": "5226",
@@ -101,7 +101,7 @@
   },
   {
     "input": "k",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 k",
     "internal": "0k",
     "expected": "525",
@@ -111,7 +111,7 @@
   },
   {
     "input": "l",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 l",
     "internal": "0l",
     "expected": "527",
@@ -121,7 +121,7 @@
   },
   {
     "input": "m",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 m",
     "internal": "0m",
     "expected": "5213",
@@ -131,7 +131,7 @@
   },
   {
     "input": "n",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 n",
     "internal": "0n",
     "expected": "5229",
@@ -141,7 +141,7 @@
   },
   {
     "input": "o",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 o",
     "internal": "0o",
     "expected": "5221",
@@ -151,7 +151,7 @@
   },
   {
     "input": "p",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 p",
     "internal": "0p",
     "expected": "5215",
@@ -161,7 +161,7 @@
   },
   {
     "input": "q",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 q",
     "internal": "0q",
     "expected": "5231",
@@ -171,7 +171,7 @@
   },
   {
     "input": "r",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 r",
     "internal": "0r",
     "expected": "5223",
@@ -181,7 +181,7 @@
   },
   {
     "input": "s",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 s",
     "internal": "0s",
     "expected": "5214",
@@ -191,7 +191,7 @@
   },
   {
     "input": "t",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 t",
     "internal": "0t",
     "expected": "5230",
@@ -201,7 +201,7 @@
   },
   {
     "input": "u",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 u",
     "internal": "0u",
     "expected": "5237",
@@ -211,7 +211,7 @@
   },
   {
     "input": "v",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 v",
     "internal": "0v",
     "expected": "5239",
@@ -221,7 +221,7 @@
   },
   {
     "input": "w",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 w",
     "internal": "0w",
     "expected": "5258",
@@ -231,7 +231,7 @@
   },
   {
     "input": "x",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 x",
     "internal": "0x",
     "expected": "5245",
@@ -241,7 +241,7 @@
   },
   {
     "input": "y",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 y",
     "internal": "0y",
     "expected": "5261",
@@ -251,7 +251,7 @@
   },
   {
     "input": "z",
-    "context": "math_letter",
+    "context": "math",
     "note": "로마자 z",
     "internal": "0z",
     "expected": "5253",

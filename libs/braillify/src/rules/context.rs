@@ -19,6 +19,23 @@ pub enum EncodingMode {
     MiddleKorean,
 }
 
+impl std::str::FromStr for EncodingMode {
+    type Err = ();
+
+    /// Parse testcase JSON `context` field (e.g. "math") into an `EncodingMode`.
+    /// Unknown context strings (including "" and ad-hoc metadata like "strip_prefix:…")
+    /// return `Err`, which the caller treats as "no explicit mode" → default encoding.
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "korean" => Ok(Self::Korean),
+            "english" => Ok(Self::English),
+            "math" => Ok(Self::Math),
+            "middle_korean" => Ok(Self::MiddleKorean),
+            _ => Err(()),
+        }
+    }
+}
+
 /// Persistent state that survives across characters and words.
 ///
 /// Tracks modal state like "are we currently in English mode?"

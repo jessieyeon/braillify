@@ -1,7 +1,7 @@
 [
   {
     "input": "(",
-    "context": "math_bracket_open",
+    "context": "math",
     "note": "소괄호 열기",
     "internal": "8",
     "expected": "38",
@@ -11,7 +11,7 @@
   },
   {
     "input": ")",
-    "context": "math_bracket_close",
+    "context": "math",
     "note": "소괄호 닫기",
     "internal": "0",
     "expected": "52",
@@ -21,7 +21,7 @@
   },
   {
     "input": "{",
-    "context": "math_bracket_open",
+    "context": "math",
     "note": "중괄호 열기",
     "internal": "7",
     "expected": "54",
@@ -31,7 +31,7 @@
   },
   {
     "input": "}",
-    "context": "math_bracket_close",
+    "context": "math",
     "note": "중괄호 닫기",
     "internal": "7",
     "expected": "54",
@@ -41,7 +41,7 @@
   },
   {
     "input": "[",
-    "context": "math_bracket_open",
+    "context": "math",
     "note": "대괄호 열기",
     "internal": "('",
     "expected": "554",
@@ -51,7 +51,7 @@
   },
   {
     "input": "]",
-    "context": "math_bracket_close",
+    "context": "math",
     "note": "대괄호 닫기",
     "internal": ",)",
     "expected": "3262",
@@ -61,7 +61,7 @@
   },
   {
     "input": "{",
-    "context": "math_system_bracket_open",
+    "context": "math",
     "note": "연립식 괄호 열기",
     "internal": "7'",
     "expected": "544",
@@ -71,7 +71,7 @@
   },
   {
     "input": "}",
-    "context": "math_system_bracket_close",
+    "context": "math",
     "note": "연립식 괄호 닫기",
     "internal": ",7",
     "expected": "3254",
@@ -105,7 +105,7 @@
   },
   {
     "input": "(",
-    "context": "math_group_open",
+    "context": "math",
     "note": "묶음 괄호 열기",
     "internal": "(",
     "expected": "55",
@@ -115,7 +115,7 @@
   },
   {
     "input": ")",
-    "context": "math_group_close",
+    "context": "math",
     "note": "묶음 괄호 닫기",
     "internal": ")",
     "expected": "62",
@@ -149,7 +149,7 @@
     "jeomsarang": "⠏⠒⠺⠀⠊⠯⠐⠝⠀⠒⠒⠀⠘⠒⠨⠕⠐⠪⠢⠀⠡⠀⠼⠃⠀⠡⠀⠼⠉⠲⠁⠙"
   },
   {
-    "input": "(자연수+자연수)/(자연수×자연수)=(1+2)/(1×2)",
+    "input": "(자연수×자연수)/(자연수+자연수)=(1×2)/(1+2)",
     "note": "붙임: 한글표 _( _)로 묶은 수식",
     "internal": "_(.<*,m`5`.<*,m_)/_(.<*,m`*`.<*,m_)33(#a5#b)/(#a*#b)",
     "expected": "565540353332130340403533321356621256554035333213033040353332135662181855601346036212556013360362",

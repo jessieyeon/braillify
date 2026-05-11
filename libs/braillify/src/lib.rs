@@ -538,23 +538,19 @@ mod test {
                         line_num, filename
                     )
                 });
-                // PDF 규정상 math context는 record metadata가 명시 (input만으로는 모호 ─
-                // 단일 영문자 "a"가 일반 영자인지 수학 변수인지 등). 옛 한글(중세 국어)은
-                // input 안 옛 자모/한자 자체로 자동 detect되므로 mode 옵션 불필요 ─
-                // production encode()의 token rule (middle_korean_detector)이 처리.
-                // math/math_letter/math_bracket_*/math_group_*/math_system_bracket_*/
-                // roman_numeral은 모두 수학 점자 영역이므로 단일 분기로 통합.
-                let is_math_context =
-                    context == "math" || context.starts_with("math_") || context == "roman_numeral";
-                let encoding_result = if is_math_context {
-                    encode_with_options(
+                // testcase JSON `context` 필드는 `EncodingMode` enum과 1:1 매핑.
+                // input만으로는 모호한 케이스(예: 영문자 "a"가 일반 영자인지 수학 변수인지)는
+                // testcase가 mode를 명시한다. 옛 한글(중세국어)은 input 안 옛 자모/한자가
+                // 자동 detect되므로 production encode()의 token rule이 처리한다.
+                // 알 수 없는 context (빈 값/ad-hoc 메타데이터)는 default 인코딩 사용.
+                let encoding_result = match context.parse::<crate::rules::context::EncodingMode>() {
+                    Ok(mode) => encode_with_options(
                         input,
                         &EncodeOptions {
-                            default_mode: Some(crate::rules::context::EncodingMode::Math),
+                            default_mode: Some(mode),
                         },
-                    )
-                } else {
-                    encode(input)
+                    ),
+                    Err(_) => encode(input),
                 };
 
                 match encoding_result {
