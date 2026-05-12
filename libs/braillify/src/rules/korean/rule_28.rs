@@ -148,9 +148,6 @@ impl BrailleRule for Rule28 {
             && (is_whole_lowercase_word || is_title_case_word)
             && let Some(cells) = rule_en_10_5_whole_word(&remaining)
         {
-            if is_title_case_word {
-                ctx.emit(32u8); // ⠠ 대문자 표시
-            }
             ctx.emit_slice(cells);
             *ctx.skip_count = ctx.word_len().saturating_sub(1);
             ctx.state.is_english = true;

@@ -56,9 +56,11 @@ pub(crate) fn should_request_continuation(symbol: char) -> bool {
     )
 }
 
-/// 제33항 [다만] : '/', '-', '~' 앞에는 종료표를 강제로 붙인다.
+/// 제33항 [다만] : '/', '~' 앞에는 종료표를 강제로 붙인다.
+/// '-'는 PDF 제35항 적용 — 로마자+숫자가 이어지는 컨텍스트(예: D-100)에서는
+/// 종료표를 적지 않는다. `-` 자체가 영어 문맥의 일부로 처리.
 pub(crate) fn should_force_terminator_before_symbol(symbol: char) -> bool {
-    matches!(symbol, '/' | '-' | '~' | '∼')
+    matches!(symbol, '/' | '~' | '∼')
 }
 
 /// 영어 점자 전용 기호인지 확인.[외국어 점자 일람표의 문장 부호 참고]
