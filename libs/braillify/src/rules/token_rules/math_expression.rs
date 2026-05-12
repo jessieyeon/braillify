@@ -158,37 +158,6 @@ fn is_rule_68_compact_notation(chars: &[char]) -> bool {
             .any(|c| is_superscript(*c) || is_subscript(*c))
 }
 
-fn should_wrap_math_sentence(chars: &[char], text: &str) -> bool {
-    if chars.len() <= 1 {
-        return false;
-    }
-
-    let has_letters = chars.iter().any(|c| c.is_ascii_alphabetic());
-    let has_digits = chars.iter().any(|c| c.is_ascii_digit());
-    let has_math_symbol = chars
-        .iter()
-        .any(|c| math_symbol_shortcut::is_math_symbol_char(*c));
-    let has_superscript = chars.iter().any(|c| is_superscript(*c));
-    let has_subscript = chars.iter().any(|c| is_subscript(*c));
-    let has_combining_mark = chars.iter().any(|c| is_combining_math_mark(*c));
-    let has_math_operator = chars.iter().any(|c| {
-        matches!(
-            c,
-            '+' | '=' | '>' | '<' | '.' | ',' | '-' | '\u{2212}' | '/' | '!'
-        )
-    });
-    let has_brackets = chars
-        .iter()
-        .any(|c| matches!(c, '(' | ')' | '[' | ']' | '{' | '}'));
-
-    is_strong_mixed_math_candidate(chars, text)
-        || (has_digits && (has_math_operator || has_math_symbol || has_brackets))
-        || (has_letters && has_digits)
-        || (has_letters && has_brackets)
-        || (has_letters && has_math_operator)
-        || (has_superscript || has_subscript || has_combining_mark)
-}
-
 fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
     if chars.is_empty() || chars.iter().any(|c| is_korean_char(*c)) {
         return None;

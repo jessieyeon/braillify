@@ -111,6 +111,13 @@ impl CharType {
         if (0x0300..=0x036F).contains(&code) {
             return Ok(Self::CombiningMark);
         }
+        // Combining Diacritical Marks for Symbols (U+20D0–U+20FF),
+        // includes U+20DE COMBINING ENCLOSING SQUARE which 제64항 attaches to a
+        // preceding character. Rule 64 handles the wrap; the standalone mark
+        // is consumed as a formatting annotation (제56항 path).
+        if (0x20D0..=0x20FF).contains(&code) {
+            return Ok(Self::CombiningMark);
+        }
         if (0x3131..=0x318E).contains(&code) {
             return Ok(Self::KoreanPart(c));
         }
