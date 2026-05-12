@@ -38,9 +38,20 @@ bun test test_cases/         # 테스트케이스 무결성 검증만
   "note": "설명 (선택, 동일 input이 여럿이거나 맥락 필요 시에만)",
   "internal": "점자 내부표기",
   "expected": "브라유셀 인덱스 연결 문자열",
-  "unicode": "점자 유니코드 문자열"
+  "unicode": "점자 유니코드 문자열",
+  "world": "경쟁사(World) 점역 결과 (참고용, 수정 금지)",
+  "jeomsarang": "경쟁사(점사랑) 점역 결과 (참고용, 수정 금지)"
 }
 ```
+
+### ⚠️ `world` / `jeomsarang` 필드 — 경쟁사 benchmark (NEVER MODIFY, NEVER COMPARE)
+
+- `world`, `jeomsarang`은 **타 업체 점역 프로그램의 결과**를 그대로 보존한 참고용 필드다.
+- **braillify의 정답이 아니다.** braillify의 정답은 오직 `unicode` (= `expected`)이며, PDF 규정에 근거한다.
+- **절대로 수정하지 않는다.** input/internal을 정정하더라도 `world`/`jeomsarang`은 원본 그대로 둔다.
+- **testcase 검수의 기준으로 사용하지 않는다.** `world`/`jeomsarang`이 우리 `unicode`와 다르더라도 testcase 오류 근거가 아니며, 그것들이 틀린 것은 braillify와 무관하다.
+- **인코더 정답 비교 대상이 아니다.** `cargo test test_by_testcase`는 인코더 결과를 `expected`/`unicode`와만 비교한다.
+- 이 필드의 존재 의도는 외부 점역 결과와의 차이를 관찰하기 위한 **읽기 전용 비교 자료**이지, 별도 지표가 되어서는 안 된다.
 
 ### internal → expected/unicode 변환
 
