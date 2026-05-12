@@ -760,18 +760,13 @@ impl TokenRule for MathExpressionTokenRule {
         // Try to encode via math engine
         match math::encoder::encode_math_expression(text) {
             Ok(bytes) => {
-                let (prev_has_korean, next_has_korean) = adjacent_korean_word_flags(tokens, index);
-                let should_wrap = should_wrap_math_sentence(&word.chars, text);
-                let mut wrapped = Vec::with_capacity(
-                    bytes.len()
-                        + usize::from(prev_has_korean && should_wrap)
-                        + usize::from(next_has_korean && should_wrap),
-                );
+                let (prev_has_korean, _next_has_korean) =
+                    adjacent_korean_word_flags(tokens, index);
+                let mut wrapped = Vec::with_capacity(bytes.len() + 2);
 
-                if prev_has_korean && should_wrap {
-                    wrapped.push(0);
-                }
-
+                // 특수 패턴(증분 + 등호 + 다항식 조합)에만 prefix space 두 칸 추가.
+                // 일반적인 한글 + math 인접 케이스는 Token::Space가 단일 공백을 처리하므로
+                // 추가 prefix/suffix space를 emit하지 않는다.
                 if !prev_has_korean
                     && text.contains('\u{2206}')
                     && text.contains('=')
@@ -782,9 +777,6 @@ impl TokenRule for MathExpressionTokenRule {
                 }
 
                 wrapped.extend_from_slice(&bytes);
-                if next_has_korean && should_wrap {
-                    wrapped.push(0);
-                }
 
                 Ok(TokenAction::Replace(Token::PreEncoded(wrapped)))
             }
