@@ -135,11 +135,22 @@ impl BrailleRule for Rule28 {
             ctx.state.needs_english_continuation = false;
             return Ok(RuleResult::Consumed);
         }
+        // Title case word ("Part", "Every") 도 whole-word contraction을 적용한다.
+        // 모두 소문자 → contraction만 emit; 첫 대문자 + 나머지 소문자 → ⠠(대문자 표시) + contraction.
+        // 모두 대문자(CD, KBS 등)는 약자 자체이므로 contraction 적용 안 함.
+        let is_title_case_word = ctx.index == 0
+            && !ctx.is_all_uppercase
+            && ctx.word_chars.first().is_some_and(|ch| ch.is_ascii_uppercase())
+            && ctx.word_chars.iter().skip(1).all(|ch| ch.is_ascii_lowercase())
+            && ctx.word_chars.len() >= 2;
         if ctx.index == 0
             && !ctx.is_all_uppercase
-            && is_whole_lowercase_word
+            && (is_whole_lowercase_word || is_title_case_word)
             && let Some(cells) = rule_en_10_5_whole_word(&remaining)
         {
+            if is_title_case_word {
+                ctx.emit(32u8); // ⠠ 대문자 표시
+            }
             ctx.emit_slice(cells);
             *ctx.skip_count = ctx.word_len().saturating_sub(1);
             ctx.state.is_english = true;

@@ -64,6 +64,7 @@ static ENGLISH_WHOLE_WORD_MAP_10_5: phf::Map<&'static str, &'static [u8]> = phf_
     "rather" => &[decode_unicode('⠗'), decode_unicode('⠁'), decode_unicode('⠮'), decode_unicode('⠗')],
     "enough" => &[decode_unicode('⠢'), decode_unicode('⠳'), decode_unicode('⠣')],
     "were" => &[decode_unicode('⠺'), decode_unicode('⠻'), decode_unicode('⠑')],
+    "part" => &[decode_unicode('⠐'), decode_unicode('⠏')],
 };
 
 pub fn rule_en_10_5_whole_word(word: &str) -> Option<&'static [u8]> {
