@@ -17,9 +17,9 @@
   },
   {
     "input": "b",
-    "internal": "0b",
-    "expected": "523",
-    "unicode": "⠴⠃",
+    "internal": "b",
+    "expected": "3",
+    "unicode": "⠃",
     "world": "⠴⠃⠲",
     "jeomsarang": "⠴⠃"
   },

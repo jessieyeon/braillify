@@ -89,9 +89,9 @@
   },
   {
     "input": "파리",
-    "internal": "d\"o",
-    "expected": "251621",
-    "unicode": "⠙⠐⠕",
+    "internal": "do\"o",
+    "expected": "25211621",
+    "unicode": "⠙⠕⠐⠕",
     "world": "⠙⠐⠕",
     "jeomsarang": "⠙⠐⠕"
   },

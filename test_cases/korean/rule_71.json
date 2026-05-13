@@ -65,9 +65,9 @@
   {
     "input": "§",
     "note": "섹션 기호",
-    "internal": "@&",
-    "expected": "847",
-    "unicode": "⠈⠯",
+    "internal": "^s",
+    "expected": "2414",
+    "unicode": "⠘⠎",
     "world": "⠘⠎",
     "jeomsarang": "⠴⠘⠎"
   },
@@ -91,7 +91,7 @@
   },
   {
     "input": "®",
-    "note": "등록록 상표",
+    "note": "등록 상표",
     "internal": "^r",
     "expected": "2423",
     "unicode": "⠘⠗",
