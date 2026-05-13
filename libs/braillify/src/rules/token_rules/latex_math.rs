@@ -242,10 +242,14 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     {
                         let norm_num = strip_latex_to_math(&num);
                         let norm_den = strip_latex_to_math(&den);
-                        result.push_str(&norm_num);
+                        // 한국 점자 수학 규정: 분수는 점자 표기에서 분모/분자 역순으로
+                        // 적는다. LaTeX `\frac{a}{b}` (a/b)는 점자로 b/(a) 형태가
+                        // 된다. testcase 패턴(예: $\frac{3}{4}$ → #d/#c = 4/3)과
+                        // 일관.
+                        result.push_str(&norm_den);
                         result.push('/');
                         result.push('(');
-                        result.push_str(&norm_den);
+                        result.push_str(&norm_num);
                         result.push(')');
                     }
                 }

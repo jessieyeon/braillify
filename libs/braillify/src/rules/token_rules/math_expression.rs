@@ -714,12 +714,18 @@ impl TokenRule for MathExpressionTokenRule {
             if let Some(bytes) = try_encode_mixed_math_slice(&word.chars) {
                 return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
             }
-            let leading_delimiter_len =
-                if matches!(tokens.get(index.saturating_sub(1)), Some(Token::Space(_))) {
-                    1
-                } else {
-                    2
-                };
+            // 제11항: 한글 문장 안의 수학적 표기는 앞뒤를 두 칸씩 띄어 쓴다.
+            // 다만 문서의 맨 앞(index == 0)에서는 앞쪽 띄어쓰기를 생략한다.
+            // - index == 0          → 0칸 (leading space 없음)
+            // - 이전 토큰이 Space    → 1칸 추가 (기존 1칸 + 새 1칸 = 2칸)
+            // - 그 외 (content)     → 2칸 (경계 표시)
+            let leading_delimiter_len = if index == 0 {
+                0
+            } else if matches!(tokens.get(index - 1), Some(Token::Space(_))) {
+                1
+            } else {
+                2
+            };
             if let Some(replacement) = split_mixed_math_word(word, leading_delimiter_len) {
                 return Ok(TokenAction::ReplaceMany(replacement));
             }
@@ -736,7 +742,9 @@ impl TokenRule for MathExpressionTokenRule {
                 // 특수 패턴(증분 + 등호 + 다항식 조합)에만 prefix space 두 칸 추가.
                 // 일반적인 한글 + math 인접 케이스는 Token::Space가 단일 공백을 처리하므로
                 // 추가 prefix/suffix space를 emit하지 않는다.
-                if !prev_has_korean
+                // 문서 맨 앞(index == 0)에서는 제11조에 따라 leading 띄어쓰기를 생략한다.
+                if index != 0
+                    && !prev_has_korean
                     && text.contains('\u{2206}')
                     && text.contains('=')
                     && text.contains(")+(")
