@@ -203,7 +203,7 @@
     "input": "〈",
     "internal": "\"7",
     "expected": "1654",
-    "unicode": "⠐⠶⠀",
+    "unicode": "⠐⠶",
     "world": "⠐⠶",
     "jeomsarang": "⠐⠶"
   },
@@ -227,7 +227,7 @@
     "input": "-",
     "internal": "-",
     "expected": "36",
-    "unicode": "⠤⠀",
+    "unicode": "⠤",
     "world": "⠤",
     "jeomsarang": "⠤"
   },
