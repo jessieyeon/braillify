@@ -154,14 +154,38 @@ fn is_math_span_char(c: char) -> bool {
         || c.is_ascii_alphanumeric()
         || matches!(
             c,
-            '=' | '+' | '-' | '\u{2212}' | '×' | '÷' | '/' | '√' | '(' | ')' | '[' | ']' | '{'
-                | '}' | ',' | '.' | '!' | '<' | '>' | ':' | ';' | '\'' | '"'
+            '=' | '+'
+                | '-'
+                | '\u{2212}'
+                | '×'
+                | '÷'
+                | '/'
+                | '√'
+                | '('
+                | ')'
+                | '['
+                | ']'
+                | '{'
+                | '}'
+                | ','
+                | '.'
+                | '!'
+                | '<'
+                | '>'
+                | ':'
+                | ';'
+                | '\''
+                | '"'
         )
 }
 
 fn has_math_trigger(text: &str) -> bool {
-    text.chars().any(|c| matches!(c, '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')'))
-        || text.contains("...")
+    text.chars().any(|c| {
+        matches!(
+            c,
+            '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')'
+        )
+    }) || text.contains("...")
 }
 
 fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> {
@@ -187,7 +211,10 @@ fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> 
 
         for ch in word.chars() {
             saw_korean |= is_korean_char(ch);
-            saw_trigger |= matches!(ch, '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')');
+            saw_trigger |= matches!(
+                ch,
+                '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')'
+            );
             match ch {
                 '(' => paren_balance += 1,
                 ')' => paren_balance -= 1,

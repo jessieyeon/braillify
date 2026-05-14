@@ -249,6 +249,7 @@
   },
   {
     "input": "○",
+    "context": "object_symbol",
     "internal": "_0l",
     "expected": "56527",
     "unicode": "⠸⠴⠇",
@@ -257,6 +258,7 @@
   },
   {
     "input": "×",
+    "context": "object_symbol",
     "internal": "_xl",
     "expected": "56457",
     "unicode": "⠸⠭⠇",
@@ -265,6 +267,7 @@
   },
   {
     "input": "△",
+    "context": "object_symbol",
     "internal": "_+l",
     "expected": "56447",
     "unicode": "⠸⠬⠇",
@@ -273,6 +276,7 @@
   },
   {
     "input": "□",
+    "context": "object_symbol",
     "internal": "_7l",
     "expected": "56547",
     "unicode": "⠸⠶⠇",

@@ -638,7 +638,8 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                         group.kind
                     };
 
-                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index) {
+                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index)
+                    {
                         *open_kind = resolved_kind;
                     }
                     resolved_kind
@@ -662,7 +663,9 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                 continue;
             }
             ']' => {
-                let kind = bracket_stack.pop().map_or(BracketKind::Square, |group| group.kind);
+                let kind = bracket_stack
+                    .pop()
+                    .map_or(BracketKind::Square, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
@@ -680,7 +683,9 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                 continue;
             }
             '}' => {
-                let kind = bracket_stack.pop().map_or(BracketKind::Curly, |group| group.kind);
+                let kind = bracket_stack
+                    .pop()
+                    .map_or(BracketKind::Curly, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;

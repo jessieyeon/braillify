@@ -123,6 +123,9 @@ impl Encoder {
         ));
         token_engine.register(Box::new(rules::token_rules::spacing::AsteriskSpacingRule));
         token_engine.register(Box::new(
+            rules::token_rules::spacing::KoreanAuxiliaryVerbSpacingRule,
+        ));
+        token_engine.register(Box::new(
             rules::token_rules::english_dominant_korean_wrap::EnglishDominantKoreanWrapRule,
         ));
 

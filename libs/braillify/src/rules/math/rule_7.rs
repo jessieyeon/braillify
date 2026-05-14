@@ -5,7 +5,7 @@
 use crate::rules::math::parser::MathToken;
 
 use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
-use super::{rule_1, rule_12, rule_6};
+use super::{rule_1, rule_6, rule_12};
 
 /// 분수 기호형 슬래시(_/)를 써야 하는 문맥인지 판별한다.
 ///
@@ -44,8 +44,9 @@ impl MathTokenRule for GroupedFractionReversalRule {
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
         matches!(tokens.get(index), Some(MathToken::OpenParen(_)))
-            && rule_6::find_matching_paren(tokens, index)
-                .is_some_and(|close| matches!(tokens.get(close + 1), Some(MathToken::Operator('/'))))
+            && rule_6::find_matching_paren(tokens, index).is_some_and(|close| {
+                matches!(tokens.get(close + 1), Some(MathToken::Operator('/')))
+            })
     }
 
     fn apply(

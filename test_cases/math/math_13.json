@@ -91,6 +91,7 @@
   },
   {
     "input": "Η",
+    "context": "math",
     "note": "대문자 Eta",
     "internal": ".:",
     "expected": "4049",

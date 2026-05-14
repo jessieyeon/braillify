@@ -10,6 +10,7 @@ use crate::rules::context::EncoderState;
 use crate::rules::math;
 use crate::rules::token::Token;
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
+use crate::unicode::decode_unicode;
 
 pub struct LatexMathRule;
 
@@ -37,6 +38,321 @@ fn read_braced_content(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> 
         }
     }
     Some(content)
+}
+
+#[derive(Clone, Copy)]
+enum MatrixDelimiter {
+    Parentheses,
+    VerticalBars,
+}
+
+impl MatrixDelimiter {
+    fn cells(self) -> (u8, u8) {
+        match self {
+            MatrixDelimiter::Parentheses => (decode_unicode('⠦'), decode_unicode('⠴')),
+            MatrixDelimiter::VerticalBars => (decode_unicode('⠳'), decode_unicode('⠳')),
+        }
+    }
+}
+
+struct LatexMatrix<'a> {
+    delimiter: MatrixDelimiter,
+    prefix: &'a str,
+    body: &'a str,
+    suffix: &'a str,
+}
+
+fn find_latex_matrix(latex_inner: &str) -> Option<LatexMatrix<'_>> {
+    let begin_pos = latex_inner.find("\\begin{")?;
+    let env_start = begin_pos + "\\begin{".len();
+    let env_end = latex_inner[env_start..].find('}')? + env_start;
+    let env = &latex_inner[env_start..env_end];
+    let delimiter = match env {
+        "pmatrix" => MatrixDelimiter::Parentheses,
+        "vmatrix" => MatrixDelimiter::VerticalBars,
+        _ => return None,
+    };
+
+    let body_start = env_end + 1;
+    let end_marker = format!("\\end{{{env}}}");
+    let relative_end = latex_inner[body_start..].find(&end_marker)?;
+    let body_end = body_start + relative_end;
+    let suffix_start = body_end + end_marker.len();
+
+    Some(LatexMatrix {
+        delimiter,
+        prefix: &latex_inner[..begin_pos],
+        body: &latex_inner[body_start..body_end],
+        suffix: &latex_inner[suffix_start..],
+    })
+}
+
+fn split_matrix_body(body: &str) -> Vec<Vec<String>> {
+    let mut rows = vec![Vec::new()];
+    let mut current = String::new();
+    let mut brace_depth = 0usize;
+    let mut chars = body.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            '{' => {
+                brace_depth += 1;
+                current.push(ch);
+            }
+            '}' => {
+                brace_depth = brace_depth.saturating_sub(1);
+                current.push(ch);
+            }
+            '&' if brace_depth == 0 => {
+                if let Some(row) = rows.last_mut() {
+                    row.push(current.trim().to_string());
+                }
+                current.clear();
+            }
+            '\\' if brace_depth == 0 && chars.peek() == Some(&'\\') => {
+                chars.next();
+                if let Some(row) = rows.last_mut() {
+                    row.push(current.trim().to_string());
+                }
+                current.clear();
+                rows.push(Vec::new());
+            }
+            _ => current.push(ch),
+        }
+    }
+
+    if let Some(row) = rows.last_mut()
+        && (!current.trim().is_empty() || !row.is_empty())
+    {
+        row.push(current.trim().to_string());
+    }
+
+    rows.into_iter().filter(|row| !row.is_empty()).collect()
+}
+
+fn promote_matrix_cell_variable(math_text: &str) -> String {
+    let mut chars = math_text.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+
+    if first.is_ascii_lowercase() {
+        let mut promoted = first.to_ascii_uppercase().to_string();
+        promoted.extend(chars);
+        promoted
+    } else {
+        math_text.to_string()
+    }
+}
+
+fn encode_trimmed_math(text: &str) -> Result<Vec<u8>, String> {
+    let math_text = strip_latex_to_math(text.trim());
+    if math_text.trim().is_empty() {
+        return Ok(Vec::new());
+    }
+    math::encoder::encode_math_expression(&math_text)
+}
+
+fn encode_matrix_cell(cell: &str) -> Result<Vec<u8>, String> {
+    let math_text = strip_latex_to_math(cell.trim());
+    let matrix_text = promote_matrix_cell_variable(&math_text);
+    if let Some(bytes) = encode_matrix_letter_with_numeric_subscripts(&matrix_text)? {
+        return Ok(bytes);
+    }
+    math::encoder::encode_math_expression(&matrix_text)
+}
+
+fn subscript_digit_to_ascii(ch: char) -> Option<char> {
+    match ch {
+        '₀' => Some('0'),
+        '₁' => Some('1'),
+        '₂' => Some('2'),
+        '₃' => Some('3'),
+        '₄' => Some('4'),
+        '₅' => Some('5'),
+        '₆' => Some('6'),
+        '₇' => Some('7'),
+        '₈' => Some('8'),
+        '₉' => Some('9'),
+        _ => None,
+    }
+}
+
+fn encode_matrix_letter_with_numeric_subscripts(text: &str) -> Result<Option<Vec<u8>>, String> {
+    let mut chars = text.chars();
+    let Some(variable) = chars.next() else {
+        return Ok(None);
+    };
+    if !variable.is_ascii_alphabetic() {
+        return Ok(None);
+    }
+
+    let subscripts: Vec<char> = chars.collect();
+    if subscripts.is_empty()
+        || !subscripts
+            .iter()
+            .all(|ch| subscript_digit_to_ascii(*ch).is_some())
+    {
+        return Ok(None);
+    }
+
+    let mut out = math::encoder::encode_math_expression(&variable.to_string())?;
+    out.push(decode_unicode('⠰'));
+    for subscript in subscripts {
+        if let Some(digit) = subscript_digit_to_ascii(subscript) {
+            out.extend(math::encoder::encode_math_expression(&digit.to_string())?);
+        }
+    }
+    Ok(Some(out))
+}
+
+fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
+    let mut out = encode_trimmed_math(matrix.prefix)?;
+    let (open, close) = matrix.delimiter.cells();
+    out.push(open);
+
+    let rows = split_matrix_body(matrix.body);
+    for (row_index, row) in rows.iter().enumerate() {
+        for (cell_index, cell) in row.iter().enumerate() {
+            out.extend(encode_matrix_cell(cell)?);
+            if cell_index + 1 < row.len() {
+                out.push(0);
+            }
+        }
+        if row_index + 1 < rows.len() {
+            out.push(0);
+            out.push(decode_unicode('⠜'));
+        }
+    }
+
+    out.push(close);
+    out.extend(encode_matrix_suffix(matrix.suffix)?);
+    Ok(out)
+}
+
+fn parse_latex_letter_numeric_subscript(term: &str) -> Option<(char, Vec<char>)> {
+    let mut chars = term.chars();
+    let variable = chars.next()?;
+    if !variable.is_ascii_alphabetic() || chars.next()? != '_' || chars.next()? != '{' {
+        return None;
+    }
+
+    let mut digits = Vec::new();
+    for ch in chars {
+        if ch == '}' {
+            return Some((variable, digits));
+        }
+        if ch.is_ascii_digit() {
+            digits.push(ch);
+        } else {
+            return None;
+        }
+    }
+    None
+}
+
+fn encode_latex_letter_numeric_subscript(
+    variable: char,
+    digits: &[char],
+) -> Result<Vec<u8>, String> {
+    let mut out = math::encoder::encode_math_expression(&variable.to_string())?;
+    out.push(decode_unicode('⠰'));
+    for digit in digits {
+        out.extend(math::encoder::encode_math_expression(&digit.to_string())?);
+    }
+    Ok(out)
+}
+
+fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
+    let parts: Vec<&str> = suffix.split_whitespace().collect();
+    if parts.is_empty() {
+        return Ok(Vec::new());
+    }
+    if !parts
+        .iter()
+        .any(|part| parse_latex_letter_numeric_subscript(part).is_some())
+    {
+        return encode_trimmed_math(suffix);
+    }
+
+    let mut out = Vec::new();
+    let mut previous_was_operand = false;
+    for part in parts {
+        if let Some((variable, digits)) = parse_latex_letter_numeric_subscript(part) {
+            if previous_was_operand {
+                out.push(decode_unicode('⠐'));
+            }
+            out.extend(encode_latex_letter_numeric_subscript(variable, &digits)?);
+            previous_was_operand = true;
+            continue;
+        }
+
+        out.extend(encode_trimmed_math(part)?);
+        if part == "-" {
+            out.push(0);
+        }
+        previous_was_operand = false;
+    }
+    Ok(out)
+}
+
+pub(crate) fn encode_latex_math_bytes(latex_inner: &str) -> Result<Vec<u8>, String> {
+    if let Some(matrix) = find_latex_matrix(latex_inner) {
+        return encode_latex_matrix(&matrix);
+    }
+
+    let math_text = strip_latex_to_math(latex_inner);
+    math::encoder::encode_math_expression(&math_text)
+}
+
+fn previous_content_needs_math_spacing(tokens: &[Token<'_>], index: usize) -> usize {
+    let Some(previous_index) = index.checked_sub(1) else {
+        return 0;
+    };
+
+    match tokens.get(previous_index) {
+        Some(Token::Space(_)) => {
+            let left = previous_index
+                .checked_sub(1)
+                .and_then(|left_index| tokens.get(left_index));
+            match left {
+                Some(Token::Word(word))
+                    if word.text.ends_with('은') || word.text.ends_with('는') =>
+                {
+                    1
+                }
+                _ => 0,
+            }
+        }
+        Some(Token::Word(_) | Token::PreEncoded(_) | Token::Fraction(_) | Token::Mode(_)) => 2,
+        None => 0,
+    }
+}
+
+fn next_content_needs_math_spacing(tokens: &[Token<'_>], index: usize) -> usize {
+    match tokens.get(index + 1) {
+        Some(Token::Space(_)) => 1,
+        Some(Token::Word(_) | Token::PreEncoded(_) | Token::Fraction(_) | Token::Mode(_)) => 2,
+        None => 0,
+    }
+}
+
+pub(crate) fn wrap_latex_math_tokens<'a>(
+    tokens: &[Token<'a>],
+    index: usize,
+    bytes: Vec<u8>,
+) -> Vec<Token<'a>> {
+    let mut replacement = Vec::new();
+    let leading_spaces = previous_content_needs_math_spacing(tokens, index);
+    if leading_spaces > 0 {
+        replacement.push(Token::PreEncoded(vec![0; leading_spaces]));
+    }
+    replacement.push(Token::PreEncoded(bytes));
+    let trailing_spaces = next_content_needs_math_spacing(tokens, index);
+    if trailing_spaces > 0 {
+        replacement.push(Token::PreEncoded(vec![0; trailing_spaces]));
+    }
+    replacement
 }
 
 fn to_superscript_sequence(input: &str) -> String {
@@ -209,7 +525,9 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                 "times" => result.push('\u{00D7}'), // ×
                 "div" => result.push('\u{00F7}'),   // ÷
                 "pm" => result.push('±'),
-                "cdot" => result.push('\u{00B7}'), // ·
+                "cdot" => result.push('\u{00B7}'),  // ·
+                "cdots" => result.push('\u{22EF}'), // ⋯ (수평 줄임표 — math_symbol_shortcut에서 ⠠⠠⠠ 매핑)
+                "ldots" => result.push('\u{2026}'), // … (수평 점 셋 줄임표)
                 "alpha" => result.push('\u{03B1}'),
                 "beta" => result.push('\u{03B2}'),
                 "gamma" => result.push('\u{03B3}'),
@@ -630,8 +948,7 @@ impl TokenRule for LatexMergeRule {
             let full = w.text.as_ref();
             if full.starts_with('$') && full.ends_with('$') && full.len() >= 3 {
                 let latex_inner = &full[1..full.len() - 1];
-                let math_text = strip_latex_to_math(latex_inner);
-                if let Ok(bytes) = math::encoder::encode_math_expression(&math_text) {
+                if let Ok(bytes) = encode_latex_math_bytes(latex_inner) {
                     // Replace current token + consumed tokens
                     let mut final_replacement = vec![Token::PreEncoded(bytes)];
                     let consumed_count = j - index - 1; // tokens after index consumed
@@ -676,12 +993,11 @@ impl TokenRule for LatexMathRule {
         // Extract inner content (strip $ delimiters)
         let inner = &text[1..text.len() - 1];
 
-        // Convert LaTeX to plain math notation
-        let math_text = strip_latex_to_math(inner);
-
         // Try to encode via math engine
-        match math::encoder::encode_math_expression(&math_text) {
-            Ok(bytes) => Ok(TokenAction::Replace(Token::PreEncoded(bytes))),
+        match encode_latex_math_bytes(inner) {
+            Ok(bytes) => Ok(TokenAction::ReplaceMany(wrap_latex_math_tokens(
+                tokens, index, bytes,
+            ))),
             Err(_) => Ok(TokenAction::Noop),
         }
     }

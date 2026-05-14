@@ -163,14 +163,6 @@ impl BrailleRule for Rule49 {
         let encoded = symbol_shortcut::encode_char_symbol_shortcut(*c)?;
         ctx.emit_slice(encoded);
 
-        if ctx.word_len() == 1
-            && ctx.prev_word.is_empty()
-            && ctx.remaining_words.is_empty()
-            && matches!(*c, '(' | '〈' | '―' | '-')
-        {
-            ctx.emit(0);
-        }
-
         Ok(RuleResult::Consumed)
     }
 }

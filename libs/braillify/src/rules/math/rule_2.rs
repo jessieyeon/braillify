@@ -163,7 +163,10 @@ impl MathTokenRule for OperatorRule {
         };
 
         let korean_group_operator = matches!(*c, '+' | '×')
-            && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_)))
+            && matches!(
+                tokens.get(index.saturating_sub(1)),
+                Some(MathToken::KoreanWord(_))
+            )
             && matches!(tokens.get(index + 1), Some(MathToken::KoreanWord(_)));
         if korean_group_operator {
             result.push(0);
@@ -174,8 +177,14 @@ impl MathTokenRule for OperatorRule {
         }
 
         let label_equation = *c == '='
-            && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_)))
-            && matches!(tokens.get(index + 1), Some(MathToken::MathSymbol('\u{221A}')));
+            && matches!(
+                tokens.get(index.saturating_sub(1)),
+                Some(MathToken::KoreanWord(_))
+            )
+            && matches!(
+                tokens.get(index + 1),
+                Some(MathToken::MathSymbol('\u{221A}'))
+            );
         if label_equation {
             result.push(0);
             encode_operator(*c, tokens, index, result)?;

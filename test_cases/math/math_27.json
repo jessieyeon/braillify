@@ -1,6 +1,7 @@
 [
   {
     "input": "|",
+    "context": "math",
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",

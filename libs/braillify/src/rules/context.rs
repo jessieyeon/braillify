@@ -7,22 +7,35 @@ use crate::char_struct::{CharType, KoreanChar};
 
 /// The encoding context determines how ambiguous characters are interpreted.
 /// For example, `·` is a tone mark in MiddleKorean mode but a middle dot in Korean mode.
+///
+/// `Math` and `Number` are deliberately separate even though both wrap their content
+/// with the Roman indicator `⠴`. The distinction matters for inputs whose textual
+/// form is identical but whose semantic role differs:
+///   - `Math`: ASCII letters are mathematical variables (제12항).
+///     Single `i`, `v`, `x` ⇒ `⠴ + letter` (no terminator).
+///   - `Number`: ASCII letters in {I,V,X,L,C,D,M} form Roman numerals (제36항).
+///     Single `i` ⇒ `⠴ + letter + ⠲` (with terminator).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncodingMode {
     /// Default Korean braille encoding
     Korean,
     /// English/Roman letter section (between ⠴ and ⠲)
     English,
-    /// Math expression encoding
+    /// Math expression encoding (제12항 — letters are variables)
     Math,
+    /// Numeric / Roman numeral section (제36항 — letters are numerals)
+    Number,
     /// Middle Korean (중세국어) — archaic characters with special rules
     MiddleKorean,
+    /// Object symbol (사물부호) — 제49항: `○`, `×`, `△`, `□` 등이 사물부호로 쓰이는 경우.
+    /// 글머리 기호(제72항)와 동일 문자지만 점자 마무리 `⠇`(7)이 붙는다는 차이가 있다.
+    ObjectSymbol,
 }
 
 impl std::str::FromStr for EncodingMode {
     type Err = ();
 
-    /// Parse testcase JSON `context` field (e.g. "math") into an `EncodingMode`.
+    /// Parse testcase JSON `context` field (e.g. "math", "number") into an `EncodingMode`.
     /// Unknown context strings (including "" and ad-hoc metadata like "strip_prefix:…")
     /// return `Err`, which the caller treats as "no explicit mode" → default encoding.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -30,7 +43,9 @@ impl std::str::FromStr for EncodingMode {
             "korean" => Ok(Self::Korean),
             "english" => Ok(Self::English),
             "math" => Ok(Self::Math),
+            "number" => Ok(Self::Number),
             "middle_korean" => Ok(Self::MiddleKorean),
+            "object_symbol" => Ok(Self::ObjectSymbol),
             _ => Err(()),
         }
     }

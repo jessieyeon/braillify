@@ -1,7 +1,7 @@
 [
   {
     "input": "I",
-    "context": "math",
+    "context": "number",
     "internal": "0,i4",
     "expected": "52321050",
     "unicode": "⠴⠠⠊⠲",
@@ -10,7 +10,7 @@
   },
   {
     "input": "II",
-    "context": "math",
+    "context": "number",
     "internal": "0,,ii4",
     "expected": "523232101050",
     "unicode": "⠴⠠⠠⠊⠊⠲",
@@ -19,7 +19,7 @@
   },
   {
     "input": "III",
-    "context": "math",
+    "context": "number",
     "internal": "0,,iii4",
     "expected": "52323210101050",
     "unicode": "⠴⠠⠠⠊⠊⠊⠲",
@@ -28,7 +28,7 @@
   },
   {
     "input": "V",
-    "context": "math",
+    "context": "number",
     "internal": "0,v4",
     "expected": "52323950",
     "unicode": "⠴⠠⠧⠲",
@@ -37,7 +37,7 @@
   },
   {
     "input": "IX",
-    "context": "math",
+    "context": "number",
     "internal": "0,,ix4",
     "expected": "523232104550",
     "unicode": "⠴⠠⠠⠊⠭⠲",
@@ -46,7 +46,7 @@
   },
   {
     "input": "X",
-    "context": "math",
+    "context": "number",
     "internal": "0,x4",
     "expected": "52324550",
     "unicode": "⠴⠠⠭⠲",
@@ -55,7 +55,7 @@
   },
   {
     "input": "XV",
-    "context": "math",
+    "context": "number",
     "internal": "0,,xv4",
     "expected": "523232453950",
     "unicode": "⠴⠠⠠⠭⠧⠲",
@@ -64,7 +64,7 @@
   },
   {
     "input": "XX",
-    "context": "math",
+    "context": "number",
     "internal": "0,,xx4",
     "expected": "523232454550",
     "unicode": "⠴⠠⠠⠭⠭⠲",
@@ -73,7 +73,7 @@
   },
   {
     "input": "i",
-    "context": "math",
+    "context": "number",
     "internal": "0i4",
     "expected": "521050",
     "unicode": "⠴⠊⠲",
@@ -82,7 +82,7 @@
   },
   {
     "input": "ii",
-    "context": "math",
+    "context": "number",
     "internal": "0ii4",
     "expected": "52101050",
     "unicode": "⠴⠊⠊⠲",
@@ -91,7 +91,7 @@
   },
   {
     "input": "iii",
-    "context": "math",
+    "context": "number",
     "internal": "0iii4",
     "expected": "5210101050",
     "unicode": "⠴⠊⠊⠊⠲",
@@ -100,7 +100,7 @@
   },
   {
     "input": "v",
-    "context": "math",
+    "context": "number",
     "internal": "0v4",
     "expected": "523950",
     "unicode": "⠴⠧⠲",
@@ -109,7 +109,7 @@
   },
   {
     "input": "ix",
-    "context": "math",
+    "context": "number",
     "internal": "0ix4",
     "expected": "52104550",
     "unicode": "⠴⠊⠭⠲",
@@ -118,7 +118,7 @@
   },
   {
     "input": "x",
-    "context": "math",
+    "context": "number",
     "internal": "0x4",
     "expected": "524550",
     "unicode": "⠴⠭⠲",
@@ -127,7 +127,7 @@
   },
   {
     "input": "xviii",
-    "context": "math",
+    "context": "number",
     "internal": "0xviii4",
     "expected": "52453910101050",
     "unicode": "⠴⠭⠧⠊⠊⠊⠲",
@@ -136,7 +136,7 @@
   },
   {
     "input": "xxx",
-    "context": "math",
+    "context": "number",
     "internal": "0xxx4",
     "expected": "5245454550",
     "unicode": "⠴⠭⠭⠭⠲",

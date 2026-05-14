@@ -6,12 +6,36 @@ use crate::unicode::decode_unicode;
 
 pub struct EmphasisRingRule;
 
+/// 드러냄표(제56항)에 쓰이는 결합 부호.
+/// - U+030A `◌̊`(combining ring above): 「훈민정음̊」 등 PDF 예시
+/// - U+0307 `◌̇`(combining dot above): 한국어 본문에서 강조용으로 쓰이는 결합 부호
+///
+/// 주의: U+0307은 수학 표기에서 「결합 윗점」(반복 소수, 도함수 등)으로도 사용되므로
+/// 단어가 한글을 포함할 때에 한해 강조 마커로 해석한다.
+fn is_ring_mark(ch: char) -> bool {
+    matches!(ch, '\u{030A}' | '\u{0307}')
+}
+
 fn is_ring_mark_only(text: &str) -> bool {
-    !text.is_empty() && text.chars().all(|ch| ch == '\u{030A}')
+    !text.is_empty() && text.chars().all(is_ring_mark)
+}
+
+fn is_emphasis_word(text: &str) -> bool {
+    // 텍스트 어딘가에 결합 부호가 있어야 한다.
+    if !text.chars().any(is_ring_mark) {
+        return false;
+    }
+    // U+030A만 있으면 항상 강조로 본다 (math에서는 거의 사용되지 않음).
+    if text.chars().any(|c| c == '\u{030A}') {
+        return true;
+    }
+    // U+0307만 있는 경우: 한글이 함께 있는 단어일 때만 강조로 본다.
+    // 숫자·로마자 단어의 U+0307은 수학적 결합 윗점이므로 통과시킨다.
+    text.chars().any(crate::utils::is_korean_char)
 }
 
 fn trim_ring_marks(text: &str) -> String {
-    text.chars().filter(|ch| *ch != '\u{030A}').collect()
+    text.chars().filter(|ch| !is_ring_mark(*ch)).collect()
 }
 
 impl TokenRule for EmphasisRingRule {
@@ -37,7 +61,7 @@ impl TokenRule for EmphasisRingRule {
                     return Ok(TokenAction::ReplaceMany(vec![]));
                 }
 
-                if !text.contains('\u{030A}') {
+                if !is_emphasis_word(text) {
                     return Ok(TokenAction::Noop);
                 }
 
@@ -70,7 +94,7 @@ impl TokenRule for EmphasisRingRule {
                     _ => None,
                 });
 
-                // Remove spacing around standalone combining-ring words.
+                // Remove spacing around standalone combining-emphasis words.
                 if prev_word.is_some_and(is_ring_mark_only)
                     || next_word.is_some_and(is_ring_mark_only)
                 {
@@ -78,7 +102,7 @@ impl TokenRule for EmphasisRingRule {
                 }
 
                 // Close emphasis immediately before the next real word.
-                if prev_word.is_some_and(|w| w.contains('\u{030A}') || is_ring_mark_only(w))
+                if prev_word.is_some_and(|w| is_emphasis_word(w) || is_ring_mark_only(w))
                     && next_word.is_some_and(|w| !is_ring_mark_only(w))
                 {
                     return Ok(TokenAction::Replace(Token::PreEncoded(vec![

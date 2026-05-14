@@ -69,7 +69,9 @@ fn next_non_space(tokens: &[MathToken], index: usize) -> Option<&MathToken> {
 }
 
 fn prev_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
-    (0..index).rev().find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
+    (0..index)
+        .rev()
+        .find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
 }
 
 fn next_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {

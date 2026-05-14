@@ -53,9 +53,14 @@ impl BrailleRule for Rule44 {
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
-        let has_middle_dot_before = ctx.word_chars[..ctx.index].contains(&'·');
-        if has_middle_dot_before {
-            ctx.emit(8); // Attached separator in middle-dot enumerations
+        // 한글 바로 앞 문자가 가운뎃점(`·`)인 경우에만 부착 분리자 ⠈(8)을 쓰고,
+        // 그 외 (가운뎃점 열거 내부라도 한글이 숫자 다음에 나오는 경우 등)에는
+        // 통상의 공백 ⠀(0)으로 분리한다.
+        // 근거: 제44항 [다만] — 숫자와 혼동되는 한글은 띄어 쓴다. (제50항 가운뎃점
+        // 열거의 부착 분리자는 `·` 바로 뒤에 한글이 붙은 형태에만 적용)
+        let middle_dot_adjacent = ctx.prev_char() == Some('·');
+        if middle_dot_adjacent {
+            ctx.emit(8); // Attached separator
         } else {
             ctx.emit(0); // Space separator
         }

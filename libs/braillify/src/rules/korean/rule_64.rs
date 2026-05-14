@@ -252,10 +252,7 @@ impl BrailleRule for Rule64Square {
         // Reject anchors that have no own braille representation: another
         // combining mark, or a whitespace. Every other CharType variant is a
         // valid anchor (digit, syllable, jamo, English letter, symbol, …).
-        !matches!(
-            ctx.char_type,
-            CharType::CombiningMark | CharType::Space(_)
-        )
+        !matches!(ctx.char_type, CharType::CombiningMark | CharType::Space(_))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

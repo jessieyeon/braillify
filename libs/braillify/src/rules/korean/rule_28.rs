@@ -74,11 +74,6 @@ impl BrailleRule for Rule28 {
             return Ok(RuleResult::Skip);
         };
 
-        // 제28항 예외: 소문자 단독 "b"는 로마자표를 붙여 구별한다.
-        if *c == 'b' && ctx.word_len() == 1 && ctx.index == 0 && !ctx.state.is_english {
-            ctx.emit(52);
-        }
-
         // Enter English mode (로마자표 / 연속표)
         if ctx.state.english_indicator && !ctx.state.is_english {
             if ctx.state.needs_english_continuation {
@@ -140,8 +135,15 @@ impl BrailleRule for Rule28 {
         // 모두 대문자(CD, KBS 등)는 약자 자체이므로 contraction 적용 안 함.
         let is_title_case_word = ctx.index == 0
             && !ctx.is_all_uppercase
-            && ctx.word_chars.first().is_some_and(|ch| ch.is_ascii_uppercase())
-            && ctx.word_chars.iter().skip(1).all(|ch| ch.is_ascii_lowercase())
+            && ctx
+                .word_chars
+                .first()
+                .is_some_and(|ch| ch.is_ascii_uppercase())
+            && ctx
+                .word_chars
+                .iter()
+                .skip(1)
+                .all(|ch| ch.is_ascii_lowercase())
             && ctx.word_chars.len() >= 2;
         if ctx.index == 0
             && !ctx.is_all_uppercase

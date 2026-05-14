@@ -71,33 +71,31 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
 pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8>, String> {
     use crate::rules::context::EncodingMode;
 
-    // PDF 수학/한글 점자 — math mode에서 input의 형태에 따른 PDF 정의 매핑.
-    if let Some(EncodingMode::Math) = options.default_mode {
+    // PDF 제49항 [37] — ObjectSymbol 모드: 사물부호 ○ × △ □.
+    // 알고리즘: ⠸(56) + 도형별 점형 + ⠇(7) 마무리.
+    // 제72항의 글머리 기호와 동일 문자이지만, 사물부호로 쓰일 때만 ⠇ 마무리를 붙인다.
+    if let Some(EncodingMode::ObjectSymbol) = options.default_mode {
         let chars: Vec<char> = text.chars().collect();
-
-        // PDF (수학): 단일 ASCII lowercase = 영자표시 ⠴(52) + 알파벳 점자.
-        if chars.len() == 1 && chars[0].is_ascii_lowercase() {
-            return Ok(vec![52, crate::english::encode_english(chars[0])?]);
-        }
-
-        // PDF 수학 점자 — 괄호 단일 기호 매핑 (default = math_bracket).
-        // math_system_bracket / math_group은 input만으로 구분 불가능하므로
-        // 가장 일반적인 math_bracket 점형으로 default 처리.
         if chars.len() == 1 {
-            match chars[0] {
-                '(' => return Ok(vec![38]),       // ⠦
-                ')' => return Ok(vec![52]),       // ⠴
-                '{' => return Ok(vec![54]),       // ⠶
-                '}' => return Ok(vec![54]),       // ⠶
-                '[' => return Ok(vec![55, 4]),    // ⠷⠄
-                ']' => return Ok(vec![32, 62]),   // ⠠⠾
-                _ => {}
+            let mark = match chars[0] {
+                '○' => Some(52u8), // ⠴
+                '×' => Some(45u8), // ⠭
+                '△' => Some(44u8), // ⠬
+                '□' => Some(54u8), // ⠶
+                _ => None,
+            };
+            if let Some(m) = mark {
+                return Ok(vec![56, m, 7]); // ⠸ + 도형 + ⠇
             }
         }
+    }
 
-        // PDF 한글 점자 제36항: 로마 숫자 (I·V·X·L·C·D·M 만으로 구성된 문자열).
-        // 알고리즘: 영자표시 ⠴ + 대문자 표시(⠠ 1글자 / ⠠⠠ 2글자 이상)
-        //          + 소문자화한 letter들의 점자 + 마침표 ⠲(50).
+    // PDF 한글 점자 제36항 — Number 모드: 로마 숫자 (I·V·X·L·C·D·M 만으로 구성된 문자열).
+    // 알고리즘: 영자표시 ⠴ + 대문자 표시(단일 대문자 ⠠ / 모두 대문자 ⠠⠠)
+    //          + 소문자화한 letter들의 점자 + 마침표 ⠲(50).
+    // Math 모드의 변수(제12항)와 동형이지만 종료표 ⠲이 붙는다는 점이 다르다.
+    if let Some(EncodingMode::Number) = options.default_mode {
+        let chars: Vec<char> = text.chars().collect();
         if !chars.is_empty()
             && chars.iter().all(|c| {
                 matches!(
@@ -118,6 +116,43 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
             }
             out.push(50); // ⠲ 마침표
             return Ok(out);
+        }
+    }
+
+    // PDF 수학 점자 — math mode에서 input의 형태에 따른 PDF 정의 매핑.
+    if let Some(EncodingMode::Math) = options.default_mode {
+        let chars: Vec<char> = text.chars().collect();
+
+        // PDF 수학 제12항: 단일 ASCII lowercase = 영자표시 ⠴(52) + 알파벳 점자.
+        // (수학 모드의 단독 소문자는 변수이며 종료표 ⠲을 붙이지 않는다.)
+        if chars.len() == 1 && chars[0].is_ascii_lowercase() {
+            return Ok(vec![52, crate::english::encode_english(chars[0])?]);
+        }
+
+        // PDF 수학 점자 — 괄호 단일 기호 매핑 (default = math_bracket).
+        // math_system_bracket / math_group은 input만으로 구분 불가능하므로
+        // 가장 일반적인 math_bracket 점형으로 default 처리.
+        if chars.len() == 1 {
+            match chars[0] {
+                '(' => return Ok(vec![38]),     // ⠦
+                ')' => return Ok(vec![52]),     // ⠴
+                '{' => return Ok(vec![54]),     // ⠶
+                '}' => return Ok(vec![54]),     // ⠶
+                '[' => return Ok(vec![55, 4]),  // ⠷⠄
+                ']' => return Ok(vec![32, 62]), // ⠠⠾
+                _ => {}
+            }
+        }
+
+        // PDF 수학 점자 — 단일 기호 직접 매핑.
+        // 단독 입력(·, |, ′, π, Η, …)은 일반 인코더 파이프라인을 거치며 곱셈 점,
+        // 절댓값 prefix(⠸), 영자표시(⠴), 대문자 표시(⠠) 등이 잘못 부착될 수 있어,
+        // 단일 글자 입력에 한해 math_symbol_shortcut의 raw 매핑을 직접 사용한다.
+        if chars.len() == 1
+            && let Ok(code) =
+                crate::math_symbol_shortcut::encode_char_math_symbol_shortcut(chars[0])
+        {
+            return Ok(code.to_vec());
         }
     }
 

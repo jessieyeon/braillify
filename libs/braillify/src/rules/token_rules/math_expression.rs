@@ -188,10 +188,8 @@ fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
     // (2) √ 한글 직접 인접 패턴 (라인 18 `√분산`).
     // (3) 한글 명사구 + 수식 연산: `원의 둘레 = 반지름 × ...` (라인 12).
     //     — 한글 명사구는 공백으로 구분된 한글 단어. 일반 산식 `5개−3개=2개`은 공백 없음.
-    let fraction_with_korean = has_parens
-        && has_math_op
-        && (text.contains("/(") || text.contains(")/"))
-        && {
+    let fraction_with_korean =
+        has_parens && has_math_op && (text.contains("/(") || text.contains(")/")) && {
             // 괄호 안 한글 여부 확인 — `(`와 매칭되는 `)` 사이 한글 있어야
             let mut depth = 0i32;
             let mut korean_in_parens = false;
@@ -211,9 +209,9 @@ fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
             .windows(2)
             .any(|w| w[0] == '√' && is_korean_char(w[1]));
 
-    let multi_word_korean_phrase = chars.windows(3).any(|w| {
-        is_korean_char(w[0]) && w[1] == ' ' && is_korean_char(w[2])
-    });
+    let multi_word_korean_phrase = chars
+        .windows(3)
+        .any(|w| is_korean_char(w[0]) && w[1] == ' ' && is_korean_char(w[2]));
 
     // BMI 같은 영문자 + 한글 mixed 입력은 baseline의 일반 한국어 점역이 옳다.
     // multi-word Korean 분기는 한글 명사구만 있는 입력으로 제한.
@@ -678,12 +676,24 @@ impl TokenRule for MathExpressionTokenRule {
                 }
 
                 let inner = &latex[1..latex.len() - 1];
-                let math_text = crate::rules::token_rules::latex_math::strip_latex_to_math(inner);
-                if let Ok(bytes) = math::encoder::encode_math_expression(&math_text) {
-                    return Ok(TokenAction::ReplaceMany(vec![
-                        Token::PreEncoded(bytes),
-                        build_word_token(suffix.to_string()),
-                    ]));
+                if let Ok(bytes) =
+                    crate::rules::token_rules::latex_math::encode_latex_math_bytes(inner)
+                {
+                    let leading_spaces = if index == 0 {
+                        0
+                    } else if matches!(tokens.get(index - 1), Some(Token::Space(_))) {
+                        1
+                    } else {
+                        2
+                    };
+                    let mut replacement = Vec::new();
+                    if leading_spaces > 0 {
+                        replacement.push(Token::PreEncoded(vec![0; leading_spaces]));
+                    }
+                    replacement.push(Token::PreEncoded(bytes));
+                    replacement.push(Token::PreEncoded(vec![0, 0]));
+                    replacement.push(build_word_token(suffix.to_string()));
+                    return Ok(TokenAction::ReplaceMany(replacement));
                 }
             }
 
@@ -701,9 +711,22 @@ impl TokenRule for MathExpressionTokenRule {
 
             if text.ends_with('$') && text.len() >= 3 {
                 let inner = &text[1..text.len() - 1];
-                let math_text = crate::rules::token_rules::latex_math::strip_latex_to_math(inner);
-                if let Ok(bytes) = math::encoder::encode_math_expression(&math_text) {
-                    return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
+                if let Ok(bytes) =
+                    crate::rules::token_rules::latex_math::encode_latex_math_bytes(inner)
+                {
+                    let mut replacement =
+                        crate::rules::token_rules::latex_math::wrap_latex_math_tokens(
+                            tokens, index, bytes,
+                        );
+                    if inner.contains("\\begin{vmatrix}")
+                        && matches!(
+                            index.checked_sub(1).and_then(|i| tokens.get(i)),
+                            Some(Token::Space(_))
+                        )
+                    {
+                        replacement.insert(0, Token::PreEncoded(vec![0]));
+                    }
+                    return Ok(TokenAction::ReplaceMany(replacement));
                 }
             }
 
@@ -735,9 +758,20 @@ impl TokenRule for MathExpressionTokenRule {
         // Try to encode via math engine
         match math::encoder::encode_math_expression(text) {
             Ok(bytes) => {
-                let (prev_has_korean, _next_has_korean) =
-                    adjacent_korean_word_flags(tokens, index);
+                let (prev_has_korean, _next_has_korean) = adjacent_korean_word_flags(tokens, index);
                 let mut wrapped = Vec::with_capacity(bytes.len() + 2);
+
+                let needs_decimal_context_spacing = text.contains('')
+                    || text.contains('⋯')
+                    || word.chars.iter().any(|ch| is_combining_math_mark(*ch));
+                if needs_decimal_context_spacing
+                    && matches!(
+                        index.checked_sub(1).and_then(|i| tokens.get(i)),
+                        Some(Token::Space(_))
+                    )
+                {
+                    wrapped.push(0);
+                }
 
                 // 특수 패턴(증분 + 등호 + 다항식 조합)에만 prefix space 두 칸 추가.
                 // 일반적인 한글 + math 인접 케이스는 Token::Space가 단일 공백을 처리하므로
@@ -754,6 +788,12 @@ impl TokenRule for MathExpressionTokenRule {
                 }
 
                 wrapped.extend_from_slice(&bytes);
+
+                if needs_decimal_context_spacing
+                    && matches!(tokens.get(index + 1), Some(Token::Space(_)))
+                {
+                    wrapped.push(0);
+                }
 
                 Ok(TokenAction::Replace(Token::PreEncoded(wrapped)))
             }

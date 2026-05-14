@@ -78,9 +78,7 @@ fn scan_sentence_profile<'a>(tokens: &[Token<'a>]) -> SentenceProfile {
 fn should_activate<'a>(tokens: &[Token<'a>]) -> bool {
     let profile = scan_sentence_profile(tokens);
 
-    profile.english_words >= 2
-        && profile.korean_words > 0
-        && profile.first_non_trivial_is_english
+    profile.english_words >= 2 && profile.korean_words > 0 && profile.first_non_trivial_is_english
 }
 
 fn split_wrappable_korean_word(text: &str) -> Option<(&str, &str, &str)> {

@@ -48,6 +48,11 @@ fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
         return false;
     }
 
+    // 단독 입력 `·`은 한국어 점자에서 두 가지 의미를 가진다:
+    //   - 일반 한국어(가운뎃점, 제49항): ⠐⠆ — rule_49가 처리
+    //   - 중세국어(거성, 제27항): ⠸⠂ — 이 규칙이 처리
+    // 두 의미는 동일 입력으로 구분할 수 없으므로 EncodingMode::MiddleKorean이
+    // 명시된 경우에만 거성으로 해석한다.
     if ctx.word_len() == 1 {
         return ctx.state.current_mode() == EncodingMode::MiddleKorean;
     }

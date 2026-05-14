@@ -18,7 +18,7 @@ const MAPPINGS: &[(char, &str)] = &[
     ('|', "⠸⠳"),
     ('\\', "⠸⠡"),
     ('&', "⠈⠯"),
-    ('§', "⠈⠯"),
+    ('§', "⠘⠎"),
     ('¶', "⠘⠏"),
     ('©', "⠘⠉"),
     ('®', "⠘⠗"),
@@ -86,7 +86,7 @@ impl BrailleRule for Rule71 {
                 return Ok(RuleResult::Consumed);
             }
 
-            let encoded = encode_unicode_cells("⠈⠯");
+            let encoded = encode_unicode_cells("⠘⠎");
             ctx.emit_slice(&encoded);
             return Ok(RuleResult::Consumed);
         }
