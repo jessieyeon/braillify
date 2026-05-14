@@ -45,7 +45,7 @@ impl TokenRuleEngine {
         ] {
             let mut i = 0usize;
 
-            while i < tokens.len() {
+            'outer: while i < tokens.len() {
                 for rule in &self.rules {
                     if rule.phase() != phase {
                         continue;
@@ -69,7 +69,14 @@ impl TokenRuleEngine {
                         TokenAction::ReplaceMany(ts) => {
                             let count = ts.len();
                             tokens.splice(i..=i, ts);
-                            i += count.saturating_sub(1);
+                            if count == 0 {
+                                // Array shrank by 1: the next original token now sits at `i`.
+                                // Skip the outer `i += 1` so we re-process this slot
+                                // (otherwise the shifted token would be silently skipped,
+                                // letting e.g. ring-only word tokens leak into char encoding).
+                                continue 'outer;
+                            }
+                            i += count - 1;
                         }
                         #[cfg(test)]
                         TokenAction::Remove => {

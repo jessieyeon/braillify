@@ -72,6 +72,22 @@ fn is_numeric_or_unit_context(ctx: &RuleContext) -> bool {
         || ctx.prev_char() == Some('/')
 }
 
+/// 단어 자체가 단위 연쇄(cal/㎠/min 등)로 구성된 경우 첫 음절이 한국어 뒤에 와도
+/// 단위로 해석한다. 단위 연쇄의 특징: 단어 내에 `/`가 있거나 제69항 단위 기호(㎠, ㎏ 등)가
+/// 섞여 있다.
+fn word_looks_like_unit_chain(word: &[char]) -> bool {
+    let mut has_separator = false;
+    let mut has_unit_symbol = false;
+    for c in word {
+        if *c == '/' {
+            has_separator = true;
+        } else if is_rule_69_symbol(*c) || *c == 'μ' {
+            has_unit_symbol = true;
+        }
+    }
+    has_separator && (has_unit_symbol || word.iter().any(char::is_ascii_alphabetic))
+}
+
 fn is_symbol_measurement_context(ctx: &RuleContext, symbol: char) -> bool {
     match symbol {
         'μ' => {
@@ -150,7 +166,8 @@ impl BrailleRule for Rule69 {
             || matches!(ctx.char_type, CharType::Number(_)
                 if ctx.index == 0 && parse_numeric_ascii_unit_prefix(ctx.word_chars).is_some())
             || matches!(ctx.char_type, CharType::English(_)
-                if is_numeric_or_unit_context(ctx)
+                if (is_numeric_or_unit_context(ctx)
+                    || (ctx.index == 0 && word_looks_like_unit_chain(ctx.word_chars)))
                     && encode_ascii_unit(ctx.word_chars, ctx.index).is_some())
     }
 
@@ -169,18 +186,11 @@ impl BrailleRule for Rule69 {
         }
 
         if matches!(ctx.char_type, CharType::English(_))
-            && is_numeric_or_unit_context(ctx)
+            && (is_numeric_or_unit_context(ctx)
+                || (ctx.index == 0 && word_looks_like_unit_chain(ctx.word_chars)))
             && let Some((encoded, consumed)) = encode_ascii_unit(ctx.word_chars, ctx.index)
         {
             trim_recent_english_indicator(ctx.result);
-            if ctx.prev_char() == Some('/')
-                && ctx.word_chars[ctx.index..]
-                    .iter()
-                    .collect::<String>()
-                    .starts_with("min")
-            {
-                ctx.emit(0);
-            }
             ctx.emit_slice(&encoded);
             ctx.state.is_english = false;
             ctx.state.needs_english_continuation = false;

@@ -94,6 +94,23 @@ impl TokenRule for EmphasisRingRule {
                     _ => None,
                 });
 
+                // 직전 토큰이 강조 종료 마커(⠤⠄)인 경우: 강조 끝과 다음 단어 사이의
+                // 분리용 공백은 종료 마커가 이미 흡수했으므로 제거한다(rule_49 예시
+                // 「훈민정음̊」 + 이다 → 종료 후 공백 없이 「이다」가 이어진다).
+                let prev_is_emphasis_close = index
+                    .checked_sub(1)
+                    .and_then(|i| tokens.get(i))
+                    .is_some_and(|t| match t {
+                        Token::PreEncoded(bytes) => {
+                            bytes.as_slice()
+                                == [decode_unicode('⠤'), decode_unicode('⠄')].as_slice()
+                        }
+                        _ => false,
+                    });
+                if prev_is_emphasis_close && next_word.is_some_and(|w| !is_ring_mark_only(w)) {
+                    return Ok(TokenAction::ReplaceMany(vec![]));
+                }
+
                 // Remove spacing around standalone combining-emphasis words.
                 if prev_word.is_some_and(is_ring_mark_only)
                     || next_word.is_some_and(is_ring_mark_only)

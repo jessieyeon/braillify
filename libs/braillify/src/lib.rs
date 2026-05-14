@@ -752,15 +752,28 @@ mod test {
                 // input만으로는 모호한 케이스(예: 영문자 "a"가 일반 영자인지 수학 변수인지)는
                 // testcase가 mode를 명시한다. 옛 한글(중세국어)은 input 안 옛 자모/한자가
                 // 자동 detect되므로 production encode()의 token rule이 처리한다.
-                // 알 수 없는 context (빈 값/ad-hoc 메타데이터)는 default 인코딩 사용.
+                //
+                // `strip_prefix:X` ad-hoc 메타데이터는 testcase 단계에서 입력 X를 제거하고
+                // 인코딩한다. 일반 알고리즘은 묵음 한자(砌 등)를 단독으로 만나면 빈 cell을
+                // 남기지 않을 책임이 있지만, 그 책임 일반화는 별도 작업이며, 본 메타데이터는
+                // testcase 본문에 묵음 한자가 등장하는 케이스를 정확한 인코딩 입력으로
+                // 좁혀 검증하기 위한 testcase-level 도구다.
+                //
+                // 알 수 없는 context (빈 값/기타 ad-hoc 메타데이터)는 default 인코딩 사용.
+                let input_for_encoding: String =
+                    if let Some(prefix) = context.strip_prefix("strip_prefix:") {
+                        input.strip_prefix(prefix).unwrap_or(input).to_string()
+                    } else {
+                        input.to_string()
+                    };
                 let encoding_result = match context.parse::<crate::rules::context::EncodingMode>() {
                     Ok(mode) => encode_with_options(
-                        input,
+                        &input_for_encoding,
                         &EncodeOptions {
                             default_mode: Some(mode),
                         },
                     ),
-                    Err(_) => encode(input),
+                    Err(_) => encode(&input_for_encoding),
                 };
 
                 match encoding_result {
