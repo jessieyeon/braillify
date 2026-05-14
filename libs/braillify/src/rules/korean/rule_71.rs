@@ -74,13 +74,15 @@ impl BrailleRule for Rule71 {
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         if ctx.current_char() == '§' {
             if should_wrap_information_symbol(ctx) {
+                // 제71항: 정보 기호는 한국어/숫자 컨텍스트에서 ⠴...⠲ wrap을 두른다.
+                // 직후가 숫자면 종료표 ⠲ 생략(숫자 자체가 영자 컨텍스트로 이어짐).
+                // 어절 내부에서 §을 만났을 때(ctx.index > 0)도 추가 공백을 emit하지 않는다.
+                // 어절 간 공백은 Token::Space가 책임지며, 어절 내 음절/기호 사이는
+                // 묵자 입력 그대로 결합한다(한국어 띄어쓰기 일반 원칙).
                 let mut encoded = vec![crate::unicode::decode_unicode('⠴')];
                 encoded.extend(encode_unicode_cells("⠘⠎"));
                 if !ctx.next_char().is_some_and(|ch| ch.is_ascii_digit()) {
                     encoded.push(crate::unicode::decode_unicode('⠲'));
-                }
-                if ctx.index > 0 {
-                    ctx.emit(0);
                 }
                 ctx.emit_slice(&encoded);
                 return Ok(RuleResult::Consumed);
