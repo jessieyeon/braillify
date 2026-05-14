@@ -30,6 +30,10 @@ pub enum EncodingMode {
     /// Object symbol (사물부호) — 제49항: `○`, `×`, `△`, `□` 등이 사물부호로 쓰이는 경우.
     /// 글머리 기호(제72항)와 동일 문자지만 점자 마무리 `⠇`(7)이 붙는다는 차이가 있다.
     ObjectSymbol,
+    /// IPA notation — 제38항: 발음 기호 표기.
+    /// `[ ]`는 ⠐⠘⠷ … ⠘⠾, `/ /`는 ⠐⠘⠌ … ⠘⠌으로 묶는다.
+    /// 음운 기호(ə, ː, θ, ŋ, æ 등)는 국제음성기호 점자 변환표에 따라 점역한다.
+    Ipa,
 }
 
 impl std::str::FromStr for EncodingMode {
@@ -46,6 +50,7 @@ impl std::str::FromStr for EncodingMode {
             "number" => Ok(Self::Number),
             "middle_korean" => Ok(Self::MiddleKorean),
             "object_symbol" => Ok(Self::ObjectSymbol),
+            "ipa" => Ok(Self::Ipa),
             _ => Err(()),
         }
     }

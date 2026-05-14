@@ -114,6 +114,7 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\u{25A1}' => &[decode_unicode('⠸'), decode_unicode('⠶')], // _7 (네모)
     '\u{25B3}' => &[decode_unicode('⠸'), decode_unicode('⠬')], // _+ (세모)
     '\u{25B1}' => &[decode_unicode('⠸'), decode_unicode('⠌'), decode_unicode('⠌')], // _// (평행사변형)
+    '\u{23E2}' => &[decode_unicode('⠸'), decode_unicode('⠌'), decode_unicode('⠡')], // _/* (사다리꼴)
     '\u{2302}' => &[decode_unicode('⠸'), decode_unicode('⠪'), decode_unicode('⠅')], // _[k (집)
     '\u{2394}' => &[decode_unicode('⠸'), decode_unicode('⠪'), decode_unicode('⠕')], // _[o (기하 기호)
     '\u{29BE}' => &[decode_unicode('⠸'), decode_unicode('⠴'), decode_unicode('⠴')], // _00 (원안점)
