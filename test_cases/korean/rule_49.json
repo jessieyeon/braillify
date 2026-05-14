@@ -105,9 +105,9 @@
   },
   {
     "input": "(",
-    "internal": "8' ",
-    "expected": "3840",
-    "unicode": "⠦⠄⠀",
+    "internal": "8'",
+    "expected": "384",
+    "unicode": "⠦⠄",
     "world": "⠦⠄",
     "jeomsarang": "⠦⠄"
   },
@@ -201,8 +201,8 @@
   },
   {
     "input": "〈",
-    "internal": "\"7 ",
-    "expected": "16540",
+    "internal": "\"7",
+    "expected": "1654",
     "unicode": "⠐⠶⠀",
     "world": "⠐⠶",
     "jeomsarang": "⠐⠶"
@@ -217,16 +217,16 @@
   },
   {
     "input": "―",
-    "internal": "-- ",
-    "expected": "36360",
-    "unicode": "⠤⠤⠀",
+    "internal": "--",
+    "expected": "3636",
+    "unicode": "⠤⠤",
     "world": "⠤⠤",
     "jeomsarang": "⠤⠤"
   },
   {
     "input": "-",
-    "internal": "- ",
-    "expected": "360",
+    "internal": "-",
+    "expected": "36",
     "unicode": "⠤⠀",
     "world": "⠤",
     "jeomsarang": "⠤"
