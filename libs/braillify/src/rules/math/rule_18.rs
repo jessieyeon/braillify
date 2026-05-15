@@ -11,8 +11,14 @@ fn is_simple_signed_number(content: &[MathToken]) -> bool {
     if content.len() != 2 {
         return false;
     }
-    matches!(content[0], MathToken::Operator('\u{2212}'))
-        && matches!(content[1], MathToken::Number(_))
+    // 부호: ASCII `-` 또는 수학 마이너스 `\u{2212}`. 둘 다 첨자에서 단순 부호로 본다.
+    let is_minus = matches!(
+        content[0],
+        MathToken::Operator('\u{2212}') | MathToken::Operator('-')
+    );
+    // 부호 뒤 단일 숫자 또는 단일 변수. 예: `e^{-x}`, `x^{-1}`.
+    let is_simple_term = matches!(content[1], MathToken::Number(_) | MathToken::Variable(_));
+    is_minus && is_simple_term
 }
 
 pub fn should_group_superscript(content: &[MathToken]) -> bool {
