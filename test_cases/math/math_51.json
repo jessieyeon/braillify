@@ -1,26 +1,46 @@
 [
   {
-    "input": "lim(x→b) g(x)",
+    "input": "$\\lim_{x \\to b} g(x)$",
+    "note": "PDF 제51항 예제 1 — lim은 첨자/화살표 표기로 평문 불가, LaTeX 필수",
     "internal": "lim;x`3o`b`g8x0",
     "expected": "7101348450182103027384552",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠃⠀⠛⠦⠭⠴",
-    "world": "⠴⠇⠊⠍⠐⠣⠭⠰⠳⠕⠃⠐⠜ ⠛⠐⠣⠭⠠⠴",
-    "jeomsarang": "⠴⠇⠊⠍⠐⠣⠰⠭⠰⠳⠕⠃⠐⠜⠀⠛⠦⠄⠴⠭⠠⠴"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "lim(x→∞) f(x)",
+    "input": "$\\lim_{x \\to \\infty} f(x)$",
+    "note": "PDF 제51항 예제 2 — 점근값 ∞ (LaTeX 필수)",
     "internal": "lim;x`3o`=`f8x0",
     "expected": "71013484501821063011384552",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠿⠀⠋⠦⠭⠴",
-    "world": "⠴⠇⠊⠍⠐⠣⠭⠰⠳⠕⠼⠿⠐⠜ ⠋⠐⠣⠭⠠⠴",
-    "jeomsarang": "⠴⠇⠊⠍⠐⠣⠰⠭⠰⠳⠕⠿⠐⠜⠀⠋⠦⠄⠴⠭⠠⠴"
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$\\lim_{a \\to 0} \\frac{a}{a+1}$",
+    "note": "PDF 제51항 예제 3 — lim + 분수 (LaTeX 필수)",
     "internal": "LIM;A`3o`#J`A/_8A5#A0",
     "expected": "7101348101821060260112563813460152",
     "unicode": "⠇⠊⠍⠰⠁⠀⠒⠕⠀⠼⠚⠀⠁⠌⠸⠦⠁⠢⠼⠁⠴",
-    "note": "LaTeX",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\lim_{x \\to \\pm\\infty} (1+\\frac{1}{x})^{x} = e$",
+    "note": "PDF 제51항 예제 4 — lim + ±∞ + 분수 + superscript (LaTeX 필수)",
+    "internal": "lim;X`3o`59=`8#A5X/#A0^X33E",
+    "expected": "710134845018210342063038601344512601522445181817",
+    "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠢⠔⠿⠀⠦⠼⠁⠢⠭⠌⠼⠁⠴⠘⠭⠒⠒⠑",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\lim_{x \\to a, y \\to b} f(x,y)$",
+    "note": "PDF 제51항 [붙임] — 범위가 둘인 경우 (LaTeX 필수)",
+    "internal": "LIM;X`3o`A`;Y`3o`B`F8X\"`Y0",
+    "expected": "710134845018210104861018210301138451606152",
+    "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠁⠀⠰⠽⠀⠒⠕⠀⠃⠀⠋⠦⠭⠐⠀⠽⠴",
     "world": "",
     "jeomsarang": ""
   }

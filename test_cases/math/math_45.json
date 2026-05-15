@@ -1,6 +1,7 @@
 [
   {
     "input": "y=f(x)",
+    "note": "PDF 제45항 예제 1 (평문 가능: 변수+등호+함수호출)",
     "internal": "y33f8x0",
     "expected": "61181811384552",
     "unicode": "⠽⠒⠒⠋⠦⠭⠴",
@@ -9,6 +10,7 @@
   },
   {
     "input": "f(x-1)",
+    "note": "PDF 제45항 예제 2 (평문 가능)",
     "internal": "f8x9#a0",
     "expected": "1138452060152",
     "unicode": "⠋⠦⠭⠔⠼⠁⠴",
@@ -16,7 +18,17 @@
     "jeomsarang": "⠴⠰⠋⠐⠣⠰⠭⠤⠼⠁⠐⠜⠲"
   },
   {
+    "input": "(g∘f)(x)=g(f(x))",
+    "note": "PDF 제45항 예제 3 (합성 함수, Unicode ∘ 평문 가능)",
+    "internal": "8G_0F08X033G8F8X00",
+    "expected": "382756521152384552181827381138455252",
+    "unicode": "⠦⠛⠸⠴⠋⠴⠦⠭⠴⠒⠒⠛⠦⠋⠦⠭⠴⠴",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "y=f⁻¹(x)",
+    "note": "PDF 제45항 예제 4 (Unicode superscript ⁻¹ 평문 가능)",
     "internal": "y33f^9#a8x0",
     "expected": "611818112420601384552",
     "unicode": "⠽⠒⠒⠋⠘⠔⠼⠁⠦⠭⠴",
@@ -25,27 +37,28 @@
   },
   {
     "input": "$y=f^{-1}(x)$",
+    "note": "PDF 제45항 예제 4 — LaTeX 표기 변형",
     "internal": "y33f^9#a8x0",
     "expected": "611818112420601384552",
     "unicode": "⠽⠒⠒⠋⠘⠔⠼⠁⠦⠭⠴",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "F(x-1)",
-    "internal": "F8X9#A0",
-    "expected": "1138452060152",
-    "unicode": "⠋⠦⠭⠔⠼⠁⠴",
-    "world": "⠴⠠⠋⠐⠣⠭⠤⠼⠁⠠⠴",
-    "jeomsarang": "⠴⠠⠋⠐⠣⠰⠭⠤⠼⠁⠐⠜⠲"
+    "input": "$x \\xrightarrow{f} y$",
+    "note": "PDF 제45항 [붙임] 예제 1 — 화살표 위 라벨 (평문 불가, LaTeX 필수)",
+    "internal": "X`F3O`Y",
+    "expected": "450111821061",
+    "unicode": "⠭⠀⠋⠒⠕⠀⠽",
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "$f: X \\to Y$",
+    "input": "$x \\xrightarrow[g]{f} y$",
+    "note": "PDF 제45항 [붙임] 예제 2 — 화살표 위 f / 아래 g (평문 불가, LaTeX 필수)",
     "internal": "X`F[7OG`Y",
     "expected": "4501142542127061",
     "unicode": "⠭⠀⠋⠪⠶⠕⠛⠀⠽",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   }
