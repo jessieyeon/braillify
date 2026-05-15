@@ -112,6 +112,35 @@ fn is_korean_suffix_char(c: char) -> bool {
     is_korean_char(c) || matches!(c, ')' | ']' | '}' | '.' | ',' | '!' | '?')
 }
 
+/// PDF 제44항 [다만]: 숫자와 혼동되는 'ㄴ, ㄷ, ㅁ, ㅋ, ㅌ, ㅍ, ㅎ'의 첫소리 글자와
+/// '운'의 약자는 숫자 뒤에 붙어 나오더라도 숫자와 한글을 띄어 쓴다.
+///
+/// 즉, 수식·숫자 토큰 직후 한국어 음절이 위 7개 자음 초성으로 시작하거나
+/// 첫 글자가 '운'이면 사이에 띄어쓰기를 추가한다.
+///
+/// 예: `$\frac{2}{5}$는` (는 = ㄴ 초성) → 분수 + 공백 + 는
+///     `$\frac{3}{5}$은` (은 = ㅇ 초성) → 분수 + 은 (붙여쓰기)
+fn rule_44_requires_space_before_korean(s: &str) -> bool {
+    let Some(first_char) = s.chars().next() else {
+        return false;
+    };
+    let code = first_char as u32;
+    // 한글 음절 (AC00-D7A3) 외 한글 자모는 검사하지 않음.
+    if !(0xAC00..=0xD7A3).contains(&code) {
+        return false;
+    }
+    // 한글 음절 → 초성 추출. (음절 코드 - 0xAC00) / (21 * 28).
+    // 초성 인덱스: ㄱ(0), ㄲ(1), ㄴ(2), ㄷ(3), ㄸ(4), ㄹ(5), ㅁ(6), ㅂ(7), ㅃ(8),
+    //              ㅅ(9), ㅆ(10), ㅇ(11), ㅈ(12), ㅉ(13), ㅊ(14), ㅋ(15), ㅌ(16),
+    //              ㅍ(17), ㅎ(18)
+    let cho_index = (code - 0xAC00) / (21 * 28);
+    if matches!(cho_index, 2 | 3 | 6 | 15 | 16 | 17 | 18) {
+        return true;
+    }
+    // '운' 약자: '운' = U+C6B4 (오십칠항). 단일 음절이 '운'으로 시작.
+    first_char == '운'
+}
+
 fn build_word_token(text: String) -> Token<'static> {
     let chars: Vec<char> = text.chars().collect();
     Token::Word(WordToken {
@@ -679,14 +708,19 @@ impl TokenRule for MathExpressionTokenRule {
                 if let Some((whole, numerator, denominator)) =
                     crate::fraction::parse_latex_fraction(latex)
                 {
-                    return Ok(TokenAction::ReplaceMany(vec![
-                        Token::Fraction(crate::rules::token::FractionToken {
+                    // 제44항 [다만]: 분수 직후 한국어 조사의 첫 초성이 ㄴ/ㄷ/ㅁ/ㅋ/ㅌ/ㅍ/ㅎ
+                    // 또는 '운'으로 시작하면 띄어 쓴다.
+                    let mut replacement: Vec<Token<'a>> =
+                        vec![Token::Fraction(crate::rules::token::FractionToken {
                             whole,
                             numerator,
                             denominator,
-                        }),
-                        build_word_token(suffix.to_string()),
-                    ]));
+                        })];
+                    if !suffix.is_empty() && rule_44_requires_space_before_korean(suffix) {
+                        replacement.push(Token::Space(crate::rules::token::SpaceKind::Regular));
+                    }
+                    replacement.push(build_word_token(suffix.to_string()));
+                    return Ok(TokenAction::ReplaceMany(replacement));
                 }
 
                 let inner = &latex[1..latex.len() - 1];
