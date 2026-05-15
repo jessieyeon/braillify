@@ -61,6 +61,10 @@ static ENGLISH_SYMBOL_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     ')' => &[decode_unicode('⠐'), decode_unicode('⠜')],
     ',' => &[decode_unicode('⠂')],
     '-' => &[decode_unicode('⠤')],
+    // 제39항 영-한 wrap context의 단어 끝 ':' 영어 점자 (⠒).
+    // 일반 영어 단어 끝 ':'은 이 매핑이 있어도 should_render_symbol_as_english가
+    // 영어 점자 변환을 결정하므로, 영어 컨텍스트가 끊긴 경우엔 적용되지 않는다.
+    ':' => &[decode_unicode('⠒')],
 };
 
 pub fn encode_char_symbol_shortcut(text: char) -> Result<&'static [u8], String> {

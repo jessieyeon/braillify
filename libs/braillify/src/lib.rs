@@ -137,20 +137,46 @@ fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
     let mut slash_open = false;
     let mut korean_buf = String::new();
 
+    // IPA 입력 전체에 한국어가 한 글자라도 있으면, 묶음 밖 영어 어절도
+    // 한국어 점자 환경의 일부로 보고 영자표시(⠴)를 emit해야 한다.
+    // (예: "worth [wəːrθ]: ~해볼 만한" → 영어 "worth" 시작에 ⠴ 필요.)
+    let has_korean_anywhere = text.chars().any(utils::is_korean_char);
+
     let flush_korean = |buf: &mut String, out: &mut Vec<u8>| -> Result<(), String> {
         if !buf.is_empty() {
-            // 묶음 밖의 한국어/영문 등은 일반 인코더로 위임한다.
-            let enc = encode(buf.as_str())?;
+            // 묶음 밖의 한국어/영문 등은 일반 인코더로 위임한다. 전체 입력에
+            // 한국어가 있는 경우, 영어 단어 시작에 영자표시가 붙도록 강제한다.
+            let enc = if has_korean_anywhere {
+                let mut encoder = Encoder::new(true);
+                let mut result = Vec::new();
+                encoder.encode(buf.as_str(), &mut result)?;
+                result
+            } else {
+                encode(buf.as_str())?
+            };
             out.extend(enc);
             buf.clear();
         }
         Ok(())
     };
 
+    // 영어 어절 직후 IPA 묶음이 이어지면, 영어 종료표(⠲)는 묶음 기호가 새
+    // 컨텍스트를 열기 때문에 불필요하다. 공백 위에 놓인 종료표만 제거한다.
+    fn strip_trailing_english_terminator_before_bracket(out: &mut Vec<u8>) {
+        let mut i = out.len();
+        while i > 0 && out[i - 1] == 0 {
+            i -= 1;
+        }
+        if i > 0 && out[i - 1] == 50 {
+            out.remove(i - 1);
+        }
+    }
+
     for ch in text.chars() {
         match ch {
             '[' => {
                 flush_korean(&mut korean_buf, &mut out)?;
+                strip_trailing_english_terminator_before_bracket(&mut out);
                 // 여는 대괄호: ⠐⠘⠷ = 16, 24, 55
                 out.extend_from_slice(&[16, 24, 55]);
                 bracket_open = true;
@@ -168,6 +194,7 @@ fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
                     out.extend_from_slice(&[24, 12]);
                     slash_open = false;
                 } else {
+                    strip_trailing_english_terminator_before_bracket(&mut out);
                     // 여는 빗금: ⠐⠘⠌ = 16, 24, 12
                     out.extend_from_slice(&[16, 24, 12]);
                     slash_open = true;

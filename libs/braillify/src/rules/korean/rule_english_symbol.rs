@@ -55,6 +55,20 @@ impl BrailleRule for RuleEnglishSymbol {
             ctx.remaining_words,
         );
 
+        // 제39항 영-한 wrap context: 단어 끝의 영어 모드 유지 가능 기호(. , : ;)
+        // 다음에 한글 어절(wrap 대상)이 이어지면 그 기호를 영어 점자로 처리한다.
+        // 예) "(Korean:" 끝의 ':'은 다음 wrap된 "반찬" 직전이므로 영어 점자 ⠒.
+        if !use_english_symbol
+            && ctx.state.english_dominant_wrap_active
+            && ctx.state.is_english
+            && ctx.index == ctx.word_chars.len() - 1
+            && matches!(*sym, '.' | ',' | ':' | ';')
+            && let Some(next_word) = ctx.remaining_words.first()
+            && next_word.chars().next().is_some_and(utils::is_korean_char)
+        {
+            use_english_symbol = true;
+        }
+
         if *sym == '(' {
             ctx.state.parenthesis_stack.push(use_english_symbol);
         } else if *sym == ')' {

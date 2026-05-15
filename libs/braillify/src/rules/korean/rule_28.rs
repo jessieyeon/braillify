@@ -9,7 +9,7 @@
 
 use crate::char_struct::CharType;
 use crate::english;
-use crate::rule_en::{rule_en_10_4, rule_en_10_5_whole_word, rule_en_10_6};
+use crate::rule_en::{rule_en_10_4, rule_en_10_5_whole_word, rule_en_10_6, rule_en_multi_cell};
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
@@ -75,7 +75,11 @@ impl BrailleRule for Rule28 {
         };
 
         // Enter English mode (로마자표 / 연속표)
-        if ctx.state.english_indicator && !ctx.state.is_english {
+        // 제39항 영어 주도 문서에서는 영자표시/연속표를 emit하지 않는다.
+        if ctx.state.english_indicator
+            && !ctx.state.is_english
+            && !ctx.state.english_dominant_no_indicator
+        {
             if ctx.state.needs_english_continuation {
                 ctx.emit(48);
             } else {
@@ -157,15 +161,20 @@ impl BrailleRule for Rule28 {
             return Ok(RuleResult::Consumed);
         }
 
+        // 제39항 영-한 wrap 활성 컨텍스트에서는 단독 단어 "in", "be"도
+        // UEB 약자를 적용한다 (예: "What is 김치 in English?"의 "in" → ⠔).
+        let wrap_active = ctx.state.english_dominant_wrap_active;
         let allow_10_6 = !(ctx.is_all_uppercase
-            || be_boundary_non_alpha
-            || in_boundary_non_alpha
-            || (is_whole_lowercase_word && matches!(remaining.as_str(), "be" | "in")));
+            || (!wrap_active && be_boundary_non_alpha)
+            || (!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active
+                && is_whole_lowercase_word
+                && matches!(remaining.as_str(), "be" | "in")));
         let allow_10_4_entry = !(ctx.is_all_uppercase
-            || in_boundary_non_alpha
-            || (is_whole_lowercase_word && remaining == "in"));
-        let allow_10_4_cont =
-            !(in_boundary_non_alpha || (is_whole_lowercase_word && remaining == "in"));
+            || (!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
+        let allow_10_4_cont = !((!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
 
         if !ctx.state.is_english || ctx.index == 0 {
             if allow_10_6 && let Some((code, len)) = rule_en_10_6(&remaining) {
@@ -174,11 +183,28 @@ impl BrailleRule for Rule28 {
             } else if allow_10_4_entry && let Some((code, len)) = rule_en_10_4(&remaining) {
                 ctx.emit(code);
                 *ctx.skip_count = len;
+            } else if wrap_active && let Some((cells, len)) = rule_en_multi_cell(&remaining) {
+                ctx.emit_slice(cells);
+                *ctx.skip_count = len;
             } else {
                 ctx.emit(english::encode_english(*c)?);
             }
         } else if allow_10_4_cont && let Some((code, len)) = rule_en_10_4(&remaining) {
             ctx.emit(code);
+            *ctx.skip_count = len;
+        } else if wrap_active
+            && allow_10_6
+            && let Some((code, len)) = rule_en_10_6(&remaining)
+        {
+            // 제39항 영-한 wrap context에서는 word middle에서도 1급 점자 기호표
+            // 하위 약자(10.6: ea, be, con, en, in)를 적용한다.
+            // 예: "Korean"의 'ea' → ⠂.
+            ctx.emit(code);
+            *ctx.skip_count = len;
+        } else if wrap_active && let Some((cells, len)) = rule_en_multi_cell(&remaining) {
+            // 제39항 영-한 wrap context: word middle에서도 multi-cell 약자
+            // ('ong' → ⠰⠛)를 적용한다. 예: "along" → ⠁⠇⠰⠛.
+            ctx.emit_slice(cells);
             *ctx.skip_count = len;
         } else {
             ctx.emit(english::encode_english(*c)?);

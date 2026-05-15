@@ -82,6 +82,11 @@ pub struct EncoderState {
     pub is_number: bool,
     /// Currently in a consecutive uppercase run within a word
     pub is_big_english: bool,
+    /// 제39항: 영-한 wrap이 활성화된 문서. 단독 단어 "in", "be" 등도 UEB 약자 적용.
+    pub english_dominant_wrap_active: bool,
+    /// 제39항: 영어 주도(영어 어절 ≫ 한글) 문서. 영자표시(⠴)·단일 대문자 표시
+    /// (⠠)·종료표(⠲)를 모두 생략한다.
+    pub english_dominant_no_indicator: bool,
 }
 
 impl EncoderState {
@@ -97,6 +102,8 @@ impl EncoderState {
             parenthesis_stack: Vec::new(),
             is_number: false,
             is_big_english: false,
+            english_dominant_wrap_active: false,
+            english_dominant_no_indicator: false,
         }
     }
 

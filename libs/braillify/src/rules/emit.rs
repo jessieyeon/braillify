@@ -8,13 +8,60 @@ use crate::rules::traits::Phase;
 
 use super::token::{DocumentIR, ModeEvent, SpaceKind, Token, WordMeta, WordToken};
 
+/// 제39항 한글표 점형 (⠸⠷). 영어 어절 사이에 끼인 한글 어절을 감싼다.
+pub(crate) const HANGUL_WRAP_START_BYTES: [u8; 2] = [56, 55];
+/// 제39항 한글 종료표 점형 (⠸⠾).
+pub(crate) const HANGUL_WRAP_END_BYTES: [u8; 2] = [56, 62];
+
+/// 토큰의 byte 슬라이스가 한글표(⠸⠷) 점형과 일치하는지.
+fn is_hangul_wrap_start(token: &Token<'_>) -> bool {
+    matches!(token, Token::PreEncoded(bytes) if bytes.as_slice() == HANGUL_WRAP_START_BYTES)
+}
+
+/// 토큰의 byte 슬라이스가 한글 종료표(⠸⠾) 점형과 일치하는지.
+fn is_hangul_wrap_end(token: &Token<'_>) -> bool {
+    matches!(token, Token::PreEncoded(bytes) if bytes.as_slice() == HANGUL_WRAP_END_BYTES)
+}
+
+/// 어떤 토큰 직후, 공백/PreEncoded(non-wrap)을 건너뛰고 만나는 첫 토큰이
+/// 한글표 시작이면 true. 한글 wrap이 영어 모드 유지를 위한 신호이므로,
+/// 단어 끝의 종료표 emit을 건너뛰는 데 사용된다.
+fn next_non_space_is_hangul_wrap_start<'a>(tokens: &'a [Token<'a>], after_index: usize) -> bool {
+    for token in tokens.iter().skip(after_index + 1) {
+        match token {
+            Token::Space(_) => continue,
+            t => return is_hangul_wrap_start(t),
+        }
+    }
+    false
+}
+
+/// 어떤 토큰 직전에, 공백을 건너뛰고 만나는 첫 비공백 토큰이 한글 종료표면 true.
+/// 한글 wrap 종료 후 영어 컨텍스트가 자동 재개되는 점을 알리는 데 사용한다.
+fn prev_non_space_is_hangul_wrap_end<'a>(tokens: &'a [Token<'a>], before_index: usize) -> bool {
+    for token in tokens[..before_index].iter().rev() {
+        match token {
+            Token::Space(_) => continue,
+            t => return is_hangul_wrap_end(t),
+        }
+    }
+    false
+}
+
 pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
 
-    for token in &ir.tokens {
+    for (idx, token) in ir.tokens.iter().enumerate() {
         match token {
             Token::Word(word) => {
-                emit_word(word, &mut ir.state, char_engine, &ir.tokens, &mut result)?;
+                emit_word(
+                    word,
+                    idx,
+                    &mut ir.state,
+                    char_engine,
+                    &ir.tokens,
+                    &mut result,
+                )?;
             }
             Token::Space(SpaceKind::Regular) => result.push(0),
             Token::Mode(event) => emit_mode_event(*event, &mut ir.state, &mut result),
@@ -33,7 +80,20 @@ pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>
                 }
                 ir.state.is_number = true;
             }
-            Token::PreEncoded(bytes) => result.extend(bytes),
+            Token::PreEncoded(bytes) => {
+                // 제39항 한글 wrap 점형은 영어 모드를 자동으로 휴면(⠸⠷)·재개(⠸⠾)시킨다.
+                // 이렇게 하면 wrap 사이의 한글 어절은 한국어 인코더로 처리되고,
+                // wrap 종료 후 이어지는 영어 어절은 영자표시(⠴) 없이 모드를 이어간다.
+                if bytes.as_slice() == HANGUL_WRAP_START_BYTES {
+                    ir.state.is_english = false;
+                    ir.state.needs_english_continuation = false;
+                    ir.state.roman_number_chain = false;
+                } else if bytes.as_slice() == HANGUL_WRAP_END_BYTES {
+                    ir.state.is_english = true;
+                    ir.state.needs_english_continuation = false;
+                }
+                result.extend(bytes);
+            }
         }
     }
 
@@ -196,6 +256,7 @@ fn extract_word_context<'a>(
 
 fn emit_word(
     word: &WordToken,
+    token_index: usize,
     state: &mut EncoderState,
     char_engine: &mut RuleEngine,
     all_tokens: &[Token],
@@ -203,6 +264,11 @@ fn emit_word(
 ) -> Result<(), String> {
     let (prev_word, remaining_words_vec) = extract_word_context(word, all_tokens);
     let remaining_words = remaining_words_vec.as_slice();
+    // 다음 비공백 토큰이 한글표(⠸⠷)이면 영어 모드를 끊지 않는다 (제39항).
+    let next_is_hangul_wrap = next_non_space_is_hangul_wrap_start(all_tokens, token_index);
+    // 직전 비공백 토큰이 한글 종료표(⠸⠾)이면 이 토큰의 시작 문장부호도
+    // 영어 컨텍스트의 일부로 본다 (제39항 wrap 재개 직후).
+    let prev_is_hangul_wrap_end = prev_non_space_is_hangul_wrap_end(all_tokens, token_index);
 
     let word_text = word.text.as_ref();
 
@@ -234,6 +300,11 @@ fn emit_word(
         {
             if state.roman_number_chain {
                 resume_english_from_roman_number_chain(state);
+            } else if state.english_dominant_no_indicator {
+                // 영어 주도 문서: 영자표시 ⠴ 생략, state만 영어 모드로 전환.
+                state.is_english = true;
+                state.needs_english_continuation = false;
+                state.roman_number_chain = false;
             } else {
                 enter_english(state, result);
             }
@@ -263,20 +334,44 @@ fn emit_word(
                         exit_english_for_roman_number_chain(state);
                     }
                     CharType::Symbol(sym) => {
-                        if english_logic::should_render_symbol_as_english(
-                            state.english_indicator,
-                            state.is_english,
-                            &state.parenthesis_stack,
-                            *sym,
-                            &word_chars,
-                            i,
-                            remaining_words,
-                        ) || english_logic::should_keep_english_mode_for_symbol(
-                            *sym,
-                            &word_chars,
-                            i,
-                            remaining_words,
-                        ) {
+                        // 한글 wrap 직후의 첫 디지털 표기 기호(. / @ # _ : -)는
+                        // 영어 컨텍스트의 연속으로 본다. 예) "www.대통령.kr"에서
+                        // wrap 종료 직후의 '.'는 ".kr" 영어 도메인 일부.
+                        let prev_wrap_eng_continuation = i == 0
+                            && prev_is_hangul_wrap_end
+                            && matches!(*sym, '.' | '/' | '@' | '#' | '_' | ':' | '-')
+                            && english_logic::next_ascii_letter_or_digit(
+                                &word_chars,
+                                i,
+                                remaining_words,
+                            );
+
+                        // 단어 끝의 영어 모드 유지 가능 기호(. , : ;) 직후 한글표(⠸⠷)가
+                        // 이어지면, 그 기호도 영어 컨텍스트의 연속으로 본다 (제39항 wrap
+                        // 직전). 예) "(Korean:" 끝의 ':'은 다음 wrap된 한글에 이어지므로
+                        // 영어 점자(⠒)로 처리.
+                        let next_wrap_eng_continuation = i == word_chars.len() - 1
+                            && next_is_hangul_wrap
+                            && matches!(*sym, '.' | ',' | ':' | ';');
+
+                        if prev_wrap_eng_continuation
+                            || next_wrap_eng_continuation
+                            || english_logic::should_render_symbol_as_english(
+                                state.english_indicator,
+                                state.is_english,
+                                &state.parenthesis_stack,
+                                *sym,
+                                &word_chars,
+                                i,
+                                remaining_words,
+                            )
+                            || english_logic::should_keep_english_mode_for_symbol(
+                                *sym,
+                                &word_chars,
+                                i,
+                                remaining_words,
+                            )
+                        {
                         } else if english_logic::should_force_terminator_before_symbol(*sym)
                             || !english_logic::should_skip_terminator_for_symbol(*sym)
                         {
@@ -326,6 +421,8 @@ fn emit_word(
                 parenthesis_stack: state.parenthesis_stack.clone(),
                 is_number,
                 is_big_english,
+                english_dominant_wrap_active: state.english_dominant_wrap_active,
+                english_dominant_no_indicator: state.english_dominant_no_indicator,
             };
             apply_core_encoding_rules(
                 char_engine,
@@ -371,6 +468,8 @@ fn emit_word(
                     parenthesis_stack: state.parenthesis_stack.clone(),
                     is_number,
                     is_big_english,
+                    english_dominant_wrap_active: state.english_dominant_wrap_active,
+                    english_dominant_no_indicator: state.english_dominant_no_indicator,
                 };
                 apply_inter_character_rules(
                     char_engine,
@@ -409,7 +508,13 @@ fn emit_word(
 
     // ── [F] Post-loop: English termination for next word (encoder.rs:424-482) ──
     // Space between words is handled by Token::Space, NOT emitted here.
-    if state.english_indicator && state.is_english {
+    // 제39항: 다음 토큰이 한글표(⠸⠷)이면 영어 모드를 끊지 않는다.
+    // 한글표 emit 시점에 영어 모드가 자동 휴면되고, 한글 종료표(⠸⠾)에서 재개된다.
+    if state.english_indicator && state.is_english && next_is_hangul_wrap {
+        // 한글 wrap이 영어 모드 전환을 책임지므로 여기서는 아무 것도 emit하지 않는다.
+    } else if state.english_dominant_no_indicator && state.english_indicator && state.is_english {
+        // 영어 주도 문서: 영어 단어 사이의 종료표 ⠲ 모두 생략하고 영어 모드를 유지.
+    } else if state.english_indicator && state.is_english {
         if remaining_words.is_empty() {
             result.push(50);
             exit_english(state, false);

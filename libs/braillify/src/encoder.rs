@@ -171,8 +171,14 @@ impl Encoder {
         let state_before_token_rules = ir.state.clone();
         self.token_engine.apply_all(&mut ir.tokens, &mut ir.state)?;
         let mode_stack_after_token_rules = ir.state.mode_stack.clone();
+        // 제39항 영-한 wrap 활성화 신호는 token 단계의 결정이며 emit 단계에서도
+        // 유효해야 한다. mode_stack과 함께 보존한다.
+        let wrap_active_after_token_rules = ir.state.english_dominant_wrap_active;
+        let no_indicator_after_token_rules = ir.state.english_dominant_no_indicator;
         ir.state = state_before_token_rules;
         ir.state.mode_stack = mode_stack_after_token_rules;
+        ir.state.english_dominant_wrap_active = wrap_active_after_token_rules;
+        ir.state.english_dominant_no_indicator = no_indicator_after_token_rules;
         transform(text, &mut ir.tokens)?;
 
         let output = rules::emit::emit(&mut ir, &mut self.rule_engine)?;
