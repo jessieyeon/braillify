@@ -302,6 +302,21 @@ pub(crate) fn encode_latex_math_bytes(latex_inner: &str) -> Result<Vec<u8>, Stri
     }
 
     let math_text = strip_latex_to_math(latex_inner);
+
+    // 제68항 compact notation: 단일 대문자 + 첨자(+/-/숫자) 패턴은
+    // 한국어 모드 rule_68가 ⠴(영자) + ⠠(대문자) + letter + 첨자로 처리한다.
+    // math engine은 첨자에 ⠴ 영자표시를 추가하지 않으므로 LaTeX 변환 결과가
+    // 동일한 Unicode form일 때 일반 한국어 인코더로 위임한다.
+    let chars: Vec<char> = math_text.chars().collect();
+    if chars.len() >= 2
+        && chars[0].is_ascii_uppercase()
+        && chars[1..]
+            .iter()
+            .all(|c| matches!(*c, '⁺' | '⁻' | '₀'..='₉'))
+    {
+        return crate::encode(&math_text);
+    }
+
     math::encoder::encode_math_expression(&math_text)
 }
 
@@ -829,9 +844,16 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     result.push('}');
                 }
             } else if let Some(&next) = chars.peek() {
-                result.push('_');
-                result.push(next);
-                chars.next();
+                // single char subscript: digit이면 Unicode subscript로 변환한다.
+                // (예: `B_6` → `B₆` → rule_68 compact 패턴 매칭 가능)
+                if let Some(sub) = to_subscript_sequence(&next.to_string()) {
+                    result.push_str(&sub);
+                    chars.next();
+                } else {
+                    result.push('_');
+                    result.push(next);
+                    chars.next();
+                }
             }
         } else {
             result.push(c);

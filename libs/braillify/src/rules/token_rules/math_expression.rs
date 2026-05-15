@@ -51,7 +51,7 @@ fn is_subscript(c: char) -> bool {
 fn is_combining_math_mark(c: char) -> bool {
     matches!(
         c,
-        '\u{0305}' | '\u{0307}' | '\u{0308}' | '\u{0309}' | '\u{030A}' | '\u{0332}'
+        '\u{0304}' | '\u{0305}' | '\u{0307}' | '\u{0308}' | '\u{0309}' | '\u{030A}' | '\u{0332}'
     )
 }
 
@@ -179,8 +179,13 @@ fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
     if !is_math_expression(chars, &text) {
         return None;
     }
-
-    math::encoder::encode_math_expression(&text).ok()
+    // math engine이 처리하지 못하는 패턴(예: combining macron이 있는 순환소수
+    // `2̄.3010`)은 일반 encode로 fallback한다. 일반 encode는 char-level 룰을
+    // 거쳐 같은 결과를 산출한다.
+    if let Ok(bytes) = math::encoder::encode_math_expression(&text) {
+        return Some(bytes);
+    }
+    crate::encode(&text).ok()
 }
 
 fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
