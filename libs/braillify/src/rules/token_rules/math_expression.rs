@@ -133,12 +133,21 @@ fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
     let starts_with_root = chars.first() == Some(&'√');
     let is_absolute_value_form = chars.first() == Some(&'|') && chars.last() == Some(&'|');
 
+    // 제11항: 등호 포함 수식 (예: "y=x+2는") — 한국어와 결합된 mixed math 토큰
+    // 으로 분리 가능. 등호 + 변수 + 산술 연산자 형태.
+    let has_equation = chars.contains(&'=')
+        && chars.iter().any(|c| c.is_ascii_alphabetic())
+        && chars
+            .iter()
+            .any(|c| matches!(*c, '+' | '-' | '×' | '÷' | '\u{2212}'));
+
     starts_with_function
         || starts_with_root
         || is_absolute_value_form
         || has_superscript
         || has_subscript
         || has_combining_mark
+        || has_equation
 }
 
 fn is_rule_68_compact_notation(chars: &[char]) -> bool {
