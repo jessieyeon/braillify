@@ -91,7 +91,15 @@ impl BrailleRule for RuleEnglishSymbol {
             if let Some(encoded) = symbol_shortcut::encode_english_char_symbol_shortcut(*sym) {
                 ctx.emit_slice(encoded);
                 if *sym == '-' && ctx.state.is_english {
-                    ctx.emit(crate::rules::korean::rule_29::ENGLISH_CONTINUATION);
+                    // 다음 글자가 숫자이면 수표(⠼)가 emit되므로 연속표(⠰)는
+                    // 불필요하다 (제35항 D-100 같은 영문-숫자 인접 패턴).
+                    let next_is_digit = ctx
+                        .word_chars
+                        .get(ctx.index + 1)
+                        .is_some_and(|c| c.is_ascii_digit());
+                    if !next_is_digit {
+                        ctx.emit(crate::rules::korean::rule_29::ENGLISH_CONTINUATION);
+                    }
                 }
                 return Ok(RuleResult::Consumed);
             }

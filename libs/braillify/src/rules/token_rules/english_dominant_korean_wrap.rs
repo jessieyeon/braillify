@@ -131,13 +131,38 @@ fn find_korean_segments(chars: &[char]) -> Vec<KoreanSegment> {
     segments
 }
 
+/// 문서의 영어/한글 어절 분포로 영어가 다수파인지 판정.
+/// case B(토큰 경계 wrap)는 영어가 다수인 문장에서만 활성화한다.
+/// 한국어 주도 문장에 우연히 영어 어절 사이에 한국어가 끼어 있는 경우
+/// (예: "평창 ... SNS 계정은 pyeongchang ...")는 wrap 대상이 아니다.
+fn document_is_english_majority<'a>(tokens: &[Token<'a>]) -> bool {
+    let mut english_words = 0usize;
+    let mut korean_words = 0usize;
+    for token in tokens.iter() {
+        let Token::Word(word) = token else { continue };
+        let first = word
+            .chars
+            .iter()
+            .copied()
+            .find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch));
+        match first {
+            Some(c) if c.is_ascii_alphabetic() => english_words += 1,
+            Some(c) if is_korean_char(c) => korean_words += 1,
+            _ => {}
+        }
+    }
+    english_words >= korean_words.max(1)
+}
+
 /// 한글 segment의 좌·우 컨텍스트가 영어인지 판정.
 ///
 /// 두 케이스로 나누어 처리한다:
 /// 1. **양쪽 토큰 경계** — segment의 양쪽이 모두 토큰 끝이거나 문장부호만 있다.
-///    예: "김치", "반찬)". 인접 word token이 모두 영어이면 wrap.
+///    예: "김치", "반찬)". 인접 word token이 모두 영어이면서 _문서 전체가 영어 다수_
+///    일 때만 wrap. (한글 주도 문장에 영어가 끼인 경우는 wrap 대상 아님.)
 /// 2. **양쪽 토큰 내부** — segment의 양쪽이 같은 토큰 내 영어 letter로 둘러싸였다.
 ///    예: "www.대통령.kr"의 "대통령". 양쪽이 영어 letter이면 wrap.
+///    (단일 단어 내부 패턴은 문서 비율과 무관하게 항상 적용한다.)
 ///
 /// 두 케이스가 _혼합_된 경우(한쪽은 token boundary, 다른 쪽은 same-token letter)는
 /// 영어 어절 + 한국어 조사/어미 결합(예: "be는")일 가능성이 높으므로 wrap하지 않는다.
@@ -155,16 +180,14 @@ fn segment_in_english_context<'a>(
 
     match (left_at_boundary, right_at_boundary) {
         (true, true) => {
-            // 두 경계가 모두 토큰 경계. 인접 word token이 모두 영어 전용일 때 wrap.
             let prev_eng = prev_word_token(tokens, token_index).is_some_and(word_is_english_only);
             let next_eng = next_word_token(tokens, token_index).is_some_and(word_is_english_only);
-            prev_eng && next_eng
+            prev_eng && next_eng && document_is_english_majority(tokens)
         }
         (false, false) => {
-            // 한국어 segment가 같은 토큰의 영어 letter 사이에 있음.
             same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice)
         }
-        _ => false, // 혼합 경계: 영어+조사/어미 결합으로 보고 wrap 안 함.
+        _ => false,
     }
 }
 

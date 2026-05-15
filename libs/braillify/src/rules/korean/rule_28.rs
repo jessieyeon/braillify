@@ -183,7 +183,8 @@ impl BrailleRule for Rule28 {
             } else if allow_10_4_entry && let Some((code, len)) = rule_en_10_4(&remaining) {
                 ctx.emit(code);
                 *ctx.skip_count = len;
-            } else if wrap_active && let Some((cells, len)) = rule_en_multi_cell(&remaining) {
+            } else if let Some((cells, len)) = rule_en_multi_cell(&remaining) {
+                // multi-cell 약자 (예: 'ong' → ⠰⠛)는 영어 모드 진입 위치에서도 적용.
                 ctx.emit_slice(cells);
                 *ctx.skip_count = len;
             } else {
@@ -191,6 +192,10 @@ impl BrailleRule for Rule28 {
             }
         } else if allow_10_4_cont && let Some((code, len)) = rule_en_10_4(&remaining) {
             ctx.emit(code);
+            *ctx.skip_count = len;
+        } else if let Some((cells, len)) = rule_en_multi_cell(&remaining) {
+            // multi-cell 약자 ('ong' → ⠰⠛)는 word middle에서도 적용. 예: "along" → ⠁⠇⠰⠛.
+            ctx.emit_slice(cells);
             *ctx.skip_count = len;
         } else if wrap_active
             && allow_10_6
@@ -200,11 +205,6 @@ impl BrailleRule for Rule28 {
             // 하위 약자(10.6: ea, be, con, en, in)를 적용한다.
             // 예: "Korean"의 'ea' → ⠂.
             ctx.emit(code);
-            *ctx.skip_count = len;
-        } else if wrap_active && let Some((cells, len)) = rule_en_multi_cell(&remaining) {
-            // 제39항 영-한 wrap context: word middle에서도 multi-cell 약자
-            // ('ong' → ⠰⠛)를 적용한다. 예: "along" → ⠁⠇⠰⠛.
-            ctx.emit_slice(cells);
             *ctx.skip_count = len;
         } else {
             ctx.emit(english::encode_english(*c)?);
