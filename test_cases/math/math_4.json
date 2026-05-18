@@ -66,6 +66,15 @@
     "jeomsarang": "⠴⠭⠨⠢⠢⠼⠚"
   },
   {
+    "input": "$x≯0$",
+    "note": "LaTeX — \\ngtr 미지원이므로 Unicode 사용",
+    "internal": "x.55#j",
+    "expected": "454034346026",
+    "unicode": "⠭⠨⠢⠢⠼⠚",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "<",
     "internal": "99",
     "expected": "2020",
@@ -116,6 +125,15 @@
     "jeomsarang": "⠤⠼⠑⠐⠦⠴⠭⠐⠦⠤⠼⠃"
   },
   {
+    "input": "$-5 < x < -2$",
+    "note": "LaTeX",
+    "internal": "9#e99x99#b",
+    "expected": "2060172020452020603",
+    "unicode": "⠔⠼⠑⠔⠔⠭⠔⠔⠼⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "≮",
     "internal": ".99",
     "expected": "402020",
@@ -130,6 +148,15 @@
     "unicode": "⠭⠨⠔⠔⠽",
     "world": "⠴⠭⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲",
     "jeomsarang": "⠴⠭⠨⠔⠔⠰⠽⠲"
+  },
+  {
+    "input": "$x≮y$",
+    "note": "LaTeX — \\nless 미지원이므로 Unicode 사용",
+    "internal": "x.99y",
+    "expected": "4540202061",
+    "unicode": "⠭⠨⠔⠔⠽",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "≧",
@@ -179,6 +206,15 @@
     "unicode": "⠭⠨⠲⠲⠽",
     "world": "⠴⠭⠸⠈⠜⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲",
     "jeomsarang": "⠴⠭⠨⠲⠲⠰⠽⠲"
+  },
+  {
+    "input": "$x≱y$",
+    "note": "LaTeX — \\ngeq 미지원이므로 Unicode 사용",
+    "internal": "x.44y",
+    "expected": "4540505061",
+    "unicode": "⠭⠨⠲⠲⠽",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "≦",
@@ -245,5 +281,14 @@
     "unicode": "⠭⠨⠖⠖⠽",
     "world": "⠴⠭⠸⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠲",
     "jeomsarang": "⠴⠭⠨⠖⠖⠰⠽⠲"
+  },
+  {
+    "input": "$x≰y$",
+    "note": "LaTeX — \\nleq 미지원이므로 Unicode 사용",
+    "internal": "x.66y",
+    "expected": "4540222261",
+    "unicode": "⠭⠨⠖⠖⠽",
+    "world": "",
+    "jeomsarang": ""
   }
 ]
