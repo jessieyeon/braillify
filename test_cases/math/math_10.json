@@ -1,6 +1,7 @@
 [
   {
     "input": "→",
+    "note": "PDF 제10항 본문 — 오른쪽 화살표",
     "internal": "3o",
     "expected": "1821",
     "unicode": "⠒⠕",
@@ -8,7 +9,17 @@
     "jeomsarang": "⠒⠕"
   },
   {
+    "input": "$\\rightarrow$",
+    "note": "LaTeX",
+    "internal": "3o",
+    "expected": "1821",
+    "unicode": "⠒⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "←",
+    "note": "PDF 제10항 본문 — 왼쪽 화살표",
     "internal": "[3",
     "expected": "4218",
     "unicode": "⠪⠒",
@@ -16,7 +27,17 @@
     "jeomsarang": "⠪⠒"
   },
   {
+    "input": "$\\leftarrow$",
+    "note": "LaTeX",
+    "internal": "[3",
+    "expected": "4218",
+    "unicode": "⠪⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↔",
+    "note": "PDF 제10항 본문 — 양쪽 화살표",
     "internal": "[3o",
     "expected": "421821",
     "unicode": "⠪⠒⠕",
@@ -24,7 +45,17 @@
     "jeomsarang": "⠪⠒⠕"
   },
   {
+    "input": "$\\leftrightarrow$",
+    "note": "LaTeX",
+    "internal": "[3o",
+    "expected": "421821",
+    "unicode": "⠪⠒⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↑",
+    "note": "PDF 제10항 본문 — 위쪽 화살표",
     "internal": ";3o",
     "expected": "481821",
     "unicode": "⠰⠒⠕",
@@ -32,7 +63,17 @@
     "jeomsarang": "⠰⠒⠕"
   },
   {
+    "input": "$\\uparrow$",
+    "note": "LaTeX",
+    "internal": ";3o",
+    "expected": "481821",
+    "unicode": "⠰⠒⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↓",
+    "note": "PDF 제10항 본문 — 아래쪽 화살표",
     "internal": "^3o",
     "expected": "241821",
     "unicode": "⠘⠒⠕",
@@ -40,7 +81,17 @@
     "jeomsarang": "⠘⠒⠕"
   },
   {
+    "input": "$\\downarrow$",
+    "note": "LaTeX",
+    "internal": "^3o",
+    "expected": "241821",
+    "unicode": "⠘⠒⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↗",
+    "note": "PDF 제10항 본문 — 오른쪽 위로 향한 화살표",
     "internal": "9o",
     "expected": "2021",
     "unicode": "⠔⠕",
@@ -48,7 +99,17 @@
     "jeomsarang": "⠔⠕"
   },
   {
+    "input": "$\\nearrow$",
+    "note": "LaTeX",
+    "internal": "9o",
+    "expected": "2021",
+    "unicode": "⠔⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↘",
+    "note": "PDF 제10항 본문 — 오른쪽 아래로 향한 화살표",
     "internal": "5o",
     "expected": "3421",
     "unicode": "⠢⠕",
@@ -56,7 +117,17 @@
     "jeomsarang": "⠢⠕"
   },
   {
+    "input": "$\\searrow$",
+    "note": "LaTeX",
+    "internal": "5o",
+    "expected": "3421",
+    "unicode": "⠢⠕",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↖",
+    "note": "PDF 제10항 본문 — 왼쪽 위로 향한 화살표",
     "internal": "[5",
     "expected": "4234",
     "unicode": "⠪⠢",
@@ -64,12 +135,40 @@
     "jeomsarang": "⠪⠢"
   },
   {
+    "input": "$\\nwarrow$",
+    "note": "LaTeX",
+    "internal": "[5",
+    "expected": "4234",
+    "unicode": "⠪⠢",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "↙",
+    "note": "PDF 제10항 본문 — 왼쪽 아래로 향한 화살표",
     "internal": "[9",
     "expected": "4220",
     "unicode": "⠪⠔",
     "world": "⠪⠔",
     "jeomsarang": "⠪⠔"
+  },
+  {
+    "input": "$\\swarrow$",
+    "note": "LaTeX",
+    "internal": "[9",
+    "expected": "4220",
+    "unicode": "⠪⠔",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\begin{array}{|c|c|c|c|}\\hline x & \\cdots & -1 & \\cdots \\\\\\hline f'(x) & + & 0 & - \\\\\\hline f(x) & \\nearrow & 3 & \\searrow \\\\\\hline \\end{array}$",
+    "note": "PDF 제10항 본문 — 증감표 (LaTeX \\begin{array})",
+    "internal": "63333333333333333333333333333334``x``,,,``9#a``,,,````````````````f-8x0``5``#j``9`````````````````f8x0``9o``#c``5o``````````````h333333333333333333333333333333j",
+    "expected": "22181818181818181818181818181818181818181818181818181818181818500045003232320020601003232320000000000000000113638455200340060260020000000000000000001138455200202100609003421000000000000001918181818181818181818181818181818181818181818181818181818181826",
+    "unicode": "⠖⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠲⠀⠀⠭⠀⠀⠠⠠⠠⠀⠀⠔⠼⠁⠀⠀⠠⠠⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⠤⠦⠭⠴⠀⠀⠢⠀⠀⠼⠚⠀⠀⠔⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⠦⠭⠴⠀⠀⠔⠕⠀⠀⠼⠉⠀⠀⠢⠕⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠓⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠚",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "X → Y",
@@ -80,6 +179,15 @@
     "jeomsarang": "⠴⠠⠭⠀⠰⠳⠕⠀⠰⠠⠽⠲"
   },
   {
+    "input": "$X \\rightarrow Y$",
+    "note": "LaTeX",
+    "internal": ",x`3o`,y",
+    "expected": "32450182103261",
+    "unicode": "⠠⠭⠀⠒⠕⠀⠠⠽",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "A ← B",
     "internal": ",a`[3`,b",
     "expected": "321042180323",
@@ -88,11 +196,29 @@
     "jeomsarang": "⠴⠠⠁⠀⠰⠳⠪⠀⠰⠠⠃⠲"
   },
   {
+    "input": "$A \\leftarrow B$",
+    "note": "LaTeX",
+    "internal": ",a`[3`,b",
+    "expected": "321042180323",
+    "unicode": "⠠⠁⠀⠪⠒⠀⠠⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "a ↔ b",
     "internal": "a`[3o`b",
     "expected": "1042182103",
     "unicode": "⠁⠀⠪⠒⠕⠀⠃",
     "world": "⠴⠁ ⠄⠳⠭⠆⠂⠔⠲⠄ ⠰⠃⠲",
     "jeomsarang": "⠴⠁⠀⠪⠒⠕⠀⠰⠃⠲"
+  },
+  {
+    "input": "$a ↔ b$",
+    "note": "LaTeX — ↔ Unicode 사용 (\\leftrightarrow 미지원)",
+    "internal": "a`[3o`b",
+    "expected": "1042182103",
+    "unicode": "⠁⠀⠪⠒⠕⠀⠃",
+    "world": "",
+    "jeomsarang": ""
   }
 ]
