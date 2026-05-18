@@ -81,11 +81,12 @@
     "jeomsarang": "⠼⠋⠐⠆⠼⠊"
   },
   {
-    "input": "dt/dy·du/dt·dx/du",
+    "input": "$\\frac{dy}{dt} \\cdot \\frac{dt}{du} \\cdot \\frac{du}{dx}$",
+    "note": "LaTeX — 3중 chain rule",
     "internal": "dt/dy\"du/dt\"dx/du",
     "expected": "2530122561162537122530162545122537",
     "unicode": "⠙⠞⠌⠙⠽⠐⠙⠥⠌⠙⠞⠐⠙⠭⠌⠙⠥",
-    "world": "⠴⠙⠞⠸⠌⠙⠽⠈⠡⠙⠥⠸⠌⠙⠞⠈⠡⠙⠭⠸⠌⠙⠥⠲",
-    "jeomsarang": "⠴⠙⠞⠸⠌⠙⠽⠐⠆⠙⠥⠸⠌⠙⠞⠐⠆⠙⠭⠸⠌⠙⠥⠲"
+    "world": "",
+    "jeomsarang": ""
   }
 ]
