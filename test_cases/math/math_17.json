@@ -6,7 +6,17 @@
     "expected": "36",
     "unicode": "⠤",
     "world": "⠴⠤",
-    "jeomsarang": "⠴⠤"
+    "jeomsarang": "⠴⠤",
+    "note": "PDF 제17항 — 프라임 ′ 정의 (- 으로 적는다)"
+  },
+  {
+    "input": "$\\prime$",
+    "note": "LaTeX",
+    "internal": "-",
+    "expected": "36",
+    "unicode": "⠤",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "x′",
@@ -14,7 +24,17 @@
     "expected": "4536",
     "unicode": "⠭⠤",
     "world": "⠴⠭⠴⠤",
-    "jeomsarang": "⠴⠭⠲⠶"
+    "jeomsarang": "⠴⠭⠲⠶",
+    "note": "PDF 제17항 본문 예제 — x′"
+  },
+  {
+    "input": "$x'$",
+    "note": "LaTeX",
+    "internal": "x-",
+    "expected": "4536",
+    "unicode": "⠭⠤",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "y′",
@@ -22,7 +42,17 @@
     "expected": "6136",
     "unicode": "⠽⠤",
     "world": "⠴⠽⠴⠤",
-    "jeomsarang": "⠴⠽⠲⠶"
+    "jeomsarang": "⠴⠽⠲⠶",
+    "note": "PDF 제17항 본문 예제 — y′"
+  },
+  {
+    "input": "$y'$",
+    "note": "LaTeX",
+    "internal": "y-",
+    "expected": "6136",
+    "unicode": "⠽⠤",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "a′b",
@@ -30,6 +60,16 @@
     "expected": "1363",
     "unicode": "⠁⠤⠃",
     "world": "⠴⠁⠶⠃⠲",
-    "jeomsarang": "⠴⠁⠶⠰⠃⠲"
+    "jeomsarang": "⠴⠁⠶⠰⠃⠲",
+    "note": "PDF 제17항 본문 예제 — a′b"
+  },
+  {
+    "input": "$a'b$",
+    "note": "LaTeX",
+    "internal": "a-b",
+    "expected": "1363",
+    "unicode": "⠁⠤⠃",
+    "world": "",
+    "jeomsarang": ""
   }
 ]
