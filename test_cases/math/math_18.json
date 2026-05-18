@@ -127,6 +127,15 @@
     "jeomsarang": "⠴⠁⠀"
   },
   {
+    "input": "$a^k$",
+    "note": "LaTeX",
+    "internal": "a^k",
+    "expected": "1245",
+    "unicode": "⠁⠘⠅",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "x⁷⁺⁹",
     "internal": "x^(#g5#i)",
     "expected": "452455602734601062",
@@ -195,24 +204,16 @@
     "jeomsarang": ""
   },
   {
-    "input": "3ˣ/1",
-    "note": "3^x / 1",
+    "input": "$\\frac{1}{3^x}$",
+    "note": "LaTeX — PDF p?? 가로분수",
     "internal": "#c^x/#a",
     "expected": "609244512601",
     "unicode": "⠼⠉⠘⠭⠌⠼⠁",
-    "world": "⠼⠉⠸⠌⠼⠁",
-    "jeomsarang": "⠼⠉⠀⠸⠌⠼⠁"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "3⁴⁄¹",
-    "internal": "#c^(#d/#a)",
-    "expected": "609245560251260162",
-    "unicode": "⠼⠉⠘⠷⠼⠙⠌⠼⠁⠾",
-    "world": "⠼⠉⠘⠼⠙⠘⠼⠁",
-    "jeomsarang": "⠼⠉⠘⠼⠙⠌⠘⠼⠁"
-  },
-  {
-    "input": "$3^{4/1}$",
+    "input": "$3^{\\frac{1}{4}}$",
     "note": "LaTeX",
     "internal": "#c^(#d/#a)",
     "expected": "609245560251260162",
