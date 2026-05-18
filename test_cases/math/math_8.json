@@ -50,7 +50,7 @@
     "jeomsarang": "⠼⠚⠲⠋⠀"
   },
   {
-    "input": "$\\0.\\dot{6}$",
+    "input": "$0.\\dot{6}$",
     "internal": "#j4@f",
     "expected": "602650811",
     "unicode": "⠼⠚⠲⠈⠋",
@@ -67,7 +67,7 @@
     "jeomsarang": "⠼⠚⠲⠛⠉⠊⠀"
   },
   {
-    "input": "$\\0.7\\dot{3}\\dot{9}$",
+    "input": "$0.7\\dot{3}\\dot{9}$",
     "internal": "#j4g@ci",
     "expected": "602650278910",
     "unicode": "⠼⠚⠲⠛⠈⠉⠊",
@@ -84,7 +84,7 @@
     "jeomsarang": "⠼⠚⠲⠁⠃⠉⠀"
   },
   {
-    "input": "$\\0.\\dot{1}2\\dot{3}$",
+    "input": "$0.\\dot{1}2\\dot{3}$",
     "internal": "#j4@abc",
     "expected": "6026508139",
     "unicode": "⠼⠚⠲⠈⠁⠃⠉",
@@ -101,7 +101,7 @@
     "jeomsarang": "⠲⠼⠊⠀"
   },
   {
-    "input": "$\\.\\dot{9}$",
+    "input": "$.\\dot{9}$",
     "internal": "#4@i",
     "expected": "6050810",
     "unicode": "⠼⠲⠈⠊",
