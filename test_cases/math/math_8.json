@@ -16,12 +16,30 @@
     "jeomsarang": "⠼⠚⠲⠁⠛"
   },
   {
+    "input": "$0.17$",
+    "note": "LaTeX",
+    "internal": "#j4ag",
+    "expected": "602650127",
+    "unicode": "⠼⠚⠲⠁⠛",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": ".47",
     "internal": "#4dg",
     "expected": "60502527",
     "unicode": "⠼⠲⠙⠛",
     "world": "⠲⠼⠙⠛",
     "jeomsarang": "⠲⠼⠙⠛"
+  },
+  {
+    "input": "$.47$",
+    "note": "LaTeX",
+    "internal": "#4dg",
+    "expected": "60502527",
+    "unicode": "⠼⠲⠙⠛",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "0.6̇",
