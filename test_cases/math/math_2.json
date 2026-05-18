@@ -40,12 +40,30 @@
     "jeomsarang": "⠼⠉⠛⠢⠼⠃⠑"
   },
   {
+    "input": "$37+25$",
+    "note": "LaTeX",
+    "internal": "#cg5#be",
+    "expected": "609273460317",
+    "unicode": "⠼⠉⠛⠢⠼⠃⠑",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "23−18",
     "internal": "#bc9#ah",
     "expected": "60392060119",
     "unicode": "⠼⠃⠉⠔⠼⠁⠓",
     "world": "⠼⠃⠉⠔⠼⠁⠓",
     "jeomsarang": "⠼⠃⠉⠔⠼⠁⠓"
+  },
+  {
+    "input": "$23-18$",
+    "note": "LaTeX — minus is U+002D, same internal as U+2212",
+    "internal": "#bc9#ah",
+    "expected": "60392060119",
+    "unicode": "⠼⠃⠉⠔⠼⠁⠓",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "13×3",
@@ -56,12 +74,30 @@
     "jeomsarang": "⠼⠁⠉⠡⠼⠉"
   },
   {
+    "input": "$13 \\times 3$",
+    "note": "LaTeX",
+    "internal": "#ac*#c",
+    "expected": "601933609",
+    "unicode": "⠼⠁⠉⠡⠼⠉",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "72÷8",
     "internal": "#gb//#h",
     "expected": "6027312126019",
     "unicode": "⠼⠛⠃⠌⠌⠼⠓",
     "world": "⠼⠛⠃⠌⠌⠼⠓",
     "jeomsarang": "⠼⠛⠃⠌⠌⠼⠓"
+  },
+  {
+    "input": "$72 \\div 8$",
+    "note": "LaTeX",
+    "internal": "#gb//#h",
+    "expected": "6027312126019",
+    "unicode": "⠼⠛⠃⠌⠌⠼⠓",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "·",
@@ -79,6 +115,15 @@
     "unicode": "⠼⠋⠐⠼⠊",
     "world": "⠼⠋⠐⠆⠼⠊",
     "jeomsarang": "⠼⠋⠐⠆⠼⠊"
+  },
+  {
+    "input": "$6 \\cdot 9$",
+    "note": "LaTeX",
+    "internal": "#f\"#i",
+    "expected": "6011166010",
+    "unicode": "⠼⠋⠐⠼⠊",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$\\frac{dy}{dt} \\cdot \\frac{dt}{du} \\cdot \\frac{du}{dx}$",
