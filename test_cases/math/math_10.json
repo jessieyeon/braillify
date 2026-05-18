@@ -213,8 +213,8 @@
     "jeomsarang": "⠴⠁⠀⠪⠒⠕⠀⠰⠃⠲"
   },
   {
-    "input": "$a ↔ b$",
-    "note": "LaTeX — ↔ Unicode 사용 (\\leftrightarrow 미지원)",
+    "input": "$a \\leftrightarrow b$",
+    "note": "LaTeX",
     "internal": "a`[3o`b",
     "expected": "1042182103",
     "unicode": "⠁⠀⠪⠒⠕⠀⠃",
