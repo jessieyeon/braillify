@@ -67,6 +67,15 @@
     "jeomsarang": "⠀⠻⠰⠝⠲"
   },
   {
+    "input": "$\\sqrt[m]{n}$",
+    "note": "LaTeX",
+    "internal": "m]n",
+    "expected": "135929",
+    "unicode": "⠍⠻⠝",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "√(xy)",
     "internal": ">(xy)",
     "expected": "2855456162",
