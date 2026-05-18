@@ -8,7 +8,7 @@
     "jeomsarang": ""
   },
   {
-    "input": "$\\{a_n}$",
+    "input": "$\\{a_n\\}$",
     "internal": "7a;n7",
     "expected": "541482954",
     "unicode": "⠶⠁⠰⠝⠶",
