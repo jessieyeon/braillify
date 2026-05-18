@@ -1,6 +1,7 @@
 [
   {
     "input": "√",
+    "note": "PDF 제22항 — 근호 √ 기호 정의",
     "internal": ">",
     "expected": "28",
     "unicode": "⠜",
@@ -8,7 +9,17 @@
     "jeomsarang": "⠻"
   },
   {
+    "input": "$\\surd$",
+    "note": "LaTeX",
+    "internal": ">",
+    "expected": "28",
+    "unicode": "⠜",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "√2",
+    "note": "PDF 제22항 — 근호 √2",
     "internal": ">#b",
     "expected": "28603",
     "unicode": "⠜⠼⠃",
@@ -17,15 +28,16 @@
   },
   {
     "input": "$\\sqrt{2}$",
+    "note": "LaTeX",
     "internal": ">#b",
     "expected": "28603",
     "unicode": "⠜⠼⠃",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "³√x³",
+    "note": "PDF 제22항 [붙임 1] — 세제곱근 ³√x³",
     "internal": "#c]x^#c",
     "expected": "609594524609",
     "unicode": "⠼⠉⠻⠭⠘⠼⠉",
@@ -34,15 +46,16 @@
   },
   {
     "input": "$\\sqrt[3]{x^3}$",
+    "note": "LaTeX",
     "internal": "#c]x^#c",
     "expected": "609594524609",
     "unicode": "⠼⠉⠻⠭⠘⠼⠉",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "⁵√32",
+    "note": "PDF 제22항 [붙임 1] — ⁵√32",
     "internal": "#e]#cb",
     "expected": "6017596093",
     "unicode": "⠼⠑⠻⠼⠉⠃",
@@ -51,15 +64,16 @@
   },
   {
     "input": "$\\sqrt[5]{32}$",
+    "note": "LaTeX",
     "internal": "#e]#cb",
     "expected": "6017596093",
     "unicode": "⠼⠑⠻⠼⠉⠃",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "ᵐ√n",
+    "note": "PDF 제22항 [붙임 1] — ᵐ√n",
     "internal": "m]n",
     "expected": "135929",
     "unicode": "⠍⠻⠝",
@@ -77,6 +91,7 @@
   },
   {
     "input": "√(xy)",
+    "note": "PDF 제22항 [붙임 2] — √(xy) (곱)",
     "internal": ">(xy)",
     "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾",
@@ -85,15 +100,16 @@
   },
   {
     "input": "$\\sqrt{xy}$",
+    "note": "LaTeX",
     "internal": ">(xy)",
     "expected": "2855456162",
     "unicode": "⠜⠷⠭⠽⠾",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "ᵐⁿ√y",
+    "note": "PDF 제22항 [붙임 2] — ᵐⁿ√y (근수가 다항)",
     "internal": "(mn)]y",
     "expected": "551329625961",
     "unicode": "⠷⠍⠝⠾⠻⠽",
@@ -106,6 +122,24 @@
     "internal": "(mn)]y",
     "expected": "551329625961",
     "unicode": "⠷⠍⠝⠾⠻⠽",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "ᵐ√(ⁿ√a)",
+    "note": "PDF 제22항 [붙임 2] — ᵐ√(ⁿ√a) (중첩 근호)",
+    "internal": "m](n]a)",
+    "expected": "1359552959162",
+    "unicode": "⠍⠻⠷⠝⠻⠁⠾",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sqrt[m]{\\sqrt[n]{a}}$",
+    "note": "LaTeX",
+    "internal": "m](n]a)",
+    "expected": "1359552959162",
+    "unicode": "⠍⠻⠷⠝⠻⠁⠾",
     "world": "",
     "jeomsarang": ""
   }
