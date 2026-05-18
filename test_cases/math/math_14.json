@@ -6,7 +6,17 @@
     "expected": "52321050",
     "unicode": "⠴⠠⠊⠲",
     "world": "⠴⠠⠊⠲",
-    "jeomsarang": "⠴⠠⠊⠲"
+    "jeomsarang": "⠴⠠⠊⠲",
+    "note": "PDF 수학 제14항 — 로마 숫자 (「한글 점자」 제36항 참조)"
+  },
+  {
+    "input": "$I$",
+    "note": "LaTeX",
+    "internal": "0,i4",
+    "expected": "52321050",
+    "unicode": "⠴⠠⠊⠲",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "II",
@@ -15,7 +25,17 @@
     "expected": "523232101050",
     "unicode": "⠴⠠⠠⠊⠊⠲",
     "world": "⠴⠠⠠⠊⠊⠲",
-    "jeomsarang": "⠴⠠⠠⠊⠊⠲"
+    "jeomsarang": "⠴⠠⠠⠊⠊⠲",
+    "note": "PDF 수학 제14항 — 로마 숫자 (「한글 점자」 제36항 참조)"
+  },
+  {
+    "input": "$II$",
+    "note": "LaTeX",
+    "internal": "0,,ii4",
+    "expected": "523232101050",
+    "unicode": "⠴⠠⠠⠊⠊⠲",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "III",
@@ -24,6 +44,16 @@
     "expected": "52323210101050",
     "unicode": "⠴⠠⠠⠊⠊⠊⠲",
     "world": "⠴⠠⠠⠊⠊⠊⠲",
-    "jeomsarang": "⠴⠠⠠⠊⠊⠊⠲"
+    "jeomsarang": "⠴⠠⠠⠊⠊⠊⠲",
+    "note": "PDF 수학 제14항 — 로마 숫자 (「한글 점자」 제36항 참조)"
+  },
+  {
+    "input": "$III$",
+    "note": "LaTeX",
+    "internal": "0,,iii4",
+    "expected": "52323210101050",
+    "unicode": "⠴⠠⠠⠊⠊⠊⠲",
+    "world": "",
+    "jeomsarang": ""
   }
 ]
