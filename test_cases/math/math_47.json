@@ -1,132 +1,235 @@
 [
   {
     "input": "sin",
+    "note": "PDF 제47항 — 사인 sin 기호 정의 (단독)",
     "internal": "6s",
     "expected": "2214",
     "unicode": "⠖⠎",
-    "world": "⠴⠎⠔⠲",
-    "jeomsarang": "⠴⠎⠔⠲"
-  },
-  {
-    "input": "cos",
-    "internal": "6c",
-    "expected": "229",
-    "unicode": "⠖⠉",
-    "world": "⠴⠉⠕⠎⠲",
-    "jeomsarang": "⠴⠉⠕⠎⠲"
-  },
-  {
-    "input": "2cosx",
-    "internal": "#b6cx",
-    "expected": "60322945",
-    "unicode": "⠼⠃⠖⠉⠭",
-    "world": "⠼⠃⠴⠉⠕⠎⠭⠲",
-    "jeomsarang": "⠼⠃⠴⠉⠕⠎⠭⠲"
-  },
-  {
-    "input": "tan",
-    "internal": "6t",
-    "expected": "2230",
-    "unicode": "⠖⠞",
-    "world": "⠴⠞⠁⠝⠲",
-    "jeomsarang": "⠴⠞⠁⠝⠲"
-  },
-  {
-    "input": "csc",
-    "internal": "6\\",
-    "expected": "2251",
-    "unicode": "⠖⠳",
-    "world": "⠴⠉⠎⠉⠲",
-    "jeomsarang": "⠴⠉⠎⠉⠲"
-  },
-  {
-    "input": "sec",
-    "internal": "6<",
-    "expected": "2235",
-    "unicode": "⠖⠣",
-    "world": "⠴⠎⠑⠉⠲",
-    "jeomsarang": "⠴⠎⠑⠉⠲"
-  },
-  {
-    "input": "cot",
-    "internal": "6-",
-    "expected": "2236",
-    "unicode": "⠖⠤",
-    "world": "⠴⠉⠕⠞⠲",
-    "jeomsarang": "⠴⠉⠕⠞⠲"
-  },
-  {
-    "input": "sin3x",
-    "internal": "6s(#cx)",
-    "expected": "2214556094562",
-    "unicode": "⠖⠎⠷⠼⠉⠭⠾",
-    "world": "⠴⠎⠔⠼⠉⠭⠲",
-    "jeomsarang": "⠴⠎⠔⠼⠉⠭⠲"
-  },
-  {
-    "input": "sin²x+cos²x=1",
-    "internal": "6s^#bx56c^#bx33#a",
-    "expected": "221424603453422924603451818601",
-    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
-    "world": "⠴⠎⠔⠘⠼⠃⠭⠐⠖⠉⠕⠎⠘⠼⠃⠭⠒⠒⠼⠁",
-    "jeomsarang": "⠴⠎⠔⠰⠘⠼⠃⠰⠭⠢⠉⠕⠎⠰⠘⠼⠃⠭⠐⠶⠼⠁"
-  },
-  {
-    "input": "$\\sin^2x+cos^2x=1$",
-    "internal": "6s^#bx56c^#bx33#a",
-    "expected": "221424603453422924603451818601",
-    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "sin(xy)",
+    "input": "$\\sin$",
+    "note": "LaTeX",
+    "internal": "6s",
+    "expected": "2214",
+    "unicode": "⠖⠎",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "cos",
+    "note": "PDF 제47항 — 코사인 cos 기호 정의 (단독)",
+    "internal": "6c",
+    "expected": "229",
+    "unicode": "⠖⠉",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\cos$",
+    "note": "LaTeX",
+    "internal": "6c",
+    "expected": "229",
+    "unicode": "⠖⠉",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "tan",
+    "note": "PDF 제47항 — 탄젠트 tan 기호 정의 (단독)",
+    "internal": "6t",
+    "expected": "2230",
+    "unicode": "⠖⠞",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\tan$",
+    "note": "LaTeX",
+    "internal": "6t",
+    "expected": "2230",
+    "unicode": "⠖⠞",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "csc",
+    "note": "PDF 제47항 — 코시컨트 csc 기호 정의 (단독)",
+    "internal": "6<",
+    "expected": "2235",
+    "unicode": "⠖⠣",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\csc$",
+    "note": "LaTeX",
+    "internal": "6<",
+    "expected": "2235",
+    "unicode": "⠖⠣",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "cosec",
+    "note": "PDF 제47항 — 코시컨트 cosec 별칭 (csc와 동일)",
+    "internal": "6<",
+    "expected": "2235",
+    "unicode": "⠖⠣",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "sec",
+    "note": "PDF 제47항 — 시컨트 sec 기호 정의 (단독)",
+    "internal": "6-",
+    "expected": "2236",
+    "unicode": "⠖⠤",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sec$",
+    "note": "LaTeX",
+    "internal": "6-",
+    "expected": "2236",
+    "unicode": "⠖⠤",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "cot",
+    "note": "PDF 제47항 — 코탄젠트 cot 기호 정의 (단독)",
+    "internal": "6\\",
+    "expected": "2251",
+    "unicode": "⠖⠳",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\cot$",
+    "note": "LaTeX",
+    "internal": "6\\",
+    "expected": "2251",
+    "unicode": "⠖⠳",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "sin3x",
+    "note": "PDF 제47항 [붙임] — sin3x (각이 곱, 묶음 괄호)",
+    "internal": "6s(#cx)",
+    "expected": "2214556094562",
+    "unicode": "⠖⠎⠷⠼⠉⠭⠾",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sin 3x$",
+    "note": "LaTeX",
+    "internal": "6s(#cx)",
+    "expected": "2214556094562",
+    "unicode": "⠖⠎⠷⠼⠉⠭⠾",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "sinxy",
+    "note": "PDF 제47항 [붙임] — sinxy (각이 곱, 묶음 괄호)",
     "internal": "6s(xy)",
     "expected": "221455456162",
     "unicode": "⠖⠎⠷⠭⠽⠾",
-    "world": "⠴⠎⠔⠐⠣⠭⠽⠠⠴",
-    "jeomsarang": "⠴⠎⠔⠦⠄⠭⠽⠠⠴"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "sin(x/6)",
+    "input": "$\\sin xy$",
+    "note": "LaTeX",
+    "internal": "6s(xy)",
+    "expected": "221455456162",
+    "unicode": "⠖⠎⠷⠭⠽⠾",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sin\\frac{x}{6}$",
+    "note": "PDF 제47항 [붙임] — sin(x/6) (각이 분수, 평문 표기 불가 — LaTeX만)",
     "internal": "6s(#f/x)",
     "expected": "2214556011124562",
     "unicode": "⠖⠎⠷⠼⠋⠌⠭⠾",
-    "world": "⠴⠎⠔⠐⠣⠭⠸⠌⠼⠋⠠⠴",
-    "jeomsarang": "⠴⠎⠔⠐⠣⠭⠲⠘⠌⠼⠋⠐⠜⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "2cosx",
+    "note": "PDF 제47항 [붙임] — 2cosx (계수 있는 함수)",
+    "internal": "#b6cx",
+    "expected": "60322945",
+    "unicode": "⠼⠃⠖⠉⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$2\\cos x$",
+    "note": "LaTeX",
+    "internal": "#b6cx",
+    "expected": "60322945",
+    "unicode": "⠼⠃⠖⠉⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "sin²x+cos²x=1",
+    "note": "PDF 제47항 [붙임] — sin²x+cos²x=1 (제곱 항등식)",
+    "internal": "6s^#bx56c^#bx33#a",
+    "expected": "221424603453422924603451818601",
+    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sin^2x+\\cos^2x=1$",
+    "note": "LaTeX",
+    "internal": "6s^#bx56c^#bx33#a",
+    "expected": "221424603453422924603451818601",
+    "unicode": "⠖⠎⠘⠼⠃⠭⠢⠖⠉⠘⠼⠃⠭⠒⠒⠼⠁",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "sin³x",
+    "note": "PDF 제47항 [붙임] — sin³x (함수에 위첨자)",
     "internal": "6s^#cx",
     "expected": "22142460945",
     "unicode": "⠖⠎⠘⠼⠉⠭",
-    "world": "⠴⠎⠔⠘⠼⠉⠭⠲",
-    "jeomsarang": "⠴⠎⠔⠰⠘⠼⠉⠰⠭⠲"
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$\\sin^3x$",
+    "note": "LaTeX",
     "internal": "6s^#cx",
     "expected": "22142460945",
     "unicode": "⠖⠎⠘⠼⠉⠭",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "sinx³",
+    "note": "PDF 제47항 [붙임] — sinx³ (각에 위첨자)",
     "internal": "6sx^#c",
     "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉",
-    "world": "⠴⠎⠔⠭⠘⠼⠉",
-    "jeomsarang": "⠴⠎⠔⠭⠲⠰⠘⠼⠉"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "$\\sinx^3$",
+    "input": "$\\sin x^3$",
+    "note": "LaTeX",
     "internal": "6sx^#c",
     "expected": "22144524609",
     "unicode": "⠖⠎⠭⠘⠼⠉",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   }
