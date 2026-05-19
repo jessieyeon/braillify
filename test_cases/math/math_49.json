@@ -54,8 +54,62 @@
     "jeomsarang": ""
   },
   {
+    "input": "sinhx",
+    "note": "PDF 제49항 — 예제 sinhx (쌍곡선 사인 적용)",
+    "internal": "6shx",
+    "expected": "22141945",
+    "unicode": "⠖⠎⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sinh x$",
+    "note": "LaTeX",
+    "internal": "6shx",
+    "expected": "22141945",
+    "unicode": "⠖⠎⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "coshx",
+    "note": "PDF 제49항 — 예제 coshx (쌍곡선 코사인 적용)",
+    "internal": "6chx",
+    "expected": "2291945",
+    "unicode": "⠖⠉⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\cosh x$",
+    "note": "LaTeX",
+    "internal": "6chx",
+    "expected": "2291945",
+    "unicode": "⠖⠉⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "tanhx",
+    "note": "PDF 제49항 — 예제 tanhx (쌍곡선 탄젠트 적용)",
+    "internal": "6thx",
+    "expected": "22301945",
+    "unicode": "⠖⠞⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\tanh x$",
+    "note": "LaTeX",
+    "internal": "6thx",
+    "expected": "22301945",
+    "unicode": "⠖⠞⠓⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "$\\sinh x=\\frac{e^x-e^{-x}}{2}$",
-    "note": "PDF 제49항 — 예제 4 (sinhx = (eˣ-e⁻ˣ)/2, 분수 — 평문 표기 불가 LaTeX만, 한국 점자 분수는 분모 먼저 점역)",
+    "note": "PDF 제49항 — 예제 (sinhx 정의식, 분수 — 평문 표기 불가 LaTeX만)",
     "internal": "6shx33#b/(e^x9e^9x)",
     "expected": "2214194518186031255172445201724204562",
     "unicode": "⠖⠎⠓⠭⠒⠒⠼⠃⠌⠷⠑⠘⠭⠔⠑⠘⠔⠭⠾",
@@ -64,7 +118,7 @@
   },
   {
     "input": "cosh²x-sinh²x=1",
-    "note": "PDF 제49항 — 예제 5 (cosh²x-sinh²x=1, 항등식)",
+    "note": "PDF 제49항 — 예제 (cosh²x-sinh²x=1, 항등식)",
     "internal": "6ch^#bx96sh^#bx33#a",
     "expected": "2291924603452022141924603451818601",
     "unicode": "⠖⠉⠓⠘⠼⠃⠭⠔⠖⠎⠓⠘⠼⠃⠭⠒⠒⠼⠁",
