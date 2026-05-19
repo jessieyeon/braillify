@@ -1,31 +1,61 @@
 [
   {
     "input": "sinh",
+    "note": "PDF 제49항 — 쌍곡선 사인 sinh 기호 정의 (단독)",
     "internal": "6sh",
     "expected": "221419",
     "unicode": "⠖⠎⠓",
-    "world": "⠴⠎⠔⠓⠲",
-    "jeomsarang": "⠴⠎⠔⠓⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sinh$",
+    "note": "LaTeX",
+    "internal": "6sh",
+    "expected": "221419",
+    "unicode": "⠖⠎⠓",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "cosh",
+    "note": "PDF 제49항 — 쌍곡선 코사인 cosh 기호 정의 (단독)",
     "internal": "6ch",
     "expected": "22919",
     "unicode": "⠖⠉⠓",
-    "world": "⠴⠉⠕⠩⠲",
-    "jeomsarang": "⠴⠉⠕⠩⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\cosh$",
+    "note": "LaTeX",
+    "internal": "6ch",
+    "expected": "22919",
+    "unicode": "⠖⠉⠓",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "tanh",
+    "note": "PDF 제49항 — 쌍곡선 탄젠트 tanh 기호 정의 (단독)",
     "internal": "6th",
     "expected": "223019",
     "unicode": "⠖⠞⠓",
-    "world": "⠴⠞⠁⠝⠓⠲",
-    "jeomsarang": "⠴⠞⠁⠝⠓⠲"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "$\\sinhx=\\frac{e^x-e^{-x}}{2}$",
-    "note": "LaTeX (분수는 \\frac{numerator}{denominator}로 표기. 한국 수학 점자 분수는 분모를 먼저 점역)",
+    "input": "$\\tanh$",
+    "note": "LaTeX",
+    "internal": "6th",
+    "expected": "223019",
+    "unicode": "⠖⠞⠓",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\sinh x=\\frac{e^x-e^{-x}}{2}$",
+    "note": "PDF 제49항 — 예제 4 (sinhx = (eˣ-e⁻ˣ)/2, 분수 — 평문 표기 불가 LaTeX만, 한국 점자 분수는 분모 먼저 점역)",
     "internal": "6shx33#b/(e^x9e^9x)",
     "expected": "2214194518186031255172445201724204562",
     "unicode": "⠖⠎⠓⠭⠒⠒⠼⠃⠌⠷⠑⠘⠭⠔⠑⠘⠔⠭⠾",
@@ -34,18 +64,19 @@
   },
   {
     "input": "cosh²x-sinh²x=1",
+    "note": "PDF 제49항 — 예제 5 (cosh²x-sinh²x=1, 항등식)",
     "internal": "6ch^#bx96sh^#bx33#a",
     "expected": "2291924603452022141924603451818601",
     "unicode": "⠖⠉⠓⠘⠼⠃⠭⠔⠖⠎⠓⠘⠼⠃⠭⠒⠒⠼⠁",
-    "world": "⠴⠉⠕⠩⠘⠼⠃⠭⠤⠎⠔⠓⠘⠼⠃⠭⠒⠒⠼⠁",
-    "jeomsarang": "⠴⠉⠕⠩⠰⠘⠼⠃⠭⠤⠎⠔⠓⠰⠘⠼⠃⠭⠐⠶⠼⠁"
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "$\\cosh^2x-sinh^2x=1$",
+    "input": "$\\cosh^2x-\\sinh^2x=1$",
+    "note": "LaTeX",
     "internal": "6ch^#bx96sh^#bx33#a",
     "expected": "2291924603452022141924603451818601",
     "unicode": "⠖⠉⠓⠘⠼⠃⠭⠔⠖⠎⠓⠘⠼⠃⠭⠒⠒⠼⠁",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   }
