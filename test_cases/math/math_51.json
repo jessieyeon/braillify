@@ -1,7 +1,25 @@
 [
   {
+    "input": "lim",
+    "note": "PDF 제51항 — 극한 lim 기호 정의 (단독)",
+    "internal": "lim",
+    "expected": "71013",
+    "unicode": "⠇⠊⠍",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\lim$",
+    "note": "LaTeX",
+    "internal": "lim",
+    "expected": "71013",
+    "unicode": "⠇⠊⠍",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
     "input": "$\\lim_{x \\to b} g(x)$",
-    "note": "PDF 제51항 예제 1 — lim은 첨자/화살표 표기로 평문 불가, LaTeX 필수",
+    "note": "PDF 제51항 — 예제 1 (lim x→b, g(x))",
     "internal": "lim;x`3o`b`g8x0",
     "expected": "7101348450182103027384552",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠃⠀⠛⠦⠭⠴",
@@ -10,7 +28,7 @@
   },
   {
     "input": "$\\lim_{x \\to \\infty} f(x)$",
-    "note": "PDF 제51항 예제 2 — 점근값 ∞ (LaTeX 필수)",
+    "note": "PDF 제51항 — 예제 2 (lim x→∞, f(x))",
     "internal": "lim;x`3o`=`f8x0",
     "expected": "71013484501821063011384552",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠿⠀⠋⠦⠭⠴",
@@ -18,9 +36,9 @@
     "jeomsarang": ""
   },
   {
-    "input": "$\\lim_{a \\to 0} \\frac{a}{a+1}$",
-    "note": "PDF 제51항 예제 3 — lim + 분수 (LaTeX 필수)",
-    "internal": "LIM;A`3o`#J`A/_8A5#A0",
+    "input": "$\\lim_{a \\to 0} \\frac{\\log(a+1)}{a}$",
+    "note": "PDF 제51항 — 예제 3 (lim a→0, log(a+1)/a 분수)",
+    "internal": "lim;a`3o`#j`a/_8a5#a0",
     "expected": "7101348101821060260112563813460152",
     "unicode": "⠇⠊⠍⠰⠁⠀⠒⠕⠀⠼⠚⠀⠁⠌⠸⠦⠁⠢⠼⠁⠴",
     "world": "",
@@ -28,16 +46,16 @@
   },
   {
     "input": "$\\lim_{x \\to \\pm\\infty} (1+\\frac{1}{x})^{x} = e$",
-    "note": "PDF 제51항 예제 4 — lim + ±∞ + 분수 + superscript (LaTeX 필수)",
-    "internal": "lim;X`3o`59=`8#A5X/#A0^X33E",
+    "note": "PDF 제51항 — 예제 4 (lim x→±∞, (1+1/x)^x = e)",
+    "internal": "lim;x`3o`59=`8#a5x/#a0^x33e",
     "expected": "710134845018210342063038601344512601522445181817",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠢⠔⠿⠀⠦⠼⠁⠢⠭⠌⠼⠁⠴⠘⠭⠒⠒⠑",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "$\\lim_{x \\to a, y \\to b} f(x,y)$",
-    "note": "PDF 제51항 [붙임] — 범위가 둘인 경우 (LaTeX 필수)",
+    "input": "$\\lim_{\\substack{x \\to a \\\\ y \\to b}} f(x,y)$",
+    "note": "PDF 제51항 [붙임] — 범위가 둘 (lim x→a, y→b, f(x,y))",
     "internal": "LIM;X`3o`A`;Y`3o`B`F8X\"`Y0",
     "expected": "710134845018210104861018210301138451606152",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠁⠀⠰⠽⠀⠒⠕⠀⠃⠀⠋⠦⠭⠐⠀⠽⠴",
