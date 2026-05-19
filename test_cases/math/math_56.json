@@ -1,35 +1,73 @@
 [
   {
     "input": "∫",
+    "note": "PDF 제56항 — 부정적분 ∫ 기호 정의 (단독)",
     "internal": "!",
     "expected": "46",
     "unicode": "⠮",
     "world": "",
-    "jeomsarang": "⠮"
+    "jeomsarang": ""
   },
   {
     "input": "$\\int$",
+    "note": "LaTeX",
     "internal": "!",
     "expected": "46",
     "unicode": "⠮",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "∫f(x)dx=F(x)+C",
+    "note": "PDF 제56항 — 예제 1 (∫f(x)dx = F(x) + C, 부정적분 기본형)",
     "internal": "!f8x0dx33,f8x05,c",
     "expected": "461138455225451818321138455234329",
     "unicode": "⠮⠋⠦⠭⠴⠙⠭⠒⠒⠠⠋⠦⠭⠴⠢⠠⠉",
-    "world": "⠴⠋⠐⠣⠭⠐⠜⠙⠭⠐⠶⠠⠋⠐⠣⠭⠐⠜⠐⠖⠠⠉⠲",
-    "jeomsarang": "⠮⠋⠦⠄⠭⠠⠴⠙⠭⠐⠶⠠⠋⠦⠄⠭⠠⠴⠢⠠⠉⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\int f(x)dx=F(x)+C$",
+    "note": "LaTeX",
+    "internal": "!f8x0dx33,f8x05,c",
+    "expected": "461138455225451818321138455234329",
+    "unicode": "⠮⠋⠦⠭⠴⠙⠭⠒⠒⠠⠋⠦⠭⠴⠢⠠⠉",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∫af(x)dx=a∫f(x)dx",
+    "note": "PDF 제56항 — 예제 2 (∫af(x)dx = a∫f(x)dx, 상수배 적분)",
+    "internal": "!af8x0dx33a!f8x0dx",
+    "expected": "4611138455225451818146113845522545",
+    "unicode": "⠮⠁⠋⠦⠭⠴⠙⠭⠒⠒⠁⠮⠋⠦⠭⠴⠙⠭",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$\\int af(x)dx = a\\int f(x)dx$",
-    "internal": "!AF8X0DX33A!F8X0DX",
+    "note": "LaTeX",
+    "internal": "!af8x0dx33a!f8x0dx",
     "expected": "4611138455225451818146113845522545",
     "unicode": "⠮⠁⠋⠦⠭⠴⠙⠭⠒⠒⠁⠮⠋⠦⠭⠴⠙⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∫(2x+3)dx=∫2xdx+∫3dx",
+    "note": "PDF 제56항 — 예제 3 (∫(2x+3)dx = ∫2xdx + ∫3dx, 합의 적분)",
+    "internal": "!8#bx5#c0dx33!#bxdx5!#c\"dx",
+    "expected": "463860345346095225451818466034525453446609162545",
+    "unicode": "⠮⠦⠼⠃⠭⠢⠼⠉⠴⠙⠭⠒⠒⠮⠼⠃⠭⠙⠭⠢⠮⠼⠉⠐⠙⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\int (2x+3)dx = \\int 2xdx + \\int 3dx$",
     "note": "LaTeX",
+    "internal": "!8#bx5#c0dx33!#bxdx5!#c\"dx",
+    "expected": "463860345346095225451818466034525453446609162545",
+    "unicode": "⠮⠦⠼⠃⠭⠢⠼⠉⠴⠙⠭⠒⠒⠮⠼⠃⠭⠙⠭⠢⠮⠼⠉⠐⠙⠭",
     "world": "",
     "jeomsarang": ""
   }
