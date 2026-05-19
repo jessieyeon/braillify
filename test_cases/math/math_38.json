@@ -1,35 +1,55 @@
 [
   {
-    "input": "→AB",
-    "internal": "3O,,AB",
-    "expected": "1821323213",
-    "unicode": "⠒⠕⠠⠠⠁⠃",
-    "world": "⠒⠕⠴⠰⠠⠠⠁⠃⠲",
-    "jeomsarang": "⠰⠳⠕⠠⠠⠁⠃⠲"
-  },
-  {
-    "input": "$\\overrightarrow{AB}$",
-    "internal": "3O,,AB",
-    "expected": "1821323213",
-    "unicode": "⠒⠕⠠⠠⠁⠃",
-    "note": "LaTeX",
+    "input": "⃗",
+    "note": "PDF 제38항 — 반직선 ⃗ 기호 정의 (단독, COMBINING RIGHT ARROW ABOVE U+20D7)",
+    "internal": "3O",
+    "expected": "1821",
+    "unicode": "⠒⠕",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "→A=(A₁,A₂,A₃)",
-    "internal": "3O,A338,A;#a\"`,A;#b\"`,A;#c0",
-    "expected": "182132118183832148601160321486031603214860952",
-    "unicode": "⠒⠕⠠⠁⠒⠒⠦⠠⠁⠰⠼⠁⠐⠀⠠⠁⠰⠼⠃⠐⠀⠠⠁⠰⠼⠉⠴",
-    "world": "⠒⠕⠴⠠⠁⠐⠶⠐⠣⠠⠁⠰⠼⠁⠂⠠⠰⠁⠰⠼⠃⠂⠠⠰⠁⠰⠼⠉⠠⠴",
-    "jeomsarang": "⠰⠳⠕⠠⠁⠐⠶⠐⠣⠠⠁⠰⠢⠼⠁⠂⠠⠁⠰⠢⠼⠃⠂⠠⠁⠲⠰⠢⠼⠉⠐⠜⠲"
+    "input": "$\\overrightarrow{\\,}$",
+    "note": "LaTeX",
+    "internal": "3O",
+    "expected": "1821",
+    "unicode": "⠒⠕",
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "$\\vec{A}=(A_1, A_2, A_3)$",
+    "input": "A⃗B⃗",
+    "note": "PDF 제38항 — 예제 (반직선 A⃗B⃗, 대문자 단어표 ,, 적용)",
+    "internal": "3O,,AB",
+    "expected": "1821323213",
+    "unicode": "⠒⠕⠠⠠⠁⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\overrightarrow{AB}$",
+    "note": "LaTeX",
+    "internal": "3O,,AB",
+    "expected": "1821323213",
+    "unicode": "⠒⠕⠠⠠⠁⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A⃗ = (A₁, A₂, A₃)",
+    "note": "PDF 제38항 [붙임] — 벡터 A⃗ = (A₁, A₂, A₃)",
     "internal": "3O,A338,A;#a\"`,A;#b\"`,A;#c0",
     "expected": "182132118183832148601160321486031603214860952",
     "unicode": "⠒⠕⠠⠁⠒⠒⠦⠠⠁⠰⠼⠁⠐⠀⠠⠁⠰⠼⠃⠐⠀⠠⠁⠰⠼⠉⠴",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\vec{A} = (A_1, A_2, A_3)$",
     "note": "LaTeX",
+    "internal": "3O,A338,A;#a\"`,A;#b\"`,A;#c0",
+    "expected": "182132118183832148601160321486031603214860952",
+    "unicode": "⠒⠕⠠⠁⠒⠒⠦⠠⠁⠰⠼⠁⠐⠀⠠⠁⠰⠼⠃⠐⠀⠠⠁⠰⠼⠉⠴",
     "world": "",
     "jeomsarang": ""
   }
