@@ -67,10 +67,10 @@
   },
   {
     "input": "$x ⊗ y=x^3+y$",
+    "note": "LaTeX",
     "internal": "x`_*`y33x^#c5y",
     "expected": "4505633061181845246093461",
     "unicode": "⠭⠀⠸⠡⠀⠽⠒⠒⠭⠘⠼⠉⠢⠽",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
@@ -142,10 +142,10 @@
   },
   {
     "input": "$x ⦾ y=6xy-5y+2y^2$",
+    "note": "LaTeX",
     "internal": "x`_00`y33#fxy9#ey5#by^#b",
     "expected": "45056525206118186011456120601761346036124603",
     "unicode": "⠭⠀⠸⠴⠴⠀⠽⠒⠒⠼⠋⠭⠽⠔⠼⠑⠽⠢⠼⠃⠽⠘⠼⠃",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
@@ -185,10 +185,10 @@
   },
   {
     "input": "$x□y=x^2y+7xy-3yx$",
+    "note": "LaTeX",
     "internal": "x`_7`y33x^#by5#gxy9#cyx",
     "expected": "450565406118184524603613460274561206096145",
     "unicode": "⠭⠀⠸⠶⠀⠽⠒⠒⠭⠘⠼⠃⠽⠢⠼⠛⠭⠽⠔⠼⠉⠽⠭",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },

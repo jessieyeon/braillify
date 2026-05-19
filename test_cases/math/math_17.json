@@ -2,12 +2,12 @@
   {
     "input": "′",
     "context": "math",
+    "note": "PDF 제17항 — 프라임 ′ 정의 (- 으로 적는다)",
     "internal": "-",
     "expected": "36",
     "unicode": "⠤",
     "world": "⠴⠤",
-    "jeomsarang": "⠴⠤",
-    "note": "PDF 제17항 — 프라임 ′ 정의 (- 으로 적는다)"
+    "jeomsarang": "⠴⠤"
   },
   {
     "input": "$\\prime$",
@@ -20,12 +20,12 @@
   },
   {
     "input": "x′",
+    "note": "PDF 제17항 본문 예제 — x′",
     "internal": "x-",
     "expected": "4536",
     "unicode": "⠭⠤",
     "world": "⠴⠭⠴⠤",
-    "jeomsarang": "⠴⠭⠲⠶",
-    "note": "PDF 제17항 본문 예제 — x′"
+    "jeomsarang": "⠴⠭⠲⠶"
   },
   {
     "input": "$x'$",
@@ -38,12 +38,12 @@
   },
   {
     "input": "y′",
+    "note": "PDF 제17항 본문 예제 — y′",
     "internal": "y-",
     "expected": "6136",
     "unicode": "⠽⠤",
     "world": "⠴⠽⠴⠤",
-    "jeomsarang": "⠴⠽⠲⠶",
-    "note": "PDF 제17항 본문 예제 — y′"
+    "jeomsarang": "⠴⠽⠲⠶"
   },
   {
     "input": "$y'$",
@@ -56,12 +56,12 @@
   },
   {
     "input": "a′b",
+    "note": "PDF 제17항 본문 예제 — a′b",
     "internal": "a-b",
     "expected": "1363",
     "unicode": "⠁⠤⠃",
     "world": "⠴⠁⠶⠃⠲",
-    "jeomsarang": "⠴⠁⠶⠰⠃⠲",
-    "note": "PDF 제17항 본문 예제 — a′b"
+    "jeomsarang": "⠴⠁⠶⠰⠃⠲"
   },
   {
     "input": "$a'b$",

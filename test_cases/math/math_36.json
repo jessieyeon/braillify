@@ -6,7 +6,7 @@
     "expected": "842",
     "unicode": "⠈⠪",
     "world": "",
-    "jeomsarang": "⠀"
+    "jeomsarang": ""
   },
   {
     "input": "$\\frown$",
@@ -28,10 +28,10 @@
   },
   {
     "input": "$\\overset{\\frown}{AB}$",
+    "note": "LaTeX",
     "internal": "@[,,AB",
     "expected": "842323213",
     "unicode": "⠈⠪⠠⠠⠁⠃",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   }
