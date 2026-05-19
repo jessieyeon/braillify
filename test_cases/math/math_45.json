@@ -1,26 +1,53 @@
 [
   {
     "input": "y=f(x)",
-    "note": "PDF 제45항 예제 1 (평문 가능: 변수+등호+함수호출)",
+    "note": "PDF 제45항 — 본문 예제 1 (y=f(x))",
     "internal": "y33f8x0",
     "expected": "61181811384552",
     "unicode": "⠽⠒⠒⠋⠦⠭⠴",
-    "world": "⠴⠽⠐⠶⠋⠐⠣⠭⠠⠴",
-    "jeomsarang": "⠴⠰⠽⠐⠶⠋⠦⠄⠭⠠⠴"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$y=f(x)$",
+    "note": "LaTeX",
+    "internal": "y33f8x0",
+    "expected": "61181811384552",
+    "unicode": "⠽⠒⠒⠋⠦⠭⠴",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "f(x-1)",
-    "note": "PDF 제45항 예제 2 (평문 가능)",
+    "note": "PDF 제45항 — 본문 예제 2 (f(x-1))",
     "internal": "f8x9#a0",
     "expected": "1138452060152",
     "unicode": "⠋⠦⠭⠔⠼⠁⠴",
-    "world": "⠴⠋⠐⠣⠭⠤⠼⠁⠠⠴",
-    "jeomsarang": "⠴⠰⠋⠐⠣⠰⠭⠤⠼⠁⠐⠜⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$f(x-1)$",
+    "note": "LaTeX",
+    "internal": "f8x9#a0",
+    "expected": "1138452060152",
+    "unicode": "⠋⠦⠭⠔⠼⠁⠴",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "(g∘f)(x)=g(f(x))",
-    "note": "PDF 제45항 예제 3 (합성 함수, Unicode ∘ 평문 가능)",
-    "internal": "8G_0F08X033G8F8X00",
+    "note": "PDF 제45항 — 본문 예제 3 ((g∘f)(x)=g(f(x)), 합성함수)",
+    "internal": "8g_0f08x033g8f8x00",
+    "expected": "382756521152384552181827381138455252",
+    "unicode": "⠦⠛⠸⠴⠋⠴⠦⠭⠴⠒⠒⠛⠦⠋⠦⠭⠴⠴",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$(g \\circ f)(x)=g(f(x))$",
+    "note": "LaTeX",
+    "internal": "8g_0f08x033g8f8x00",
     "expected": "382756521152384552181827381138455252",
     "unicode": "⠦⠛⠸⠴⠋⠴⠦⠭⠴⠒⠒⠛⠦⠋⠦⠭⠴⠴",
     "world": "",
@@ -28,16 +55,16 @@
   },
   {
     "input": "y=f⁻¹(x)",
-    "note": "PDF 제45항 예제 4 (Unicode superscript ⁻¹ 평문 가능)",
+    "note": "PDF 제45항 — 본문 예제 4 (y=f⁻¹(x), 역함수)",
     "internal": "y33f^9#a8x0",
     "expected": "611818112420601384552",
     "unicode": "⠽⠒⠒⠋⠘⠔⠼⠁⠦⠭⠴",
-    "world": "⠴⠽⠐⠶⠋⠘⠐⠤ ⠘⠼⠁⠐⠣⠭⠠⠴",
-    "jeomsarang": "⠴⠰⠽⠐⠶⠰⠋⠘⠔⠘⠼⠁⠦⠄⠴⠰⠭⠠⠴"
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "$y=f^{-1}(x)$",
-    "note": "PDF 제45항 예제 4 — LaTeX 표기 변형",
+    "note": "LaTeX",
     "internal": "y33f^9#a8x0",
     "expected": "611818112420601384552",
     "unicode": "⠽⠒⠒⠋⠘⠔⠼⠁⠦⠭⠴",
@@ -46,17 +73,17 @@
   },
   {
     "input": "$x \\xrightarrow{f} y$",
-    "note": "PDF 제45항 [붙임] 예제 1 — 화살표 위 라벨 (평문 불가, LaTeX 필수)",
-    "internal": "X`F3O`Y",
+    "note": "PDF 제45항 [붙임] — f가 화살표 위에 (LaTeX만, 평문 표기 불가)",
+    "internal": "x`f3o`y",
     "expected": "450111821061",
     "unicode": "⠭⠀⠋⠒⠕⠀⠽",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "$x \\xrightarrow[g]{f} y$",
-    "note": "PDF 제45항 [붙임] 예제 2 — 화살표 위 f / 아래 g (평문 불가, LaTeX 필수)",
-    "internal": "X`F[7OG`Y",
+    "input": "$x \\xrightleftharpoons[g]{f} y$",
+    "note": "PDF 제45항 [붙임] — f 위, g 아래 (양방향 ⇌, LaTeX만, 평문 표기 불가)",
+    "internal": "x`f[7og`y",
     "expected": "4501142542127061",
     "unicode": "⠭⠀⠋⠪⠶⠕⠛⠀⠽",
     "world": "",
