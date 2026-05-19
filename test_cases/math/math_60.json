@@ -1,290 +1,623 @@
 [
   {
     "input": "∈",
+    "note": "PDF 제60항 1-가 — 원소 ∈ (왼쪽) 기호 정의 (단독)",
     "internal": "6",
     "expected": "22",
     "unicode": "⠖",
-    "world": "",
-    "jeomsarang": "⠖"
-  },
-  {
-    "input": "$\\in$",
-    "internal": "6",
-    "expected": "22",
-    "unicode": "⠖",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "A∈M",
-    "internal": "A6,M",
+    "input": "$\\in$",
+    "note": "LaTeX",
+    "internal": "6",
+    "expected": "22",
+    "unicode": "⠖",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "a∈M",
+    "note": "PDF 제60항 1-가 — 예제 a∈M",
+    "internal": "a6,m",
     "expected": "1223213",
     "unicode": "⠁⠖⠠⠍",
-    "world": "⠴⠠⠁⠘⠑⠠⠍⠲",
-    "jeomsarang": "⠴⠠⠁⠖⠠⠍⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$a \\in M$",
+    "note": "LaTeX",
+    "internal": "a6,m",
+    "expected": "1223213",
+    "unicode": "⠁⠖⠠⠍",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∋",
+    "note": "PDF 제60항 1-나 — 원소 ∋ (오른쪽) 기호 정의 (단독)",
     "internal": "4",
     "expected": "50",
     "unicode": "⠲",
     "world": "",
-    "jeomsarang": "⠲"
+    "jeomsarang": ""
   },
   {
-    "input": "∉",
-    "internal": ".6",
-    "expected": "4022",
-    "unicode": "⠨⠖",
-    "world": "",
-    "jeomsarang": "⠨⠖"
-  },
-  {
-    "input": "$\\notin$",
-    "internal": ".6",
-    "expected": "4022",
-    "unicode": "⠨⠖",
+    "input": "$\\ni$",
     "note": "LaTeX",
+    "internal": "4",
+    "expected": "50",
+    "unicode": "⠲",
     "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "A∉A",
-    "internal": "A.6,A",
+    "input": "A∋x",
+    "note": "PDF 제60항 1-나 — 예제 A∋x",
+    "internal": ",a4x",
+    "expected": "3215045",
+    "unicode": "⠠⠁⠲⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\ni x$",
+    "note": "LaTeX",
+    "internal": ",a4x",
+    "expected": "3215045",
+    "unicode": "⠠⠁⠲⠭",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∉",
+    "note": "PDF 제60항 1-다 — 원소 ∉ (왼쪽 부정) 기호 정의 (단독)",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\notin$",
+    "note": "LaTeX",
+    "internal": ".6",
+    "expected": "4022",
+    "unicode": "⠨⠖",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "a∉A",
+    "note": "PDF 제60항 1-다 — 예제 a∉A",
+    "internal": "a.6,a",
     "expected": "14022321",
     "unicode": "⠁⠨⠖⠠⠁",
-    "world": "⠴⠠⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠁⠨⠖⠠⠁⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$a \\notin A$",
+    "note": "LaTeX",
+    "internal": "a.6,a",
+    "expected": "14022321",
+    "unicode": "⠁⠨⠖⠠⠁",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "∌",
+    "note": "PDF 제60항 1-라 — 원소 ∌ (오른쪽 부정) 기호 정의 (단독)",
+    "internal": ".4",
+    "expected": "4050",
+    "unicode": "⠨⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\not\\ni$",
+    "note": "LaTeX",
+    "internal": ".4",
+    "expected": "4050",
+    "unicode": "⠨⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "M∌a",
+    "note": "PDF 제60항 1-라 — 예제 M∌a",
+    "internal": ",m.4a",
+    "expected": "321340501",
+    "unicode": "⠠⠍⠨⠲⠁",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$M \\not\\ni a$",
+    "note": "LaTeX",
+    "internal": ",m.4a",
+    "expected": "321340501",
+    "unicode": "⠠⠍⠨⠲⠁",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "{1, 2, 3}",
+    "note": "PDF 제60항 2-가 — 원소나열법 {1, 2, 3}",
+    "internal": "7#a\"`#b\"`#c7",
+    "expected": "5460116060316060954",
+    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\{1, 2, 3\\}$",
+    "note": "LaTeX",
+    "internal": "7#a\"`#b\"`#c7",
+    "expected": "5460116060316060954",
+    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "{x|x는 정수}",
+    "note": "PDF 제60항 2-나 — 조건제시법 {x|x는 정수}",
+    "internal": "7x\\`0x4cz`.],m7",
+    "expected": "544551052455095304059321354",
+    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "⊂",
+    "note": "PDF 제60항 3-가 — 부분집합 ⊂ (왼쪽) 기호 정의 (단독)",
     "internal": "61",
     "expected": "222",
     "unicode": "⠖⠂",
     "world": "",
-    "jeomsarang": "⠖⠂"
+    "jeomsarang": ""
   },
   {
     "input": "$\\subset$",
+    "note": "LaTeX",
     "internal": "61",
     "expected": "222",
     "unicode": "⠖⠂",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "B⊂A",
-    "internal": ",B61,A",
+    "note": "PDF 제60항 3-가 — 예제 B⊂A",
+    "internal": ",b61,a",
     "expected": "323222321",
     "unicode": "⠠⠃⠖⠂⠠⠁",
-    "world": "⠴⠠⠃⠘⠣⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠃⠖⠂⠠⠁⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$B \\subset A$",
+    "note": "LaTeX",
+    "internal": ",b61,a",
+    "expected": "323222321",
+    "unicode": "⠠⠃⠖⠂⠠⠁",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "⊃",
+    "note": "PDF 제60항 3-나 — 부분집합 ⊃ (오른쪽) 기호 정의 (단독)",
     "internal": "\"4",
     "expected": "1650",
     "unicode": "⠐⠲",
     "world": "",
-    "jeomsarang": "⠐⠲"
+    "jeomsarang": ""
   },
   {
     "input": "$\\supset$",
+    "note": "LaTeX",
     "internal": "\"4",
     "expected": "1650",
     "unicode": "⠐⠲",
-    "note": "LaTeX",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "A⊃B",
-    "internal": ",A\"4,B",
+    "note": "PDF 제60항 3-나 — 예제 A⊃B",
+    "internal": ",a\"4,b",
     "expected": "3211650323",
     "unicode": "⠠⠁⠐⠲⠠⠃",
-    "world": "⠴⠠⠁⠘⠜⠠⠃⠲",
-    "jeomsarang": "⠴⠠⠁⠐⠲⠠⠃⠲"
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\supset B$",
+    "note": "LaTeX",
+    "internal": ",a\"4,b",
+    "expected": "3211650323",
+    "unicode": "⠠⠁⠐⠲⠠⠃",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "⊄",
+    "note": "PDF 제60항 3-다 — 부분집합 ⊄ (왼쪽 부정) 기호 정의 (단독)",
     "internal": ".61",
     "expected": "40222",
     "unicode": "⠨⠖⠂",
     "world": "",
-    "jeomsarang": "⠨⠖⠂"
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\not\\subset$",
+    "note": "LaTeX",
+    "internal": ".61",
+    "expected": "40222",
+    "unicode": "⠨⠖⠂",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A⊄M",
+    "note": "PDF 제60항 3-다 — 예제 A⊄M",
+    "internal": ",a.61,m",
+    "expected": "321402223213",
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\not\\subset M$",
+    "note": "LaTeX",
+    "internal": ",a.61,m",
+    "expected": "321402223213",
+    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "⊅",
+    "note": "PDF 제60항 3-라 — 부분집합 ⊅ (오른쪽 부정) 기호 정의 (단독)",
     "internal": ".\"4",
     "expected": "401650",
     "unicode": "⠨⠐⠲",
     "world": "",
-    "jeomsarang": "⠨⠐⠲"
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\not\\supset$",
+    "note": "LaTeX",
+    "internal": ".\"4",
+    "expected": "401650",
+    "unicode": "⠨⠐⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "M⊅A",
+    "note": "PDF 제60항 3-라 — 예제 M⊅A",
+    "internal": ",m.\"4,a",
+    "expected": "3213401650321",
+    "unicode": "⠠⠍⠨⠐⠲⠠⠁",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$M \\not\\supset A$",
+    "note": "LaTeX",
+    "internal": ",m.\"4,a",
+    "expected": "3213401650321",
+    "unicode": "⠠⠍⠨⠐⠲⠠⠁",
+    "world": "",
+    "jeomsarang": ""
   },
   {
     "input": "∅",
+    "note": "PDF 제60항 4 — 공집합 ∅ 기호 정의 (단독)",
     "internal": ".f",
     "expected": "4011",
     "unicode": "⠨⠋",
     "world": "",
-    "jeomsarang": "⠈⠋"
+    "jeomsarang": ""
   },
   {
     "input": "$\\emptyset$",
+    "note": "LaTeX",
     "internal": ".f",
     "expected": "4011",
     "unicode": "⠨⠋",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A∩B=∅",
+    "note": "PDF 제60항 4 — 예제 A∩B=∅",
+    "internal": ",a`%`,b33.f",
+    "expected": "321041032318184011",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\cap B = \\emptyset$",
     "note": "LaTeX",
+    "internal": ",a`%`,b33.f",
+    "expected": "321041032318184011",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "∪",
+    "note": "PDF 제60항 5-가 — 합집합 ∪ 기호 정의 (단독)",
     "internal": "+",
     "expected": "44",
     "unicode": "⠬",
     "world": "",
-    "jeomsarang": "⠬"
+    "jeomsarang": ""
   },
   {
     "input": "$\\cup$",
+    "note": "LaTeX",
     "internal": "+",
     "expected": "44",
     "unicode": "⠬",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A∪B",
+    "note": "PDF 제60항 5-가 — 예제 A∪B",
+    "internal": ",a`+`,b",
+    "expected": "3210440323",
+    "unicode": "⠠⠁⠀⠬⠀⠠⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\cup B$",
     "note": "LaTeX",
+    "internal": ",a`+`,b",
+    "expected": "3210440323",
+    "unicode": "⠠⠁⠀⠬⠀⠠⠃",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "∩",
+    "note": "PDF 제60항 5-나 — 교집합 ∩ 기호 정의 (단독)",
     "internal": "%",
     "expected": "41",
     "unicode": "⠩",
     "world": "",
-    "jeomsarang": "⠩"
+    "jeomsarang": ""
   },
   {
     "input": "$\\cap$",
+    "note": "LaTeX",
     "internal": "%",
     "expected": "41",
     "unicode": "⠩",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "A∩B",
+    "note": "PDF 제60항 5-나 — 예제 A∩B",
+    "internal": ",a`%`,b",
+    "expected": "3210410323",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$A \\cap B$",
     "note": "LaTeX",
+    "internal": ",a`%`,b",
+    "expected": "3210410323",
+    "unicode": "⠠⠁⠀⠩⠀⠠⠃",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "ᶜ",
+    "note": "PDF 제60항 5-다 — 여집합 ᶜ 기호 정의 (단독)",
+    "internal": "^c",
+    "expected": "249",
+    "unicode": "⠘⠉",
     "world": "",
     "jeomsarang": ""
   },
   {
     "input": "Aᶜ=U-A",
-    "note": "여집합 Aᶜ=U-A",
-    "internal": ",A^c33,U9,A",
-    "expected": "3212491818323720321",
-    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
-    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠁⠀⠒⠒⠰⠠⠥⠤⠠⠁⠲"
-  },
-  {
-    "input": "a∉A",
-    "internal": "a.6,a",
-    "expected": "14022321",
-    "unicode": "⠁⠨⠖⠠⠁",
-    "world": "⠴⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
-    "jeomsarang": "⠴⠁⠨⠖⠠⠁⠲"
-  },
-  {
-    "input": "{1, 2, 3}",
-    "internal": "7#a\"`#b\"`#c7",
-    "expected": "5460116060316060954",
-    "unicode": "⠶⠼⠁⠐⠀⠼⠃⠐⠀⠼⠉⠶",
-    "world": "⠦⠂⠼⠁⠐ ⠼⠃⠐ ⠼⠉⠐⠴",
-    "jeomsarang": ""
-  },
-  {
-    "input": "B⊂A",
-    "internal": ",b61,a",
-    "expected": "323222321",
-    "unicode": "⠠⠃⠖⠂⠠⠁",
-    "world": "⠴⠠⠃⠘⠣⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠃⠖⠂⠠⠁⠲"
-  },
-  {
-    "input": "A⊃B",
-    "internal": ",a\"4,b",
-    "expected": "3211650323",
-    "unicode": "⠠⠁⠐⠲⠠⠃",
-    "world": "⠴⠠⠁⠘⠜⠠⠃⠲",
-    "jeomsarang": "⠴⠠⠁⠐⠲⠠⠃⠲"
-  },
-  {
-    "input": "A∩B=∅",
-    "internal": ",a`%`,b33.f",
-    "expected": "321041032318184011",
-    "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
-    "world": "⠴⠠⠁⠨⠦⠠⠃⠒⠒",
-    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠐⠶⠈⠋"
-  },
-  {
-    "input": "A∪B",
-    "internal": ",a`+`,b",
-    "expected": "3210440323",
-    "unicode": "⠠⠁⠀⠬⠀⠠⠃",
-    "world": "⠴⠠⠁⠨⠖⠠⠃⠲",
-    "jeomsarang": "⠴⠠⠁⠬⠠⠃⠲"
-  },
-  {
-    "input": "Aᶜ=U-A",
+    "note": "PDF 제60항 5-다 — 예제 Aᶜ=U-A (여집합)",
     "internal": ",a^c33,u9,a",
     "expected": "3212491818323720321",
     "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
-    "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠁⠀⠒⠒⠰⠠⠥⠤⠠⠁⠲"
-  },
-  {
-    "input": "A∩B",
-    "internal": ",a`%`,b",
-    "expected": "3210410323",
-    "unicode": "⠠⠁⠀⠩⠀⠠⠃",
-    "world": "⠴⠠⠁⠨⠦⠠⠃⠲",
-    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠲"
-  },
-  {
-    "input": "M∌a",
-    "internal": ",m.4a",
-    "expected": "321340501",
-    "unicode": "⠠⠍⠨⠲⠁",
-    "world": "⠴⠠⠍⠈⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠁⠲",
-    "jeomsarang": "⠴⠠⠍⠨⠲⠁⠲"
-  },
-  {
-    "input": "{x|x는정수}",
-    "internal": "7x\\`0x4cz`.],m7",
-    "expected": "544551052455095304059321354",
-    "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶",
-    "world": "⠦⠂⠴⠭⠸⠳⠭⠲⠉⠵⠨⠻⠠⠍⠐⠴",
+    "world": "",
     "jeomsarang": ""
   },
   {
-    "input": "A⊄M",
-    "internal": ",a.61,m",
-    "expected": "321402223213",
-    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
-    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲",
-    "jeomsarang": "⠴⠠⠁⠨⠖⠂⠠⠍⠲"
+    "input": "$A^c = U-A$",
+    "note": "LaTeX",
+    "internal": ",a^c33,u9,a",
+    "expected": "3212491818323720321",
+    "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "M⊅A",
-    "internal": ",m.\"4,a",
-    "expected": "3213401650321",
-    "unicode": "⠠⠍⠨⠐⠲⠠⠁",
-    "world": "⠴⠠⠍⠘⠜⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
-    "jeomsarang": "⠴⠠⠍⠨⠐⠲⠠⠁⠲"
+    "input": "⊢",
+    "note": "PDF 제60항 6-가 — 추론 ⊢ 기호 정의 (단독)",
+    "internal": "_3",
+    "expected": "5618",
+    "unicode": "⠸⠒",
+    "world": "",
+    "jeomsarang": ""
   },
   {
-    "input": "A⊄M",
-    "internal": ",A.61,M",
-    "expected": "321402223213",
-    "unicode": "⠠⠁⠨⠖⠂⠠⠍",
-    "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲",
-    "jeomsarang": "⠴⠠⠁⠨⠖⠂⠠⠍⠲"
+    "input": "$\\vdash$",
+    "note": "LaTeX",
+    "internal": "_3",
+    "expected": "5618",
+    "unicode": "⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "⊣",
+    "note": "PDF 제60항 6-나 — 추론 ⊣ 기호 정의 (단독)",
+    "internal": "@_3",
+    "expected": "85618",
+    "unicode": "⠈⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\dashv$",
+    "note": "LaTeX",
+    "internal": "@_3",
+    "expected": "85618",
+    "unicode": "⠈⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "⊨",
+    "note": "PDF 제60항 6-다 — 추론 ⊨ 기호 정의 (단독)",
+    "internal": "^_3",
+    "expected": "245618",
+    "unicode": "⠘⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\models$",
+    "note": "LaTeX",
+    "internal": "^_3",
+    "expected": "245618",
+    "unicode": "⠘⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "⫤",
+    "note": "PDF 제60항 6-라 — 추론 ⫤ 기호 정의 (단독)",
+    "internal": "._3",
+    "expected": "405618",
+    "unicode": "⠨⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\Dashv$",
+    "note": "LaTeX",
+    "internal": "._3",
+    "expected": "405618",
+    "unicode": "⠨⠸⠒",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$S_1, S_2, S_3, \\cdots S_n \\vdash S$",
+    "note": "PDF 제60항 6 — 추론 예제 (S₁,S₂,...,Sₙ⊢S)",
+    "internal": ",S;#a\"`,S;#b\"`,S;#c\"`,,,`,S;N`_3`,S",
+    "expected": "3214486011603214486031603214486091603232320321448290561803214",
+    "unicode": "⠠⠎⠰⠼⠁⠐⠀⠠⠎⠰⠼⠃⠐⠀⠠⠎⠰⠼⠉⠐⠀⠠⠠⠠⠀⠠⠎⠰⠝⠀⠸⠒⠀⠠⠎",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "v⊨P",
+    "note": "PDF 제60항 6 — 추론 예제 (v⊨P)",
+    "internal": "v`^_3`,p",
+    "expected": "39024561803215",
+    "unicode": "⠧⠀⠘⠸⠒⠀⠠⠏",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$v \\models P$",
+    "note": "LaTeX",
+    "internal": "v`^_3`,p",
+    "expected": "39024561803215",
+    "unicode": "⠧⠀⠘⠸⠒⠀⠠⠏",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "≲",
+    "note": "PDF 제60항 7 — 앞선다 ≲ 기호 정의 (단독)",
+    "internal": "99@9",
+    "expected": "2020820",
+    "unicode": "⠔⠔⠈⠔",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\lesssim$",
+    "note": "LaTeX",
+    "internal": "99@9",
+    "expected": "2020820",
+    "unicode": "⠔⠔⠈⠔",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "a,b∈R a ≲ b: a는 b 앞에 있다.",
+    "note": "PDF 제60항 7 — 앞선다 예제 (한글 설명 포함, internal 사용자 검증 대기)",
+    "internal": "A\"`B6,R`A`99@9`B\"1`0A4CZ`0B4`<4N`O/I4",
+    "expected": "116032232230102020820031620521509530523500355029021121050",
+    "unicode": "⠁⠐⠀⠃⠖⠠⠗⠀⠁⠀⠔⠔⠈⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$a, b \\in R\\ a \\lesssim b$: $a$는 $b$ 앞에 있다.",
+    "note": "LaTeX",
+    "internal": "A\"`B6,R`A`99@9`B\"1`0A4CZ`0B4`<4N`O/I4",
+    "expected": "116032232230102020820031620521509530523500355029021121050",
+    "unicode": "⠁⠐⠀⠃⠖⠠⠗⠀⠁⠀⠔⠔⠈⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "≺",
+    "note": "PDF 제60항 8 — 앞서고같지않다 ≺ 기호 정의 (단독)",
+    "internal": "99",
+    "expected": "2020",
+    "unicode": "⠔⠔",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$\\prec$",
+    "note": "LaTeX (≺ PRECEDES U+227A)",
+    "internal": "99",
+    "expected": "2020",
+    "unicode": "⠔⠔",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "a ≺ b: a는 b 앞에 있다. b는 a 뒤에 있다.",
+    "note": "PDF 제60항 8 — 앞서고같지않다 예제 (한글 설명 포함)",
+    "internal": "A`99`B\"1`0A4CZ`0B4`<4N`O/I4`0B4CZ`0A4`IMRN`O/I4",
+    "expected": "102020031620521509530523500355029021121050052350953052150010132329021121050",
+    "unicode": "⠁⠀⠔⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲⠀⠴⠃⠲⠉⠵⠀⠴⠁⠲⠀⠊⠍⠗⠝⠀⠕⠌⠊⠲",
+    "world": "",
+    "jeomsarang": ""
+  },
+  {
+    "input": "$a \\prec b$: $a$는 $b$ 앞에 있다. $b$는 $a$ 뒤에 있다.",
+    "note": "LaTeX",
+    "internal": "A`99`B\"1`0A4CZ`0B4`<4N`O/I4`0B4CZ`0A4`IMRN`O/I4",
+    "expected": "102020031620521509530523500355029021121050052350953052150010132329021121050",
+    "unicode": "⠁⠀⠔⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲⠀⠴⠃⠲⠉⠵⠀⠴⠁⠲⠀⠊⠍⠗⠝⠀⠕⠌⠊⠲",
+    "world": "",
+    "jeomsarang": ""
   }
 ]
