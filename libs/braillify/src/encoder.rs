@@ -82,6 +82,11 @@ impl Encoder {
         rule_engine.register(Box::new(rules::korean::rule_12::Rule12));
 
         let mut token_engine = rules::token_engine::TokenRuleEngine::new();
+        // PDF 한국어 제73항 [붙임 1] — U+F000 빈칸 + 슬래시-대안 조사 prefix 삽입.
+        // 매우 일찍 등록(다른 규칙이 토큰을 분리하기 전).
+        token_engine.register(Box::new(
+            rules::token_rules::rule_73_appendix_placeholder::Rule73AppendixPlaceholderRule,
+        ));
         token_engine.register(Box::new(
             rules::token_rules::middle_korean_detector::MiddleKoreanDetectorRule,
         ));
@@ -89,6 +94,10 @@ impl Encoder {
             rules::token_rules::historical_gloss_spacing::HistoricalGlossSpacingRule,
         ));
         token_engine.register(Box::new(rules::token_rules::normalize::NormalizeEllipsis));
+        // PDF 한국어 제33항 — 학술 인용 형식 year-suffix token (1998a,, 1998b;).
+        token_engine.register(Box::new(
+            rules::token_rules::rule_33_citation::Rule33CitationYearSuffixRule,
+        ));
         token_engine.register(Box::new(rules::token_rules::latex_math::LatexMergeRule));
         token_engine.register(Box::new(
             rules::token_rules::emphasis_ring::EmphasisRingRule,

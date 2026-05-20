@@ -98,7 +98,6 @@ fn is_superscript_char(c: char) -> bool {
                 | '\u{1D4F}' // ᵏ
                 | '\u{02E1}' // ˡ
                 | '\u{1D50}' // ᵐ
-                | '\u{207F}' // ⁿ (already above; kept for clarity)
                 | '\u{1D52}' // ᵒ
                 | '\u{1D56}' // ᵖ
                 | '\u{02B3}' // ʳ
@@ -220,9 +219,9 @@ fn normalize_subscript(c: char) -> Option<MathToken> {
     }
 }
 
-/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와 
+/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와
 /// 첨자 라틴 문자(U+2071, U+2095–U+209C 등)를 ASCII 라틴 문자로 정규화한다.
-/// 이는 PDF 규정에서 italic/bold/script/fraktur 변형을 일반 변수로 본다는 원칙을 
+/// 이는 PDF 규정에서 italic/bold/script/fraktur 변형을 일반 변수로 본다는 원칙을
 /// 따른다. 한국 점자 수학 규정은 글꼴 변형을 별도로 표기하지 않으며,
 /// `𝑃`(MATH ITALIC CAPITAL P) ≡ `P`로 취급한다.
 fn normalize_math_alphanumeric(c: char) -> char {
@@ -236,19 +235,32 @@ fn normalize_math_alphanumeric(c: char) -> char {
     // sans-serif bold italic, monospace). Each block is 26 capitals + 26 smalls.
     // 정규화: cp가 해당 블록의 capital A 또는 small a 위치 기준 0~25 오프셋이면 변환.
     const BLOCKS: &[(u32, char)] = &[
-        (0x1D400, 'A'), (0x1D41A, 'a'), // bold
-        (0x1D434, 'A'), (0x1D44E, 'a'), // italic
-        (0x1D468, 'A'), (0x1D482, 'a'), // bold italic
-        (0x1D49C, 'A'), (0x1D4B6, 'a'), // script
-        (0x1D4D0, 'A'), (0x1D4EA, 'a'), // bold script
-        (0x1D504, 'A'), (0x1D51E, 'a'), // fraktur
-        (0x1D538, 'A'), (0x1D552, 'a'), // double-struck
-        (0x1D56C, 'A'), (0x1D586, 'a'), // bold fraktur
-        (0x1D5A0, 'A'), (0x1D5BA, 'a'), // sans-serif
-        (0x1D5D4, 'A'), (0x1D5EE, 'a'), // sans-serif bold
-        (0x1D608, 'A'), (0x1D622, 'a'), // sans-serif italic
-        (0x1D63C, 'A'), (0x1D656, 'a'), // sans-serif bold italic
-        (0x1D670, 'A'), (0x1D68A, 'a'), // monospace
+        (0x1D400, 'A'),
+        (0x1D41A, 'a'), // bold
+        (0x1D434, 'A'),
+        (0x1D44E, 'a'), // italic
+        (0x1D468, 'A'),
+        (0x1D482, 'a'), // bold italic
+        (0x1D49C, 'A'),
+        (0x1D4B6, 'a'), // script
+        (0x1D4D0, 'A'),
+        (0x1D4EA, 'a'), // bold script
+        (0x1D504, 'A'),
+        (0x1D51E, 'a'), // fraktur
+        (0x1D538, 'A'),
+        (0x1D552, 'a'), // double-struck
+        (0x1D56C, 'A'),
+        (0x1D586, 'a'), // bold fraktur
+        (0x1D5A0, 'A'),
+        (0x1D5BA, 'a'), // sans-serif
+        (0x1D5D4, 'A'),
+        (0x1D5EE, 'a'), // sans-serif bold
+        (0x1D608, 'A'),
+        (0x1D622, 'a'), // sans-serif italic
+        (0x1D63C, 'A'),
+        (0x1D656, 'a'), // sans-serif bold italic
+        (0x1D670, 'A'),
+        (0x1D68A, 'a'), // monospace
     ];
     for &(start, base) in BLOCKS {
         if cp >= start && cp < start + 26 {
@@ -728,11 +740,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     }
                     // ∑/∏ 한정자 뒤의 괄호는 본문 묶음(Grouping)이다.
                     // (∫ 적분은 피적분 함수의 괄호로 MathParen 유지.)
-                    Some(MathToken::MathSymbol(c))
-                        if matches!(c, '\u{2211}' | '\u{220F}') =>
-                    {
-                        BracketKind::Grouping
-                    }
+                    Some(MathToken::MathSymbol('\u{2211}' | '\u{220F}')) => BracketKind::Grouping,
                     _ => BracketKind::MathParen,
                 };
                 let promote_grouping = matches!(tokens.last(), Some(MathToken::Operator('=')));
@@ -750,7 +758,10 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             }
             ')' => {
                 let kind = if let Some(group) = bracket_stack.pop() {
-                    let resolved_kind = if group.contains_korean
+                    // PDF — math mode 컨텍스트면 Korean 내용 있어도 Hangul wrap 우회.
+                    let math_mode = super::rule_12::MATH_MODE_ACTIVE.with(|c| c.get());
+                    let resolved_kind = if !math_mode
+                        && group.contains_korean
                         && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping)
                     {
                         BracketKind::Hangul
@@ -836,6 +847,18 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                 i += 1;
                 continue;
             }
+            // PDF — Hangul wrap 그룹용 sentinel (U+27E8/U+27E9). 한글 내용이 포함된
+            // 분수 분자/분모의 묶음 (`⠸⠷...⠸⠾`).
+            '\u{27E8}' => {
+                tokens.push(MathToken::OpenParen(BracketKind::Hangul));
+                i += 1;
+                continue;
+            }
+            '\u{27E9}' => {
+                tokens.push(MathToken::CloseParen(BracketKind::Hangul));
+                i += 1;
+                continue;
+            }
             '}' => {
                 let kind = bracket_stack
                     .pop()
@@ -918,7 +941,21 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         }
 
         if c == '.' {
-            let prev_is_digit = i > 0 && chars[i - 1].is_ascii_digit();
+            // PDF — 직전 글자가 결합 부호(예: `̄`, `̃`)이면 그 이전의 baseline 문자를 본다.
+            // 예: `2̄.3010` 에서 `.`의 prev는 결합 overline U+0305이지만 baseline은 `2`.
+            let prev_baseline = {
+                let mut j = i;
+                while j > 0
+                    && matches!(
+                        chars[j - 1] as u32,
+                        0x0300..=0x036F | 0x1AB0..=0x1AFF | 0x1DC0..=0x1DFF | 0x20D0..=0x20FF | 0xFE20..=0xFE2F
+                    )
+                {
+                    j -= 1;
+                }
+                if j > 0 { Some(chars[j - 1]) } else { None }
+            };
+            let prev_is_digit = prev_baseline.is_some_and(|c| c.is_ascii_digit());
             let next_is_digit = i + 1 < chars.len() && chars[i + 1].is_ascii_digit();
             if next_is_digit && (prev_is_digit || i == 0) {
                 tokens.push(MathToken::DecimalPoint);
@@ -1007,53 +1044,9 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         i += 1;
     }
 
-    // PDF — `f(x+a)(x-a)` 같이 함수(또는 단일 변수)명 다음 인접한 두 괄호 그룹은
-    // 함수 분배 표기로 점역한다(`f(x+a)f(x-a)`). 함수명(혹은 변수)을 두 번째 괄호 앞에
-    // 삽입한다. 함수명(`sin` 등)뿐 아니라 단일 변수 `f(x)g(x)` 패턴에도 적용한다.
-    let mut i = 0;
-    while i < tokens.len() {
-        let func_token: Option<MathToken> = match tokens.get(i) {
-            Some(t @ MathToken::FunctionName(_)) => Some(t.clone()),
-            Some(t @ MathToken::Variable(_)) => Some(t.clone()),
-            _ => None,
-        };
-        let Some(func_token) = func_token else {
-            i += 1;
-            continue;
-        };
-        // 다음이 OpenParen인지 확인
-        if !matches!(tokens.get(i + 1), Some(MathToken::OpenParen(_))) {
-            i += 1;
-            continue;
-        }
-        // matching CloseParen 찾기 (인라인 페어 매칭)
-        let mut depth = 0i32;
-        let mut first_close_opt: Option<usize> = None;
-        for k in (i + 1)..tokens.len() {
-            match tokens.get(k) {
-                Some(MathToken::OpenParen(_)) => depth += 1,
-                Some(MathToken::CloseParen(_)) => {
-                    depth -= 1;
-                    if depth == 0 {
-                        first_close_opt = Some(k);
-                        break;
-                    }
-                }
-                _ => {}
-            }
-        }
-        let Some(first_close) = first_close_opt else {
-            i += 1;
-            continue;
-        };
-        // CloseParen 직후가 OpenParen이면 함수 분배
-        if matches!(tokens.get(first_close + 1), Some(MathToken::OpenParen(_))) {
-            tokens.insert(first_close + 1, func_token);
-            i = first_close + 2;
-            continue;
-        }
-        i += 1;
-    }
+    // PDF 제66항 — `f(x+a)(x-a)` 같이 함수/변수명 다음 인접한 두 괄호 그룹은
+    // 함수 분배가 아니라 곱셈(`f(x+a) · (x-a)`)으로 해석한다.
+    // 따라서 두 번째 괄호 앞에 함수/변수명을 자동 삽입하지 않는다.
 
     // PDF — `√xy` 같이 근호 뒤에 명시적 괄호 없는 다중 base 토큰(Variable/UpperVariable/
     // Number)은 `⠷...⠾`(Grouping)로 묶어 모호성을 제거한다. 단, `√x²`(var+super) 등 단일
@@ -1084,9 +1077,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                 if matches!(
                     tokens.get(j),
                     Some(
-                        MathToken::Variable(_)
-                            | MathToken::UpperVariable(_)
-                            | MathToken::Number(_)
+                        MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_)
                     )
                 ) {
                     base_count += 1;

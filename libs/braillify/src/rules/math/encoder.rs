@@ -79,15 +79,37 @@ fn next_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
 }
 
 fn is_glue_operator(token: Option<&MathToken>) -> bool {
-    matches!(token, Some(MathToken::Operator('+' | '×' | '=' | '/')))
+    matches!(
+        token,
+        Some(MathToken::Operator('+' | '-' | '×' | '=' | '/'))
+    )
 }
 
 fn should_suppress_space(tokens: &[MathToken], index: usize) -> bool {
     let prev_idx = prev_non_space_index(tokens, index);
     let next_idx = next_non_space_index(tokens, index);
 
-    prev_idx.is_some_and(|i| should_suppress_after_operator(tokens, i))
+    if prev_idx.is_some_and(|i| should_suppress_after_operator(tokens, i))
         || next_idx.is_some_and(|i| should_suppress_before_operator(tokens, i))
+    {
+        return true;
+    }
+
+    // PDF — `=`(또는 글루 연산자) 한쪽에 그룹 피연산자(괄호/한국어 wrap/√)가 인접하면
+    // 반대쪽 공백도 제거한다. 예: `f = (...)` → `⠋⠒⠒⠦`. 입력 공백을 그대로 두면
+    // PDF 점역 결과와 어긋난다.
+    let operator_with_grouped_neighbor = |op_idx: usize| -> bool {
+        if !is_glue_operator(tokens.get(op_idx)) {
+            return false;
+        }
+        let lhs_grouped = prev_non_space_index(tokens, op_idx)
+            .is_some_and(|i| token_is_grouped_operand(tokens, i));
+        let rhs_grouped = next_non_space_index(tokens, op_idx)
+            .is_some_and(|i| token_is_grouped_operand(tokens, i));
+        lhs_grouped || rhs_grouped
+    };
+    prev_idx.is_some_and(operator_with_grouped_neighbor)
+        || next_idx.is_some_and(operator_with_grouped_neighbor)
 }
 
 impl MathTokenRule for SpaceRule {
@@ -122,6 +144,20 @@ impl MathTokenRule for SpaceRule {
 struct KoreanWordRule;
 
 impl KoreanWordRule {
+    /// 토큰이 Curly 컨텍스트(`{...}`) 내부에 있는지 확인한다.
+    /// set-builder notation `{x|x는 정수}`의 Korean 본문은 wrap 없이 직접 emit.
+    fn is_inside_curly(tokens: &[MathToken], index: usize) -> bool {
+        let mut depth: i32 = 0;
+        for i in 0..index {
+            match tokens.get(i) {
+                Some(MathToken::OpenParen(BracketKind::Curly)) => depth += 1,
+                Some(MathToken::CloseParen(BracketKind::Curly)) => depth -= 1,
+                _ => {}
+            }
+        }
+        depth > 0
+    }
+
     fn wrap_kind(tokens: &[MathToken], index: usize) -> Option<BracketKind> {
         let prev = prev_non_space(tokens, index);
         let next = next_non_space(tokens, index);
@@ -132,6 +168,20 @@ impl KoreanWordRule {
         if matches!(prev, Some(MathToken::OpenParen(BracketKind::Hangul)))
             || matches!(next, Some(MathToken::CloseParen(BracketKind::Hangul)))
         {
+            return None;
+        }
+
+        // PDF — 이미 괄호 토큰으로 둘러싸여 있으면 추가 wrap 불필요.
+        // 예: `(원의 둘레)` → BracketRule이 `⠦...⠴`를 그리므로 KoreanWordRule은 본문만 emit.
+        if matches!(prev, Some(MathToken::OpenParen(_)))
+            && matches!(next, Some(MathToken::CloseParen(_)))
+        {
+            return None;
+        }
+
+        // PDF 제60항 2-나 — set-builder notation `{x|x는 정수}` 내부 Korean은
+        // wrap 없이 직접 emit한다 (math 변수가 ⠴...⠲로 quote 처리되므로 Korean은 bare).
+        if Self::is_inside_curly(tokens, index) {
             return None;
         }
 
@@ -155,6 +205,9 @@ fn token_is_grouped_operand(tokens: &[MathToken], index: usize) -> bool {
         Some(MathToken::OpenParen(_) | MathToken::CloseParen(_)) => true,
         Some(MathToken::KoreanWord(_)) => KoreanWordRule::wrap_kind(tokens, index).is_some(),
         Some(MathToken::MathSymbol('\u{221A}')) => true,
+        // PDF — Subscript/Superscript는 변수와 결합된 단일 점역 단위로, 인접한 산술 연산자의
+        // 공백 처리에 있어 그룹 피연산자처럼 동작한다.
+        Some(MathToken::Subscript(_) | MathToken::Superscript(_)) => true,
         _ => false,
     }
 }
@@ -332,6 +385,53 @@ impl MathTokenRule for MathSymbolRule {
             result.push(52);
             state.prev_was_number = false;
             return Ok(MathTokenResult::Consumed(i - index));
+        }
+
+        // PDF 수학 제65항 1 — `＃(UpperVar)` 패턴: 기수 표기.
+        // `＃` + `(` + UpperVariable + `)` 형태를 `⠸⠹⠦⠠letter⠴`로 emit.
+        if *c == '\u{FF03}'
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::OpenParen(_))
+            )
+        {
+            // ＃ 다음 ( 다음 UpperVariable 다음 ) 패턴 확인
+            let mut i = index + 1;
+            while matches!(tokens.get(i), Some(MathToken::Space)) {
+                i += 1;
+            }
+            // OpenParen
+            if !matches!(tokens.get(i), Some(MathToken::OpenParen(_))) {
+                // fall through to default handling
+            } else {
+                let open_idx = i;
+                i += 1;
+                while matches!(tokens.get(i), Some(MathToken::Space)) {
+                    i += 1;
+                }
+                if let Some(MathToken::UpperVariable(upper)) = tokens.get(i) {
+                    let upper_char = *upper;
+                    i += 1;
+                    while matches!(tokens.get(i), Some(MathToken::Space)) {
+                        i += 1;
+                    }
+                    if matches!(tokens.get(i), Some(MathToken::CloseParen(_))) {
+                        // 패턴 매칭 성공: ⠸⠹⠦⠠X⠴
+                        let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+                        result.extend_from_slice(encoded);
+                        result.push(38); // ⠦ (MathParen open)
+                        result.push(32); // ⠠ (capital marker)
+                        result.push(crate::english::encode_english(
+                            upper_char.to_ascii_lowercase(),
+                        )?);
+                        result.push(52); // ⠴ (MathParen close)
+                        state.prev_was_number = false;
+                        let consumed = i + 1 - index;
+                        let _ = open_idx;
+                        return Ok(MathTokenResult::Consumed(consumed));
+                    }
+                }
+            }
         }
 
         // PDF 수학 제61항 — 한정자(∀/∃) + 변수 형태의 식에서, 한정자-변수 다음
@@ -608,10 +708,8 @@ impl MathTokenRule for MathSymbolRule {
 
         if matches!(*c, '\u{2234}' | '\u{2235}') {
             let next_is_space = matches!(tokens.get(index + 1), Some(MathToken::Space));
-            let next_emits_leading_space = matches!(
-                tokens.get(index + 1),
-                Some(MathToken::Operator(_))
-            );
+            let next_emits_leading_space =
+                matches!(tokens.get(index + 1), Some(MathToken::Operator(_)));
             if !next_emits_leading_space {
                 if next_is_space {
                     result.push(0);
@@ -661,13 +759,21 @@ impl MathTokenRule for RawTokenRule {
         &self,
         tokens: &[MathToken],
         index: usize,
-        _result: &mut Vec<u8>,
+        result: &mut Vec<u8>,
         _state: &mut MathEncodeState,
         _engine: &MathTokenEngine,
     ) -> Result<MathTokenResult, String> {
         let Some(MathToken::Raw(c)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
+        // PDF — 수학 컨텍스트 내 일반 구두점 중 PDF 65항 등에서 정의된 것만 처리한다.
+        // 무차별 fallback은 다른 컨텍스트(예: 인용 부호)와 충돌하므로 명시적 매핑으로 한정.
+        if matches!(*c, ':' | ';' | '?' | '!')
+            && let Ok(encoded) = crate::symbol_shortcut::encode_char_symbol_shortcut(*c)
+        {
+            result.extend_from_slice(encoded);
+            return Ok(MathTokenResult::Consumed(1));
+        }
         Err(format!("Unrecognized math character: '{}'", c))
     }
 }
@@ -679,6 +785,7 @@ fn build_math_engine() -> MathTokenEngine {
     engine.register(Box::new(rule_7::ConditionalProbFractionRule));
     engine.register(Box::new(rule_7::GroupedFractionReversalRule));
     engine.register(Box::new(rule_7::FractionReversalRule));
+    engine.register(Box::new(rule_7::VariableFractionInListRule));
     engine.register(Box::new(rule_12::CombinatoricsRule));
     engine.register(Box::new(rule_54::PartialDerivativeFractionRule));
     engine.register(Box::new(rule_57::DefiniteIntegralRule));

@@ -9,6 +9,16 @@ use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, 
 use super::rule_1;
 use super::rule_6;
 
+thread_local! {
+    /// PDF 제12항 붙임 1 — 행렬명(matrix-name) 컨텍스트 플래그.
+    /// 입력 텍스트에 `행렬` 키워드가 발견되면 lib.rs encode()에서 set.
+    /// 활성화되면 연속된 2개 대문자는 각 글자에 ⠠을 개별 부착(행렬명 표기).
+    pub static MATRIX_CONTEXT_ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// PDF — explicit math mode 컨텍스트. `context: math` testcase 사용 시 활성화.
+    /// 활성화되면 paren 안 Korean은 Hangul wrap 대신 MathParen 유지.
+    pub static MATH_MODE_ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
 /// 현재 위치에서 시작해 좌측을 스캔, 적분(∫/∬/∮) 기호를 만나면 true 반환.
 /// 단, 다른 연산자/`=`를 만나면 새로운 적분 블록이 아니므로 false.
 fn integral_context_for_differential(tokens: &[MathToken], idx: usize) -> bool {
@@ -129,10 +139,42 @@ pub fn encode_variable(
     if needs_number_variable_link {
         result.push(16);
     }
-    result.push(crate::english::encode_english(c.to_ascii_lowercase())?);
+    // PDF 제60항 2-나 — set-builder notation `{x|x는 ...}` 내부에서 math letter가
+    // KoreanWord 바로 앞에 위치하면 `⠴...⠲` quote wrap을 적용한다.
+    // (KoreanWord 측 wrap_kind는 None을 반환하여 본문만 emit한다.)
+    let next_is_korean = matches!(tokens.get(*i + 1), Some(MathToken::KoreanWord(_)));
+    let inside_curly = is_inside_curly_context(tokens, *i);
+    if next_is_korean && inside_curly {
+        // PDF — `|` (divider) 다음에는 한 칸 띄어 쓴다.
+        if *i >= 1
+            && matches!(
+                tokens.get(*i - 1),
+                Some(MathToken::MathSymbol('|') | MathToken::Operator('|'))
+            )
+        {
+            result.push(0);
+        }
+        result.push(52); // ⠴ open quote
+        result.push(crate::english::encode_english(c.to_ascii_lowercase())?);
+        result.push(50); // ⠲ close quote
+    } else {
+        result.push(crate::english::encode_english(c.to_ascii_lowercase())?);
+    }
     *prev_was_number = false;
     *i += 1;
     Ok(false)
+}
+
+fn is_inside_curly_context(tokens: &[MathToken], index: usize) -> bool {
+    let mut depth: i32 = 0;
+    for i in 0..index {
+        match tokens.get(i) {
+            Some(MathToken::OpenParen(BracketKind::Curly)) => depth += 1,
+            Some(MathToken::CloseParen(BracketKind::Curly)) => depth -= 1,
+            _ => {}
+        }
+    }
+    depth > 0
 }
 
 pub fn encode_upper_variable(
@@ -200,6 +242,23 @@ pub fn encode_upper_variable(
         }
     }
 
+    // PDF 제12항 붙임 1 — 행렬 컨텍스트면 2-cap 행렬명(`AB`)을 ⠠+letter 개별 표기.
+    let matrix_context = MATRIX_CONTEXT_ACTIVE.with(|c| c.get());
+    if uppercase_count == 2 && matrix_context {
+        for token in &tokens[*i..seq_end] {
+            match token {
+                MathToken::UpperVariable(upper) => {
+                    result.push(32);
+                    result.push(crate::english::encode_english(upper.to_ascii_lowercase())?);
+                }
+                MathToken::Prime => result.push(36),
+                _ => {}
+            }
+        }
+        *i = seq_end;
+        *prev_was_number = false;
+        return Ok(true);
+    }
     if uppercase_count >= 2 {
         result.push(32);
         result.push(32);

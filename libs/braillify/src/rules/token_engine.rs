@@ -78,6 +78,16 @@ impl TokenRuleEngine {
                             }
                             i += count - 1;
                         }
+                        TokenAction::ReplaceRange(consume_count, ts) => {
+                            // 현재 위치 i부터 consume_count개의 토큰을 통째로 ts로 교체한다.
+                            let end = (i + consume_count).min(tokens.len());
+                            let new_count = ts.len();
+                            tokens.splice(i..end, ts);
+                            if new_count == 0 {
+                                continue 'outer;
+                            }
+                            i += new_count - 1;
+                        }
                         #[cfg(test)]
                         TokenAction::Remove => {
                             tokens.remove(i);

@@ -67,7 +67,7 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
     encode_with_options(text, &EncodeOptions::default())
 }
 
-/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와 
+/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와
 /// 첨자 라틴 문자를 ASCII 라틴 문자로 정규화한다.
 /// 한국 점자 수학 규정은 글꼴 변형(italic/bold/script 등)을 별도 표기하지
 /// 않으므로 `𝑃`(MATH ITALIC CAPITAL P) ≡ 일반 `P`로 취급한다.
@@ -78,19 +78,32 @@ fn normalize_math_alphanumeric_char(c: char) -> char {
         return 'h';
     }
     const BLOCKS: &[(u32, char)] = &[
-        (0x1D400, 'A'), (0x1D41A, 'a'),
-        (0x1D434, 'A'), (0x1D44E, 'a'),
-        (0x1D468, 'A'), (0x1D482, 'a'),
-        (0x1D49C, 'A'), (0x1D4B6, 'a'),
-        (0x1D4D0, 'A'), (0x1D4EA, 'a'),
-        (0x1D504, 'A'), (0x1D51E, 'a'),
-        (0x1D538, 'A'), (0x1D552, 'a'),
-        (0x1D56C, 'A'), (0x1D586, 'a'),
-        (0x1D5A0, 'A'), (0x1D5BA, 'a'),
-        (0x1D5D4, 'A'), (0x1D5EE, 'a'),
-        (0x1D608, 'A'), (0x1D622, 'a'),
-        (0x1D63C, 'A'), (0x1D656, 'a'),
-        (0x1D670, 'A'), (0x1D68A, 'a'),
+        (0x1D400, 'A'),
+        (0x1D41A, 'a'),
+        (0x1D434, 'A'),
+        (0x1D44E, 'a'),
+        (0x1D468, 'A'),
+        (0x1D482, 'a'),
+        (0x1D49C, 'A'),
+        (0x1D4B6, 'a'),
+        (0x1D4D0, 'A'),
+        (0x1D4EA, 'a'),
+        (0x1D504, 'A'),
+        (0x1D51E, 'a'),
+        (0x1D538, 'A'),
+        (0x1D552, 'a'),
+        (0x1D56C, 'A'),
+        (0x1D586, 'a'),
+        (0x1D5A0, 'A'),
+        (0x1D5BA, 'a'),
+        (0x1D5D4, 'A'),
+        (0x1D5EE, 'a'),
+        (0x1D608, 'A'),
+        (0x1D622, 'a'),
+        (0x1D63C, 'A'),
+        (0x1D656, 'a'),
+        (0x1D670, 'A'),
+        (0x1D68A, 'a'),
     ];
     for &(start, base) in BLOCKS {
         if cp >= start && cp < start + 26 {
@@ -139,6 +152,20 @@ fn expand_emphasis_marks(text: &str) -> String {
     let mut i = 0;
     while i < chars.len() {
         if chars[i] == '\u{0307}' {
+            // 수학 overdot 컨텍스트 우회: 직전 baseline 문자가 숫자/ASCII 알파벳/그리스
+            // 문자/math symbol이면 강조점이 아니라 결합 윗점(반복소수, 도함수 등)이므로
+            // 그대로 emit한다. (단, 직전이 한글 음절이면 강조점으로 처리.)
+            let prev_base = out.iter().rev().find(|c| !c.is_whitespace()).copied();
+            let is_math_overdot = prev_base.is_some_and(|c| {
+                c.is_ascii_digit()
+                    || c.is_ascii_alphabetic()
+                    || matches!(c as u32, 0x0370..=0x03FF | 0x1F00..=0x1FFF) // Greek
+            });
+            if is_math_overdot {
+                out.push(chars[i]);
+                i += 1;
+                continue;
+            }
             // 연속 U+0307 그룹 수집 (사이 공백 허용)
             let mut count = 1;
             let mut last = i;
@@ -169,7 +196,8 @@ fn expand_emphasis_marks(text: &str) -> String {
                 }
             }
             if syllables == count {
-                // out[start_in_out..]을 ⠠⠤...⠤⠄로 wrap
+                // out[start_in_out..]을 ⠠⠤...⠤⠄로 wrap.
+                // PDF 제56항 — 강조 블록 내부 공백은 보존된다.
                 out.insert(start_in_out, '\u{E000}'); // start sentinel
                 out.push('\u{E001}'); // end sentinel
             }
@@ -195,18 +223,12 @@ fn collapse_repeated_vector_marks(text: &str) -> String {
     while i < chars.len() {
         // PDF 제37,38항 — 벡터/반직선 결합부호는 점자에서 letter 앞에 prefix한다.
         // 단독 `A⃗`도 `⃗A` 순으로 변환한다.
-        if chars[i].is_ascii_alphabetic()
-            && i + 1 < chars.len()
-            && is_vector_mark(chars[i + 1])
-        {
+        if chars[i].is_ascii_alphabetic() && i + 1 < chars.len() && is_vector_mark(chars[i + 1]) {
             let mark = chars[i + 1];
             // 연속된 letter+mark 쌍을 수집한다 (예: A⃗B⃗ → ⃗AB).
             let mut letters = vec![chars[i]];
             let mut j = i + 2;
-            while j + 1 < chars.len()
-                && chars[j].is_ascii_alphabetic()
-                && chars[j + 1] == mark
-            {
+            while j + 1 < chars.len() && chars[j].is_ascii_alphabetic() && chars[j + 1] == mark {
                 letters.push(chars[j]);
                 j += 2;
             }
@@ -240,8 +262,7 @@ fn decompose_accented_latin(text: &str) -> String {
             continue;
         }
         // Latin-1 Supplement, Latin Extended-A/B/Additional, IPA Extensions
-        let is_latin_extended = (0x00C0..=0x024F).contains(&cp)
-            || (0x1E00..=0x1EFF).contains(&cp);
+        let is_latin_extended = (0x00C0..=0x024F).contains(&cp) || (0x1E00..=0x1EFF).contains(&cp);
         if is_latin_extended {
             for d in std::iter::once(c).nfd() {
                 out.push(d);
@@ -442,12 +463,41 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // 또한 PDF 수학 제65항 5의 결합 부호 처리를 위해 악센트 라틴 문자를 NFD 분해한다.
     // 그리고 PDF 수학 제34항 부정 결합(U+0338)을 피수정 문자 앞으로 이동한다.
     // 또한 PDF 수학 제37,38항 벡터/반직선 결합부호를 prefix 형태로 정규화한다.
-    let normalized_text = collapse_repeated_vector_marks(&move_negation_combiner_before_base(
-        &decompose_accented_latin(&normalize_math_alphanumeric_string(text)),
+    // PDF 제56항 — U+0307 결합 강조점을 sentinel U+E000/U+E001로 변환하여
+    // N개 한글 음절을 cross-word 묶음으로 wrap. sentinel은 symbol_shortcut에서
+    // braille marker (⠠⠤/⠤⠄)로 emit된다.
+    let normalized_text = expand_emphasis_marks(&collapse_repeated_vector_marks(
+        &move_negation_combiner_before_base(&decompose_accented_latin(
+            &normalize_math_alphanumeric_string(text),
+        )),
     ));
-    // expand_emphasis_marks를 fully working으로 만들 때까지 일단 사용하지 않는다.
-    let _ = expand_emphasis_marks;
+
     let text: &str = &normalized_text;
+
+    // PDF 제12항 붙임 1 — 입력에 `행렬` 키워드가 있으면 행렬명 컨텍스트 활성화.
+    // 활성화 시 연속된 2개 대문자는 행렬명(각 글자에 ⠠ 개별 부착)으로 점역된다.
+    // 내부 재귀 호출 시 기존 flag를 덮어쓰지 않도록 OR-set: 이전 true는 유지.
+    let matrix_context = text.contains("행렬");
+    let math_mode = matches!(options.default_mode, Some(EncodingMode::Math));
+    let _matrix_flag_guard = {
+        let prev_matrix = crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.get());
+        let prev_math = crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.get());
+        if matrix_context {
+            crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.set(true));
+        }
+        if math_mode {
+            crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.set(true));
+        }
+        // 재귀 호출에서는 이전 값을 유지(restore on drop).
+        struct Guard(bool, bool);
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.set(self.0));
+                crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.set(self.1));
+            }
+        }
+        Guard(prev_matrix, prev_math)
+    };
 
     // PDF 제38항 — IPA 모드: 발음 기호 표기.
     // 알고리즘 일반화: 입력은 묶음 기호 `[...]` 또는 `/.../`로 시작/종료한다.
@@ -920,6 +970,8 @@ mod test {
         let mut total = 0;
         let mut failed = 0;
         let mut failed_cases = Vec::new();
+        // (filename, line_num, input, reason) — limitation 필드로 skip된 케이스.
+        let mut skipped_cases: Vec<(String, usize, String, String)> = Vec::new();
         let mut file_stats = std::collections::BTreeMap::new();
 
         // read rule_map.json
@@ -973,7 +1025,26 @@ mod test {
                 // 보강이나 별도 API(예: FormattingSpan)로 해결할 때까지 본 테스트에서는
                 // 제외한다. 한계 인정은 0-fail 달성 자체를 위한 우회가 아닌, 알고리즘
                 // 일반화 원칙(AGENTS.md)을 지키기 위한 명시적 deferral이다.
-                if record.get("limitation").and_then(|v| v.as_str()).is_some() {
+                //
+                // 가드레일: limitation 항목은 실제로 실패해야만 한다. 알고리즘이 개선되어
+                // 이미 통과하는 케이스가 limitation으로 표시되면(=stale) 패닉으로 표시한다.
+                if let Some(reason) = record.get("limitation").and_then(|v| v.as_str()) {
+                    let input = record["input"].as_str().unwrap_or("");
+                    let expected = record["unicode"].as_str().unwrap_or("");
+                    if let Ok(actual) = crate::encode_to_unicode(input)
+                        && actual == expected
+                    {
+                        panic!(
+                            "STALE limitation in {} line {}: input={:?} passes but is marked limitation: {:?}",
+                            filename, line_num, input, reason
+                        );
+                    }
+                    skipped_cases.push((
+                        filename.to_string(),
+                        line_num + 1,
+                        input.to_string(),
+                        reason.to_string(),
+                    ));
                     continue;
                 }
                 total += 1;
@@ -1183,6 +1254,20 @@ mod test {
             }
         }
 
+        if !skipped_cases.is_empty() {
+            println!("\nSkip된 케이스 (limitation):");
+            println!("=================");
+            for (filename, line_num, input, reason) in &skipped_cases {
+                println!(
+                    "\x1b[33m파일: {}, 라인 {}: '{}'\x1b[0m",
+                    filename, line_num, input
+                );
+                println!("  사유: {}", reason);
+                println!();
+            }
+            println!("총 Skip: {}건", skipped_cases.len());
+        }
+
         // write test_status to file
         serde_json::to_writer_pretty(
             File::create(concat!(
@@ -1220,6 +1305,7 @@ mod test {
         println!("총 테스트 케이스: {}", total);
         println!("성공: {}", total - failed);
         println!("실패: {}", failed);
+        println!("Skip (limitation): {}", skipped_cases.len());
         if failed > 0 {
             panic!("{} test cases failed.", failed);
         }
@@ -1335,6 +1421,3 @@ mod test {
         assert_eq!(buffer, expected);
     }
 }
-
-
-

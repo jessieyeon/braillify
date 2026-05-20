@@ -88,23 +88,18 @@ fn is_left_subscript_position(tokens: &[MathToken], index: usize) -> bool {
         // 함수명(lim, sin, cos 등)은 첨자를 매개변수로 받는다.
         Some(MathToken::FunctionName(_)) => true,
         // 적분/합산/곱 등은 첨자를 한정자로 받는다.
-        Some(MathToken::MathSymbol(c))
-            if matches!(
-                c,
-                '\u{222B}' // ∫
-                | '\u{222C}' // ∬
-                | '\u{222D}' // ∭
-                | '\u{222E}' // ∮
-                | '\u{2211}' // ∑
-                | '\u{220F}' // ∏
-                | '\u{22C3}' // ⋃
-                | '\u{22C2}' // ⋂
-                | '\u{2200}' // ∀
-                | '\u{2203}' // ∃
-            ) =>
-        {
-            true
-        }
+        Some(MathToken::MathSymbol(
+            '\u{222B}' // ∫
+            | '\u{222C}' // ∬
+            | '\u{222D}' // ∭
+            | '\u{222E}' // ∮
+            | '\u{2211}' // ∑
+            | '\u{220F}' // ∏
+            | '\u{22C3}' // ⋃
+            | '\u{22C2}' // ⋂
+            | '\u{2200}' // ∀
+            | '\u{2203}', // ∃
+        )) => true,
         _ => false,
     };
     if prev_blocks {
@@ -176,13 +171,35 @@ pub fn encode_subscript(
 
     result.push(48);
     // 적분/합/곱(∫ ∑ ∏ 등) 한정자 뒤 첨자는 묶음 없이 본문 그대로 출력한다.
-    let prev_is_quantifier_op = matches!(
-        prev_non_space(tokens, *i),
-        Some(MathToken::MathSymbol(
-            '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}'
-            | '\u{2211}' | '\u{220F}' | '\u{2200}' | '\u{2203}'
-        )) | Some(MathToken::FunctionName(_))
-    );
+    // PDF 제51항 [붙임] — `\substack`로 펼쳐진 두 번째 이상 첨자도 동일한 한정자
+    // 컨텍스트에 속하므로 묶음 없이 출력한다. (이전 첨자를 거슬러 올라가 한정자를 찾는다.)
+    let prev_is_quantifier_op = {
+        let mut cursor = *i;
+        loop {
+            match prev_non_space(tokens, cursor) {
+                Some(MathToken::MathSymbol(
+                    '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
+                    | '\u{2200}' | '\u{2203}',
+                ))
+                | Some(MathToken::FunctionName(_)) => break true,
+                Some(MathToken::Subscript(_)) => {
+                    // 이전 토큰이 첨자이면 한 단계 더 거슬러 본다 (substack 펼침 케이스).
+                    let mut prev_cursor = cursor;
+                    while prev_cursor > 0 {
+                        prev_cursor -= 1;
+                        if !matches!(tokens.get(prev_cursor), Some(MathToken::Space)) {
+                            break;
+                        }
+                    }
+                    if prev_cursor == cursor {
+                        break false;
+                    }
+                    cursor = prev_cursor;
+                }
+                _ => break false,
+            }
+        }
+    };
     if prev_is_quantifier_op {
         engine.encode_tokens(content, result)?;
         *i += 1;

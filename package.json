@@ -5,8 +5,8 @@
   "description": "Braillify is a library for converting text to braille.",
   "type": "module",
   "scripts": {
-    "lint": "oxlint .",
-    "lint:fix": "oxlint . --fix",
+    "lint": "oxlint . && cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings",
+    "lint:fix": "oxlint . --fix && cargo fmt --all && cargo clippy --workspace --all-targets --fix --allow-dirty --allow-staged -- -D warnings",
     "test": "cargo tarpaulin --out xml --out stdout -- --skip test_by_testcase && bun test --coverage && cd py-test && uv run pytest __init__.py",
     "test:testcase": "cargo test -p braillify test_by_testcase -- --nocapture",
     "preinstall": "uv sync && (cargo install wasm-pack || node -e \"process.exit(0)\") && (pip install maturin || \"process.exit(0)\")",

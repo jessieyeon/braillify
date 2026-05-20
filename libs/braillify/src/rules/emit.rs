@@ -48,6 +48,75 @@ fn prev_non_space_is_hangul_wrap_end<'a>(tokens: &'a [Token<'a>], before_index: 
     false
 }
 
+/// PDF 수학 — `Word(math)+Space+Word(=/==/관계)+Space+Word(math)` 패턴에서
+/// 등호 양옆 Space 토큰을 묵음 처리한다. 점역 결과는 `expr⠒⠒expr`로 인접한다.
+fn is_math_operator_space_suppression<'a>(tokens: &'a [Token<'a>], space_idx: usize) -> bool {
+    fn token_is_math_word(token: Option<&Token<'_>>) -> bool {
+        match token {
+            Some(Token::Word(w)) => {
+                if w.meta.has_korean {
+                    return false;
+                }
+                w.chars.iter().any(|c| {
+                    c.is_ascii_alphabetic()
+                        || matches!(*c,
+                            '\u{2080}'..='\u{2089}'
+                            | '\u{00B2}' | '\u{00B3}'
+                            | '\u{2070}'..='\u{2079}'
+                            | '∇' | '∂' | '∞' | '∫'
+                            | 'α'..='ω' | 'Α'..='Ω'
+                        )
+                }) || w.chars.contains(&'(')
+                    || w.chars.contains(&')')
+                    || w.chars.contains(&'/')
+            }
+            Some(Token::PreEncoded(_)) => true,
+            _ => false,
+        }
+    }
+    fn token_is_relation_operator_word(token: Option<&Token<'_>>) -> bool {
+        match token {
+            Some(Token::Word(w)) => {
+                w.chars.len() <= 2
+                    && w.chars.iter().all(|c| {
+                        matches!(*c, '=' | '<' | '>' | '\u{2260}' | '\u{2264}' | '\u{2265}')
+                    })
+            }
+            // PDF — MathExpressionTokenRule이 관계연산자 Word를 PreEncoded로 변환한 결과.
+            // 등호/부등호/관계기호의 점역 결과는 다음과 같다 (소스: rule_3, rule_4, math_symbol_shortcut).
+            // 셀 시퀀스가 정확히 일치하면 관계연산자로 본다.
+            // 향후 Token 메타데이터로 의미를 보존하는 방향이 더 안전하지만, 현 구조에서는
+            // 점형이 짧고 충돌 가능성이 낮은 셀들만 골라 매칭한다.
+            Some(Token::PreEncoded(bytes)) => matches!(
+                bytes.as_slice(),
+                [18, 18]                  // ⠒⠒ : =
+                | [40, 18, 18]            // ⠨⠒⠒ : ≠
+                | [16, 16]                // ⠐⠐ : ≤  
+                | [16, 18]                // ⠐⠒ : <
+                | [18, 16] // ⠒⠐ : >
+            ),
+            _ => false,
+        }
+    }
+    // 케이스 1: Space 다음이 관계 연산자 Word, 이전이 math Word/PreEncoded.
+    if space_idx + 1 < tokens.len()
+        && token_is_relation_operator_word(tokens.get(space_idx + 1))
+        && space_idx > 0
+        && token_is_math_word(tokens.get(space_idx - 1))
+    {
+        return true;
+    }
+    // 케이스 2: Space 이전이 관계 연산자 Word, 다음이 math Word/PreEncoded.
+    if space_idx > 0
+        && token_is_relation_operator_word(tokens.get(space_idx - 1))
+        && space_idx + 1 < tokens.len()
+        && token_is_math_word(tokens.get(space_idx + 1))
+    {
+        return true;
+    }
+    false
+}
+
 pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
 
@@ -63,7 +132,11 @@ pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>
                     &mut result,
                 )?;
             }
-            Token::Space(SpaceKind::Regular) => result.push(0),
+            Token::Space(SpaceKind::Regular) => {
+                if !is_math_operator_space_suppression(&ir.tokens, idx) {
+                    result.push(0);
+                }
+            }
             Token::Mode(event) => emit_mode_event(*event, &mut ir.state, &mut result),
             Token::Fraction(frac) => {
                 if let Some(ref w) = frac.whole {
@@ -392,6 +465,9 @@ fn emit_word(
             if state.roman_number_chain && !state.is_english {
                 match &char_type {
                     CharType::English(_) => {
+                        // PDF — roman_number_chain 안 digit 뒤 letter는 영어 연속 표지(⠰)를
+                        // 부착해 letter임을 명시한다 (digit과 혼동 방지).
+                        result.push(48);
                         resume_english_from_roman_number_chain(state);
                     }
                     CharType::Number(_) => {}

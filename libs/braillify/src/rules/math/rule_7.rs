@@ -75,16 +75,22 @@ impl MathTokenRule for GroupedFractionReversalRule {
         // 왼쪽(분모)을 묶음 괄호(Grouping)로 감싸서 먼저 출력하고,
         // 분수선 후 오른쪽(분자)을 출력한다.
 
+        // 분모 측 OpenParen의 BracketKind를 보존한다 (Grouping/Hangul 구분).
+        let left_kind = match tokens.get(index) {
+            Some(MathToken::OpenParen(k)) => *k,
+            _ => BracketKind::Grouping,
+        };
+
         // 오른쪽(분자)이 괄호로 감싸진 경우: (분모)/(분자) 패턴
         if matches!(tokens.get(right_start), Some(MathToken::OpenParen(_))) {
             let Some(right_close) = rule_6::find_matching_paren(tokens, right_start) else {
                 return Ok(MathTokenResult::Skip);
             };
 
-            // 분모(왼쪽)를 묶음 괄호로 감싸서 먼저 출력
-            rule_6::encode_open_paren(BracketKind::Grouping, result);
+            // 분모(왼쪽)를 원본 BracketKind로 감싸서 먼저 출력
+            rule_6::encode_open_paren(left_kind, result);
             engine.encode_tokens(&tokens[index + 1..left_close], result)?;
-            rule_6::encode_close_paren(BracketKind::Grouping, result);
+            rule_6::encode_close_paren(left_kind, result);
             result.push(12);
             // 분자(오른쪽) 출력 (괄호 포함)
             engine.encode_tokens(&tokens[right_start..=right_close], result)?;
@@ -98,10 +104,10 @@ impl MathTokenRule for GroupedFractionReversalRule {
             return Ok(MathTokenResult::Skip);
         }
 
-        // 분모(왼쪽)를 묶음 괄호로 감싸서 먼저 출력
-        rule_6::encode_open_paren(BracketKind::Grouping, result);
+        // 분모(왼쪽)를 원본 BracketKind로 감싸서 먼저 출력
+        rule_6::encode_open_paren(left_kind, result);
         engine.encode_tokens(&tokens[index + 1..left_close], result)?;
-        rule_6::encode_close_paren(BracketKind::Grouping, result);
+        rule_6::encode_close_paren(left_kind, result);
         result.push(12);
         // 분자(오른쪽) 출력
         engine.encode_tokens(&tokens[right_start..right_end], result)?;
@@ -167,6 +173,69 @@ impl MathTokenRule for FractionReversalRule {
         rule_1::encode_number_with_prefix(left, false, result);
         state.prev_was_number = false;
         Ok(MathTokenResult::Consumed(3))
+    }
+}
+
+/// PDF — `(f/x₁, f/x₂, ..., f/xₙ)` 같이 paren 안 comma-구분 fraction은 reverse.
+/// `f/x` → `x/f` (분모 먼저). 안전을 위해 prev가 OpenParen 또는 comma일 때만 발동.
+pub struct VariableFractionInListRule;
+
+impl MathTokenRule for VariableFractionInListRule {
+    fn name(&self) -> &'static str {
+        "VariableFractionInListRule"
+    }
+
+    fn priority(&self) -> u16 {
+        10
+    }
+
+    fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
+        // 패턴: V '/' V (+ optional Subscript) AND prev is OpenParen/Operator(',')/None(독립 cell)
+        matches!(tokens.get(index), Some(MathToken::Variable(_)))
+            && matches!(tokens.get(index + 1), Some(MathToken::Operator('/')))
+            && matches!(tokens.get(index + 2), Some(MathToken::Variable(_)))
+            && {
+                let prev = rule_12::prev_non_space(tokens, index);
+                matches!(
+                    prev,
+                    None | Some(MathToken::OpenParen(_)) | Some(MathToken::Operator(','))
+                )
+            }
+    }
+
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
+        let (Some(MathToken::Variable(num)), Some(MathToken::Variable(den))) =
+            (tokens.get(index), tokens.get(index + 2))
+        else {
+            return Ok(MathTokenResult::Skip);
+        };
+
+        // 분모 right side는 V + optional Subscript까지 수집
+        let mut den_end = index + 3;
+        while matches!(
+            tokens.get(den_end),
+            Some(MathToken::Subscript(_)) | Some(MathToken::Superscript(_))
+        ) {
+            den_end += 1;
+        }
+
+        // 분자(분모)/분모(분자)를 reverse: encode den + subscript first, then ⠌, then num
+        result.push(crate::english::encode_english(den.to_ascii_lowercase())?);
+        // den's subscripts/superscripts
+        if den_end > index + 3 {
+            engine.encode_tokens(&tokens[index + 3..den_end], result)?;
+        }
+        result.push(12); // ⠌ slash
+        result.push(crate::english::encode_english(num.to_ascii_lowercase())?);
+        state.prev_was_number = false;
+        Ok(MathTokenResult::Consumed(den_end - index))
     }
 }
 

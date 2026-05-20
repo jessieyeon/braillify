@@ -12,7 +12,27 @@ pub fn encode_decimal_point(
     prev_was_number: &mut bool,
     result: &mut Vec<u8>,
 ) {
-    if !*prev_was_number {
+    // PDF — 직전이 결합 부호(예: `̄` overline)면 그 앞 baseline이 Number인지 본다.
+    // 예: `2̄.3010` 에서 overline U+0305 사이를 건너뛰고 `2` (Number)를 인식한다.
+    let prev_baseline_is_number = {
+        let mut j = i;
+        while j > 0
+            && matches!(
+                tokens.get(j - 1),
+                Some(MathToken::MathSymbol(
+                    '\u{0300}'..='\u{036F}'
+                    | '\u{1AB0}'..='\u{1AFF}'
+                    | '\u{1DC0}'..='\u{1DFF}'
+                    | '\u{20D0}'..='\u{20FF}'
+                    | '\u{FE20}'..='\u{FE2F}',
+                ))
+            )
+        {
+            j -= 1;
+        }
+        j > 0 && matches!(tokens.get(j - 1), Some(MathToken::Number(_)))
+    };
+    if !*prev_was_number && !prev_baseline_is_number {
         let has_next_number = match tokens.get(i + 1) {
             Some(MathToken::Number(_)) => true,
             Some(MathToken::MathSymbol('\u{0307}')) => {
@@ -24,6 +44,9 @@ pub fn encode_decimal_point(
             result.push(60);
             *prev_was_number = true;
         }
+    } else if prev_baseline_is_number {
+        // 직전 baseline이 Number이면 그 number context를 유지한다.
+        *prev_was_number = true;
     }
     result.push(50);
 }

@@ -64,8 +64,6 @@ impl BrailleRule for Rule73 {
             return Ok(RuleResult::Skip);
         }
 
-
-
         if ctx.prev_char() == Some('_') {
             return Ok(RuleResult::Consumed);
         }

@@ -285,7 +285,24 @@ mod test {
                 }
                 CharType::KoreanPart(ch) => {
                     let code = ch as u32;
-                    assert!((0x3131..=0x318E).contains(&code));
+                    // KoreanPart는 다음 Hangul jamo/CJK 범위 중 하나여야 한다:
+                    //  - U+1100..U+11FF (Hangul Jamo — modern initial/medial/final)
+                    //  - U+3131..U+318E (Hangul Compatibility Jamo)
+                    //  - U+318F..U+319F, U+3200..U+321E (확장 Hangul 호환 자모)
+                    //  - U+A960..U+A97C (Hangul Jamo Extended-A)
+                    //  - U+D7B0..U+D7C6, U+D7CB..U+D7FB (Hangul Jamo Extended-B)
+                    //  - U+4E00..U+9FFF (CJK Unified Ideographs — historical Korean text)
+                    assert!(
+                        (0x1100..=0x11FF).contains(&code)
+                            || (0x3131..=0x318E).contains(&code)
+                            || (0x318F..=0x319F).contains(&code)
+                            || (0x3200..=0x321E).contains(&code)
+                            || (0xA960..=0xA97C).contains(&code)
+                            || (0xD7B0..=0xD7C6).contains(&code)
+                            || (0xD7CB..=0xD7FB).contains(&code)
+                            || (0x4E00..=0x9FFF).contains(&code),
+                        "KoreanPart char U+{:04X} not in expected ranges", code
+                    );
                 }
                 CharType::English(ch) => {
                     assert!(ch.is_ascii_alphabetic());

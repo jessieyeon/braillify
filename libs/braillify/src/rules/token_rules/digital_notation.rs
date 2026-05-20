@@ -37,10 +37,19 @@ impl TokenRule for DigitalNotationRule {
 }
 
 fn has_digital_signature(text: &str) -> bool {
-    text.chars()
+    if !text
+        .chars()
         .next()
         .is_some_and(|ch| ch.is_ascii_alphanumeric())
-        && (text.contains("//") || text.contains('@') || text.contains('#') || text.contains('_'))
+    {
+        return false;
+    }
+    if text.contains("//") || text.contains('@') || text.contains('#') {
+        return true;
+    }
+    // 단독 `_`는 일반 부호로 처리. 디지털 표기는 `_`와 다른 디지털 표지(`. / :`)
+    // 조합에서만 활성화한다.
+    text.contains('_') && (text.contains('.') || text.contains('/') || text.contains(':'))
 }
 
 fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {

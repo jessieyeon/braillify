@@ -3,6 +3,17 @@ use phf::phf_map;
 use crate::unicode::decode_unicode;
 
 static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
+    // PDF 한국 점자 규정 (수학) — 동그라미 숫자 ①②③④⑤⑥⑦⑧⑨⑩
+    '\u{2460}' => &[decode_unicode('⠼'), decode_unicode('⠂')], // ①
+    '\u{2461}' => &[decode_unicode('⠼'), decode_unicode('⠆')], // ②
+    '\u{2462}' => &[decode_unicode('⠼'), decode_unicode('⠒')], // ③
+    '\u{2463}' => &[decode_unicode('⠼'), decode_unicode('⠲')], // ④
+    '\u{2464}' => &[decode_unicode('⠼'), decode_unicode('⠢')], // ⑤
+    '\u{2465}' => &[decode_unicode('⠼'), decode_unicode('⠖')], // ⑥
+    '\u{2466}' => &[decode_unicode('⠼'), decode_unicode('⠶')], // ⑦
+    '\u{2467}' => &[decode_unicode('⠼'), decode_unicode('⠦')], // ⑧
+    '\u{2468}' => &[decode_unicode('⠼'), decode_unicode('⠔')], // ⑨
+    '\u{2469}' => &[decode_unicode('⠼'), decode_unicode('⠴')], // ⑩
     '+' => &[decode_unicode('⠢')], // 5 (덧셈표)
     '/' => &[decode_unicode('⠸'), decode_unicode('⠌')], // _/ (분수 기호)
     '\u{2212}' => &[decode_unicode('⠔')], // 9 (뺄셈표)
@@ -70,6 +81,7 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '|' => &[decode_unicode('⠳')], // | (절댓값)
     '\u{00AC}' => &[decode_unicode('⠈'), decode_unicode('⠔')], // @9 (부정)
     '\u{00B0}' => &[decode_unicode('⠴'), decode_unicode('⠙')], // 0d (도)
+    '\u{00B1}' => &[decode_unicode('⠢'), decode_unicode('⠔')], // ± (PDF 제2항 — plus-minus)
     '\u{00B7}' => &[decode_unicode('⠐')], // " (점 곱셈)
     '…' => &[decode_unicode('⠠'), decode_unicode('⠠'), decode_unicode('⠠')], // ,,, (줄임표)
     '⋯' => &[decode_unicode('⠠'), decode_unicode('⠠'), decode_unicode('⠠')], // ,,, (줄임표)

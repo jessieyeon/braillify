@@ -161,6 +161,10 @@ impl BrailleRule for Rule68 {
             || matches!(ctx.char_type, CharType::English(_)
                 if is_compact_ascii_notation(ctx.word_chars, ctx.index)
                     || is_grade_notation(ctx.word_chars, ctx.index))
+            || (matches!(
+                ctx.char_type,
+                CharType::MathSymbol('+') | CharType::Symbol('+')
+            ) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
@@ -178,6 +182,38 @@ impl BrailleRule for Rule68 {
             return Ok(RuleResult::Consumed);
         }
 
+        // PDF — `1++` 같이 digit 뒤 연속 `+`(또는 `-`)는 grade 표기.
+        // `⠘`(super marker) + plus chars 연쇄로 점역한다.
+        if matches!(
+            ctx.char_type,
+            CharType::MathSymbol('+') | CharType::Symbol('+')
+        ) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index)
+        {
+            ctx.emit(SUPERSCRIPT_PREFIX);
+            let mut cursor = ctx.index;
+            let mut consumed = 0usize;
+            while let Some(&ch) = ctx.word_chars.get(cursor) {
+                let cell = match ch {
+                    '+' => crate::unicode::decode_unicode('⠢'),
+                    '-' => crate::unicode::decode_unicode('⠔'),
+                    _ => break,
+                };
+                ctx.emit(cell);
+                consumed += 1;
+                cursor += 1;
+            }
+            // 등급 표기 뒤에 한글이 오면 분리 공백 추가
+            if ctx
+                .word_chars
+                .get(cursor)
+                .is_some_and(|c| crate::utils::is_korean_char(*c))
+            {
+                ctx.emit(0);
+            }
+            *ctx.skip_count = consumed.saturating_sub(1);
+            return Ok(RuleResult::Consumed);
+        }
+
         let Some((_, unicode)) = MAPPINGS
             .iter()
             .find(|(candidate, _)| *candidate == ctx.current_char())
@@ -191,4 +227,27 @@ impl BrailleRule for Rule68 {
         }
         Ok(RuleResult::Consumed)
     }
+}
+
+/// PDF — `1++등급` 같은 digit + 연속 `+` 등급 표기 패턴인지 검사.
+/// 직전이 digit이고 현재가 `+`이며 이후에 한글 등급 키워드(등급)가 나오면 true.
+fn is_digit_grade_plus_notation(word: &[char], index: usize) -> bool {
+    if index == 0 {
+        return false;
+    }
+    if !word.get(index - 1).is_some_and(|c| c.is_ascii_digit()) {
+        return false;
+    }
+    // 현재 위치부터 연속 +/-
+    let mut cursor = index;
+    while let Some(&ch) = word.get(cursor) {
+        if matches!(ch, '+' | '-') {
+            cursor += 1;
+        } else {
+            break;
+        }
+    }
+    // 직후에 한글이 와야 grade context로 본다 (`1++등급` 등).
+    word.get(cursor)
+        .is_some_and(|c| crate::utils::is_korean_char(*c))
 }

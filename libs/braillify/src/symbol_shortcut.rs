@@ -17,6 +17,9 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '.' => &[decode_unicode('⠲')],
     ',' => &[decode_unicode('⠐')],
     '?' => &[decode_unicode('⠦')],
+    // PDF 제56항 — 드러냄표 sentinels (expand_emphasis_marks가 삽입).
+    '\u{E000}' => &[decode_unicode('⠠'), decode_unicode('⠤')], // 강조 시작
+    '\u{E001}' => &[decode_unicode('⠤'), decode_unicode('⠄')], // 강조 종료
     '“' => &[decode_unicode('⠦')],
     '”' => &[decode_unicode('⠴')],
     ':' => &[decode_unicode('⠐'), decode_unicode('⠂')],

@@ -40,17 +40,34 @@ fn read_braced_content(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> 
     Some(content)
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum MatrixDelimiter {
     Parentheses,
     VerticalBars,
+    Cases,
+    /// PDF 제10항 — `\begin{array}` 증감표. 상하 테두리(`⠖...⠲` / `⠓...⠚`)로 감싼다.
+    Array,
 }
 
 impl MatrixDelimiter {
-    fn cells(self) -> (u8, u8) {
+    fn open_bytes(self) -> Vec<u8> {
         match self {
-            MatrixDelimiter::Parentheses => (decode_unicode('⠦'), decode_unicode('⠴')),
-            MatrixDelimiter::VerticalBars => (decode_unicode('⠳'), decode_unicode('⠳')),
+            MatrixDelimiter::Parentheses => vec![decode_unicode('⠦')],
+            MatrixDelimiter::VerticalBars => vec![decode_unicode('⠳')],
+            // PDF 제6항 1 — 연립식(`\begin{cases}`)은 `⠶⠄`로 시작한다.
+            MatrixDelimiter::Cases => vec![decode_unicode('⠶'), decode_unicode('⠄')],
+            // Array는 별도 인코더에서 테두리(상/하)로 처리하므로 단순 open/close는 미사용.
+            MatrixDelimiter::Array => Vec::new(),
+        }
+    }
+
+    fn close_bytes(self) -> Vec<u8> {
+        match self {
+            MatrixDelimiter::Parentheses => vec![decode_unicode('⠴')],
+            MatrixDelimiter::VerticalBars => vec![decode_unicode('⠳')],
+            // PDF 제6항 1 — 연립식 종결은 `⠠⠶`.
+            MatrixDelimiter::Cases => vec![decode_unicode('⠠'), decode_unicode('⠶')],
+            MatrixDelimiter::Array => Vec::new(),
         }
     }
 }
@@ -70,10 +87,35 @@ fn find_latex_matrix(latex_inner: &str) -> Option<LatexMatrix<'_>> {
     let delimiter = match env {
         "pmatrix" => MatrixDelimiter::Parentheses,
         "vmatrix" => MatrixDelimiter::VerticalBars,
+        "cases" => MatrixDelimiter::Cases,
+        "array" => MatrixDelimiter::Array,
         _ => return None,
     };
 
-    let body_start = env_end + 1;
+    // `\begin{array}{|c|c|c|}` 형태에서 column spec(`{...}`)을 건너뛴다.
+    let mut body_start = env_end + 1;
+    if delimiter == MatrixDelimiter::Array && latex_inner.as_bytes().get(body_start) == Some(&b'{')
+    {
+        let mut depth = 1usize;
+        let mut idx = body_start + 1;
+        while idx < latex_inner.len() {
+            let b = latex_inner.as_bytes()[idx];
+            match b {
+                b'{' => depth += 1,
+                b'}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        idx += 1;
+                        break;
+                    }
+                }
+                _ => {}
+            }
+            idx += 1;
+        }
+        body_start = idx;
+    }
+
     let end_marker = format!("\\end{{{env}}}");
     let relative_end = latex_inner[body_start..].find(&end_marker)?;
     let body_end = body_start + relative_end;
@@ -197,11 +239,16 @@ fn encode_matrix_letter_with_numeric_subscripts(text: &str) -> Result<Option<Vec
 }
 
 fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
+    // PDF 제10항 — `\begin{array}` 증감표: 위/아래 박스 테두리로 감싼 표.
+    if matrix.delimiter == MatrixDelimiter::Array {
+        return encode_latex_array(matrix);
+    }
+
     let mut out = encode_trimmed_math(matrix.prefix)?;
-    let (open, close) = matrix.delimiter.cells();
-    out.push(open);
+    out.extend(matrix.delimiter.open_bytes());
 
     let rows = split_matrix_body(matrix.body);
+    let is_cases = matrix.delimiter == MatrixDelimiter::Cases;
     for (row_index, row) in rows.iter().enumerate() {
         for (cell_index, cell) in row.iter().enumerate() {
             out.extend(encode_matrix_cell(cell)?);
@@ -210,13 +257,87 @@ fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
             }
         }
         if row_index + 1 < rows.len() {
-            out.push(0);
-            out.push(decode_unicode('⠜'));
-            out.push(0);
+            if is_cases {
+                // PDF 제6항 1 — cases 환경의 행 구분자는 단일 공백.
+                out.push(0);
+            } else {
+                out.push(0);
+                out.push(decode_unicode('⠜'));
+                out.push(0);
+            }
         }
     }
 
-    out.push(close);
+    out.extend(matrix.delimiter.close_bytes());
+    out.extend(encode_matrix_suffix(matrix.suffix)?);
+    Ok(out)
+}
+
+/// PDF 제10항 — `\begin{array}` 증감표 인코더.
+///
+/// 출력 구조 (5라인, 각 라인 32 cells):
+/// - 위 테두리: `⠖` + 30 × `⠒` + `⠲`
+/// - 내용 라인: 2sp leading + cell1 + 2sp + cell2 + 2sp + cell3 + 2sp + cell4 + trailing pad to 32
+/// - 아래 테두리: `⠓` + 30 × `⠒` + `⠚`
+///
+/// body에서 `\hline`을 제거하고 `\\`로 행 분리, `&`로 셀 분리한 뒤 각 셀을 math로 인코딩한다.
+fn encode_latex_array(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
+    let mut out = encode_trimmed_math(matrix.prefix)?;
+
+    // `\hline`을 제거하고 본문을 정리.
+    let body_no_hline = matrix.body.replace("\\hline", "");
+    let rows = split_matrix_body(&body_no_hline);
+
+    // 각 행의 내용을 인코딩 (셀 사이 2-칸 separator, 앞뒤 2-칸 padding).
+    let mut encoded_rows: Vec<Vec<u8>> = Vec::new();
+    for row in &rows {
+        if row.iter().all(|c| c.trim().is_empty()) {
+            continue;
+        }
+        let mut row_bytes = Vec::new();
+        row_bytes.push(0); // 2 leading spaces
+        row_bytes.push(0);
+        for (cell_index, cell) in row.iter().enumerate() {
+            let trimmed = cell.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+            if cell_index > 0 {
+                row_bytes.push(0); // 2 separator spaces
+                row_bytes.push(0);
+            }
+            row_bytes.extend(encode_matrix_cell(cell)?);
+        }
+        encoded_rows.push(row_bytes);
+    }
+
+    // 테두리 너비 결정: PDF 제10항 — 4열 증감표는 30 dashes.
+    // 일반적인 규칙: max(max_row_width, 30).
+    let max_row_width = encoded_rows.iter().map(|r| r.len()).max().unwrap_or(0);
+    let inner_width = max_row_width.max(30);
+    let total_width = inner_width + 2; // + 2 corners
+
+    // 위 테두리 emit.
+    out.push(decode_unicode('⠖'));
+    for _ in 0..inner_width {
+        out.push(decode_unicode('⠒'));
+    }
+    out.push(decode_unicode('⠲'));
+
+    // 각 내용 행: trailing pad to total_width.
+    for row_bytes in &encoded_rows {
+        out.extend_from_slice(row_bytes);
+        // trailing space padding to align row length.
+        out.resize(out.len() + (total_width - row_bytes.len()), 0);
+    }
+
+    // 아래 테두리 emit.
+    out.push(decode_unicode('⠓'));
+    for _ in 0..inner_width {
+        out.push(decode_unicode('⠒'));
+    }
+    out.push(decode_unicode('⠚'));
+
     out.extend(encode_matrix_suffix(matrix.suffix)?);
     Ok(out)
 }
@@ -279,9 +400,8 @@ fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
         }
 
         out.extend(encode_trimmed_math(part)?);
-        if part == "-" {
-            out.push(0);
-        }
+        // PDF — 행렬 suffix 식에서 `-`는 인접한 단위(예: `a_{11}a_{22} - a_{12}a_{21}`)에
+        // 공백 없이 결합된다. 점역기는 `⠔` 단독으로 emit하고 다음 피연산자가 곧 이어진다.
         previous_was_operand = false;
     }
     Ok(out)
@@ -345,14 +465,6 @@ fn next_content_needs_math_spacing(tokens: &[Token<'_>], index: usize) -> usize 
     }
 }
 
-pub(crate) fn wrap_latex_math_tokens<'a>(
-    tokens: &[Token<'a>],
-    index: usize,
-    bytes: Vec<u8>,
-) -> Vec<Token<'a>> {
-    wrap_latex_math_tokens_with_inner(tokens, index, bytes, "")
-}
-
 /// PDF — 한국어 산문 내 단일 math letter는 따옴표(⠴...⠲)로 감싼다.
 /// 본문이 1~2자 ASCII letter이고 좌우가 한국어 컨텍스트일 때 적용한다.
 pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
@@ -362,10 +474,13 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
     inner: &str,
 ) -> Vec<Token<'a>> {
     let mut replacement = Vec::new();
-    let leading_spaces = previous_content_needs_math_spacing(tokens, index);
-    if leading_spaces > 0 {
-        replacement.push(Token::PreEncoded(vec![0; leading_spaces]));
-    }
+    // PDF — `$-2$`, `$0.3010$` 같이 부호+숫자/소수점만 있는 단순 수치 표기는
+    // "본격적 수식"이 아니므로 한국어 단어 경계에서 추가 두칸 띄어쓰기를 적용하지 않는다.
+    // Space token 1칸으로 충분하다.
+    let inner_is_simple_numeric = !inner.is_empty()
+        && inner
+            .chars()
+            .all(|c| c.is_ascii_digit() || matches!(c, '-' | '+' | '\u{2212}' | '.' | ','));
 
     // PDF — 한국어 산문 내 단일/소수 math letter는 따옴표(⠴...⠲)로 감싼다.
     // 검출 조건:
@@ -377,10 +492,11 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
     // 콤마-구분 letter 리스트 (예: `a, b, c`, `A, B, C`)
     let comma_separated_letter_list = !inner.is_empty()
         && inner.contains(',')
-        && inner
-            .split(',')
-            .map(str::trim)
-            .all(|part| !part.is_empty() && part.chars().count() == 1 && part.chars().all(|c| c.is_ascii_alphabetic()));
+        && inner.split(',').map(str::trim).all(|part| {
+            !part.is_empty()
+                && part.chars().count() == 1
+                && part.chars().all(|c| c.is_ascii_alphabetic())
+        });
     let in_korean_prose = if is_short_prose_letter || comma_separated_letter_list {
         let prev_is_korean = index
             .checked_sub(1)
@@ -408,6 +524,17 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
     } else {
         false
     };
+
+    // 따옴표 wrap 경우 자체적으로 경계 명시 → 추가 leading 공백 불필요.
+    // 단순 수치 또한 leading 공백 없음.
+    let leading_spaces = if inner_is_simple_numeric || in_korean_prose {
+        0
+    } else {
+        previous_content_needs_math_spacing(tokens, index)
+    };
+    if leading_spaces > 0 {
+        replacement.push(Token::PreEncoded(vec![0; leading_spaces]));
+    }
 
     if in_korean_prose && comma_separated_letter_list {
         // 콤마-구분 letter 리스트: 각 letter를 quote/english marker로 감싼다.
@@ -449,43 +576,16 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
         // Korean prose context에서는 trailing 공백을 emit하지 않는다 (Space token이 분리).
     } else {
         replacement.push(Token::PreEncoded(bytes));
-        let trailing_spaces = next_content_needs_math_spacing(tokens, index);
+        let trailing_spaces = if inner_is_simple_numeric {
+            0
+        } else {
+            next_content_needs_math_spacing(tokens, index)
+        };
         if trailing_spaces > 0 {
             replacement.push(Token::PreEncoded(vec![0; trailing_spaces]));
         }
     }
     replacement
-}
-
-/// 위첨자로 변환 가능한 입력만 처리. 변환 불가능한 문자가 있으면 None을 반환한다.
-/// (예: `\infty` → ∞ 한 글자이지만 superscript 형태가 없으므로 None.)
-fn to_superscript_sequence_optional(input: &str) -> Option<String> {
-    let mut out = String::new();
-    for ec in input.chars() {
-        let mapped = match ec {
-            '0' => Some('\u{2070}'),
-            '1' => Some('\u{00B9}'),
-            '2' => Some('\u{00B2}'),
-            '3' => Some('\u{00B3}'),
-            '4' => Some('\u{2074}'),
-            '5' => Some('\u{2075}'),
-            '6' => Some('\u{2076}'),
-            '7' => Some('\u{2077}'),
-            '8' => Some('\u{2078}'),
-            '9' => Some('\u{2079}'),
-            '+' => Some('\u{207A}'),
-            '-' | '\u{2212}' => Some('\u{207B}'),
-            'n' => Some('\u{207F}'),
-            'k' => Some('\u{1D4F}'),
-            'm' => Some('\u{1D50}'),
-            'x' => Some('\u{02E3}'),
-            '(' => Some('\u{207D}'),
-            ')' => Some('\u{207E}'),
-            _ => None,
-        };
-        out.push(mapped?);
-    }
-    Some(out)
 }
 
 fn to_superscript_sequence(input: &str) -> String {
@@ -568,21 +668,22 @@ fn needs_grouping_in_fraction(expr: &str) -> bool {
     if chars.first() == Some(&'(') && chars.last() == Some(&')') {
         // 외곽이 단일 괄호 쌍이면 wrap 불필요. 단, `(...)(...)` 같이 인접한 다중 괄호
         // 그룹이면 외곽이 단일 쌍이 아니므로 wrap 필요.
+        // 단일 쌍 판정: 처음 `(`에서 시작한 depth가 마지막 `)`에서만 0으로 돌아옴.
         let mut depth = 0i32;
-        let mut closes_at_end = false;
+        let mut returned_to_zero_before_end = false;
         for (idx, &c) in chars.iter().enumerate() {
             match c {
                 '(' => depth += 1,
                 ')' => {
                     depth -= 1;
-                    if depth == 0 && idx == chars.len() - 1 {
-                        closes_at_end = true;
+                    if depth == 0 && idx < chars.len() - 1 {
+                        returned_to_zero_before_end = true;
                     }
                 }
                 _ => {}
             }
         }
-        if closes_at_end {
+        if !returned_to_zero_before_end {
             return false;
         }
     }
@@ -597,7 +698,8 @@ fn needs_grouping_in_fraction(expr: &str) -> bool {
                 depth += 1;
             }
             ')' | ']' | '}' => depth = depth.saturating_sub(1),
-            '+' | '-' if depth == 0 => return true,
+            // PDF 제7항 3 — 분자/분모가 산술 연산자(+, -, ×, ÷)를 포함하면 그룹 묶음 필요.
+            '+' | '-' | '\u{00D7}' | '\u{00F7}' | '\u{2212}' if depth == 0 => return true,
             // PDF — 편미분 `∂^2 z` 같이 복수 토큰의 분수 본문은 그룹 처리한다.
             ' ' | '\u{2202}' if depth == 0 => return true,
             _ => {}
@@ -694,7 +796,7 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                 .is_some_and(|c| matches!(*c, '\u{2218}' | '\u{2219}'))
                 || next_is_ellipsis;
             let norm_pair = !last_emit_from_latex
-                && result.chars().last() == Some('\u{2016}')
+                && result.ends_with('\u{2016}')
                 && chars.peek() == Some(&'\\')
                 && {
                     // peek next-next: skip `\` and check for `|`
@@ -702,8 +804,20 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     clone.next();
                     clone.peek() == Some(&'|')
                 };
+            // PDF — 한국어 문맥에서는 공백을 보존해야 한다. LaTeX 명령은
+            // 공백을 토큰 분리용으로 쓰지만, 한국어 단어 사이의 공백은
+            // 묵자 그대로 보존돼야 점역이 정확해진다.
+            let last_is_korean = result
+                .chars()
+                .last()
+                .is_some_and(crate::utils::is_korean_char);
+            let next_is_korean = chars
+                .peek()
+                .is_some_and(|c| crate::utils::is_korean_char(*c));
             if last_is_unicode_binop || next_is_unicode_binop || norm_pair {
                 result.push('\u{00A0}');
+            } else if last_is_korean && next_is_korean {
+                result.push(' ');
             }
             continue;
         }
@@ -766,13 +880,20 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                 "arccos" => result.push_str("arccos"),
                 "arctan" => result.push_str("arctan"),
                 "cosec" => result.push_str("cosec"),
-                "neq" => result.push('\u{2260}'),    // ≠
-                "geq" => result.push('\u{2265}'),    // ≥
-                "leq" => result.push('\u{2264}'),    // ≤
+                "neq" | "ne" => result.push('\u{2260}'), // ≠
+                "geq" | "ge" => result.push('\u{2265}'), // ≥
+                "leq" | "le" => result.push('\u{2264}'), // ≤
+                "quad" | "qquad" => result.push(' '),    // 큰 공백
+                "text" | "mathrm" | "mathit" | "mathbf" | "mathsf" => {
+                    // \text{X}, \mathrm{X} 등 — 본문을 그대로 emit (LaTeX 텍스트 박스)
+                    if let Some(inner) = read_braced_content(&mut chars) {
+                        result.push_str(&strip_latex_to_math(&inner));
+                    }
+                }
                 "approx" => result.push('\u{2248}'), // ≈ (이중물결)
                 "infty" => result.push('\u{221E}'),  // ∞
                 "to" => result.push('\u{2192}'),     // →
-                "surd" => result.push('\u{221A}'), // √
+                "surd" => result.push('\u{221A}'),   // √
                 "sqrt" => {
                     let mut index = None;
                     if chars.peek() == Some(&'[') {
@@ -811,12 +932,11 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     // 다항/복합 본문은 그룹 괄호로 묶는다. 본문이 이미 괄호를 포함하거나
                     // 단일 외곽 괄호로 감싸져 있으면 중복 그룹화를 생략한다.
                     let chars: Vec<char> = radicand.chars().collect();
-                    let already_wrapped = chars.first() == Some(&'(')
-                        && chars.last() == Some(&')');
+                    let already_wrapped = chars.first() == Some(&'(') && chars.last() == Some(&')');
                     let contains_paren = chars.iter().any(|c| matches!(*c, '(' | ')'));
-                    let contains_root = chars.iter().any(|c| *c == '\u{221A}');
-                    let all_alphabetic = chars.len() > 1
-                        && chars.iter().all(|c| c.is_ascii_alphabetic());
+                    let contains_root = chars.contains(&'\u{221A}');
+                    let all_alphabetic =
+                        chars.len() > 1 && chars.iter().all(|c| c.is_ascii_alphabetic());
                     // PDF — sqrt 본문이 산술 연산을 포함하면 묶어 모호성을 제거한다.
                     let has_operator = chars
                         .iter()
@@ -1009,24 +1129,47 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                         // 편미분: ∂ + 단일 변수 형태(예: "∂x")
                         let is_partial_var = |s: &str| -> bool {
                             let chars: Vec<char> = s.chars().collect();
-                            chars.len() == 2 && chars[0] == '\u{2202}' && chars[1].is_ascii_alphabetic()
+                            chars.len() == 2
+                                && chars[0] == '\u{2202}'
+                                && chars[1].is_ascii_alphabetic()
                         };
-                        let natural_order =
-                            (is_factorial_form(&norm_num) && is_factorial_form(&norm_den))
-                                || (is_partial_var(&norm_num) && is_partial_var(&norm_den));
+                        let natural_order = (is_factorial_form(&norm_num)
+                            && is_factorial_form(&norm_den))
+                            || (is_partial_var(&norm_num) && is_partial_var(&norm_den));
                         // PDF — 함수의 인수로 들어가는 분수는 그룹으로 묶는다.
                         // (예: `\sin^{-1}\frac{x}{3}` → `sin^{-1}⟨3/x⟩`)
                         // result가 함수명 또는 함수+위첨자 형태로 끝나면 wrap 강제한다.
                         let result_after_func = {
-                            let trailing: String = result.chars().rev().take_while(|c| {
-                                c.is_ascii_alphanumeric()
-                                    || matches!(c, '^' | '{' | '}' | '-' | '+'
-                                        | '\u{207B}' | '\u{207A}' | '\u{00B9}' | '\u{00B2}' | '\u{00B3}'
-                                        | '\u{2074}'..='\u{2079}')
-                            }).collect::<String>().chars().rev().collect::<String>();
-                            ["sin", "cos", "tan", "log", "ln", "lim", "exp", "csc", "sec", "cot", "sinh", "cosh", "tanh"]
-                                .iter()
-                                .any(|f| trailing.starts_with(f) || trailing.ends_with(*f))
+                            let trailing: String = result
+                                .chars()
+                                .rev()
+                                .take_while(|c| {
+                                    c.is_ascii_alphanumeric()
+                                        || matches!(
+                                            c,
+                                            '^' | '{'
+                                                | '}'
+                                                | '-'
+                                                | '+'
+                                                | '\u{207B}'
+                                                | '\u{207A}'
+                                                | '\u{00B9}'
+                                                | '\u{00B2}'
+                                                | '\u{00B3}'
+                                                | '\u{2074}'
+                                                ..='\u{2079}'
+                                        )
+                                })
+                                .collect::<String>()
+                                .chars()
+                                .rev()
+                                .collect::<String>();
+                            [
+                                "sin", "cos", "tan", "log", "ln", "lim", "exp", "csc", "sec",
+                                "cot", "sinh", "cosh", "tanh",
+                            ]
+                            .iter()
+                            .any(|f| trailing.starts_with(f) || trailing.ends_with(*f))
                         };
                         if natural_order {
                             // 자연순서: num/den → parser/engine이 reverse하여 den/num 출력.
@@ -1044,18 +1187,36 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                             // 역순서: den/num. 슬래시는 U+2044(분수 전용)로 표기해 일반 `/`
                             // 와 구분한다. parser는 U+2044를 MathSymbol로 유지하고
                             // shortcut에서 `⠌`(plain)로 인코딩한다.
-                            if needs_grouping_in_fraction(&norm_den) {
-                                result.push('\u{2329}');
+                            // 한글 포함 시 U+27E8/U+27E9 sentinel을 사용해 Hangul wrap(⠸⠷...⠸⠾)으로
+                            // 묶는다. PDF 제6항 [붙임] — 한글표 묶음.
+                            let den_has_korean = norm_den.chars().any(crate::utils::is_korean_char);
+                            let num_has_korean = norm_num.chars().any(crate::utils::is_korean_char);
+                            let any_korean = den_has_korean || num_has_korean;
+                            let den_needs_group = needs_grouping_in_fraction(&norm_den);
+                            let num_needs_group = needs_grouping_in_fraction(&norm_num);
+
+                            let (open_den, close_den) = if any_korean && den_needs_group {
+                                ('\u{27E8}', '\u{27E9}')
+                            } else {
+                                ('\u{2329}', '\u{232A}')
+                            };
+                            let (open_num, close_num) = if any_korean && num_needs_group {
+                                ('\u{27E8}', '\u{27E9}')
+                            } else {
+                                ('\u{2329}', '\u{232A}')
+                            };
+                            if den_needs_group {
+                                result.push(open_den);
                                 result.push_str(&norm_den);
-                                result.push('\u{232A}');
+                                result.push(close_den);
                             } else {
                                 result.push_str(&norm_den);
                             }
                             result.push('\u{2044}');
-                            if needs_grouping_in_fraction(&norm_num) {
-                                result.push('\u{2329}');
+                            if num_needs_group {
+                                result.push(open_num);
                                 result.push_str(&norm_num);
-                                result.push('\u{232A}');
+                                result.push(close_num);
                             } else {
                                 result.push_str(&norm_num);
                             }
@@ -1128,7 +1289,10 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                             // `\overline{AB}`(선분)이나 `\overline{A'B'}`(선분에 프라임)
                             // 같이 글자(혹은 프라임/첨자 정도)만 있으면 묶지 않는다.
                             let has_operator = norm.chars().any(|c| {
-                                matches!(c, '+' | '-' | '\u{2212}' | '×' | '*' | '/' | '=' | '<' | '>')
+                                matches!(
+                                    c,
+                                    '+' | '-' | '\u{2212}' | '×' | '*' | '/' | '=' | '<' | '>'
+                                )
                             });
                             let needs_group = norm.chars().count() > 1 && has_operator;
                             if needs_group {
@@ -1147,6 +1311,30 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     if let Some(inner) = read_braced_content(&mut chars) {
                         result.push_str(&inner);
                         result.push('\u{0332}');
+                    }
+                }
+                "substack" => {
+                    // PDF 제51항 [붙임] — `\substack{X \\ Y}`는 첨자 본문이 여러 줄로
+                    // 쌓인 형태. 점역에서는 각 줄을 공백으로 평탄화하고, 두 번째 줄부터
+                    // 새 첨자 마커가 부착되도록 `_` 접두어를 추가한다.
+                    // 예: `\lim_{\substack{x \to a \\ y \to b}}` →
+                    //   `lim_{x \to a}\,_{y \to b}` 처럼 펼친다 (앞 그룹 닫고 새 그룹 열기).
+                    if let Some(inner) = read_braced_content(&mut chars) {
+                        let lines: Vec<&str> = inner.split("\\\\").map(str::trim).collect();
+                        let mut first = true;
+                        for line in lines {
+                            let norm = strip_latex_to_math(line);
+                            if first {
+                                result.push_str(&norm);
+                                first = false;
+                            } else {
+                                // 닫고-다시-열기. parser는 이를 두 개의 인접한 첨자로 본다.
+                                result.push('}');
+                                result.push('_');
+                                result.push('{');
+                                result.push_str(&norm);
+                            }
+                        }
                     }
                 }
                 "dot" => {
@@ -1263,19 +1451,19 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                 "because" => result.push('\u{2235}'),  // ∵
                 "ni" => result.push('\u{220B}'),       // ∋
                 // PDF 수학 제60항 6 — 추론 기호
-                "vdash" => result.push('\u{22A2}'),    // ⊢
-                "dashv" => result.push('\u{22A3}'),    // ⊣
-                "models" => result.push('\u{22A8}'),   // ⊨
-                "Dashv" => result.push('\u{2AE4}'),    // ⫤
+                "vdash" => result.push('\u{22A2}'),  // ⊢
+                "dashv" => result.push('\u{22A3}'),  // ⊣
+                "models" => result.push('\u{22A8}'), // ⊨
+                "Dashv" => result.push('\u{2AE4}'),  // ⫤
                 // PDF 수학 제60항 7~8 — 순서 관계
-                "lesssim" => result.push('\u{2272}'),  // ≲
-                "prec" => result.push('\u{227A}'),     // ≺
+                "lesssim" => result.push('\u{2272}'), // ≲
+                "prec" => result.push('\u{227A}'),    // ≺
                 // PDF 수학 제61항 7 — 동치명제
                 "rightleftharpoons" => result.push('\u{21CC}'), // ⇌
-                "fallingdotseq" => result.push('\u{2252}'), // ≒ (근삿값 ≈)
-                "risingdotseq" => result.push('\u{2253}'), // ≓
-                "prime" => result.push('\u{2032}'), // ′ (프라임)
-                "bullet" => result.push('\u{2219}'), // ∙ (검정 동그라미)
+                "fallingdotseq" => result.push('\u{2252}'),     // ≒ (근삿값 ≈)
+                "risingdotseq" => result.push('\u{2253}'),      // ≓
+                "prime" => result.push('\u{2032}'),             // ′ (프라임)
+                "bullet" => result.push('\u{2219}'),            // ∙ (검정 동그라미)
                 // `\left` and `\right` LaTeX size modifiers: skip the keyword.
                 // 뒤따르는 괄호/구분자는 그대로 처리되도록 한다.
                 // PDF — `\right.`(one-sided, 닫는 구분자 없음)은 `⠄`(dots 3) 표지를 붙인다.
@@ -1367,9 +1555,9 @@ pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
                     content.clone()
                 };
                 let simple_superscript = !has_latex
-                    && normalized
-                        .chars()
-                        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.' | '(' | ')'));
+                    && normalized.chars().all(|c| {
+                        c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.' | '(' | ')')
+                    });
                 if simple_superscript {
                     result.push_str(&to_superscript_sequence(&normalized));
                 } else {
@@ -1513,6 +1701,41 @@ impl TokenRule for LatexMergeRule {
 
         let text = word.text.as_ref();
 
+        // PDF — `제$n$항까지의` 같이 Korean prefix + `$X$` + Korean suffix 패턴.
+        // 단어 내부 `$X$` math 블록을 분리해 prefix/inner/suffix로 분해한다.
+        if !text.starts_with('$') && text.contains('$') {
+            let first_dollar = text.find('$').unwrap();
+            let after_first = &text[first_dollar + 1..];
+            if let Some(close_rel) = after_first.find('$') {
+                let prefix = &text[..first_dollar];
+                let inner = &text[first_dollar + 1..first_dollar + 1 + close_rel];
+                let suffix = &text[first_dollar + 1 + close_rel + 1..];
+                // prefix가 Korean으로 끝나고 inner가 단일 letter면 ⠴X⠲ quote 형태.
+                let prefix_ends_korean = prefix
+                    .chars()
+                    .last()
+                    .is_some_and(crate::utils::is_korean_char);
+                let inner_single_letter =
+                    inner.chars().count() == 1 && inner.chars().all(|c| c.is_ascii_alphabetic());
+                if prefix_ends_korean
+                    && inner_single_letter
+                    && let Ok(prefix_bytes) = crate::encode(prefix)
+                    && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
+                    && let Ok(suffix_bytes) = crate::encode(suffix)
+                {
+                    let mut bytes = Vec::with_capacity(
+                        prefix_bytes.len() + inner_bytes.len() + suffix_bytes.len() + 2,
+                    );
+                    bytes.extend(prefix_bytes);
+                    bytes.push(52); // ⠴
+                    bytes.extend(inner_bytes);
+                    bytes.push(50); // ⠲
+                    bytes.extend(suffix_bytes);
+                    return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
+                }
+            }
+        }
+
         // Only trigger on words starting with $ but NOT ending with $
         // (single-token $...$ is already handled by downstream rules)
         if !text.starts_with('$') || text.ends_with('$') {
@@ -1546,18 +1769,28 @@ impl TokenRule for LatexMergeRule {
                             "tau", "upsilon", "phi", "chi", "psi", "omega",
                         ]
                         .contains(&&inner[1..]));
-                // Case 1: 단일 letter + Korean → ⠴letter⠲ + Korean encode
+                // Case 1: 단일 letter + Korean → ⠴letter⠲ PreEncoded + Korean Word
+                // suffix를 별도 Word로 유지해 다음 math expression이 Korean prose 컨텍스트로
+                // 두 칸 간격(혹은 quote-wrap)을 판정할 수 있게 한다.
                 if has_korean_suffix
                     && inner_is_short_letter
                     && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
-                    && let Ok(suffix_bytes) = crate::encode(suffix)
                 {
-                    let mut bytes = Vec::with_capacity(inner_bytes.len() + suffix_bytes.len() + 2);
+                    let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
                     bytes.push(52); // ⠴
                     bytes.extend(inner_bytes);
                     bytes.push(50); // ⠲
-                    bytes.extend(suffix_bytes);
-                    return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
+                    let suffix_chars: Vec<char> = suffix.chars().collect();
+                    let suffix_meta = crate::rules::token::WordMeta::from_chars(&suffix_chars);
+                    let suffix_word = Token::Word(crate::rules::token::WordToken {
+                        text: std::borrow::Cow::Owned(suffix.to_string()),
+                        chars: suffix_chars,
+                        meta: suffix_meta,
+                    });
+                    return Ok(TokenAction::ReplaceMany(vec![
+                        Token::PreEncoded(bytes),
+                        suffix_word,
+                    ]));
                 }
             }
             return Ok(TokenAction::Noop);
@@ -1683,23 +1916,25 @@ impl TokenRule for LatexMathRule {
                 let inner = &text[1..close_idx];
                 let suffix = &text[close_idx + 1..];
                 // suffix가 Korean 글자로 시작하는지 확인
-                let has_korean_suffix = suffix.chars().next().is_some_and(crate::utils::is_korean_char);
+                let has_korean_suffix = suffix
+                    .chars()
+                    .next()
+                    .is_some_and(crate::utils::is_korean_char);
                 if has_korean_suffix
                     && !inner.is_empty()
                     && inner.chars().count() <= 2
                     && inner.chars().all(|c| c.is_ascii_alphabetic())
+                    && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
                 {
-                    if let Ok(inner_bytes) = encode_latex_math_bytes(inner) {
-                        // ⠴ + inner + ⠲ 로 감싸고 suffix는 Korean으로 encode
-                        let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
-                        bytes.push(52);
-                        bytes.extend(inner_bytes);
-                        bytes.push(50);
-                        if let Ok(suffix_bytes) = crate::encode(suffix) {
-                            bytes.extend(suffix_bytes);
-                        }
-                        return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
+                    // ⠴ + inner + ⠲ 로 감싸고 suffix는 Korean으로 encode
+                    let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
+                    bytes.push(52);
+                    bytes.extend(inner_bytes);
+                    bytes.push(50);
+                    if let Ok(suffix_bytes) = crate::encode(suffix) {
+                        bytes.extend(suffix_bytes);
                     }
+                    return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
                 }
             }
             return Ok(TokenAction::Noop);

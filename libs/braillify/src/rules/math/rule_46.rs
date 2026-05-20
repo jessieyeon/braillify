@@ -93,10 +93,9 @@ pub fn encode_trig_function(
             tokens.get(next_idx + 1),
             Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
         ) && matches!(
-                tokens.get(next_idx + 2),
-                Some(MathToken::Number(_) | MathToken::Variable(_))
-            )
-        {
+            tokens.get(next_idx + 2),
+            Some(MathToken::Number(_) | MathToken::Variable(_))
+        ) {
             result.push(55); // Grouping open
             // Encode the fraction tokens
             // We need to use the engine but we don't have it here

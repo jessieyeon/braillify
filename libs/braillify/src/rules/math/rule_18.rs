@@ -48,24 +48,21 @@ fn is_left_superscript_position(tokens: &[MathToken], index: usize) -> bool {
     }
     // PDF — 알파벳적 수학 기호(∂ ∇ ℏ 등)는 피첨자로 동작한다.
     // `∂²z`의 `²`는 ∂의 위첨자이지 z의 좌상첨자가 아니다.
-    if let Some(MathToken::MathSymbol(c)) = prev_non_space(tokens, index) {
-        if matches!(*c, '\u{2202}' | '\u{2207}' | '\u{210F}' | '\u{2135}') {
-            return false;
-        }
+    if let Some(MathToken::MathSymbol('\u{2202}' | '\u{2207}' | '\u{210F}' | '\u{2135}')) =
+        prev_non_space(tokens, index)
+    {
+        return false;
     }
     // 한정자(∫/∑/Π 등) 토큰을 좌측 두번째에서 발견하면 좌상첨자가 아님.
     let mut i = index;
     while i > 0 {
         i -= 1;
         match tokens.get(i) {
-            Some(MathToken::Space) | Some(MathToken::Subscript(_)) => continue,
-            Some(MathToken::MathSymbol(c))
-                if matches!(
-                    c,
-                    '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}'
-                    | '\u{2211}' | '\u{220F}' | '\u{2200}' | '\u{2203}'
-                ) =>
-            {
+            Some(MathToken::Space | MathToken::Subscript(_)) => continue,
+            Some(MathToken::MathSymbol(
+                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
+                | '\u{2200}' | '\u{2203}',
+            )) => {
                 return false;
             }
             Some(MathToken::FunctionName(_)) => return false,
@@ -74,8 +71,7 @@ fn is_left_superscript_position(tokens: &[MathToken], index: usize) -> bool {
     }
     matches!(
         next_non_space(tokens, index),
-        Some(MathToken::Variable(_))
-            | Some(MathToken::UpperVariable(_))
+        Some(MathToken::Variable(_)) | Some(MathToken::UpperVariable(_))
     )
 }
 
@@ -127,8 +123,7 @@ pub fn encode_superscript(
         && matches!(
             tokens.get(*i - 2),
             Some(MathToken::MathSymbol(
-                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}'
-                | '\u{2211}' | '\u{220F}'
+                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
             ))
         )
     {
@@ -212,11 +207,7 @@ pub fn encode_superscript(
             (content.first(), content.get(1), content.last()),
             (
                 Some(MathToken::OpenParen(BracketKind::MathParen)),
-                Some(
-                    MathToken::Number(_)
-                        | MathToken::Variable(_)
-                        | MathToken::UpperVariable(_)
-                ),
+                Some(MathToken::Number(_) | MathToken::Variable(_) | MathToken::UpperVariable(_)),
                 Some(MathToken::CloseParen(BracketKind::MathParen))
             )
         );
