@@ -42,8 +42,7 @@
     "expected": "5641111818384548601121116045486031211160323232160454829121152",
     "unicode": "⠸⠩⠋⠒⠒⠦⠭⠰⠼⠁⠌⠋⠐⠀⠭⠰⠼⠃⠌⠋⠐⠀⠠⠠⠠⠐⠀⠭⠰⠝⠌⠋⠴",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$\\nabla f = (\\frac{f}{x_1}, \\frac{f}{x_2}, \\cdots, \\frac{f}{x_n})$",

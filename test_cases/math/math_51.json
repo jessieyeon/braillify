@@ -51,8 +51,7 @@
     "expected": "710134845018210342063038601344512601522445181817",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠢⠔⠿⠀⠦⠼⠁⠢⠭⠌⠼⠁⠴⠘⠭⠒⠒⠑",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$\\lim_{\\substack{x \\to a \\\\ y \\to b}} f(x,y)$",
@@ -61,7 +60,6 @@
     "expected": "710134845018210104861018210301138451606152",
     "unicode": "⠇⠊⠍⠰⠭⠀⠒⠕⠀⠁⠀⠰⠽⠀⠒⠕⠀⠃⠀⠋⠦⠭⠐⠀⠽⠴",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
+    "jeomsarang": ""
   }
 ]

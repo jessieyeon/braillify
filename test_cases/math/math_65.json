@@ -24,8 +24,7 @@
     "expected": "56573832152162052321505808213213",
     "unicode": "⠸⠹⠦⠠⠁⠴⠐⠂⠀⠴⠠⠁⠲⠺⠀⠈⠕⠠⠍",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$\\#(A)$: $A$의 기수",
@@ -97,8 +96,7 @@
     "expected": "61181845346030095304059321300812006118182934603",
     "unicode": "⠽⠒⠒⠭⠢⠼⠃⠀⠀⠉⠵⠀⠨⠻⠠⠍⠀⠀⠈⠌⠀⠀⠽⠒⠒⠝⠢⠼⠃",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$y=x+2$는 정수 $\\because y=n+2$",

@@ -69,8 +69,7 @@
     "expected": "8421623254243010234821542120321023160013005804334460813263549163550",
     "unicode": "⠈⠪⠐⠗⠙⠪⠫⠀⠊⠗⠰⠕⠶⠕⠂⠀⠠⠊⠗⠐⠀⠀⠁⠃⠀⠀⠺⠀⠫⠃⠄⠮⠀⠈⠍⠚⠣⠱⠐⠣⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "그래프가 대칭일 때, $ab$의 값을 구하여라.",
@@ -88,8 +87,7 @@
     "expected": "1737105303221232130521204832048950580837300139005804334460813263549163550",
     "unicode": "⠑⠥⠊⠵⠀⠠⠕⠂⠠⠍⠀⠴⠁⠂⠀⠰⠃⠂⠀⠰⠉⠲⠺⠀⠈⠥⠃⠀⠀⠁⠃⠉⠀⠀⠺⠀⠫⠃⠄⠮⠀⠈⠍⠚⠣⠱⠐⠣⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "모든 실수 $a, b, c$의 곱 $abc$의 값을 구하여라.",
@@ -107,8 +105,7 @@
     "expected": "2623541651052321503905232350290102326354900321323005804334460813263549163550",
     "unicode": "⠚⠗⠶⠐⠳⠀⠴⠠⠁⠲⠧⠀⠴⠠⠃⠲⠝⠀⠊⠗⠚⠣⠱⠀⠀⠠⠁⠠⠃⠀⠀⠺⠀⠫⠃⠄⠮⠀⠈⠍⠚⠣⠱⠐⠣⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "행렬 $A$와 $B$에 대하여 $AB$의 값을 구하여라.",
@@ -117,8 +114,7 @@
     "expected": "2623541651052321503905232350290102326354900321323005804334460813263549163550",
     "unicode": "⠚⠗⠶⠐⠳⠀⠴⠠⠁⠲⠧⠀⠴⠠⠃⠲⠝⠀⠊⠗⠚⠣⠱⠀⠀⠠⠁⠠⠃⠀⠀⠺⠀⠫⠃⠄⠮⠀⠈⠍⠚⠣⠱⠐⠣⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "다음 a, b에 대하여",
