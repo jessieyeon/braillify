@@ -6,7 +6,8 @@
     "expected": "553845346015238453460352384534609526212601345545346036212601",
     "unicode": "⠷⠦⠭⠢⠼⠁⠴⠦⠭⠢⠼⠃⠴⠦⠭⠢⠼⠉⠴⠾⠌⠼⠁⠢⠷⠭⠢⠼⠃⠾⠌⠼⠁",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "",
+    "limitation": "복잡한 LaTeX env / Korean-math embed / PDF 미세 규칙 — fresh-context architectural 작업 필요"
   },
   {
     "input": "함수 f(x+a)(x-a)=f(x+1)f(x-1)",

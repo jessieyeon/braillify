@@ -25,12 +25,9 @@ fn is_emphasis_word(text: &str) -> bool {
     if !text.chars().any(is_ring_mark) {
         return false;
     }
-    // U+030A만 있으면 항상 강조로 본다 (math에서는 거의 사용되지 않음).
-    if text.chars().any(|c| c == '\u{030A}') {
-        return true;
-    }
-    // U+0307만 있는 경우: 한글이 함께 있는 단어일 때만 강조로 본다.
-    // 숫자·로마자 단어의 U+0307은 수학적 결합 윗점이므로 통과시킨다.
+    // 결합 부호(U+0307·U+030A)는 NFD 분해로 Latin 단위/기호(Å 등)에도 등장하므로
+    // 단어에 한글이 포함된 경우에만 강조 마커로 해석한다. 그렇지 않으면 수학/단위
+    // 결합 부호로 보고 통과시킨다.
     text.chars().any(crate::utils::is_korean_char)
 }
 

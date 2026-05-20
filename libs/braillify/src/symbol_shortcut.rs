@@ -8,6 +8,9 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\'' => &[decode_unicode('⠠'), decode_unicode('⠦')],
     // '\'' => &[decode_unicode('⠴'), decode_unicode('⠄')],
     '~' => &[decode_unicode('⠈'), decode_unicode('⠔')],
+    // PDF 제73항 붙임 1 — 빈칸 채우기 placeholder (U+F000, Private Use)
+    // `⠸⠦⠦⠄` 형태로 점역한다 (4셀: 빈칸 표지 + 묶음 마커).
+    '\u{F000}' => &[decode_unicode('⠸'), decode_unicode('⠦'), decode_unicode('⠦'), decode_unicode('⠄')],
     '…' => &[decode_unicode('⠠'), decode_unicode('⠠'), decode_unicode('⠠')],
     '⋯' => &[decode_unicode('⠠'), decode_unicode('⠠'), decode_unicode('⠠')],
     '!' => &[decode_unicode('⠖')],

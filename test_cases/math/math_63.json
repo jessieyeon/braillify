@@ -1,7 +1,8 @@
 [
   {
     "input": "|",
-    "note": "PDF 제63항 — 조건부확률 | 기호 정의 (단독, math_21 절댓값과 동일 점역)",
+    "context": "math",
+    "note": "PDF 제63항 — 조건부확률 | 기호 정의 (단독, 수학 모드, math_21 절댓값과 동일 점역)",
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",

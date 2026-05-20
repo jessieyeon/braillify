@@ -47,6 +47,78 @@ pub fn should_group_subscript(content: &[MathToken]) -> bool {
     !is_plain_numeric_subscript(content)
 }
 
+/// PDF 수학 제62항 — 순열/조합 묶음 안의 첨자 내용을 인코딩한다.
+/// 단일 숫자/변수/연산자 조합을 평탄하게 출력한다.
+fn encode_combo_subscript_content(
+    content: &[MathToken],
+    result: &mut Vec<u8>,
+    engine: &MathTokenEngine,
+) -> Result<(), String> {
+    if let [MathToken::Number(n)] = content {
+        rule_1::encode_number_literal(n, result);
+        return Ok(());
+    }
+    engine.encode_tokens(content, result)
+}
+
+fn next_non_space(tokens: &[MathToken], mut idx: usize) -> Option<&MathToken> {
+    loop {
+        idx += 1;
+        let token = tokens.get(idx)?;
+        if !matches!(token, MathToken::Space) {
+            return Some(token);
+        }
+    }
+}
+
+/// PDF 수학 제19항 2 — 좌하첨자(left subscript): 변수 앞에 위치한 아래첨자.
+/// 좌하첨자는 다음 조건을 모두 만족할 때만 인정한다:
+/// 1. 앞 토큰이 피첨자(변수/숫자/닫기괄호 등)가 아니다. (그렇지 않으면 우하첨자)
+/// 2. 앞 토큰이 함수명/적분/합산 등 첨자를 매개변수로 받는 토큰이 아니다.
+///    (예: `lim_{x→b}`의 첨자는 lim의 범위이며 다음 변수의 좌하첨자가 아니다.)
+/// 3. 뒤 토큰이 좌하첨자의 대상이 될 변수/기호다.
+fn is_left_subscript_position(tokens: &[MathToken], index: usize) -> bool {
+    let prev_blocks = match prev_non_space(tokens, index) {
+        // 피첨자: 이 경우는 우하첨자.
+        Some(MathToken::Variable(_))
+        | Some(MathToken::UpperVariable(_))
+        | Some(MathToken::Number(_))
+        | Some(MathToken::CloseParen(_))
+        | Some(MathToken::Prime) => true,
+        // 함수명(lim, sin, cos 등)은 첨자를 매개변수로 받는다.
+        Some(MathToken::FunctionName(_)) => true,
+        // 적분/합산/곱 등은 첨자를 한정자로 받는다.
+        Some(MathToken::MathSymbol(c))
+            if matches!(
+                c,
+                '\u{222B}' // ∫
+                | '\u{222C}' // ∬
+                | '\u{222D}' // ∭
+                | '\u{222E}' // ∮
+                | '\u{2211}' // ∑
+                | '\u{220F}' // ∏
+                | '\u{22C3}' // ⋃
+                | '\u{22C2}' // ⋂
+                | '\u{2200}' // ∀
+                | '\u{2203}' // ∃
+            ) =>
+        {
+            true
+        }
+        _ => false,
+    };
+    if prev_blocks {
+        return false;
+    }
+    // 뒤에 좌하첨자의 대상이 될 토큰이 있어야 한다.
+    matches!(
+        next_non_space(tokens, index),
+        Some(MathToken::Variable(_))
+            | Some(MathToken::UpperVariable(_))
+            | Some(MathToken::MathSymbol(_))
+    )
+}
+
 pub fn encode_subscript(
     tokens: &[MathToken],
     i: &mut usize,
@@ -54,22 +126,39 @@ pub fn encode_subscript(
     result: &mut Vec<u8>,
     engine: &MathTokenEngine,
 ) -> Result<bool, String> {
-    if let Some(left) = single_numeric(content)
-        && matches!(
-            tokens.get(*i + 1),
-            Some(MathToken::UpperVariable('P' | 'C'))
-        )
-        && let Some(MathToken::Subscript(right_content)) = tokens.get(*i + 2)
-        && let Some(right) = single_numeric(right_content)
+    // PDF 수학 제62항 — 순열(_nP_r) / 조합(_nC_r) / 중복조합(_nH_r) 표기.
+    // 좌하첨자 + 대문자 변수(P/C/H) + 우하첨자가 연속되면 특수 표기를 적용한다.
+    //   ⠠ <letter> ⠷ left ⠀ right ⠾
+    if matches!(
+        tokens.get(*i + 1),
+        Some(MathToken::UpperVariable('P' | 'C' | 'H'))
+    ) && let Some(MathToken::Subscript(right_content)) = tokens.get(*i + 2)
         && let Some(MathToken::UpperVariable(mark)) = tokens.get(*i + 1)
     {
-        result.push(32);
+        result.push(32); // ⠠ (대문자 표지)
         result.push(crate::english::encode_english(mark.to_ascii_lowercase())?);
-        result.push(38);
-        rule_1::encode_number_literal(&left, result);
+        result.push(55); // ⠷ (열린 묶음)
+        encode_combo_subscript_content(content, result, engine)?;
         result.push(0);
-        rule_1::encode_number_literal(&right, result);
-        result.push(52);
+        encode_combo_subscript_content(right_content, result, engine)?;
+        result.push(62); // ⠾ (닫힌 묶음)
+        *i += 3;
+        return Ok(true);
+    }
+
+    // PDF 수학 제62항 4 — 중복순열(_nΠ_r) 표기.
+    //   ⠠⠨⠏ ⠷ left ⠀ right ⠾
+    if matches!(tokens.get(*i + 1), Some(MathToken::MathSymbol('\u{03A0}')))
+        && let Some(MathToken::Subscript(right_content)) = tokens.get(*i + 2)
+    {
+        result.push(32); // ⠠ (대문자 표지)
+        result.push(40); // ⠨ (그리스 표지)
+        result.push(crate::english::encode_english('p')?); // ⠏
+        result.push(55); // ⠷
+        encode_combo_subscript_content(content, result, engine)?;
+        result.push(0);
+        encode_combo_subscript_content(right_content, result, engine)?;
+        result.push(62); // ⠾
         *i += 3;
         return Ok(true);
     }
@@ -86,7 +175,25 @@ pub fn encode_subscript(
     }
 
     result.push(48);
-    if should_group_subscript(content) {
+    // 적분/합/곱(∫ ∑ ∏ 등) 한정자 뒤 첨자는 묶음 없이 본문 그대로 출력한다.
+    let prev_is_quantifier_op = matches!(
+        prev_non_space(tokens, *i),
+        Some(MathToken::MathSymbol(
+            '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}'
+            | '\u{2211}' | '\u{220F}' | '\u{2200}' | '\u{2203}'
+        )) | Some(MathToken::FunctionName(_))
+    );
+    if prev_is_quantifier_op {
+        engine.encode_tokens(content, result)?;
+        *i += 1;
+        if needs_quantifier_trailing_space(tokens, *i) {
+            result.push(0);
+        }
+        return Ok(false);
+    }
+    // 좌하첨자는 단일 토큰이라도 그룹 괄호로 묶는다 (PDF 제19항 2).
+    let force_group = is_left_subscript_position(tokens, *i);
+    if should_group_subscript(content) || force_group {
         result.push(55);
         if let [MathToken::Number(n), MathToken::Variable(v)] = content {
             rule_1::encode_number_literal(n, result);
@@ -104,7 +211,52 @@ pub fn encode_subscript(
         engine.encode_tokens(content, result)?;
     }
     *i += 1;
+    // PDF 수학 제56~59항 — 적분/합산/곱 등 한정자형 토큰에 붙은 첨자 뒤에 본문이
+    // 이어지면 한 칸 띄움이 필요하다. (LaTeX strip이 공백을 제거하므로 명시적으로 삽입.)
+    let prev_is_quantifier = matches!(
+        prev_non_space(tokens, *i - 1),
+        Some(MathToken::FunctionName(_))
+            | Some(MathToken::MathSymbol(
+                '\u{222B}' // ∫
+                | '\u{222C}' // ∬
+                | '\u{222D}' // ∭
+                | '\u{222E}' // ∮
+                | '\u{2211}' // ∑
+                | '\u{220F}' // ∏
+                | '\u{2200}' // ∀
+                | '\u{2203}' // ∃
+            ))
+    );
+    if prev_is_quantifier && needs_quantifier_trailing_space(tokens, *i) {
+        result.push(0);
+    }
     Ok(false)
+}
+
+fn needs_quantifier_trailing_space(tokens: &[MathToken], idx: usize) -> bool {
+    let mut cursor = idx;
+    if matches!(tokens.get(cursor), Some(MathToken::Space)) {
+        return false;
+    }
+    // Superscript이 바로 따라오면 한정자의 위첨자(예: ∫_a^b)이므로 한 칸 띄움을 보류.
+    // (이 경우 위첨자 인코더가 자체적으로 한 칸 띄움을 처리한다.)
+    if matches!(tokens.get(idx), Some(MathToken::Superscript(_))) {
+        return false;
+    }
+    while cursor < tokens.len() {
+        match &tokens[cursor] {
+            MathToken::Space => return false,
+            MathToken::Superscript(_) => return false,
+            MathToken::Variable(_)
+            | MathToken::UpperVariable(_)
+            | MathToken::Number(_)
+            | MathToken::OpenParen(_)
+            | MathToken::FunctionName(_)
+            | MathToken::MathSymbol(_) => return true,
+            _ => cursor += 1,
+        }
+    }
+    false
 }
 
 pub struct SubscriptRule;

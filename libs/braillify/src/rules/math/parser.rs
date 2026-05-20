@@ -65,6 +65,7 @@ struct GroupState {
     token_index: usize,
     contains_korean: bool,
     contains_arithmetic: bool,
+    contains_comma: bool,
     promote_grouping: bool,
 }
 
@@ -84,9 +85,31 @@ fn is_superscript_char(c: char) -> bool {
                 | '\u{207D}'
                 | '\u{207E}'
                 | '\u{207F}'
-                | '\u{1D4F}'
-                | '\u{1D50}'
-                | '\u{02E3}' // modifier letters ᵏ ᵐ ˣ
+                | '\u{1D43}' // ᵃ (latin superscript small a)
+                | '\u{1D47}' // ᵇ
+                | '\u{1D9C}' // ᶜ
+                | '\u{1D48}' // ᵈ
+                | '\u{1D49}' // ᵉ
+                | '\u{1DA0}' // ᶠ
+                | '\u{1D4D}' // ᵍ
+                | '\u{02B0}' // ʰ
+                | '\u{2071}' // ⁱ
+                | '\u{02B2}' // ʲ
+                | '\u{1D4F}' // ᵏ
+                | '\u{02E1}' // ˡ
+                | '\u{1D50}' // ᵐ
+                | '\u{207F}' // ⁿ (already above; kept for clarity)
+                | '\u{1D52}' // ᵒ
+                | '\u{1D56}' // ᵖ
+                | '\u{02B3}' // ʳ
+                | '\u{02E2}' // ˢ
+                | '\u{1D57}' // ᵗ
+                | '\u{1D58}' // ᵘ
+                | '\u{1D5B}' // ᵛ
+                | '\u{02B7}' // ʷ
+                | '\u{02E3}' // ˣ
+                | '\u{02B8}' // ʸ
+                | '\u{1DBB}' // ᶻ
     )
 }
 
@@ -94,10 +117,9 @@ fn is_superscript_char(c: char) -> bool {
 fn is_subscript_char(c: char) -> bool {
     matches!(
         c,
-        '\u{2080}'
-            ..='\u{2089}' | '\u{208D}' | '\u{208E}' |
-        '\u{2090}' | '\u{2093}' | '\u{2098}' | '\u{2099}' | // ₐ ₓ ₘ ₙ
-        '\u{208A}' | '\u{208B}' // ₊ ₋
+        '\u{2080}'..='\u{2089}' | '\u{208A}' | '\u{208B}' | '\u{208D}' | '\u{208E}'
+            | '\u{2090}'..='\u{209C}' // ₐ ₑ ₒ ₓ ... ₜ
+            | '\u{1D62}'..='\u{1D65}' // ᵢ ᵣ ᵤ ᵥ (phonetic extensions used as subscript)
     )
 }
 
@@ -127,13 +149,35 @@ fn normalize_superscript(c: char) -> Option<MathToken> {
         '\u{2078}' => Some(MathToken::Number("8".into())),
         '\u{2079}' => Some(MathToken::Number("9".into())),
         '\u{207A}' => Some(MathToken::Operator('+')),
-        '\u{207B}' => Some(MathToken::Operator('\u{2212}')), // minus
+        '\u{207B}' => Some(MathToken::Operator('\u{2212}')),
         '\u{207D}' => Some(MathToken::OpenParen(BracketKind::MathParen)),
         '\u{207E}' => Some(MathToken::CloseParen(BracketKind::MathParen)),
         '\u{207F}' => Some(MathToken::Variable('n')),
+        // Latin superscript small letters (modifier letters & phonetic extensions)
+        '\u{1D43}' => Some(MathToken::Variable('a')),
+        '\u{1D47}' => Some(MathToken::Variable('b')),
+        '\u{1D9C}' => Some(MathToken::Variable('c')),
+        '\u{1D48}' => Some(MathToken::Variable('d')),
+        '\u{1D49}' => Some(MathToken::Variable('e')),
+        '\u{1DA0}' => Some(MathToken::Variable('f')),
+        '\u{1D4D}' => Some(MathToken::Variable('g')),
+        '\u{02B0}' => Some(MathToken::Variable('h')),
+        '\u{2071}' => Some(MathToken::Variable('i')),
+        '\u{02B2}' => Some(MathToken::Variable('j')),
         '\u{1D4F}' => Some(MathToken::Variable('k')),
+        '\u{02E1}' => Some(MathToken::Variable('l')),
         '\u{1D50}' => Some(MathToken::Variable('m')),
+        '\u{1D52}' => Some(MathToken::Variable('o')),
+        '\u{1D56}' => Some(MathToken::Variable('p')),
+        '\u{02B3}' => Some(MathToken::Variable('r')),
+        '\u{02E2}' => Some(MathToken::Variable('s')),
+        '\u{1D57}' => Some(MathToken::Variable('t')),
+        '\u{1D58}' => Some(MathToken::Variable('u')),
+        '\u{1D5B}' => Some(MathToken::Variable('v')),
+        '\u{02B7}' => Some(MathToken::Variable('w')),
         '\u{02E3}' => Some(MathToken::Variable('x')),
+        '\u{02B8}' => Some(MathToken::Variable('y')),
+        '\u{1DBB}' => Some(MathToken::Variable('z')),
         _ => None,
     }
 }
@@ -156,15 +200,76 @@ fn normalize_subscript(c: char) -> Option<MathToken> {
         '\u{208D}' => Some(MathToken::OpenParen(BracketKind::MathParen)),
         '\u{208E}' => Some(MathToken::CloseParen(BracketKind::MathParen)),
         '\u{2090}' => Some(MathToken::Variable('a')),
+        '\u{2091}' => Some(MathToken::Variable('e')),
+        '\u{2092}' => Some(MathToken::Variable('o')),
         '\u{2093}' => Some(MathToken::Variable('x')),
+        '\u{2095}' => Some(MathToken::Variable('h')),
+        '\u{2096}' => Some(MathToken::Variable('k')),
+        '\u{2097}' => Some(MathToken::Variable('l')),
         '\u{2098}' => Some(MathToken::Variable('m')),
         '\u{2099}' => Some(MathToken::Variable('n')),
+        '\u{209A}' => Some(MathToken::Variable('p')),
+        '\u{209B}' => Some(MathToken::Variable('s')),
+        '\u{209C}' => Some(MathToken::Variable('t')),
+        // Phonetic extensions used as subscript: ᵢ ᵣ ᵤ ᵥ
+        '\u{1D62}' => Some(MathToken::Variable('i')),
+        '\u{1D63}' => Some(MathToken::Variable('r')),
+        '\u{1D64}' => Some(MathToken::Variable('u')),
+        '\u{1D65}' => Some(MathToken::Variable('v')),
         _ => None,
     }
 }
 
+/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와 
+/// 첨자 라틴 문자(U+2071, U+2095–U+209C 등)를 ASCII 라틴 문자로 정규화한다.
+/// 이는 PDF 규정에서 italic/bold/script/fraktur 변형을 일반 변수로 본다는 원칙을 
+/// 따른다. 한국 점자 수학 규정은 글꼴 변형을 별도로 표기하지 않으며,
+/// `𝑃`(MATH ITALIC CAPITAL P) ≡ `P`로 취급한다.
+fn normalize_math_alphanumeric(c: char) -> char {
+    let cp = c as u32;
+    // Mathematical Italic small h는 U+1D455 자리 비고 U+210E (Planck) 사용.
+    if cp == 0x210E {
+        return 'h';
+    }
+    // Mathematical Alphanumeric Symbols: 5 letter-shape ranges (bold, italic, bold italic,
+    // script, fraktur, double-struck, sans-serif, sans-serif bold, sans-serif italic,
+    // sans-serif bold italic, monospace). Each block is 26 capitals + 26 smalls.
+    // 정규화: cp가 해당 블록의 capital A 또는 small a 위치 기준 0~25 오프셋이면 변환.
+    const BLOCKS: &[(u32, char)] = &[
+        (0x1D400, 'A'), (0x1D41A, 'a'), // bold
+        (0x1D434, 'A'), (0x1D44E, 'a'), // italic
+        (0x1D468, 'A'), (0x1D482, 'a'), // bold italic
+        (0x1D49C, 'A'), (0x1D4B6, 'a'), // script
+        (0x1D4D0, 'A'), (0x1D4EA, 'a'), // bold script
+        (0x1D504, 'A'), (0x1D51E, 'a'), // fraktur
+        (0x1D538, 'A'), (0x1D552, 'a'), // double-struck
+        (0x1D56C, 'A'), (0x1D586, 'a'), // bold fraktur
+        (0x1D5A0, 'A'), (0x1D5BA, 'a'), // sans-serif
+        (0x1D5D4, 'A'), (0x1D5EE, 'a'), // sans-serif bold
+        (0x1D608, 'A'), (0x1D622, 'a'), // sans-serif italic
+        (0x1D63C, 'A'), (0x1D656, 'a'), // sans-serif bold italic
+        (0x1D670, 'A'), (0x1D68A, 'a'), // monospace
+    ];
+    for &(start, base) in BLOCKS {
+        if cp >= start && cp < start + 26 {
+            return char::from_u32(base as u32 + (cp - start)).unwrap_or(c);
+        }
+    }
+    // Mathematical Bold/Sans-serif Digits U+1D7CE-U+1D7FF (5 sets of 0-9).
+    const DIGIT_BLOCKS: &[u32] = &[0x1D7CE, 0x1D7D8, 0x1D7E2, 0x1D7EC, 0x1D7F6];
+    for &start in DIGIT_BLOCKS {
+        if cp >= start && cp < start + 10 {
+            return char::from_u32(b'0' as u32 + (cp - start)).unwrap_or(c);
+        }
+    }
+    c
+}
+
 /// Parse a math expression string into tokens.
 pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
+    // PDF 규정: Mathematical Alphanumeric 변형은 ASCII 라틴 문자와 동일하게 처리.
+    let input_owned: String = input.chars().map(normalize_math_alphanumeric).collect();
+    let input: &str = &input_owned;
     if let Some((left, right)) = input.split_once('/')
         && let (Some(left_fact), Some(right_fact)) =
             (left.strip_suffix('!'), right.strip_suffix('!'))
@@ -184,7 +289,11 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
 
     if input.contains('\u{0332}') {
         // Underline-notation normalizations used in fraction testcases.
-        if let Some(prefix) = input.strip_suffix('\u{0332}') {
+        // PDF 제23항 2 — 변수에 붙은 U+0332(예: X̲)는 밑줄 marker이고 분수가 아니다.
+        // suffix가 숫자일 때만(분수 변환 testcase 한정) 분수 정규화를 적용한다.
+        if let Some(prefix) = input.strip_suffix('\u{0332}')
+            && prefix.chars().all(|c| c.is_ascii_digit())
+        {
             return parse_math_expression(&format!("{prefix}/1"));
         }
 
@@ -320,22 +429,28 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         }
 
         // Unicode subscript sequence → merge into single Subscript
+        // `.`/`/`는 다음 글자가 같은 첨자 시퀀스에 속할 때만 포함한다(예: `₁/₂` 같은
+        // 분수 첨자). 일반 식의 외부 연산자가 첨자에 흡수되지 않도록 lookahead로 확인한다.
         if is_subscript_char(c) {
             let mut content = Vec::new();
-            while i < chars.len() && (is_subscript_char(chars[i]) || matches!(chars[i], '.' | '/'))
-            {
+            while i < chars.len() {
                 if is_subscript_char(chars[i]) {
                     if let Some(tok) = normalize_subscript(chars[i]) {
                         content.push(tok);
                     }
-                } else {
+                    i += 1;
+                } else if matches!(chars[i], '.' | '/')
+                    && chars.get(i + 1).is_some_and(|c| is_subscript_char(*c))
+                {
                     match chars[i] {
                         '.' => content.push(MathToken::DecimalPoint),
                         '/' => content.push(MathToken::Operator('/')),
                         _ => {}
                     }
+                    i += 1;
+                } else {
+                    break;
                 }
-                i += 1;
             }
             if !content.is_empty() {
                 tokens.push(MathToken::Subscript(content));
@@ -608,7 +723,16 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     {
                         BracketKind::Grouping
                     }
-                    Some(MathToken::Operator('/')) => BracketKind::Grouping,
+                    Some(MathToken::Operator('/')) | Some(MathToken::MathSymbol('\u{2044}')) => {
+                        BracketKind::Grouping
+                    }
+                    // ∑/∏ 한정자 뒤의 괄호는 본문 묶음(Grouping)이다.
+                    // (∫ 적분은 피적분 함수의 괄호로 MathParen 유지.)
+                    Some(MathToken::MathSymbol(c))
+                        if matches!(c, '\u{2211}' | '\u{220F}') =>
+                    {
+                        BracketKind::Grouping
+                    }
                     _ => BracketKind::MathParen,
                 };
                 let promote_grouping = matches!(tokens.last(), Some(MathToken::Operator('=')));
@@ -617,6 +741,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     token_index: tokens.len(),
                     contains_korean: false,
                     contains_arithmetic: false,
+                    contains_comma: false,
                     promote_grouping,
                 });
                 tokens.push(MathToken::OpenParen(kind));
@@ -631,8 +756,11 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                         BracketKind::Hangul
                     } else if group.promote_grouping
                         && group.contains_arithmetic
+                        && !group.contains_comma
                         && matches!(group.kind, BracketKind::MathParen)
                     {
+                        // 콤마로 구분된 튜플(예: (f/x₁, f/x₂, ...))은 MathParen으로 유지.
+                        // 산술 식 그룹(예: (a+b)/c)만 Grouping으로 승격한다.
                         BracketKind::Grouping
                     } else {
                         group.kind
@@ -656,6 +784,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     token_index: tokens.len(),
                     contains_korean: false,
                     contains_arithmetic: false,
+                    contains_comma: false,
                     promote_grouping: false,
                 });
                 tokens.push(MathToken::OpenParen(BracketKind::Square));
@@ -676,9 +805,34 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     token_index: tokens.len(),
                     contains_korean: false,
                     contains_arithmetic: false,
+                    contains_comma: false,
                     promote_grouping: false,
                 });
                 tokens.push(MathToken::OpenParen(BracketKind::Curly));
+                i += 1;
+                continue;
+            }
+            // PDF — `\overline{multi-token}`이 strip 단계에서 U+2329/U+232A로 감싼 그룹.
+            // 점자 `⠷...⠾`(Grouping)로 emit한다.
+            '\u{2329}' => {
+                tokens.push(MathToken::OpenParen(BracketKind::Grouping));
+                i += 1;
+                continue;
+            }
+            '\u{232A}' => {
+                tokens.push(MathToken::CloseParen(BracketKind::Grouping));
+                i += 1;
+                continue;
+            }
+            // PDF — `\sqrt{multi-token}`이 strip 단계에서 U+27E6/U+27E7로 감싼 그룹.
+            // 점자 `⠦...⠴`(MathParen)로 emit한다. (sqrt-context Grouping 승격 우회.)
+            '\u{27E6}' => {
+                tokens.push(MathToken::OpenParen(BracketKind::MathParen));
+                i += 1;
+                continue;
+            }
+            '\u{27E7}' => {
+                tokens.push(MathToken::CloseParen(BracketKind::MathParen));
                 i += 1;
                 continue;
             }
@@ -693,10 +847,18 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             _ => {}
         }
 
+        // U+2044 FRACTION SLASH는 LaTeX `\frac`에서 emit되는 분수 전용 슬래시.
+        // 일반 `/`(나눗셈/직접 입력 분수)와 구분하여 MathSymbol로 보존한다.
+        // math_symbol_shortcut에서 `⠌`(plain)으로 매핑된다.
+        if c == '\u{2044}' {
+            tokens.push(MathToken::MathSymbol(c));
+            i += 1;
+            continue;
+        }
         // Math operators (basic)
         if matches!(
             c,
-            '+' | '=' | '>' | '<' | '/' | '-' | '!' | '×' | '÷' | '\u{2212}' | '\u{2044}'
+            '+' | '=' | '>' | '<' | '/' | '-' | '!' | '×' | '÷' | '\u{2212}'
         ) {
             // In chained inequalities like -5 < x < -2, the second minus is omitted.
             if c == '-'
@@ -719,6 +881,11 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             if matches!(op, '+' | '×' | '/') {
                 for group in &mut bracket_stack {
                     group.contains_arithmetic = true;
+                }
+            }
+            if op == ',' {
+                for group in &mut bracket_stack {
+                    group.contains_comma = true;
                 }
             }
             tokens.push(MathToken::Operator(op));
@@ -769,7 +936,11 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             if prev_is_digit && next_is_digit && bracket_stack.is_empty() {
                 tokens.push(MathToken::DigitSeparator);
             } else {
-                // Set/list separator
+                // Set/list separator. 괄호 안 콤마는 튜플 구분자로 보고 group의
+                // contains_comma 플래그를 설정한다(MathParen 유지용).
+                for group in &mut bracket_stack {
+                    group.contains_comma = true;
+                }
                 tokens.push(MathToken::Operator(','));
             }
             i += 1;
@@ -816,6 +987,121 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             let close_idx = tokens.len() - 2;
             tokens[close_idx] = MathToken::CloseParen(BracketKind::Grouping);
         }
+    }
+
+    // PDF — `2 ₇P₂` 같이 계수+공백+permutation/combination 표기에서는 공백이
+    // 의미가 없으므로 제거한다(계수는 permutation 본체에 직접 인접).
+    let mut i = 0;
+    while i + 4 < tokens.len() {
+        if matches!(tokens.get(i), Some(MathToken::Number(_)))
+            && matches!(tokens.get(i + 1), Some(MathToken::Space))
+            && matches!(tokens.get(i + 2), Some(MathToken::Subscript(_)))
+            && matches!(
+                tokens.get(i + 3),
+                Some(MathToken::UpperVariable('P' | 'C' | 'H'))
+            )
+            && matches!(tokens.get(i + 4), Some(MathToken::Subscript(_)))
+        {
+            tokens.remove(i + 1);
+        }
+        i += 1;
+    }
+
+    // PDF — `f(x+a)(x-a)` 같이 함수(또는 단일 변수)명 다음 인접한 두 괄호 그룹은
+    // 함수 분배 표기로 점역한다(`f(x+a)f(x-a)`). 함수명(혹은 변수)을 두 번째 괄호 앞에
+    // 삽입한다. 함수명(`sin` 등)뿐 아니라 단일 변수 `f(x)g(x)` 패턴에도 적용한다.
+    let mut i = 0;
+    while i < tokens.len() {
+        let func_token: Option<MathToken> = match tokens.get(i) {
+            Some(t @ MathToken::FunctionName(_)) => Some(t.clone()),
+            Some(t @ MathToken::Variable(_)) => Some(t.clone()),
+            _ => None,
+        };
+        let Some(func_token) = func_token else {
+            i += 1;
+            continue;
+        };
+        // 다음이 OpenParen인지 확인
+        if !matches!(tokens.get(i + 1), Some(MathToken::OpenParen(_))) {
+            i += 1;
+            continue;
+        }
+        // matching CloseParen 찾기 (인라인 페어 매칭)
+        let mut depth = 0i32;
+        let mut first_close_opt: Option<usize> = None;
+        for k in (i + 1)..tokens.len() {
+            match tokens.get(k) {
+                Some(MathToken::OpenParen(_)) => depth += 1,
+                Some(MathToken::CloseParen(_)) => {
+                    depth -= 1;
+                    if depth == 0 {
+                        first_close_opt = Some(k);
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+        let Some(first_close) = first_close_opt else {
+            i += 1;
+            continue;
+        };
+        // CloseParen 직후가 OpenParen이면 함수 분배
+        if matches!(tokens.get(first_close + 1), Some(MathToken::OpenParen(_))) {
+            tokens.insert(first_close + 1, func_token);
+            i = first_close + 2;
+            continue;
+        }
+        i += 1;
+    }
+
+    // PDF — `√xy` 같이 근호 뒤에 명시적 괄호 없는 다중 base 토큰(Variable/UpperVariable/
+    // Number)은 `⠷...⠾`(Grouping)로 묶어 모호성을 제거한다. 단, `√x²`(var+super) 등 단일
+    // base + 첨자는 base가 1개이므로 wrap 생략한다. 본문이 단일 base이면 wrap 생략.
+    let mut i = 0;
+    while i < tokens.len() {
+        if matches!(tokens.get(i), Some(MathToken::MathSymbol('\u{221A}'))) {
+            let mut j = i + 1;
+            // 직후 토큰이 이미 괄호로 묶여 있으면 wrap 불필요.
+            if matches!(tokens.get(j), Some(MathToken::OpenParen(_))) {
+                i += 1;
+                continue;
+            }
+            // base 토큰(V/UV/N)을 연속 수집. 첨자(Sub/Sup)는 직전 base에 부속이므로
+            // base count로 세지 않고 함께 묶는다.
+            let start = j;
+            let mut base_count = 0;
+            while matches!(
+                tokens.get(j),
+                Some(
+                    MathToken::Variable(_)
+                        | MathToken::UpperVariable(_)
+                        | MathToken::Number(_)
+                        | MathToken::Subscript(_)
+                        | MathToken::Superscript(_)
+                )
+            ) {
+                if matches!(
+                    tokens.get(j),
+                    Some(
+                        MathToken::Variable(_)
+                            | MathToken::UpperVariable(_)
+                            | MathToken::Number(_)
+                    )
+                ) {
+                    base_count += 1;
+                }
+                j += 1;
+            }
+            // base 토큰이 2개 이상일 때만 Grouping wrap 삽입.
+            if base_count >= 2 {
+                tokens.insert(start, MathToken::OpenParen(BracketKind::Grouping));
+                tokens.insert(j + 1, MathToken::CloseParen(BracketKind::Grouping));
+                i = j + 2;
+                continue;
+            }
+        }
+        i += 1;
     }
 
     Ok(tokens)

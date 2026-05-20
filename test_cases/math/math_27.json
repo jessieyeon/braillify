@@ -1,7 +1,8 @@
 [
   {
     "input": "|",
-    "note": "PDF 제27항 1 — 나누어떨어진다 기호 | 정의 (단독)",
+    "context": "math",
+    "note": "PDF 제27항 1 — 나누어떨어진다 기호 | 정의 (단독, 수학 모드)",
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",

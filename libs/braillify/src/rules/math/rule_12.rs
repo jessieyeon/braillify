@@ -9,6 +9,21 @@ use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, 
 use super::rule_1;
 use super::rule_6;
 
+/// 현재 위치에서 시작해 좌측을 스캔, 적분(∫/∬/∮) 기호를 만나면 true 반환.
+/// 단, 다른 연산자/`=`를 만나면 새로운 적분 블록이 아니므로 false.
+fn integral_context_for_differential(tokens: &[MathToken], idx: usize) -> bool {
+    let mut i = idx;
+    while i > 0 {
+        i -= 1;
+        match tokens.get(i) {
+            Some(MathToken::MathSymbol('\u{222B}' | '\u{222C}' | '\u{222E}')) => return true,
+            Some(MathToken::Operator('=')) => return false,
+            _ => continue,
+        }
+    }
+    false
+}
+
 pub fn prev_non_space(tokens: &[MathToken], mut idx: usize) -> Option<&MathToken> {
     while idx > 0 {
         idx -= 1;
@@ -33,11 +48,25 @@ pub fn encode_variable(
         && matches!(tokens.get(*i + 2), Some(MathToken::Operator('=')))
         && let Some(MathToken::Superscript(content)) = tokens.get(*i + 1)
     {
+        // PDF 수학 제53항 4 — `y^{(n)}` 형태의 도함수 차수 표기.
+        // content가 이미 `(...)` 형태면 본문 그대로 emit해 중복 괄호화를 피한다.
+        let content_already_wrapped = content.len() >= 2
+            && matches!(
+                (content.first(), content.last()),
+                (
+                    Some(MathToken::OpenParen(BracketKind::MathParen)),
+                    Some(MathToken::CloseParen(BracketKind::MathParen))
+                )
+            );
         result.push(crate::english::encode_english('y')?);
         result.push(24);
-        result.push(38);
-        engine.encode_tokens(content, result)?;
-        result.push(52);
+        if content_already_wrapped {
+            engine.encode_tokens(content, result)?;
+        } else {
+            result.push(38);
+            engine.encode_tokens(content, result)?;
+            result.push(52);
+        }
         *prev_was_number = false;
         *i += 2;
         return Ok(true);
@@ -87,13 +116,17 @@ pub fn encode_variable(
         return Ok(true);
     }
 
-    if *prev_was_number
-        && *i == 1
+    // PDF 수학 — 숫자 직후 변수의 ⠐ 연결 표지.
+    //  - 식 시작부의 `Number Variable` (i==1)
+    //  - 적분 안 `Number d Variable` (미분소): `∫3dx` → ⠮⠼⠉⠐⠙⠭
+    let needs_number_variable_link = *prev_was_number
+        && *i >= 1
         && matches!(
             tokens.get(*i + 1),
             Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
         )
-    {
+        && (*i == 1 || (c == 'd' && integral_context_for_differential(tokens, *i)));
+    if needs_number_variable_link {
         result.push(16);
     }
     result.push(crate::english::encode_english(c.to_ascii_lowercase())?);

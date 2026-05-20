@@ -2,7 +2,7 @@
 //!
 //! 일반 나눗셈 슬래시와 분수 기호형 슬래시를 문맥으로 구분한다.
 
-use crate::rules::math::parser::MathToken;
+use crate::rules::math::parser::{BracketKind, MathToken};
 
 use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
 use super::{rule_1, rule_6, rule_12};
@@ -45,7 +45,10 @@ impl MathTokenRule for GroupedFractionReversalRule {
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
         matches!(tokens.get(index), Some(MathToken::OpenParen(_)))
             && rule_6::find_matching_paren(tokens, index).is_some_and(|close| {
-                matches!(tokens.get(close + 1), Some(MathToken::Operator('/')))
+                matches!(
+                    tokens.get(close + 1),
+                    Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
+                )
             })
     }
 
@@ -60,23 +63,73 @@ impl MathTokenRule for GroupedFractionReversalRule {
         let Some(left_close) = rule_6::find_matching_paren(tokens, index) else {
             return Ok(MathTokenResult::Skip);
         };
-        if !matches!(tokens.get(left_close + 1), Some(MathToken::Operator('/'))) {
+        if !matches!(
+            tokens.get(left_close + 1),
+            Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
+        ) {
             return Ok(MathTokenResult::Skip);
         }
         let right_start = left_close + 2;
-        if !matches!(tokens.get(right_start), Some(MathToken::OpenParen(_))) {
+
+        // PDF 제7항 3: strip_latex_to_math이 (분모)/분자 형태로 출력한다.
+        // 왼쪽(분모)을 묶음 괄호(Grouping)로 감싸서 먼저 출력하고,
+        // 분수선 후 오른쪽(분자)을 출력한다.
+
+        // 오른쪽(분자)이 괄호로 감싸진 경우: (분모)/(분자) 패턴
+        if matches!(tokens.get(right_start), Some(MathToken::OpenParen(_))) {
+            let Some(right_close) = rule_6::find_matching_paren(tokens, right_start) else {
+                return Ok(MathTokenResult::Skip);
+            };
+
+            // 분모(왼쪽)를 묶음 괄호로 감싸서 먼저 출력
+            rule_6::encode_open_paren(BracketKind::Grouping, result);
+            engine.encode_tokens(&tokens[index + 1..left_close], result)?;
+            rule_6::encode_close_paren(BracketKind::Grouping, result);
+            result.push(12);
+            // 분자(오른쪽) 출력 (괄호 포함)
+            engine.encode_tokens(&tokens[right_start..=right_close], result)?;
+            state.prev_was_number = false;
+            return Ok(MathTokenResult::Consumed(right_close + 1 - index));
+        }
+
+        // 오른쪽(분자)이 단순 토큰인 경우: (분모)/단순식 패턴
+        let right_end = find_simple_right_end(tokens, right_start);
+        if right_end == right_start {
             return Ok(MathTokenResult::Skip);
         }
-        let Some(right_close) = rule_6::find_matching_paren(tokens, right_start) else {
-            return Ok(MathTokenResult::Skip);
-        };
 
-        engine.encode_tokens(&tokens[right_start..=right_close], result)?;
+        // 분모(왼쪽)를 묶음 괄호로 감싸서 먼저 출력
+        rule_6::encode_open_paren(BracketKind::Grouping, result);
+        engine.encode_tokens(&tokens[index + 1..left_close], result)?;
+        rule_6::encode_close_paren(BracketKind::Grouping, result);
         result.push(12);
-        engine.encode_tokens(&tokens[index..=left_close], result)?;
+        // 분자(오른쪽) 출력
+        engine.encode_tokens(&tokens[right_start..right_end], result)?;
         state.prev_was_number = false;
-        Ok(MathTokenResult::Consumed(right_close + 1 - index))
+        Ok(MathTokenResult::Consumed(right_end - index))
     }
+}
+
+/// 단순 오른쪽 피연산자의 끝 인덱스를 반환한다.
+///
+/// 단순 피연산자: 숫자, 변수, 첨자 등 단일 토큰 또는 연속된 단순 토큰.
+/// 연산자(+, -, ×, ÷)나 괄호가 나오면 멈춘다.
+fn find_simple_right_end(tokens: &[MathToken], start: usize) -> usize {
+    let mut i = start;
+    while i < tokens.len() {
+        match &tokens[i] {
+            MathToken::Number(_)
+            | MathToken::Variable(_)
+            | MathToken::UpperVariable(_)
+            | MathToken::Superscript(_)
+            | MathToken::Subscript(_)
+            | MathToken::Prime => {
+                i += 1;
+            }
+            _ => break,
+        }
+    }
+    i
 }
 
 impl MathTokenRule for FractionReversalRule {

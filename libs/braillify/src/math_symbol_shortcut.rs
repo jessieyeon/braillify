@@ -27,6 +27,8 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\u{21D4}' => &[decode_unicode('⠪'), decode_unicode('⠒'), decode_unicode('⠒'), decode_unicode('⠕')], // [33o (필요충분)
     '\u{21C4}' => &[decode_unicode('⠪'), decode_unicode('⠶'), decode_unicode('⠕')], // [7o (동치명제)
     '\u{2032}' => &[decode_unicode('⠤')], // - (프라임)
+    '\u{2033}' => &[decode_unicode('⠤'), decode_unicode('⠤')], // -- (더블 프라임, PDF 제17항)
+    '\u{2034}' => &[decode_unicode('⠤'), decode_unicode('⠤'), decode_unicode('⠤')], // --- (트리플 프라임)
     '\u{00B2}' => &[decode_unicode('⠘'), decode_unicode('⠼'), decode_unicode('⠃')], // ^#b (제곱)
     '\u{00B3}' => &[decode_unicode('⠘'), decode_unicode('⠼'), decode_unicode('⠉')], // ^#c (세제곱)
     '\u{2074}' => &[decode_unicode('⠘'), decode_unicode('⠼'), decode_unicode('⠙')], // ^#d (네제곱)
@@ -61,6 +63,10 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\u{2099}' => &[decode_unicode('⠰'), decode_unicode('⠝')], // ;n (아래첨자 n)
     '\u{208A}' => &[decode_unicode('⠰'), decode_unicode('⠢')], // ;5 (아래첨자 +)
     '\u{2044}' => &[decode_unicode('⠌')], // / (분수 슬래시)
+    '\u{2500}' => &[decode_unicode('⠌')], // ─ (괘선 — PDF 제7항 분수선 기호 형태)
+    '\u{2E29}' => &[decode_unicode('⠄')], // open-ended right delimiter (`\right.`)
+    '_' => &[decode_unicode('⠠'), decode_unicode('⠤')], // 밑줄 marker (PDF 제23항 2)
+    '\u{0332}' => &[decode_unicode('⠠'), decode_unicode('⠤')], // ̲ (combining low line — 밑줄 결합부호)
     '|' => &[decode_unicode('⠳')], // | (절댓값)
     '\u{00AC}' => &[decode_unicode('⠈'), decode_unicode('⠔')], // @9 (부정)
     '\u{00B0}' => &[decode_unicode('⠴'), decode_unicode('⠙')], // 0d (도)
@@ -153,7 +159,7 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\u{0393}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠛')], // ,.g (대문자 감마)
     '\u{0395}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠑')], // ,.e (대문자 엡실론)
     '\u{0396}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠵')], // ,.z (대문자 제타)
-    '\u{0397}' => &[decode_unicode('⠨'), decode_unicode('⠱')], // .: (대문자 에타; test_cases 기준)
+    '\u{0397}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠱')], // ,.: (대문자 에타)
     '\u{0398}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠹')], // ,.? (대문자 세타)
     '\u{0399}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠊')], // ,.i (대문자 요타)
     '\u{039A}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠅')], // ,.k (대문자 카파)
@@ -186,10 +192,39 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '\u{0305}' => &[decode_unicode('⠈'), decode_unicode('⠉')], // @c (결합 윗줄)
     '\u{2016}' => &[decode_unicode('⠳'), decode_unicode('⠳')], // \\ (이중 세로선)
     '\u{2322}' => &[decode_unicode('⠈'), decode_unicode('⠪')], // @[ (호)
-    '\u{0307}' => &[decode_unicode('⠈')], // @ (결합 윗점)
-    '\u{0308}' => &[decode_unicode('⠈'), decode_unicode('⠲'), decode_unicode('⠲')], // @44 (결합 윗두점)
+    // PDF 수학 제65항 5 — 문자 위 결합 부호 (틸데)
+    '\u{0303}' => &[decode_unicode('⠈'), decode_unicode('⠈'), decode_unicode('⠔')], // @@9 (결합 틸데)
+    // 결합 윗 한 점 U+0307은 컨텍스트에 따라 의미가 다르다:
+    //   - 숫자 뒤  : 순환소수 마크 (PDF 수학 제9항) → ⠈
+    //   - 문자 뒤  : 문자 위 한 점 (PDF 수학 제65항 5) → ⠈⠲
+    // 이 SHORTCUT_MAP의 값은 숫자 뒤 기본형이고, 문자 뒤 처리는 rule_65에서 별도 분기한다.
+    '\u{0307}' => &[decode_unicode('⠈')], // @ (결합 윗점 - 기본/숫자 뒤)
+    '\u{0308}' => &[decode_unicode('⠈'), decode_unicode('⠲'), decode_unicode('⠲')], // @44 (결합 윗 두 점)
     '\u{0309}' => &[decode_unicode('⠈'), decode_unicode('⠈'), decode_unicode('⠔')], // @@9 (결합 고리/훅)
     '\u{030A}' => &[decode_unicode('⠈'), decode_unicode('⠈'), decode_unicode('⠔')], // @@9 (결합 윗고리)
+    '\u{211B}' => &[decode_unicode('⠠'), decode_unicode('⠗')], // ,R (ℛ = script R)
+    '~' => &[decode_unicode('⠈'), decode_unicode('⠔')], // @9 (물결 = 닮음)
+    '\u{0338}' => &[decode_unicode('⠨')], // . (부정 표지)
+    '\u{203E}' => &[decode_unicode('⠈'), decode_unicode('⠉')], // @c (선분 기호 U+203E)
+    '\u{20E1}' => &[decode_unicode('⠪'), decode_unicode('⠒'), decode_unicode('⠕')], // [3O (직선 기호 U+20E1)
+    '\u{20D7}' => &[decode_unicode('⠒'), decode_unicode('⠕')], // 3O (반직선 기호 U+20D7)
+    // PDF 수학 제60항 6 — 추론 기호 ⊢/⊣/⊨/⫤
+    '\u{22A2}' => &[decode_unicode('⠸'), decode_unicode('⠒')], // _3 (⊢ vdash)
+    '\u{22A3}' => &[decode_unicode('⠈'), decode_unicode('⠸'), decode_unicode('⠒')], // @_3 (⊣ dashv)
+    '\u{22A8}' => &[decode_unicode('⠘'), decode_unicode('⠸'), decode_unicode('⠒')], // ^_3 (⊨ models)
+    '\u{2AE4}' => &[decode_unicode('⠨'), decode_unicode('⠸'), decode_unicode('⠒')], // ._3 (⫤ Dashv)
+    // PDF 수학 제60항 7 — 앞선다 ≲ (보다같거나 작다 + 닮음)
+    '\u{2272}' => &[decode_unicode('⠔'), decode_unicode('⠔'), decode_unicode('⠈'), decode_unicode('⠔')], // 99@9 (≲ lesssim)
+    // PDF 수학 제60항 8 — 앞서고같지않다 ≺ (보다작다)
+    '\u{227A}' => &[decode_unicode('⠔'), decode_unicode('⠔')], // 99 (≺ prec — same as <)
+    // PDF 수학 제61항 7 — 동치명제 ⇌
+    '\u{21CC}' => &[decode_unicode('⠪'), decode_unicode('⠶'), decode_unicode('⠕')], // [7o (⇌ rightleftharpoons)
+    // PDF 수학 제23항 1 — 켤레복소수/평균값 macron ¯
+    '\u{00AF}' => &[decode_unicode('⠈'), decode_unicode('⠉')], // @c (¯ macron)
+    // PDF 수학 제25항 — 총합 기호 ∑ (Greek capital Sigma과 동일 점형)
+    '\u{2211}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠎')], // ,.s
+    // PDF 수학 제26항 — 곱 기호 ∏
+    '\u{220F}' => &[decode_unicode('⠠'), decode_unicode('⠨'), decode_unicode('⠏')], // ,.p
 };
 
 pub fn encode_char_math_symbol_shortcut(text: char) -> Result<&'static [u8], String> {

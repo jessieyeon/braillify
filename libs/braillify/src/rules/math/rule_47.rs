@@ -117,9 +117,10 @@ pub fn encode_log_token(
         };
 
         if base_kind == LogBaseKind::None {
-            result.push(55);
+            // PDF 수학 제46항/47항 — 진수가 다항식인 log(x+...)는 ⠦...⠴ (math paren).
+            result.push(38); // ⠦
             engine.encode_tokens(&tokens[*i + 1..close_idx], result)?;
-            result.push(62);
+            result.push(52); // ⠴
         } else if base_kind == LogBaseKind::Digit {
             result.push(55);
             engine.encode_tokens(&tokens[*i..=close_idx], result)?;
@@ -150,6 +151,24 @@ pub fn encode_log_token(
         }
 
         *i = close_idx + 1;
+        return Ok(());
+    }
+
+    // PDF 수학 제47항 — log 인수가 분수(괄호 없는 V/V 또는 N/N 등)일 때는 ⠷...⠾로 묶는다.
+    if matches!(
+        tokens.get(*i),
+        Some(MathToken::Number(_) | MathToken::Variable(_))
+    ) && matches!(
+        tokens.get(*i + 1),
+        Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
+    ) && matches!(
+        tokens.get(*i + 2),
+        Some(MathToken::Number(_) | MathToken::Variable(_))
+    ) {
+        result.push(55); // ⠷
+        engine.encode_tokens(&tokens[*i..*i + 3], result)?;
+        result.push(62); // ⠾
+        *i += 3;
         return Ok(());
     }
 
@@ -199,6 +218,11 @@ pub fn encode_lim_token(
         result.push(48);
         encode_lim_target(content, result, engine)?;
         *i += 1;
+        // PDF 수학 제51항 — lim의 첨자 뒤에 다음 식이 이어지면 한 칸 띄움.
+        // (LaTeX strip이 공백을 제거하므로 명시적으로 삽입한다.)
+        if next_is_lim_body(tokens, *i) {
+            result.push(0);
+        }
         return Ok(());
     }
 
@@ -212,6 +236,29 @@ pub fn encode_lim_token(
     }
 
     Ok(())
+}
+
+/// lim 첨자 직후가 함수 본문(변수/괄호/숫자 등)이면 한 칸 띄움이 필요하다.
+fn next_is_lim_body(tokens: &[MathToken], idx: usize) -> bool {
+    let mut cursor = idx;
+    // 이미 공백 토큰이 있으면 별도 삽입 불필요.
+    if matches!(tokens.get(cursor), Some(MathToken::Space)) {
+        return false;
+    }
+    while cursor < tokens.len() {
+        match &tokens[cursor] {
+            MathToken::Space => return false,
+            MathToken::Variable(_)
+            | MathToken::UpperVariable(_)
+            | MathToken::Number(_)
+            | MathToken::OpenParen(_)
+            | MathToken::FunctionName(_)
+            | MathToken::MathSymbol(_)
+            | MathToken::Superscript(_) => return true,
+            _ => cursor += 1,
+        }
+    }
+    false
 }
 
 pub struct FunctionNameRule;

@@ -159,7 +159,8 @@
     "expected": "6033215556027060362",
     "unicode": "⠼⠃⠠⠏⠷⠼⠛⠀⠼⠃⠾",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "",
+    "context": "math"
   },
   {
     "input": "$2 \\,_7P_2$",
@@ -249,7 +250,8 @@
     "expected": "6033295529206010232060162",
     "unicode": "⠼⠃⠠⠉⠷⠝⠔⠼⠁⠀⠗⠔⠼⠁⠾",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "",
+    "context": "math"
   },
   {
     "input": "$2 \\,_{n-1}C_{r-1}$",

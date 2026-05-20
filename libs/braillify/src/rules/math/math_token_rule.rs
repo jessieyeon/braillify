@@ -108,7 +108,6 @@ impl MathTokenEngine {
                 token,
                 MathToken::MathSymbol(
                     '\u{00AC}'
-                        | '\u{2192}'
                         | '\u{21D2}'
                         | '\u{2194}'
                         | '\u{21D4}'

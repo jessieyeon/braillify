@@ -60,7 +60,8 @@
     "expected": "22306010265225181863",
     "unicode": "⠖⠞⠼⠊⠚⠴⠙⠒⠒⠿",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "",
+    "context": "math"
   },
   {
     "input": "$\\tan 90° = \\infty$",

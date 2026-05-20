@@ -67,6 +67,192 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
     encode_with_options(text, &EncodeOptions::default())
 }
 
+/// PDF 수학 — Unicode Mathematical Alphanumeric Symbols(U+1D400–U+1D7FF)와 
+/// 첨자 라틴 문자를 ASCII 라틴 문자로 정규화한다.
+/// 한국 점자 수학 규정은 글꼴 변형(italic/bold/script 등)을 별도 표기하지
+/// 않으므로 `𝑃`(MATH ITALIC CAPITAL P) ≡ 일반 `P`로 취급한다.
+fn normalize_math_alphanumeric_char(c: char) -> char {
+    let cp = c as u32;
+    // Mathematical Italic small h는 U+1D455 자리 비고 U+210E (Planck) 사용.
+    if cp == 0x210E {
+        return 'h';
+    }
+    const BLOCKS: &[(u32, char)] = &[
+        (0x1D400, 'A'), (0x1D41A, 'a'),
+        (0x1D434, 'A'), (0x1D44E, 'a'),
+        (0x1D468, 'A'), (0x1D482, 'a'),
+        (0x1D49C, 'A'), (0x1D4B6, 'a'),
+        (0x1D4D0, 'A'), (0x1D4EA, 'a'),
+        (0x1D504, 'A'), (0x1D51E, 'a'),
+        (0x1D538, 'A'), (0x1D552, 'a'),
+        (0x1D56C, 'A'), (0x1D586, 'a'),
+        (0x1D5A0, 'A'), (0x1D5BA, 'a'),
+        (0x1D5D4, 'A'), (0x1D5EE, 'a'),
+        (0x1D608, 'A'), (0x1D622, 'a'),
+        (0x1D63C, 'A'), (0x1D656, 'a'),
+        (0x1D670, 'A'), (0x1D68A, 'a'),
+    ];
+    for &(start, base) in BLOCKS {
+        if cp >= start && cp < start + 26 {
+            return char::from_u32(base as u32 + (cp - start)).unwrap_or(c);
+        }
+    }
+    const DIGIT_BLOCKS: &[u32] = &[0x1D7CE, 0x1D7D8, 0x1D7E2, 0x1D7EC, 0x1D7F6];
+    for &start in DIGIT_BLOCKS {
+        if cp >= start && cp < start + 10 {
+            return char::from_u32(b'0' as u32 + (cp - start)).unwrap_or(c);
+        }
+    }
+    c
+}
+
+fn normalize_math_alphanumeric_string(text: &str) -> String {
+    text.chars().map(normalize_math_alphanumeric_char).collect()
+}
+
+/// PDF 수학 제34항 — 부정 결합 부호(U+0338 COMBINING LONG SOLIDUS OVERLAY)는
+/// 점역 시 피수정 문자 앞으로 이동한다. 예: `ℛ̸` → `̸ℛ` → 점자 `⠨⠠⠗`.
+fn move_negation_combiner_before_base(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out = String::with_capacity(text.len());
+    let mut i = 0;
+    while i < chars.len() {
+        if i + 1 < chars.len() && chars[i + 1] == '\u{0338}' {
+            out.push(chars[i + 1]);
+            out.push(chars[i]);
+            i += 2;
+        } else {
+            out.push(chars[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+/// PDF 한글 제56항 — 드러냄표(̇, U+0307) 처리.
+/// 입력에서 N개의 U+0307 (사이 공백 허용)을 발견하면, 그 직전 N개의 한글 음절을
+/// 드러냄표로 묶는다. ⠠⠤(open) + 음절들 + ⠤⠄(close) 형태로 점역된다.
+/// sentinel으로 U+E000/U+E001을 사용하여 후속 인코딩 단계에서 marker로 전개한다.
+fn expand_emphasis_marks(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out: Vec<char> = Vec::with_capacity(chars.len());
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '\u{0307}' {
+            // 연속 U+0307 그룹 수집 (사이 공백 허용)
+            let mut count = 1;
+            let mut last = i;
+            let mut j = i + 1;
+            while j < chars.len() {
+                if chars[j] == '\u{0307}' {
+                    count += 1;
+                    last = j;
+                    j += 1;
+                } else if chars[j] == ' ' && j + 1 < chars.len() && chars[j + 1] == '\u{0307}' {
+                    j += 1; // skip space
+                } else {
+                    break;
+                }
+            }
+            // out에서 N개의 한글 음절을 walk back
+            let mut syllables = 0;
+            let mut start_in_out = out.len();
+            while start_in_out > 0 && syllables < count {
+                let c = out[start_in_out - 1];
+                if utils::is_korean_char(c) {
+                    syllables += 1;
+                    start_in_out -= 1;
+                } else if c == ' ' {
+                    start_in_out -= 1;
+                } else {
+                    break;
+                }
+            }
+            if syllables == count {
+                // out[start_in_out..]을 ⠠⠤...⠤⠄로 wrap
+                out.insert(start_in_out, '\u{E000}'); // start sentinel
+                out.push('\u{E001}'); // end sentinel
+            }
+            // U+0307 그룹 모두 skip
+            i = last + 1;
+            continue;
+        }
+        out.push(chars[i]);
+        i += 1;
+    }
+    out.into_iter().collect()
+}
+
+/// PDF 수학 제37,38항 — 벡터/반직선/직선 결합 부호 처리.
+/// 연속된 영문 대문자에 U+20D7(→), U+20D6(←), U+20E1(↔), U+20D1(반직선) 등의
+/// 결합 부호가 각각 붙어 있으면, 결합부호를 한 번만 prefix하고 본문은 연쇄로 본다.
+/// 예: `A⃗B⃗` → `⃗AB` → 점자 `⠒⠕⠠⠠⠁⠃`.
+fn collapse_repeated_vector_marks(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out = String::with_capacity(text.len());
+    let mut i = 0;
+    let is_vector_mark = |c: char| matches!(c, '\u{20D6}' | '\u{20D7}' | '\u{20E1}' | '\u{20D1}');
+    while i < chars.len() {
+        // PDF 제37,38항 — 벡터/반직선 결합부호는 점자에서 letter 앞에 prefix한다.
+        // 단독 `A⃗`도 `⃗A` 순으로 변환한다.
+        if chars[i].is_ascii_alphabetic()
+            && i + 1 < chars.len()
+            && is_vector_mark(chars[i + 1])
+        {
+            let mark = chars[i + 1];
+            // 연속된 letter+mark 쌍을 수집한다 (예: A⃗B⃗ → ⃗AB).
+            let mut letters = vec![chars[i]];
+            let mut j = i + 2;
+            while j + 1 < chars.len()
+                && chars[j].is_ascii_alphabetic()
+                && chars[j + 1] == mark
+            {
+                letters.push(chars[j]);
+                j += 2;
+            }
+            // 결합부호를 한 번만 prefix하고 letter 연쇄를 그대로 emit
+            out.push(mark);
+            for l in letters {
+                out.push(l);
+            }
+            i = j;
+            continue;
+        }
+        out.push(chars[i]);
+        i += 1;
+    }
+    out
+}
+
+/// PDF 수학 제65항 5 — 라틴 문자 + 결합 부호(악센트)는 base letter + 결합 부호로
+/// NFD 분해한다. (예: `ã` → `a` + `\u{0303}`, `ä` → `a` + `\u{0308}`)
+/// 한글/CJK 문자는 분해되지 않도록 라틴 확장 범위에만 적용한다.
+fn decompose_accented_latin(text: &str) -> String {
+    use unicode_normalization::UnicodeNormalization;
+    let mut out = String::new();
+    for c in text.chars() {
+        let cp = c as u32;
+        // 일부 문자는 단위(Å = 옹스트롬)/고유 식별자로 단독 의미를 가지므로
+        // NFD 분해하지 않는다.
+        if matches!(c, '\u{00C5}' | '\u{00E5}') {
+            // Å, å — 단위 또는 고유 문자로 그대로 유지
+            out.push(c);
+            continue;
+        }
+        // Latin-1 Supplement, Latin Extended-A/B/Additional, IPA Extensions
+        let is_latin_extended = (0x00C0..=0x024F).contains(&cp)
+            || (0x1E00..=0x1EFF).contains(&cp);
+        if is_latin_extended {
+            for d in std::iter::once(c).nfd() {
+                out.push(d);
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
 /// PDF 제38항 자동 감지 — input의 묶음 패턴 안 IPA 음운 기호로 IPA 컨텍스트 추론.
 ///
 /// 알고리즘(AST적 판단):
@@ -250,6 +436,19 @@ fn encode_ipa_char(ch: char) -> Option<Vec<u8>> {
 pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8>, String> {
     use crate::rules::context::EncodingMode;
 
+    // PDF 수학 — Mathematical Alphanumeric 변형(italic/bold/script 등)을 ASCII로
+    // 정규화. 한국 점자 수학 규정은 글꼴 변형을 별도 표기하지 않으므로
+    // `𝑃`(MATH ITALIC CAPITAL P)는 일반 `P`와 동일하게 처리한다.
+    // 또한 PDF 수학 제65항 5의 결합 부호 처리를 위해 악센트 라틴 문자를 NFD 분해한다.
+    // 그리고 PDF 수학 제34항 부정 결합(U+0338)을 피수정 문자 앞으로 이동한다.
+    // 또한 PDF 수학 제37,38항 벡터/반직선 결합부호를 prefix 형태로 정규화한다.
+    let normalized_text = collapse_repeated_vector_marks(&move_negation_combiner_before_base(
+        &decompose_accented_latin(&normalize_math_alphanumeric_string(text)),
+    ));
+    // expand_emphasis_marks를 fully working으로 만들 때까지 일단 사용하지 않는다.
+    let _ = expand_emphasis_marks;
+    let text: &str = &normalized_text;
+
     // PDF 제38항 — IPA 모드: 발음 기호 표기.
     // 알고리즘 일반화: 입력은 묶음 기호 `[...]` 또는 `/.../`로 시작/종료한다.
     //   대괄호: 여는 `[` → ⠐⠘⠷ (16,24,55), 닫는 `]` → ⠘⠾ (24,62)
@@ -347,6 +546,39 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
                 crate::math_symbol_shortcut::encode_char_math_symbol_shortcut(chars[0])
         {
             return Ok(code.to_vec());
+        }
+        // PDF — 다중 char math 입력은 math expression engine에 직접 위임한다.
+        // (예: `tan90° = ∞`, `A⃗ = (A₁, A₂, A₃)` 등이 prose context 없이 순수 math일 때.)
+        // 순수 math 컨텍스트에서는 binary operator 주변 공백이 의미가 없으므로 제거한다.
+        let cleaned: String = {
+            let mut s = String::with_capacity(text.len());
+            let chs: Vec<char> = text.chars().collect();
+            let mut i = 0;
+            while i < chs.len() {
+                let c = chs[i];
+                // 공백 + binary op + 공백 → binary op만 유지
+                if c == ' '
+                    && i + 1 < chs.len()
+                    && matches!(chs[i + 1], '=' | '+' | '-' | '<' | '>')
+                {
+                    i += 1;
+                    continue;
+                }
+                if matches!(c, '=' | '+' | '-' | '<' | '>')
+                    && i + 1 < chs.len()
+                    && chs[i + 1] == ' '
+                {
+                    s.push(c);
+                    i += 2;
+                    continue;
+                }
+                s.push(c);
+                i += 1;
+            }
+            s
+        };
+        if let Ok(bytes) = rules::math::encoder::encode_math_expression(&cleaned) {
+            return Ok(bytes);
         }
     }
 
@@ -1103,3 +1335,6 @@ mod test {
         assert_eq!(buffer, expected);
     }
 }
+
+
+
