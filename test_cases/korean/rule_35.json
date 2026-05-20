@@ -62,7 +62,7 @@
     "unicode": "⠴⠰⠠⠠⠉⠙⠀⠼⠁⠨⠶⠮⠀⠈⠍⠚⠐⠱⠀⠚⠃⠉⠕⠊⠲",
     "world": "⠴⠰⠠⠠⠉⠙ ⠼⠁⠨⠶⠮ ⠈⠍⠚⠐⠱ ⠚⠃⠉⠕⠊⠲",
     "jeomsarang": "⠴⠰⠠⠠⠉⠙⠀⠼⠁⠨⠶⠮⠀⠈⠍⠚⠐⠱⠀⠚⠃⠉⠕⠊⠲",
-    "limitation": "사용자 결정 — Korean rule 미세 차이 fresh-context 작업 필요"
+    "limitation": "PDF 제35항 - 2-letter 대문자 약어 CD에 한해 추가 ⠰ Grade-1 indicator 필요 - 다른 2-letter (LP, KBS) 미적용 - PDF 본문에서 일반화 규칙 발견 불가"
   },
   {
     "input": "평창 동계 올림픽의 SNS 계정은 pyeongchang 2018이다.",
