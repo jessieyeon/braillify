@@ -60,6 +60,8 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '•' => &[decode_unicode('⠸'),decode_unicode('⠲')],
     'ː' => &[decode_unicode('⠠'), decode_unicode('⠄')],
     '〃' => &[decode_unicode('⠴'), decode_unicode('⠴')],
+    // PDF 제60항 [붙임 1] — 참조 기호 ※ (U+203B).
+    '※' => &[decode_unicode('⠸'), decode_unicode('⠔')],
 };
 
 static ENGLISH_SYMBOL_MAP: phf::Map<char, &'static [u8]> = phf_map! {

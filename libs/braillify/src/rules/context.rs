@@ -87,6 +87,10 @@ pub struct EncoderState {
     /// 제39항: 영어 주도(영어 어절 ≫ 한글) 문서. 영자표시(⠴)·단일 대문자 표시
     /// (⠠)·종료표(⠲)를 모두 생략한다.
     pub english_dominant_no_indicator: bool,
+    /// 짝맞춤 작은따옴표(`‘…’`) 추적: `‘`를 만나면 +1, 닫음 `’`로 -1.
+    /// 0보다 크면 현재 위치는 paired closing 위치이므로 `’`를 `⠴⠄`로 emit.
+    /// 0이면 standalone apostrophe로 `⠄` 한 셀만 emit. (PDF 제61항)
+    pub unmatched_open_single_quotes: i32,
 }
 
 impl EncoderState {
@@ -104,6 +108,7 @@ impl EncoderState {
             is_big_english: false,
             english_dominant_wrap_active: false,
             english_dominant_no_indicator: false,
+            unmatched_open_single_quotes: 0,
         }
     }
 

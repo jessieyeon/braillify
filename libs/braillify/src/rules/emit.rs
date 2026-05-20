@@ -499,6 +499,7 @@ fn emit_word(
                 is_big_english,
                 english_dominant_wrap_active: state.english_dominant_wrap_active,
                 english_dominant_no_indicator: state.english_dominant_no_indicator,
+                unmatched_open_single_quotes: state.unmatched_open_single_quotes,
             };
             apply_core_encoding_rules(
                 char_engine,
@@ -521,6 +522,7 @@ fn emit_word(
             state.roman_number_chain = core_state.roman_number_chain;
             state.parenthesis_stack = core_state.parenthesis_stack;
             state.mode_stack = core_state.mode_stack;
+            state.unmatched_open_single_quotes = core_state.unmatched_open_single_quotes;
             is_number = core_state.is_number;
             is_big_english = core_state.is_big_english;
 
@@ -546,6 +548,7 @@ fn emit_word(
                     is_big_english,
                     english_dominant_wrap_active: state.english_dominant_wrap_active,
                     english_dominant_no_indicator: state.english_dominant_no_indicator,
+                    unmatched_open_single_quotes: state.unmatched_open_single_quotes,
                 };
                 apply_inter_character_rules(
                     char_engine,
