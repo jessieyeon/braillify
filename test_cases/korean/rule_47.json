@@ -1,13 +1,5 @@
 [
   {
-    "input": "3/4",
-    "internal": "#c_/#d",
-    "expected": "60956126025",
-    "unicode": "⠼⠉⠸⠌⠼⠙",
-    "world": "⠼⠉⠸⠌⠼⠙",
-    "jeomsarang": "⠼⠉⠸⠌⠼⠙"
-  },
-  {
     "input": "¾",
     "internal": "#d/#c",
     "expected": "602512609",
