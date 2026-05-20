@@ -465,7 +465,7 @@
   },
   {
     "input": "New York",
-    "internal": ",new ,york",
+    "internal": ",new`,york",
     "expected": "322917580326121235",
     "unicode": "⠠⠝⠑⠺⠀⠠⠽⠕⠗⠅",
     "world": "⠴⠠⠝⠑⠺ ⠠⠽⠕⠗⠅⠲",
@@ -473,7 +473,7 @@
   },
   {
     "input": "NEW YORK",
-    "internal": ",,new ,,york",
+    "internal": ",,new`,,york",
     "expected": "3232291758032326121235",
     "unicode": "⠠⠠⠝⠑⠺⠀⠠⠠⠽⠕⠗⠅",
     "world": "⠴⠠⠠⠝⠑⠺ ⠠⠠⠽⠕⠗⠅⠲",
@@ -505,7 +505,7 @@
   },
   {
     "input": "WELCOME TO KOREA",
-    "internal": ",,,welcome to korea,'",
+    "internal": ",,,welcome`to`korea,'",
     "expected": "32323258177921131703021052123171324",
     "unicode": "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄",
     "world": "⠴⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑ ⠞⠕ ⠅⠕⠗⠑⠁⠠⠄⠲",
