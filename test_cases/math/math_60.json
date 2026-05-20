@@ -168,8 +168,7 @@
     "expected": "544551052455095304059321354",
     "unicode": "⠶⠭⠳⠀⠴⠭⠲⠉⠵⠀⠨⠻⠠⠍⠶",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "⊂",
@@ -574,8 +573,7 @@
     "expected": "116032232230102020820031620521509530523500355029021121050",
     "unicode": "⠁⠐⠀⠃⠖⠠⠗⠀⠁⠀⠔⠔⠈⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$a, b \\in R\\ a \\lesssim b$: $a$는 $b$ 앞에 있다.",
@@ -611,8 +609,7 @@
     "expected": "102020031620521509530523500355029021121050052350953052150010132329021121050",
     "unicode": "⠁⠀⠔⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲⠀⠴⠃⠲⠉⠵⠀⠴⠁⠲⠀⠊⠍⠗⠝⠀⠕⠌⠊⠲",
     "world": "",
-    "jeomsarang": "",
-    "limitation": "사용자 결정 — Korean prose embed math letter / AB matrix-name ambiguity, testcase 형식 보강 필요"
+    "jeomsarang": ""
   },
   {
     "input": "$a \\prec b$: $a$는 $b$ 앞에 있다. $b$는 $a$ 뒤에 있다.",
