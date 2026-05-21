@@ -197,6 +197,11 @@ fn emit_mode_event(event: ModeEvent, state: &mut EncoderState, result: &mut Vec<
             result.push(32);
             result.push(32);
         }
+        ModeEvent::Grade1Indicator => {
+            // ⠰ (dots 5+6, byte 48): UEB Grade-1 indicator that forces literal letter
+            // reading and prevents shortform/contraction collision (UEB 5.7.2 + 10.9).
+            result.push(48);
+        }
         ModeEvent::CapsPassageStart => {
             result.push(32);
             result.push(32);
@@ -782,12 +787,13 @@ mod tests {
                 Token::Mode(ModeEvent::CapsWord),
                 Token::Mode(ModeEvent::CapsPassageStart),
                 Token::Mode(ModeEvent::CapsPassageEnd),
+                Token::Mode(ModeEvent::Grade1Indicator),
             ],
             state: EncoderState::new(false),
         };
         let mut engine = make_char_engine();
         let out = emit(&mut ir, &mut engine).unwrap();
-        assert_eq!(out, vec![52, 48, 32, 32, 32, 32, 32, 32, 4]);
+        assert_eq!(out, vec![52, 48, 32, 32, 32, 32, 32, 32, 4, 48]);
     }
 
     #[test]

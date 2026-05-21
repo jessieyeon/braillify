@@ -21,3 +21,4 @@ codecov.*
 .omo
 .sisyphus/
 .audit
+trace_out.txt

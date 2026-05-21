@@ -1,3 +1,4 @@
+use crate::rules::english_shortform::requires_grade1_indicator;
 use crate::rules::token::{ModeEvent, Token, WordToken};
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 
@@ -80,10 +81,20 @@ impl TokenRule for UppercasePassageRule {
                 && is_ascii_word(upcoming[0])
                 && is_ascii_word(upcoming[1]);
 
+            // UEB §5.7.2 + §10.9: prepend Grade-1 indicator (⠰) when the uppercase
+            // letters spell a multi-letter shortform (e.g. CD = "could"). This forces
+            // literal letter reading and prevents shortform mis-interpretation.
+            let needs_grade1 = requires_grade1_indicator(word.text.as_ref());
             if can_start_passage {
+                if needs_grade1 {
+                    prefix.push(Token::Mode(ModeEvent::Grade1Indicator));
+                }
                 prefix.push(Token::Mode(ModeEvent::CapsPassageStart));
                 state.triple_big_english = true;
             } else if word_len >= 2 {
+                if needs_grade1 {
+                    prefix.push(Token::Mode(ModeEvent::Grade1Indicator));
+                }
                 prefix.push(Token::Mode(ModeEvent::CapsWord));
             }
         }

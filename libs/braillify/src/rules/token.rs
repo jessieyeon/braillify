@@ -84,6 +84,10 @@ pub enum ModeEvent {
     CapsWord,
     CapsPassageStart,
     CapsPassageEnd,
+    /// Grade-1 indicator (⠰, byte 48). Required before CapsWord/CapsPassage when the
+    /// uppercase ASCII letters spell a multi-letter shortform/contraction (UEB 5.7.2 + 10.9).
+    /// Example: "CD" → ⠰⠠⠠⠉⠙ because ⠉⠙ alone = "could" shortform.
+    Grade1Indicator,
 }
 
 impl<'a> DocumentIR<'a> {
