@@ -142,73 +142,187 @@ fn move_negation_combiner_before_base(text: &str) -> String {
     out
 }
 
-/// PDF 한글 제56항 — 드러냄표(̇, U+0307) 처리.
-/// 입력에서 N개의 U+0307 (사이 공백 허용)을 발견하면, 그 직전 N개의 한글 음절을
-/// 드러냄표로 묶는다. ⠠⠤(open) + 음절들 + ⠤⠄(close) 형태로 점역된다.
-/// sentinel으로 U+E000/U+E001을 사용하여 후속 인코딩 단계에서 marker로 전개한다.
+/// PDF 한글 제56항 — 결합 부호 기반 글자체 표지 처리.
+///
+/// 강조 대상 문자마다 결합 부호를 부착하는 **순환소수 스타일** 평문 표기를 지원한다.
+/// 결합 부호는 `FormattingKind`와 1:1 매핑되며, PUA sentinel(U+E000~U+E007)로
+/// 변환되어 후속 단계에서 점자 marker로 전개된다. 인접한 같은 종류 wrap은
+/// [`merge_adjacent_formatting_wraps`]에 의해 자동으로 하나로 병합된다.
+///
+/// | 결합 부호 | 외관 | FormattingKind | 점자 |
+/// |---|---|---|---|
+/// | U+0307 (DOT ABOVE) | ̇ | 드러냄표/밑줄 (Emphasis) | ⠠⠤...⠤⠄ |
+/// | U+0331 (MACRON BELOW) | ̱ | 굵은 글자 (Bold) | ⠰⠤...⠤⠆ |
+/// | U+0332 (LOW LINE) | ̲ | 점역자1 글자체 (Custom1) | ⠐⠤...⠤⠂ |
+/// | U+0333 (DOUBLE LOW LINE) | ̳ | 점역자2 글자체 (Custom2) | ⠈⠤...⠤⠁ |
+///
+/// 사용 규칙:
+/// - **단위:** 각 결합 부호는 직전 1개의 비공백 문자를 글자체로 감싼다.
+///   (per-char 컨벤션. 인접한 같은 종류 wrap은 자동 병합되어 연속 강조 단어를
+///   `⠠⠤단어1 단어2⠤⠄` 형태의 단일 wrap으로 emit한다.)
+/// - **N개 trailing 호환:** 단일 음절 뒤에 같은 결합 부호 N개를 연속(공백 허용)으로
+///   붙이면 직전 N개 비공백 문자를 한 묶음으로 감싼다 (legacy 표기 호환).
+/// - **숫자 흡수:** 한글 음절 직전에 결합된 숫자/`,`/`.` 연쇄는 같은 wrap에 자동
+///   포함된다. (예: `15,000원̳` → `⠈⠤15,000원⠤⠁`. 한글 토큰의 일부로 본다.)
+/// - **수학 컨텍스트 자동 회피:** 현재 토큰(공백으로 구분된 비공백 연쇄)에 한글
+///   음절이 없으면 결합 부호의 본래 결합 의미(반복소수 ̇, 수학 변수 underline ̲)를
+///   보존하기 위해 변환하지 않는다.
 fn expand_emphasis_marks(text: &str) -> String {
+    /// (결합 부호, 시작 sentinel, 종료 sentinel).
+    /// PUA U+E000~U+E007이 symbol_shortcut에서 점자 marker로 매핑된다.
+    const FORMATTING_MARKS: &[(char, char, char)] = &[
+        ('\u{0307}', '\u{E000}', '\u{E001}'), // 드러냄표/밑줄
+        ('\u{0331}', '\u{E002}', '\u{E003}'), // 굵은 글자
+        ('\u{0332}', '\u{E004}', '\u{E005}'), // 점역자1
+        ('\u{0333}', '\u{E006}', '\u{E007}'), // 점역자2
+    ];
+
     let chars: Vec<char> = text.chars().collect();
-    let mut out: Vec<char> = Vec::with_capacity(chars.len());
-    let mut i = 0;
-    while i < chars.len() {
-        if chars[i] == '\u{0307}' {
-            // 수학 overdot 컨텍스트 우회: 직전 baseline 문자가 숫자/ASCII 알파벳/그리스
-            // 문자/math symbol이면 강조점이 아니라 결합 윗점(반복소수, 도함수 등)이므로
-            // 그대로 emit한다. (단, 직전이 한글 음절이면 강조점으로 처리.)
-            let prev_base = out.iter().rev().find(|c| !c.is_whitespace()).copied();
-            let is_math_overdot = prev_base.is_some_and(|c| {
-                c.is_ascii_digit()
-                    || c.is_ascii_alphabetic()
-                    || matches!(c as u32, 0x0370..=0x03FF | 0x1F00..=0x1FFF) // Greek
-            });
-            if is_math_overdot {
-                out.push(chars[i]);
+
+    // Pre-scan: 각 char 위치의 토큰(공백으로 구분된 비공백 연쇄)에 한글이 있는지 표시.
+    // 토큰에 한글이 없으면 결합 부호의 본래 결합 의미를 보존한다 (수학/영어 컨텍스트).
+    let mut token_has_korean = vec![false; chars.len()];
+    {
+        let mut i = 0;
+        while i < chars.len() {
+            if chars[i] == ' ' {
                 i += 1;
                 continue;
             }
-            // 연속 U+0307 그룹 수집 (사이 공백 허용)
-            let mut count = 1;
-            let mut last = i;
-            let mut j = i + 1;
-            while j < chars.len() {
-                if chars[j] == '\u{0307}' {
-                    count += 1;
-                    last = j;
-                    j += 1;
-                } else if chars[j] == ' ' && j + 1 < chars.len() && chars[j + 1] == '\u{0307}' {
-                    j += 1; // skip space
-                } else {
-                    break;
-                }
+            let start = i;
+            while i < chars.len() && chars[i] != ' ' {
+                i += 1;
             }
-            // out에서 N개의 한글 음절을 walk back
-            let mut syllables = 0;
-            let mut start_in_out = out.len();
-            while start_in_out > 0 && syllables < count {
-                let c = out[start_in_out - 1];
-                if utils::is_korean_char(c) {
-                    syllables += 1;
-                    start_in_out -= 1;
-                } else if c == ' ' {
-                    start_in_out -= 1;
-                } else {
-                    break;
-                }
+            let has = chars[start..i].iter().any(|c| utils::is_korean_char(*c));
+            for slot in token_has_korean.iter_mut().take(i).skip(start) {
+                *slot = has;
             }
-            if syllables == count {
-                // out[start_in_out..]을 ⠠⠤...⠤⠄로 wrap.
-                // PDF 제56항 — 강조 블록 내부 공백은 보존된다.
-                out.insert(start_in_out, '\u{E000}'); // start sentinel
-                out.push('\u{E001}'); // end sentinel
-            }
-            // U+0307 그룹 모두 skip
-            i = last + 1;
+        }
+    }
+
+    let mut out: Vec<char> = Vec::with_capacity(chars.len());
+    let mut i = 0;
+    while i < chars.len() {
+        let mark_entry = FORMATTING_MARKS
+            .iter()
+            .find(|(mark, _, _)| *mark == chars[i]);
+        let Some(&(mark_char, start_sentinel, end_sentinel)) = mark_entry else {
+            out.push(chars[i]);
+            i += 1;
+            continue;
+        };
+
+        // 토큰에 한글이 없으면 결합 부호 그대로 보존 (수학/영어 컨텍스트).
+        if !token_has_korean[i] {
+            out.push(chars[i]);
+            i += 1;
             continue;
         }
-        out.push(chars[i]);
-        i += 1;
+
+        // 같은 결합 부호 그룹 수집 (사이 공백 허용).
+        // legacy `돼지̇ ̇ ̇ ̇ ̇` 표기 호환: 첫 마크의 직전 토큰을 기준으로 N개 묶음 wrap.
+        let mut count = 1;
+        let mut last = i;
+        let mut j = i + 1;
+        while j < chars.len() {
+            if chars[j] == mark_char {
+                count += 1;
+                last = j;
+                j += 1;
+            } else if chars[j] == ' ' && j + 1 < chars.len() && chars[j + 1] == mark_char {
+                j += 1;
+            } else {
+                break;
+            }
+        }
+
+        // out에서 N개의 비공백 문자(content unit)를 walk back. 공백/이미 삽입된
+        // sentinel은 건너뛴다. 한글 음절뿐 아니라 숫자/구두점도 1 unit으로 센다.
+        let mut units = 0;
+        let mut start_in_out = out.len();
+        while start_in_out > 0 && units < count {
+            let c = out[start_in_out - 1];
+            if c == ' ' || is_formatting_sentinel(c) {
+                start_in_out -= 1;
+            } else {
+                units += 1;
+                start_in_out -= 1;
+            }
+        }
+        if units == count {
+            // 한글 음절 직전 숫자/`,`/`.` 연쇄는 같은 wrap에 흡수 (per-token 단위 강조).
+            while start_in_out > 0 {
+                let c = out[start_in_out - 1];
+                if c.is_ascii_digit() || matches!(c, ',' | '.') {
+                    start_in_out -= 1;
+                } else {
+                    break;
+                }
+            }
+            out.insert(start_in_out, start_sentinel);
+            out.push(end_sentinel);
+        } else {
+            // 유닛 수가 부족하면 결합 부호를 그대로 보존한다.
+            for _ in 0..count {
+                out.push(mark_char);
+            }
+        }
+        // 결합 부호 그룹 모두 skip
+        i = last + 1;
     }
-    out.into_iter().collect()
+    merge_adjacent_formatting_wraps(out.into_iter().collect())
+}
+
+/// 포매팅 sentinel(U+E000~U+E007) 여부.
+fn is_formatting_sentinel(c: char) -> bool {
+    matches!(c as u32, 0xE000..=0xE007)
+}
+
+/// 인접한 같은 종류 글자체 wrap을 하나로 병합한다.
+///
+/// PDF 제56항 — 사용자가 강조 대상을 단어별로 표시(`왜̇ 사느냐̇̇̇`)하면 각 단어가
+/// 독립 wrap으로 인코딩되어 `⠠⠤왜⠤⠄ ⠠⠤사느냐⠤⠄`처럼 분리된다. 그러나 PDF는
+/// 인접한 강조 단어를 하나의 wrap `⠠⠤왜 사느냐⠤⠄`로 묶는다. 이 함수는 같은
+/// 종류 sentinel 쌍 사이의 공백만 포함된 구간을 감지하여 inner sentinel을 제거한다.
+fn merge_adjacent_formatting_wraps(text: String) -> String {
+    /// (시작 sentinel, 종료 sentinel) — `FORMATTING_MARKS`와 1:1 대응.
+    const SENTINEL_PAIRS: &[(char, char)] = &[
+        ('\u{E000}', '\u{E001}'),
+        ('\u{E002}', '\u{E003}'),
+        ('\u{E004}', '\u{E005}'),
+        ('\u{E006}', '\u{E007}'),
+    ];
+
+    let mut chars: Vec<char> = text.chars().collect();
+    // 단순 반복: 한 번 병합이 일어나면 위치가 바뀌므로 다시 처음부터 스캔.
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for &(open, close) in SENTINEL_PAIRS {
+            let mut i = 0;
+            while i < chars.len() {
+                if chars[i] != close {
+                    i += 1;
+                    continue;
+                }
+                // `close` 직후가 공백 0개 이상 + 같은 종류 `open`이면 병합.
+                let mut j = i + 1;
+                while j < chars.len() && chars[j] == ' ' {
+                    j += 1;
+                }
+                if j < chars.len() && chars[j] == open {
+                    // close와 open을 제거. 공백은 보존.
+                    chars.remove(j);
+                    chars.remove(i);
+                    changed = true;
+                    // i는 그대로 둔다. 다음 close 찾기 시도.
+                } else {
+                    i += 1;
+                }
+            }
+        }
+    }
+    chars.into_iter().collect()
 }
 
 /// PDF 수학 제37,38항 — 벡터/반직선/직선 결합 부호 처리.

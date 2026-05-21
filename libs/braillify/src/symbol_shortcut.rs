@@ -17,9 +17,15 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '.' => &[decode_unicode('⠲')],
     ',' => &[decode_unicode('⠐')],
     '?' => &[decode_unicode('⠦')],
-    // PDF 제56항 — 드러냄표 sentinels (expand_emphasis_marks가 삽입).
-    '\u{E000}' => &[decode_unicode('⠠'), decode_unicode('⠤')], // 강조 시작
-    '\u{E001}' => &[decode_unicode('⠤'), decode_unicode('⠄')], // 강조 종료
+    // PDF 제56항 — 드러냄표/굵은글자/점역자글자체 sentinels (expand_emphasis_marks가 삽입).
+    '\u{E000}' => &[decode_unicode('⠠'), decode_unicode('⠤')], // 드러냄표 시작 (= 밑줄)
+    '\u{E001}' => &[decode_unicode('⠤'), decode_unicode('⠄')], // 드러냄표 종료
+    '\u{E002}' => &[decode_unicode('⠰'), decode_unicode('⠤')], // 굵은 글자 시작
+    '\u{E003}' => &[decode_unicode('⠤'), decode_unicode('⠆')], // 굵은 글자 종료
+    '\u{E004}' => &[decode_unicode('⠐'), decode_unicode('⠤')], // 점역자1 글자체 시작
+    '\u{E005}' => &[decode_unicode('⠤'), decode_unicode('⠂')], // 점역자1 글자체 종료
+    '\u{E006}' => &[decode_unicode('⠈'), decode_unicode('⠤')], // 점역자2 글자체 시작
+    '\u{E007}' => &[decode_unicode('⠤'), decode_unicode('⠁')], // 점역자2 글자체 종료
     '“' => &[decode_unicode('⠦')],
     '”' => &[decode_unicode('⠴')],
     ':' => &[decode_unicode('⠐'), decode_unicode('⠂')],
