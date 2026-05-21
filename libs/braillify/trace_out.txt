@@ -1,7 +1,2 @@
-per-char on every char (15,000원 모두 표시) OK
-legacy trailing-1 (digit-attach) OK
-legacy trailing-5 (돼지̇ ̇ ̇ ̇ ̇): ⠠⠤⠘⠗⠘⠍⠐⠵⠀⠊⠧⠗⠨⠕⠤⠄⠘⠥⠊⠉⠵⠀⠘⠗⠈⠥⠙⠵⠀⠠⠥⠋⠪⠐⠣⠓⠝⠠⠪⠫⠀⠊⠽⠈⠝⠌⠊⠲
-math 0.6 overdot FAIL
-  exp: ⠼⠚⠲⠈⠉
-  got: ⠼⠚⠲⠈⠋
-math X underline OK
+ㅄ U+3144: ⠿⠃⠄
+ᄡ U+1121: ⠿⠐⠘⠠

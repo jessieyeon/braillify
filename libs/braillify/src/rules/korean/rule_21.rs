@@ -11,6 +11,30 @@ pub static META: RuleMeta = RuleMeta {
     description: "Middle Korean aspirated old-consonant composites",
 };
 
+/// PDF 제21항 — 각자 병서로 만들어진 옛 자음자 (단독 사용 시).
+///
+/// 단독 사용 시 옛 글자표 ⠐ + 각자 병서 form. 단독 입력은 제8항 온표(⠿)가 prefix.
+/// (제20항과 달리 연서표 ⠶이 붙지 않는다.)
+const OLD_CONSONANT_BODIES_RULE21: &[(char, &str)] = &[
+    ('ㅥ', "⠐⠉⠉"), // 쌍니은 — 옛글자표 ⠐ + ⠉⠉
+    ('ㆀ', "⠐⠛⠛"), // 쌍이응 — 옛글자표 ⠐ + ⠛⠛
+    ('ㆅ', "⠐⠚⠚"), // 쌍히읗 — 옛글자표 ⠐ + ⠚⠚
+];
+
+fn old_consonant_body_rule21(c: char) -> Option<&'static [u8]> {
+    static CACHE: std::sync::OnceLock<Vec<(char, Vec<u8>)>> = std::sync::OnceLock::new();
+    let cache = CACHE.get_or_init(|| {
+        OLD_CONSONANT_BODIES_RULE21
+            .iter()
+            .map(|(c, s)| (*c, encode_unicode_cells(s)))
+            .collect()
+    });
+    cache
+        .iter()
+        .find(|(candidate, _)| *candidate == c)
+        .map(|(_, bytes)| bytes.as_slice())
+}
+
 const MAPPINGS: &[(char, &str)] = &[
     ('', "⠐⠉⠉⠐⠼"),
     ('', "⠚⠐⠼⠗"),
@@ -49,19 +73,36 @@ impl BrailleRule for Rule21 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::Symbol(c) if encode_legacy(*c).is_some())
+        matches!(ctx.char_type, CharType::KoreanPart(c) | CharType::Symbol(c)
+            if old_consonant_body_rule21(*c).is_some())
+            || matches!(ctx.char_type, CharType::Symbol(c) if encode_legacy(*c).is_some())
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
-        let CharType::Symbol(c) = ctx.char_type else {
-            return Ok(RuleResult::Skip);
-        };
+        // 제21항 옛 자음자 (ㅥ, ㆀ, ㆅ): 제8항 prefix(온표 또는 word-attached) + body.
+        if let CharType::KoreanPart(c) | CharType::Symbol(c) = ctx.char_type
+            && let Some(body) = old_consonant_body_rule21(*c)
+        {
+            let is_symbol_fn = |ch: char| matches!(CharType::new(ch), Ok(CharType::Symbol(_)));
+            let prefix = crate::rules::korean::rule_8::determine_prefix(
+                ctx.word_len(),
+                ctx.index,
+                ctx.word_chars,
+                ctx.has_korean_char,
+                is_symbol_fn,
+            );
+            ctx.emit(prefix);
+            ctx.emit_slice(body);
+            return Ok(RuleResult::Consumed);
+        }
 
-        let Some(encoded) = encode_legacy(*c) else {
-            return Ok(RuleResult::Skip);
-        };
+        if let CharType::Symbol(c) = ctx.char_type
+            && let Some(encoded) = encode_legacy(*c)
+        {
+            ctx.emit_slice(&encoded);
+            return Ok(RuleResult::Consumed);
+        }
 
-        ctx.emit_slice(&encoded);
-        Ok(RuleResult::Consumed)
+        Ok(RuleResult::Skip)
     }
 }
