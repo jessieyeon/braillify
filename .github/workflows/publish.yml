@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request_target: 
+  pull_request_target:
     branches:
       - main
 permissions: write-all
@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - '3.11'
-          - '3.12'
-          - '3.13'
-          - '3.14'
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
         platform:
           - ubuntu-latest
           - windows-latest
@@ -55,8 +55,23 @@ jobs:
         run: bun run build
       - name: Lint
         run: bun run lint
+      - name: reformat
+        run: |
+          echo 'max_width = 100000' > .rustfmt.toml
+          echo 'tab_spaces = 4' >> .rustfmt.toml
+          echo 'newline_style = "Unix"' >> .rustfmt.toml
+          echo 'fn_call_width = 100000' >> .rustfmt.toml
+          echo 'fn_params_layout = "Compressed"' >> .rustfmt.toml
+          echo 'chain_width = 100000' >> .rustfmt.toml
+          echo 'merge_derives = true' >> .rustfmt.toml
+          echo 'use_small_heuristics = "Default"' >> .rustfmt.toml
+          cargo fmt
       - name: Test
         run: bun run test
+      - name: Format Rollback
+        run: |
+          rm -rf .rustfmt.toml
+          cargo fmt
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v5
         with:
@@ -177,7 +192,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: "3.14"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Install maturin
@@ -252,8 +267,8 @@ jobs:
     runs-on: ${{ matrix.settings.host }}
     env:
       # DEBUG: napi:*
-      MACOSX_DEPLOYMENT_TARGET: '10.13'
-      CARGO_INCREMENTAL: '1'
+      MACOSX_DEPLOYMENT_TARGET: "10.13"
+      CARGO_INCREMENTAL: "1"
     steps:
       - uses: actions/checkout@v5
       - name: Setup node
@@ -266,7 +281,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: "3.14"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Install maturin
@@ -304,7 +319,7 @@ jobs:
           path: |
             packages/node/pkg/*
           if-no-files-found: error
-  
+
   # python
   python-build:
     runs-on: ${{ matrix.runner }}
@@ -393,7 +408,6 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.target }}
           path: packages/python/dist
 
-
   node-publish:
     name: Node Publish
     runs-on: ubuntu-latest
@@ -412,7 +426,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: "3.14"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Install maturin
@@ -441,10 +455,10 @@ jobs:
       #   working-directory: packages/node
       - name: Publish
         run: |
-            # bun install -g @napi-rs/cli
-            bun run build
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
+          # bun install -g @napi-rs/cli
+          bun run build
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+          npm publish --access public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -454,7 +468,6 @@ jobs:
       #   with:
       #     upload_url: ${{ fromJson(needs.changepacks.outputs.release_assets_urls)['packages/node/package.json'] }}
       #     asset_path: packages/node/pkg/*
-
 
   python-publish:
     name: Python Publish
@@ -475,7 +488,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: 'wheels-*/*'
+          subject-path: "wheels-*/*"
       - name: Publish to PyPI
         uses: PyO3/maturin-action@main
         env:
@@ -489,7 +502,7 @@ jobs:
         uses: owjs3901/upload-github-release-asset@main
         with:
           upload_url: ${{ fromJson(needs.changepacks.outputs.release_assets_urls)['packages/python/pyproject.toml'] }}
-          asset_path: '*/*.whl'
+          asset_path: "*/*.whl"
 
   upload-assets:
     needs: changepacks
@@ -668,7 +681,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       - name: Download all native artifacts
         uses: actions/download-artifact@v4
