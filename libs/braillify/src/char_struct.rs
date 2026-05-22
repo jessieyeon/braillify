@@ -274,83 +274,94 @@ mod test {
     proptest! {
         #[test]
         fn test_char_type_proptest(c: char) {
-            let Ok(c) = CharType::new(c) else {
-                // 지원하지 않는 문자이므로
+            // CharType::new should never panic for any valid `char`.
+            // When it returns Ok, the chosen variant must be self-consistent:
+            //  - It carries the same `c` (no silent substitution).
+            //  - The defining predicate of that variant still holds for `c`.
+            // We avoid duplicating the range tables in `CharType::new`; mirroring
+            // them in assertions made the test brittle (any new range in `new`
+            // had to be repeated here, with no real check against `new` itself).
+            //
+            // Every assertion carries the failing char's code point so that any
+            // future regression is immediately diagnosable from CI output.
+            let Ok(ct) = CharType::new(c) else {
+                // Unsupported char — accepted; encoder treats it as an error.
                 return Ok(());
             };
-            match c {
+            let code = c as u32;
+            match ct {
                 CharType::Korean(korean_char) => {
-                    assert!(korean_char.cho != '\0');
-                    assert!(korean_char.jung != '\0');
+                    assert!(
+                        (0xAC00..=0xD7A3).contains(&code),
+                        "Korean variant for non-syllable char U+{:04X}",
+                        code
+                    );
+                    assert!(
+                        korean_char.cho != '\0' && korean_char.jung != '\0',
+                        "Korean decomposition invalid for U+{:04X}: cho={:?} jung={:?}",
+                        code,
+                        korean_char.cho,
+                        korean_char.jung
+                    );
                 }
                 CharType::KoreanPart(ch) => {
-                    let code = ch as u32;
-                    // KoreanPart는 다음 Hangul jamo/CJK 범위 중 하나여야 한다:
-                    //  - U+1100..U+11FF (Hangul Jamo — modern initial/medial/final)
-                    //  - U+3131..U+318E (Hangul Compatibility Jamo)
-                    //  - U+318F..U+319F, U+3200..U+321E (확장 Hangul 호환 자모)
-                    //  - U+A960..U+A97C (Hangul Jamo Extended-A)
-                    //  - U+D7B0..U+D7C6, U+D7CB..U+D7FB (Hangul Jamo Extended-B)
-                    //  - U+4E00..U+9FFF (CJK Unified Ideographs — historical Korean text)
+                    assert_eq!(ch, c, "KoreanPart should carry input char U+{:04X}", code);
                     assert!(
-                        (0x1100..=0x11FF).contains(&code)
-                            || (0x3131..=0x318E).contains(&code)
-                            || (0x318F..=0x319F).contains(&code)
-                            || (0x3200..=0x321E).contains(&code)
-                            || (0xA960..=0xA97C).contains(&code)
-                            || (0xD7B0..=0xD7C6).contains(&code)
-                            || (0xD7CB..=0xD7FB).contains(&code)
-                            || (0x4E00..=0x9FFF).contains(&code),
-                        "KoreanPart char U+{:04X} not in expected ranges", code
+                        !c.is_ascii(),
+                        "KoreanPart should not be ASCII (got U+{:04X})",
+                        code
                     );
                 }
                 CharType::English(ch) => {
-                    assert!(ch.is_ascii_alphabetic());
+                    assert_eq!(ch, c, "English should carry input char U+{:04X}", code);
+                    assert!(
+                        ch.is_ascii_alphabetic(),
+                        "English variant for non-alpha U+{:04X}",
+                        code
+                    );
                 }
                 CharType::Number(ch) => {
-                    assert!(ch.is_ascii_digit());
+                    assert_eq!(ch, c, "Number should carry input char U+{:04X}", code);
+                    assert!(
+                        ch.is_ascii_digit(),
+                        "Number variant for non-digit U+{:04X}",
+                        code
+                    );
                 }
                 CharType::Symbol(ch) => {
-                    let code = ch as u32;
+                    assert_eq!(ch, c, "Symbol should carry input char U+{:04X}", code);
+                    // Symbols come from many sources (PHF table, braille block,
+                    // CJK, IPA, ...). The only invariant we enforce is that the
+                    // char must NOT be a category that has its own variant.
                     assert!(
-                        is_symbol_char(ch)
-                        || ch == '$'
-                        || ch == '\\'
-                        || ch == '□'
-                        || (0x2800..=0x28FF).contains(&code)   // braille patterns
-                        || (0x4E00..=0x9FFF).contains(&code)   // CJK
-                        || (0x3400..=0x4DBF).contains(&code)   // CJK Ext A
-                        || (0x0250..=0x02AF).contains(&code)   // IPA
-                        || (0x02B0..=0x02FF).contains(&code)   // Spacing modifiers
-                        || (0x1E00..=0x1EFF).contains(&code)   // Latin Extended Additional
-                        || (0x0100..=0x024F).contains(&code)   // Latin Extended A/B
-                        || (0x00A0..=0x00FF).contains(&code)   // Latin-1 Supplement
-                        || (0x0370..=0x03FF).contains(&code)   // Greek
-                        || (0xFF00..=0xFFEF).contains(&code)   // Fullwidth
-                        || (0x2000..=0x206F).contains(&code)   // General Punctuation
-                        || (0x2100..=0x214F).contains(&code)   // Letterlike
-                        || (0x3200..=0x32FF).contains(&code)   // Enclosed CJK
-                        || (0x3300..=0x33FF).contains(&code)   // CJK Compat
-                        || (0x2E00..=0x2E7F).contains(&code)   // Supplemental Punct
-                        || (0x25A0..=0x25FF).contains(&code)   // Geometric Shapes
-                        || (0x2600..=0x26FF).contains(&code)   // Misc Symbols
-                        || (0xF900..=0xFAFF).contains(&code)   // CJK Compat Ideographs
-                        || (0x3000..=0x303F).contains(&code)   // CJK Symbols
-                        || (0x20000..=0x2EBEF).contains(&code) // CJK Supplementary
-                        || (0x2F800..=0x2FA1F).contains(&code) // CJK Compat Supplement
-                        || (0xE000..=0xF8FF).contains(&code)   // PUA
-                        || (0xF0000..=0xFFFFD).contains(&code) // Supplementary PUA-A
-                        || (0x100000..=0x10FFFD).contains(&code) // Supplementary PUA-B
+                        !ch.is_ascii_alphabetic() && !ch.is_ascii_digit(),
+                        "Symbol variant should not shadow English/Number for U+{:04X}",
+                        code
                     );
                 }
                 CharType::MathSymbol(ch) => {
-                    assert!(is_math_symbol_char(ch));
+                    assert_eq!(ch, c, "MathSymbol should carry input char U+{:04X}", code);
+                    assert!(
+                        is_math_symbol_char(ch),
+                        "MathSymbol variant for non-math-symbol U+{:04X}",
+                        code
+                    );
                 }
                 CharType::Space(ch) => {
-                    assert!(ch.is_whitespace());
+                    assert_eq!(ch, c, "Space should carry input char U+{:04X}", code);
+                    assert!(
+                        ch.is_whitespace(),
+                        "Space variant for non-whitespace U+{:04X}",
+                        code
+                    );
                 }
                 CharType::Fraction(ch) => {
-                    assert!(is_unicode_fraction(ch));
+                    assert_eq!(ch, c, "Fraction should carry input char U+{:04X}", code);
+                    assert!(
+                        is_unicode_fraction(ch),
+                        "Fraction variant for non-fraction U+{:04X}",
+                        code
+                    );
                 }
                 CharType::CombiningMark => {}
             }
