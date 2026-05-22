@@ -6,7 +6,7 @@ Korean + Math Braille encoding engine implementing 2024 Korean Braille Standard.
 
 ```
 src/
-├── lib.rs              # Main encode() entry, encode_for_testcase(), KNOWN_FAILURES
+├── lib.rs              # Main encode() entry + encode_to_unicode() / encode_to_braille_font()
 ├── cli.rs              # CLI: REPL + one-shot mode (feature-gated)
 ├── main.rs             # Binary entry point
 ├── encoder.rs          # DocumentIR construction, token + char engine orchestration
@@ -163,13 +163,34 @@ Infrastructure:
 ## TESTING
 
 ```bash
-cargo test                           # All tests (353+)
-cargo test test_by_testcase          # Testcase suite (2064 cases, tracks KNOWN_FAILURES)
-cargo test test_accuracy_report      # Accuracy report (raw encode, no test routing)
-cargo test test_no_regression        # Regression guard
+cargo test                           # All tests (390+ unit + 14 integration)
+cargo test test_by_testcase          # Full testcase suite (2419 cases)
 cargo fmt && cargo clippy            # Format + lint
+bun test test_cases/                 # JSON integrity checks (14163 assertions)
 ```
 
 Test cases in `test_cases/korean/*.json` and `test_cases/math/*.json`.
 
-Current status: 1710/2064 passing (354 known failures).
+**Current status: 2419/2419 passing (100% PDF 규정 준수, 0 known failures).**
+
+`KNOWN_FAILURES` 상수는 더 이상 존재하지 않는다. raw `encode()` 가 모든 testcase 에서
+PDF 정답과 byte-동일 결과를 낸다. 새로 추가되는 testcase 도 같은 기준을 만족해야 한다.
+
+## BENCHMARK
+
+```bash
+# 마이크로 벤치 (criterion) — Wave 0 인프라
+cargo bench -p braillify --bench encode_native
+cargo bench -p braillify --bench encode_math
+
+# 메모리 프로파일 (dhat)
+cargo bench -p braillify --bench memory_dhat --features dhat-heap
+
+# 외부 점역기 비교 (점자세상 / 점사랑 7.0)
+bun run scripts/world-bench.ts        # PDF 정답 일치율 측정
+bun run scripts/jeomsarang-bench.ts
+```
+
+벤치 결과: `bench/BASELINE.md`, `bench/FINAL_REPORT.md`,
+`bench/WORLD_BENCH.md`, `bench/JEOMSARANG_BENCH.md`,
+`bench/FINAL_BENCHMARK_COMPARISON.md` 참고.
