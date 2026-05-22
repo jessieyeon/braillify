@@ -71,7 +71,6 @@
     "world": "",
     "jeomsarang": ""
   },
-
   {
     "input": "logₐn",
     "note": "본문 2 — 밑이 문자",
@@ -96,7 +95,7 @@
     "internal": "lnx33_;ex",
     "expected": "72945181856481745",
     "unicode": "⠇⠝⠭⠒⠒⠸⠰⠑⠭",
-    "world": "",
+    "world": "⠴⠇⠝⠭⠐⠶⠇⠕⠛⠰⠑⠭⠲",
     "jeomsarang": ""
   },
   {
@@ -108,14 +107,13 @@
     "world": "",
     "jeomsarang": ""
   },
-
   {
     "input": "$\\log_{\\frac{1}{3}}9$",
     "note": "LaTeX — [붙임 1] 밑이 분수",
     "internal": "_;(#c/#a)#i",
     "expected": "56485560912601626010",
     "unicode": "⠸⠰⠷⠼⠉⠌⠼⠁⠾⠼⠊",
-    "world": "",
+    "world": "⠴⠈⠎⠸⠡⠴⠇⠕⠛⠨⠤⠸⠣⠸⠡⠋⠗⠁⠉⠦⠂⠼⠁⠐⠴⠦⠂⠼⠉⠐⠴⠐⠴⠼⠊⠈⠎",
     "jeomsarang": ""
   },
   {
@@ -136,14 +134,13 @@
     "world": "",
     "jeomsarang": ""
   },
-
   {
     "input": "$\\log_a(\\frac{U}{V})$",
     "note": "LaTeX — [붙임 2] 진수가 분수",
     "internal": "_;A(V/U)",
     "expected": "564815539123762",
     "unicode": "⠸⠰⠁⠷⠧⠌⠥⠾",
-    "world": "",
+    "world": "⠴⠈⠎⠸⠡⠴⠇⠕⠛⠨⠤⠁⠐⠣⠸⠡⠋⠗⠁⠉⠸⠣⠠⠥⠸⠜⠸⠣⠠⠧⠐⠴⠠⠴⠈⠎",
     "jeomsarang": ""
   },
   {

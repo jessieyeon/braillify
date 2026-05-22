@@ -60,7 +60,7 @@
     "internal": ",-",
     "expected": "3236",
     "unicode": "⠠⠤",
-    "world": "",
+    "world": "⠸⠤",
     "jeomsarang": ""
   },
   {
@@ -69,7 +69,7 @@
     "internal": "@s\"o@=$3``,x,-",
     "expected": "814162186343180032453236",
     "unicode": "⠈⠎⠐⠕⠈⠿⠫⠒⠀⠀⠠⠭⠠⠤",
-    "world": "",
+    "world": "⠈⠎⠐⠕⠈⠿⠫⠒ ⠴⠠⠭",
     "jeomsarang": ""
   },
   {

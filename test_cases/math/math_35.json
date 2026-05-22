@@ -23,7 +23,7 @@
     "internal": "@c,,AB",
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
-    "world": "",
+    "world": "⠴⠰⠠⠠⠁⠃⠲",
     "jeomsarang": ""
   },
   {
@@ -32,7 +32,7 @@
     "internal": "@c,,AB",
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
-    "world": "",
+    "world": "⠴⠈⠎⠸⠡⠴⠕⠧⠻⠇⠔⠑⠸⠣⠠⠠⠁⠃⠐⠴⠈⠎",
     "jeomsarang": ""
   },
   {
@@ -41,7 +41,7 @@
     "internal": "@c,,A-B-",
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
-    "world": "",
+    "world": "⠴⠠⠁⠶⠠⠃⠴⠤",
     "jeomsarang": ""
   },
   {
@@ -50,7 +50,7 @@
     "internal": "@c,,A-B-",
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
-    "world": "",
+    "world": "⠴⠈⠎⠸⠡⠴⠕⠧⠻⠇⠔⠑⠸⠣⠠⠁⠄⠠⠃⠄⠐⠴⠈⠎",
     "jeomsarang": ""
   }
 ]

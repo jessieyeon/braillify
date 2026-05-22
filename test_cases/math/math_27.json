@@ -6,7 +6,7 @@
     "internal": "\\",
     "expected": "51",
     "unicode": "⠳",
-    "world": "",
+    "world": "⠸⠳",
     "jeomsarang": ""
   },
   {
@@ -24,7 +24,7 @@
     "internal": "#d\\#h",
     "expected": "6025516019",
     "unicode": "⠼⠙⠳⠼⠓",
-    "world": "",
+    "world": "⠼⠙⠸⠳⠼⠓",
     "jeomsarang": ""
   },
   {
@@ -42,7 +42,7 @@
     "internal": "9#e\\n",
     "expected": "2060175129",
     "unicode": "⠔⠼⠑⠳⠝",
-    "world": "",
+    "world": "⠤⠼⠑⠸⠳⠴⠝⠲",
     "jeomsarang": ""
   },
   {
@@ -78,7 +78,7 @@
     "internal": "#b.\\#c",
     "expected": "6034051609",
     "unicode": "⠼⠃⠨⠳⠼⠉",
-    "world": "",
+    "world": "⠼⠃⠼⠉",
     "jeomsarang": ""
   },
   {
@@ -96,7 +96,7 @@
     "internal": "p.\\n",
     "expected": "15405129",
     "unicode": "⠏⠨⠳⠝",
-    "world": "",
+    "world": "⠴⠏⠸⠳⠄⠳⠭⠴⠒⠒⠦⠄⠰⠝⠲",
     "jeomsarang": ""
   },
   {

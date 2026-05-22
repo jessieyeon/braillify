@@ -71,7 +71,7 @@
     "internal": "x.55#j",
     "expected": "454034346026",
     "unicode": "⠭⠨⠢⠢⠼⠚",
-    "world": "",
+    "world": "⠴⠈⠎⠴⠭⠢⠢⠼⠚⠈⠎",
     "jeomsarang": ""
   },
   {
@@ -155,7 +155,7 @@
     "internal": "x.99y",
     "expected": "4540202061",
     "unicode": "⠭⠨⠔⠔⠽",
-    "world": "",
+    "world": "⠴⠈⠎⠴⠭⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠈⠎",
     "jeomsarang": ""
   },
   {
@@ -213,7 +213,7 @@
     "internal": "x.44y",
     "expected": "4540505061",
     "unicode": "⠭⠨⠲⠲⠽",
-    "world": "",
+    "world": "⠴⠈⠎⠴⠭⠸⠈⠜⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠈⠎",
     "jeomsarang": ""
   },
   {
@@ -288,7 +288,7 @@
     "internal": "x.66y",
     "expected": "4540222261",
     "unicode": "⠭⠨⠖⠖⠽",
-    "world": "",
+    "world": "⠴⠈⠎⠴⠭⠸⠈⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠽⠈⠎",
     "jeomsarang": ""
   }
 ]

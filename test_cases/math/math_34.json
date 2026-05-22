@@ -23,7 +23,7 @@
     "internal": "a,rb",
     "expected": "132233",
     "unicode": "⠁⠠⠗⠃",
-    "world": "",
+    "world": "⠴⠁⠠⠗⠃⠲",
     "jeomsarang": ""
   },
   {
@@ -41,7 +41,7 @@
     "internal": "@9",
     "expected": "820",
     "unicode": "⠈⠔",
-    "world": "",
+    "world": "⠈⠔",
     "jeomsarang": ""
   },
   {
@@ -59,7 +59,7 @@
     "internal": "a@9b",
     "expected": "18203",
     "unicode": "⠁⠈⠔⠃",
-    "world": "",
+    "world": "⠴⠁⠈⠔⠃⠲",
     "jeomsarang": ""
   },
   {
@@ -95,7 +95,7 @@
     "internal": "a.,Rb",
     "expected": "14032233",
     "unicode": "⠁⠨⠠⠗⠃",
-    "world": "",
+    "world": "⠴⠁⠠⠗⠄⠳⠭⠴⠒⠒⠦⠄⠰⠃⠲",
     "jeomsarang": ""
   },
   {
@@ -113,7 +113,7 @@
     "internal": ".@9",
     "expected": "40820",
     "unicode": "⠨⠈⠔",
-    "world": "",
+    "world": "⠤⠤",
     "jeomsarang": ""
   },
   {
@@ -131,7 +131,7 @@
     "internal": "a.@9b",
     "expected": "1408203",
     "unicode": "⠁⠨⠈⠔⠃",
-    "world": "",
+    "world": "⠴⠁⠈⠔⠄⠳⠭⠴⠒⠒⠦⠄⠰⠃⠲",
     "jeomsarang": ""
   },
   {
