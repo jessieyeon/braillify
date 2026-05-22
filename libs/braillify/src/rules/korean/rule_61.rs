@@ -113,4 +113,12 @@ mod tests {
         // Note: this is tested indirectly — rule_61 skips the apostrophe,
         // rule_40 emits 수표 + ⠄ + digit.
     }
+
+    #[test]
+    fn apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule61.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

@@ -184,4 +184,38 @@ mod tests {
             assert_eq!(result, expected, "Rule 8 golden test failed for: {}", input);
         }
     }
+
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("ㄱ", true)] // KoreanPart consonant
+    #[case("ㅏ", true)] // KoreanPart vowel
+    #[case("가", false)] // Korean syllable, not part
+    #[case("A", false)] // English
+    fn rule8_matches_korean_part_only(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule8.matches(&ctx), expected, "input={input}");
+    }
+
+    #[rstest]
+    #[case("ㄱ")]
+    #[case("ㄴ")]
+    #[case("ㅏ")]
+    #[case("ㅎ")]
+    fn rule8_apply_emits_for_korean_part(#[case] input: &str) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule8.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!owned.result.is_empty());
+    }
+
+    #[test]
+    fn rule8_apply_skips_non_korean_part() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule8.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

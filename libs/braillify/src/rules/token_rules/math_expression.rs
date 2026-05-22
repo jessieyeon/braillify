@@ -10,9 +10,9 @@ use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 
 pub struct MathExpressionTokenRule;
 
-mod helpers;
-mod detect;
 mod apply;
+mod detect;
+mod helpers;
 
 impl TokenRule for MathExpressionTokenRule {
     fn phase(&self) -> TokenPhase {
@@ -33,12 +33,11 @@ impl TokenRule for MathExpressionTokenRule {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::detect::is_math_expression;
     use super::helpers::*;
+    use super::*;
     use crate::rules::math::math_token_rule::MathContext;
     use crate::rules::token::WordMeta;
     use std::borrow::Cow;

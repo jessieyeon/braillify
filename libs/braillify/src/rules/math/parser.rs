@@ -3,8 +3,6 @@
 //! Parses math expression strings into structured tokens
 //! that can be encoded into braille by the encoder.
 
-
-
 /// The kind of bracket in a math expression.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BracketKind {

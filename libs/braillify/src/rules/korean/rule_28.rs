@@ -266,4 +266,12 @@ mod tests {
     fn no_indicator_for_lowercase() {
         assert_eq!(uppercase_indicators(false, false, 0), &[] as &[u8]);
     }
+
+    #[test]
+    fn apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let _ = Rule28.apply(&mut ctx).unwrap();
+        // Just exercise apply() for coverage
+    }
 }

@@ -48,9 +48,9 @@ fn read_braced_content(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> 
 }
 
 mod matrix;
-use matrix::{encode_latex_matrix, find_latex_matrix};
 #[cfg(test)]
 use matrix::subscript_digit_to_ascii;
+use matrix::{encode_latex_matrix, find_latex_matrix};
 
 pub(crate) fn encode_latex_math_bytes_with_context(
     latex_inner: &str,
@@ -86,7 +86,6 @@ mod grouping;
 
 mod strip;
 pub(crate) use strip::strip_latex_to_math;
-
 
 /// Merges `$...$` token sequences into single Word tokens.
 /// This runs at Normalization phase so that downstream fraction/math rules

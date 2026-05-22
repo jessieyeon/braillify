@@ -122,4 +122,60 @@ mod tests {
             assert_eq!(result, expected, "Rule 2 golden test failed for: {}", input);
         }
     }
+
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("까", true)] // ㄲ
+    #[case("따", true)] // ㄸ
+    #[case("빠", true)] // ㅃ
+    #[case("싸", true)] // ㅆ
+    #[case("짜", true)] // ㅉ
+    #[case("가", false)] // ㄱ — single
+    #[case("A", false)] // not Korean
+    fn rule2_matches_double_choseong(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule2.matches(&ctx), expected, "input={input}");
+    }
+
+    #[rstest]
+    #[case("까")]
+    #[case("따")]
+    #[case("빠")]
+    #[case("싸")]
+    #[case("짜")]
+    fn rule2_apply_emits_double_indicator(#[case] input: &str) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule2.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Continue));
+        assert_eq!(owned.result, vec![32u8]); // ⠠ 된소리표
+    }
+
+    #[test]
+    fn rule2_apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule2.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
+
+    #[test]
+    fn rule2_apply_no_emit_for_single_choseong() {
+        // 가 is Korean, but ㄱ is not a double consonant — apply matches=false path
+        // however apply() doesn't check matches, just calls decompose
+        let mut owned = crate::test_helpers::CtxOwned::for_text("가", false);
+        let mut ctx = owned.ctx_at(0);
+        Rule2.apply(&mut ctx).unwrap();
+        // decompose('ㄱ') returns None → no emit
+        assert!(owned.result.is_empty());
+    }
+
+    #[test]
+    fn rule2_meta_phase_priority() {
+        assert_eq!(Rule2.meta().section, "2");
+        assert!(matches!(Rule2.phase(), Phase::CoreEncoding));
+        assert_eq!(Rule2.priority(), 195);
+    }
 }

@@ -1,7 +1,7 @@
 //! Math parser helpers: char predicates and normalizers (extracted from parser.rs).
 
-use super::MathToken;
 use super::BracketKind;
+use super::MathToken;
 
 pub(super) fn is_korean_char(c: char) -> bool {
     let code = c as u32;
@@ -210,4 +210,3 @@ pub(super) fn normalize_math_alphanumeric(c: char) -> char {
     }
     c
 }
-

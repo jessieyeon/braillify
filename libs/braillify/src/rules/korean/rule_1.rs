@@ -132,4 +132,56 @@ mod tests {
             assert_eq!(result, expected, "Rule 1 golden test failed for: {}", input);
         }
     }
+
+    use rstest::rstest;
+
+    /// matches() must return true iff the current char is a Korean syllable.
+    #[rstest]
+    #[case("가", true)]
+    #[case("힣", true)]
+    #[case("A", false)]
+    #[case("1", false)]
+    #[case("ㄱ", false)] // 자모 단독 — not a syllable
+    fn rule1_matches_only_for_korean_syllables(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule1.matches(&ctx), expected, "input={input}");
+    }
+
+    /// apply() emits choseong for non-ㅇ initial; emits nothing for ㅇ.
+    #[rstest]
+    #[case("가", false)] // ㄱ — non-silent
+    #[case("나", false)] // ㄴ — non-silent
+    #[case("아", true)] // ㅇ — silent (no emit)
+    #[case("어", true)] // ㅇ — silent
+    fn rule1_apply_handles_silent_ieung(#[case] input: &str, #[case] silent: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule1.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Continue));
+        if silent {
+            assert!(
+                owned.result.is_empty(),
+                "ㅇ should emit nothing for {input}"
+            );
+        } else {
+            assert!(!owned.result.is_empty(), "non-ㅇ should emit for {input}");
+        }
+    }
+
+    /// apply() returns Skip when char_type is not Korean (Variable, English, etc.).
+    #[test]
+    fn rule1_apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule1.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
+
+    #[test]
+    fn rule1_meta_phase_priority() {
+        assert_eq!(Rule1.meta().section, "1");
+        assert!(matches!(Rule1.phase(), Phase::CoreEncoding));
+        assert_eq!(Rule1.priority(), 200);
+    }
 }

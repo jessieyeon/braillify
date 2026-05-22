@@ -1,11 +1,10 @@
 //! Main math expression parser (extracted from parser.rs).
 
-use super::{BracketKind, MathToken};
-use super::helpers::*;
 use super::GroupState;
+use super::helpers::*;
+use super::{BracketKind, MathToken};
 use crate::math_symbol_shortcut;
 use crate::rules::math::function;
-
 
 /// Parse a math expression string into tokens.
 pub(crate) fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
@@ -846,4 +845,3 @@ pub(crate) fn parse_math_expression_with_math_mode(
 
     Ok(tokens)
 }
-

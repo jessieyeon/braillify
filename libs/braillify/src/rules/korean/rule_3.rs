@@ -147,4 +147,55 @@ mod tests {
             assert_eq!(result, expected, "Rule 3 golden test failed for: {}", input);
         }
     }
+
+    use rstest::rstest;
+
+    /// matches() must be true only for syllables that have a jongseong (받침).
+    #[rstest]
+    #[case("국", true)] // 국 has 받침 ㄱ
+    #[case("강", true)] // 강 has 받침 ㅇ
+    #[case("가", false)] // 가 has no 받침
+    #[case("A", false)]
+    fn rule3_matches_only_for_syllable_with_jongseong(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule3.matches(&ctx), expected, "input={input}");
+    }
+
+    #[rstest]
+    #[case("국")]
+    #[case("강")]
+    #[case("님")]
+    #[case("닿")]
+    fn rule3_apply_emits_jongseong(#[case] input: &str) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule3.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Continue));
+        assert!(!owned.result.is_empty());
+    }
+
+    #[test]
+    fn rule3_apply_no_emit_for_syllable_without_jongseong() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("가", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule3.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Continue));
+        assert!(owned.result.is_empty());
+    }
+
+    #[test]
+    fn rule3_apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule3.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
+
+    #[test]
+    fn rule3_meta_phase_priority() {
+        assert_eq!(Rule3.meta().section, "3");
+        assert!(matches!(Rule3.phase(), Phase::CoreEncoding));
+        assert_eq!(Rule3.priority(), 210);
+    }
 }

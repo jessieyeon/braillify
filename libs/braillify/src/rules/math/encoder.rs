@@ -10,8 +10,8 @@ use super::math_token_rule::{
 };
 use super::parser::{BracketKind, MathToken};
 use super::{
-    rule_1, rule_2, rule_6, rule_7, rule_8,
-    rule_12, rule_14, rule_18, rule_19, rule_47, rule_53, rule_54, rule_57,
+    rule_1, rule_2, rule_6, rule_7, rule_8, rule_12, rule_14, rule_18, rule_19, rule_47, rule_53,
+    rule_54, rule_57,
 };
 use crate::math_symbol_shortcut;
 
@@ -308,7 +308,6 @@ impl MathTokenRule for KoreanWordRule {
 
 mod symbol_rule;
 use symbol_rule::MathSymbolRule;
-
 
 struct RawTokenRule;
 

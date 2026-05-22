@@ -158,4 +158,3 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
     }
     replacement
 }
-

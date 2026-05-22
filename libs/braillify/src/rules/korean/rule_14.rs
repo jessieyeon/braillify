@@ -200,4 +200,38 @@ mod tests {
             );
         }
     }
+
+    use rstest::rstest;
+
+    /// Rule14 detects no-abbreviation target syllables followed by ㅇ-initial syllable.
+    /// e.g., "사아" — 사 is target, next 아 starts with ㅇ.
+    #[rstest]
+    #[case("나아", true)] // 나 is target, next 아 has ㅇ-initial
+    #[case("다어", true)]
+    #[case("자아", true)]
+    #[case("하이", true)]
+    #[case("가나", false)] // 가 not in NO_ABBREV
+    #[case("나람", false)] // 람 doesn't start with ㅇ
+    #[case("A", false)] // not Korean
+    fn rule14_matches_target_then_o_initial(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule14.matches(&ctx), expected, "input={input}");
+    }
+
+    #[test]
+    fn rule14_apply_emits_for_target() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("나아", false);
+        let mut ctx = owned.ctx_at(0);
+        let _ = Rule14.apply(&mut ctx).unwrap();
+        assert!(!owned.result.is_empty());
+    }
+
+    #[test]
+    fn rule14_apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule14.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

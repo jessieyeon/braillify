@@ -283,4 +283,3 @@ pub(super) fn is_math_expression(chars: &[char], text: &str) -> bool {
 
     false
 }
-

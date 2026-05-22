@@ -220,4 +220,3 @@ impl TokenRule for LatexMergeRule {
         Ok(TokenAction::Noop)
     }
 }
-

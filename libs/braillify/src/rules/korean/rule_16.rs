@@ -114,4 +114,12 @@ mod tests {
         assert_eq!(META.section, "16");
         assert_eq!(META.name, "korean_exception_decomposition");
     }
+
+    #[test]
+    fn apply_skips_non_korean() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule16.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

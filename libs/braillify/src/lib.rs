@@ -8,6 +8,7 @@ mod encoder;
 pub(crate) mod english;
 pub(crate) mod english_logic;
 pub(crate) mod fraction;
+mod ipa;
 mod jauem;
 mod korean_char;
 mod korean_part;
@@ -22,8 +23,9 @@ pub(crate) mod symbol_shortcut;
 pub(crate) mod unicode;
 pub(crate) mod utils;
 pub(crate) mod word_shortcut;
-mod ipa;
 use ipa::{detect_ipa_context, encode_ipa, is_ipa_phonetic_symbol};
+#[cfg(test)]
+mod test_helpers;
 
 pub use encoder::Encoder;
 
@@ -504,7 +506,6 @@ fn decompose_accented_latin<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     Cow::Owned(out)
 }
 
-
 /// Encode text to braille with explicit options.
 pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8>, String> {
     use crate::rules::context::EncodingMode;
@@ -778,7 +779,6 @@ mod state_bleed_tests {
 #[cfg(test)]
 #[path = "lib_main_tests.rs"]
 mod test;
-
 
 #[cfg(test)]
 #[path = "lib_coverage_tests.rs"]

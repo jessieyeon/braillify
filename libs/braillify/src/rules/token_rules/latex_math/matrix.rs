@@ -361,7 +361,10 @@ pub(super) fn encode_latex_letter_numeric_subscript(
     Ok(out)
 }
 
-pub(super) fn encode_matrix_suffix(suffix: &str, math_context: MathContext) -> Result<Vec<u8>, String> {
+pub(super) fn encode_matrix_suffix(
+    suffix: &str,
+    math_context: MathContext,
+) -> Result<Vec<u8>, String> {
     let parts: Vec<&str> = suffix.split_whitespace().collect();
     if parts.is_empty() {
         return Ok(Vec::new());
@@ -396,4 +399,3 @@ pub(super) fn encode_matrix_suffix(suffix: &str, math_context: MathContext) -> R
     }
     Ok(out)
 }
-

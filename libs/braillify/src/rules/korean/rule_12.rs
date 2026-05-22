@@ -205,4 +205,20 @@ mod tests {
         assert_eq!(META.section, "12");
         assert_eq!(META.name, "vowel_ae_separator");
     }
+
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("야애", true)] // ㅇ+ㅑ → ㅇ+ㅐ
+    #[case("화애", true)] // ㅎ+ㅘ → ㅇ+ㅐ
+    #[case("아애", false)] // ㅏ is non-triggering
+    #[case("어애", false)] // ㅓ is non-triggering
+    #[case("관애", false)] // current has jong (ㄴ)
+    #[case("야이", false)] // next is 이, not 애
+    #[case("A", false)] // non-Korean
+    fn rule12_matches_triggering_vowel_ae(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule12.matches(&ctx), expected, "input={input}");
+    }
 }

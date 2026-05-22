@@ -283,7 +283,10 @@ pub(super) fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
             || (multi_word_korean_phrase && has_math_op && !has_english_letter))
 }
 
-pub(super) fn try_encode_mixed_math_slice(chars: &[char], math_context: MathContext) -> Option<Vec<u8>> {
+pub(super) fn try_encode_mixed_math_slice(
+    chars: &[char],
+    math_context: MathContext,
+) -> Option<Vec<u8>> {
     if chars.is_empty() {
         return None;
     }
