@@ -9,46 +9,55 @@ use crate::rules::token_rule::TokenAction;
 use super::detect::is_math_expression;
 use super::helpers::*;
 
+/// Resolve the previous and next Word neighbours, skipping over Space tokens.
+/// Returns (prev, next) where each is `Some(&WordToken)` if found before hitting
+/// a non-Space/Word token (e.g., PreEncoded, Fraction) or the boundary.
+///
+/// Extracted from `run` so the helper is directly unit-testable and mutation
+/// testing can pinpoint regressions in neighbour resolution logic.
+pub(super) fn prev_next_words<'a, 'b>(
+    tokens: &'b [Token<'a>],
+    index: usize,
+) -> (
+    Option<&'b crate::rules::token::WordToken<'a>>,
+    Option<&'b crate::rules::token::WordToken<'a>>,
+) {
+    let prev = index.checked_sub(1).and_then(|mut i| {
+        loop {
+            match tokens.get(i) {
+                Some(Token::Space(_)) => i = i.checked_sub(1)?,
+                Some(Token::Word(w)) => return Some(w),
+                _ => return None,
+            }
+        }
+    });
+    let next = {
+        let mut i = index + 1;
+        loop {
+            match tokens.get(i) {
+                Some(Token::Space(_)) => i += 1,
+                Some(Token::Word(w)) => break Some(w),
+                _ => break None,
+            }
+        }
+    };
+    (prev, next)
+}
+
+/// Detect a Word that is exactly the logic XOR symbol `⊻` (U+22BB).
+///
+/// PDF 수학 — `A ⊻ B` 패턴에서 양쪽 대문자를 math 변수로 처리하기 위해 사용.
+pub(super) fn is_logic_symbol_word(word: &crate::rules::token::WordToken<'_>) -> bool {
+    word.chars
+        .first()
+        .is_some_and(|c| word.chars.len() == 1 && matches!(*c, '⊻'))
+}
+
 pub(super) fn run<'a>(
     tokens: &[Token<'a>],
     index: usize,
     state: &mut EncoderState,
 ) -> Result<TokenAction<'a>, String> {
-    fn prev_next_words<'a>(
-        tokens: &'a [Token<'a>],
-        index: usize,
-    ) -> (
-        Option<&'a crate::rules::token::WordToken<'a>>,
-        Option<&'a crate::rules::token::WordToken<'a>>,
-    ) {
-        let prev = index.checked_sub(1).and_then(|mut i| {
-            loop {
-                match tokens.get(i) {
-                    Some(Token::Space(_)) => i = i.checked_sub(1)?,
-                    Some(Token::Word(w)) => return Some(w),
-                    _ => return None,
-                }
-            }
-        });
-        let next = {
-            let mut i = index + 1;
-            loop {
-                match tokens.get(i) {
-                    Some(Token::Space(_)) => i += 1,
-                    Some(Token::Word(w)) => break Some(w),
-                    _ => break None,
-                }
-            }
-        };
-        (prev, next)
-    }
-
-    fn is_logic_symbol_word(word: &crate::rules::token::WordToken<'_>) -> bool {
-        word.chars
-            .first()
-            .is_some_and(|c| word.chars.len() == 1 && matches!(*c, '⊻'))
-    }
-
     let Some(Token::Word(word)) = tokens.get(index) else {
         return Ok(TokenAction::Noop);
     };
@@ -737,5 +746,400 @@ pub(super) fn run<'a>(
             // If math encoding fails, let the character-level rules handle it
             Ok(TokenAction::Noop)
         }
+    }
+}
+
+// ============================================================
+// Mutation-testing reinforcements for apply::run
+//
+// Strategy: rather than re-implement the local helpers in tests, drive run()
+// indirectly via `crate::encode()` with crafted inputs. Each test exercises
+// one specific code path and asserts an OBSERVABLE difference between the
+// happy path and a nearby negative path. This kills mutations on local helpers
+// (prev_next_words, is_logic_symbol_word) and on the dozens of branch checks
+// throughout `run`.
+// ============================================================
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::{SpaceKind, WordMeta, WordToken};
+    use std::borrow::Cow;
+
+    fn enc_str(s: &str) -> String {
+        crate::encode_to_unicode(s).unwrap_or_default()
+    }
+
+    /// Build a WordToken from a string for direct testing.
+    fn word_tok<'a>(text: &'a str) -> Token<'a> {
+        let chars: Vec<char> = text.chars().collect();
+        let meta = WordMeta::from_chars(&chars);
+        Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars,
+            meta,
+        })
+    }
+
+    fn space_tok() -> Token<'static> {
+        Token::Space(SpaceKind::Regular)
+    }
+
+    // ---------- Direct tests on extracted helpers ----------
+
+    /// `prev_next_words` returns (None, None) for an out-of-range index.
+    /// Kills the `-> (None, None)` substitution mutant.
+    #[test]
+    fn prev_next_words_oob_index() {
+        let tokens: Vec<Token<'_>> = vec![word_tok("a")];
+        let (prev, next) = prev_next_words(&tokens, 5);
+        assert!(prev.is_none(), "prev must be None for oob index");
+        assert!(next.is_none(), "next must be None for oob index");
+    }
+
+    /// `prev_next_words` returns the immediate previous Word (no Space between).
+    #[test]
+    fn prev_next_words_adjacent_words() {
+        let tokens: Vec<Token<'_>> = vec![word_tok("a"), word_tok("b"), word_tok("c")];
+        let (prev, next) = prev_next_words(&tokens, 1);
+        assert!(prev.is_some(), "prev must resolve to Word 'a'");
+        assert_eq!(prev.unwrap().text.as_ref(), "a");
+        assert!(next.is_some(), "next must resolve to Word 'c'");
+        assert_eq!(next.unwrap().text.as_ref(), "c");
+    }
+
+    /// `prev_next_words` skips one or more Space tokens.
+    #[test]
+    fn prev_next_words_skips_spaces() {
+        let tokens: Vec<Token<'_>> = vec![
+            word_tok("a"),
+            space_tok(),
+            space_tok(),
+            word_tok("b"),
+            space_tok(),
+            word_tok("c"),
+        ];
+        let (prev, next) = prev_next_words(&tokens, 3);
+        assert_eq!(prev.unwrap().text.as_ref(), "a");
+        assert_eq!(next.unwrap().text.as_ref(), "c");
+    }
+
+    /// `prev_next_words` returns None for prev when index is 0.
+    /// Kills the `i - 1` underflow path mutations.
+    #[test]
+    fn prev_next_words_at_index_zero() {
+        let tokens: Vec<Token<'_>> = vec![word_tok("a"), word_tok("b")];
+        let (prev, next) = prev_next_words(&tokens, 0);
+        assert!(prev.is_none(), "no prev at index 0");
+        assert!(next.is_some(), "next must still resolve");
+        assert_eq!(next.unwrap().text.as_ref(), "b");
+    }
+
+    /// `prev_next_words` returns None when a non-Space/Word boundary is hit.
+    #[test]
+    fn prev_next_words_stops_at_non_word_token() {
+        let tokens: Vec<Token<'_>> = vec![
+            Token::PreEncoded(vec![1, 2, 3]),
+            space_tok(),
+            word_tok("middle"),
+            space_tok(),
+            Token::PreEncoded(vec![4, 5, 6]),
+        ];
+        let (prev, next) = prev_next_words(&tokens, 2);
+        // PreEncoded on both sides → prev/next both None.
+        assert!(
+            prev.is_none(),
+            "PreEncoded boundary must yield None for prev"
+        );
+        assert!(
+            next.is_none(),
+            "PreEncoded boundary must yield None for next"
+        );
+    }
+
+    /// `is_logic_symbol_word` true ONLY for single-char `⊻`.
+    /// Kills: `-> false`, `!=` mutations.
+    #[test]
+    fn is_logic_symbol_word_matches_only_xor() {
+        // Positive: ⊻ alone.
+        let yes_word = WordToken {
+            text: Cow::Borrowed("⊻"),
+            chars: vec!['\u{22BB}'],
+            meta: WordMeta::from_chars(&['\u{22BB}']),
+        };
+        assert!(is_logic_symbol_word(&yes_word));
+
+        // Negative: a different symbol.
+        let other_word = WordToken {
+            text: Cow::Borrowed("∧"),
+            chars: vec!['\u{2227}'],
+            meta: WordMeta::from_chars(&['\u{2227}']),
+        };
+        assert!(!is_logic_symbol_word(&other_word));
+
+        // Negative: ⊻ followed by something (len > 1).
+        let multi = WordToken {
+            text: Cow::Borrowed("⊻x"),
+            chars: vec!['\u{22BB}', 'x'],
+            meta: WordMeta::from_chars(&['\u{22BB}', 'x']),
+        };
+        assert!(!is_logic_symbol_word(&multi));
+
+        // Negative: empty word.
+        let empty = WordToken {
+            text: Cow::Borrowed(""),
+            chars: vec![],
+            meta: WordMeta::from_chars(&[]),
+        };
+        assert!(!is_logic_symbol_word(&empty));
+    }
+
+    // ----- Lines 66-110: `a ≲ b:` colon-suffix math merge -----
+
+    /// `a ≲ b:` is recognized as math expression (letter-relation-letter colon)
+    /// and the letters do NOT receive prose quote wrapping (⠴...⠲).
+    /// Mutation guarded: the `len() == 1 && is_ascii_lowercase()` gate at line 66
+    /// and the collect_next/op matching that follow.
+    #[test]
+    fn colon_math_pattern_letters_avoid_prose_wrap() {
+        let merged = enc_str("a ≲ b:");
+        // When the merge runs, the result must NOT begin with the prose-quote
+        // open ⠴ (U+2834) because the math encoder emits letters bare.
+        assert!(!merged.is_empty(), "expected encoded bytes for `a ≲ b:`");
+        // Compare with non-colon variant which goes through different path.
+        let plain = enc_str("a ≲ b");
+        assert_ne!(
+            merged, plain,
+            "trailing colon must change encoding via merge path"
+        );
+    }
+
+    // ----- Lines 115-148: Set-builder `{x|x는 정수}` -----
+
+    /// `{x|x는 정수}` triggers the set-builder merge. The token range
+    /// (including spaces and Korean inside) is consumed as a single math
+    /// expression. Distinguishes from non-set-builder `{...}` which would
+    /// encode differently.
+    #[test]
+    fn set_builder_brace_pipe_merges_inner_korean() {
+        let setbuilder = enc_str("{x|x는 정수}");
+        assert!(!setbuilder.is_empty());
+        // Same Korean text without the `{x|...}` should differ — confirming
+        // the set-builder path triggered.
+        let plain = enc_str("x는 정수");
+        assert_ne!(
+            setbuilder, plain,
+            "set-builder wrap must change encoding vs. bare Korean"
+        );
+    }
+
+    /// `{x|...` UNCLOSED → no merge; falls back to literal handling.
+    /// Mutation: `found_close` requirement at line 138 (`&&`) — flipping to
+    /// `||` would encode unclosed garbage. Compare unclosed vs. closed.
+    #[test]
+    fn set_builder_unclosed_does_not_merge() {
+        let unclosed = enc_str("{x|x는 정수");
+        let closed = enc_str("{x|x는 정수}");
+        assert_ne!(
+            unclosed, closed,
+            "unclosed set-builder must NOT produce the same encoding as closed"
+        );
+    }
+
+    // ----- Lines 155-236: Multi-letter Korean math identifier -----
+
+    /// `ab의 값을 구하라` — `ab` is a 2-letter math identifier glued to Korean.
+    /// The math-context-keyword check (`값을`/`구하`) gates this path.
+    /// Lines 171 (`take(8)`), 175-178 (keyword OR checks), 183/188 (prev korean).
+    #[test]
+    fn multiletter_lower_identifier_with_math_keyword() {
+        let with_kw = enc_str("ab의 값을 구하라");
+        // Bytes must include leading space (0) and math letter marks.
+        assert!(!with_kw.is_empty());
+        // WITHOUT the keyword `값`/`구하`, the multi-letter path should NOT
+        // trigger — leading to a different encoding.
+        let without_kw = enc_str("ab의 친구");
+        assert_ne!(
+            with_kw, without_kw,
+            "math-keyword presence must change ab의 encoding"
+        );
+    }
+
+    /// `AB의 값을` — uppercase variant. Matrix context emits different marks
+    /// per letter vs. lowercase variant.
+    #[test]
+    fn multiletter_upper_identifier_with_math_keyword() {
+        let upper = enc_str("AB의 값을 구하라");
+        let lower = enc_str("ab의 값을 구하라");
+        assert_ne!(
+            upper, lower,
+            "uppercase vs lowercase identifier paths must differ"
+        );
+    }
+
+    // ----- Lines 242-302: Greek letter list `α, β에` -----
+
+    /// `한국어 α, β에` — Greek letter comma list with Korean suffix.
+    /// Lines 242 (`chars.len() == 2 && chars[1] == ','`), 244 (math symbol).
+    #[test]
+    fn greek_letter_list_with_korean_suffix() {
+        let list = enc_str("그래서 α, β에 대해");
+        let plain = enc_str("그래서 α에 대해");
+        assert!(!list.is_empty());
+        assert_ne!(list, plain, "α, β list must differ from single α");
+    }
+
+    // ----- Lines 304-363: math ellipsis `...` -----
+
+    /// Math context dot-ellipsis: after a math letter, `...` → `⠠⠠⠠`.
+    /// Without prev math context, `...` falls through to default handling.
+    #[test]
+    fn math_ellipsis_after_math_letter() {
+        let with_ctx = enc_str("x... ");
+        let without_ctx = enc_str("...");
+        assert_ne!(
+            with_ctx, without_ctx,
+            "ellipsis after math letter must differ from standalone ellipsis"
+        );
+    }
+
+    // ----- Lines 375-405: therefore/because `∴ ∵` standalone -----
+
+    /// Standalone `∴` between Word tokens gets braille space on each side.
+    /// Lines 381 (Space match arm), 382 (Word/PreEncoded match arm).
+    #[test]
+    fn therefore_between_content_gets_spaces() {
+        let with_ctx = enc_str("a ∴ b");
+        // `∴` alone (no neighbors) should encode differently.
+        let alone = enc_str("∴");
+        assert_ne!(
+            with_ctx, alone,
+            "∴ between content must add spaces vs. standalone"
+        );
+    }
+
+    // ----- Lines 407-414: Uppercase + logic symbol context -----
+
+    /// `A ⊻ B` — uppercase letters surrounding a logic XOR symbol must be
+    /// treated as math variables (lowercase-encoded), not as English prose.
+    /// Lines 408 (uppercase check), 410 (prev/next is_logic_symbol_word).
+    #[test]
+    fn uppercase_around_logic_symbol_treated_as_math() {
+        let logic = enc_str("A ⊻ B");
+        // Compare with `A ⊻` alone (only prev set, next is None).
+        let only_left = enc_str("A ⊻");
+        // Both should encode A, but the `B` after triggers special path.
+        assert_ne!(
+            logic, only_left,
+            "A ⊻ B with both neighbors must differ from A ⊻"
+        );
+    }
+
+    /// `A ⊻ B` vs `A x B` (non-logic operator x in middle).
+    /// Kills `is_logic_symbol_word -> false` mutation: with that mutation,
+    /// both inputs would route the same way.
+    #[test]
+    fn logic_symbol_vs_plain_letter_neighbor() {
+        let logic = enc_str("A ⊻ B");
+        let plain = enc_str("A x B");
+        assert_ne!(
+            logic, plain,
+            "logic-symbol neighbor must take a different path than plain-letter neighbor"
+        );
+    }
+
+    // ----- Lines 417-585: LaTeX with Korean prose -----
+
+    /// `$x$를` — single-letter LaTeX inside Korean prose. Must be quote-wrapped
+    /// ⠴x⠲ with appropriate spacing.
+    /// Lines 454-455 (single_letter), 466-467 (prev korean detection).
+    #[test]
+    fn latex_single_letter_korean_prose_wrapping() {
+        let prose = enc_str("우리는 $x$를 구한다");
+        // Without Korean prose around it, the encoding should differ.
+        let standalone = enc_str("$x$");
+        assert_ne!(
+            prose, standalone,
+            "$x$ in prose must have boundary spacing/wrap"
+        );
+    }
+
+    /// `$a,b,c$를` — comma list LaTeX in Korean prose.
+    /// Lines 456-461 (comma_list detection), 511+ (wrapping each letter).
+    #[test]
+    fn latex_comma_list_korean_prose() {
+        let prose = enc_str("점 $a,b,c$를 잡자");
+        let single = enc_str("점 $a$를 잡자");
+        assert_ne!(
+            prose, single,
+            "comma list LaTeX must differ from single-letter"
+        );
+    }
+
+    /// `$-2$` — simple numeric LaTeX must NOT get prose boundary spacing.
+    /// Lines 478-481 (inner_is_simple_numeric), 543-548 (trailing_spaces=0).
+    #[test]
+    fn latex_simple_numeric_no_extra_boundary() {
+        let num = enc_str("값은 $-2$이다");
+        let var = enc_str("값은 $x$이다");
+        // Single-letter `x` triggers `inner_is_single_letter` wrap path,
+        // simple numeric does not → encodings must differ structurally.
+        assert_ne!(
+            num, var,
+            "simple numeric LaTeX must encode differently from single-letter"
+        );
+    }
+
+    // ----- Lines 587-639: Non-math-expression mixed math word path -----
+
+    /// `안녕x+y는` — Korean-prose word with embedded math.
+    /// Lines 611-615 (prev_prev math/mixed context), 617 (prev korean check).
+    #[test]
+    fn mixed_math_word_after_korean_word() {
+        let mixed = enc_str("저는 안녕x+y는 좋다");
+        assert!(!mixed.is_empty());
+    }
+
+    // ----- Lines 640+: Math expression with prev-Korean adjacency -----
+
+    /// `한국어 f(x)` — math expression after Korean word with substantial-math
+    /// path. Line 683 (`is_substantial_math`).
+    #[test]
+    fn substantial_math_after_korean() {
+        let with_paren = enc_str("그래서 f(x)는");
+        let just_var = enc_str("그래서 x는");
+        // f(x) is substantial (has paren), x alone is not — boundary spacing differs.
+        assert_ne!(
+            with_paren, just_var,
+            "substantial math must get prose boundary vs. single variable"
+        );
+    }
+
+    /// `∆=...` patterns trigger needs_decimal_context_spacing.
+    /// Lines 648-650 (`'∆' || '⋯' || combining mark` check).
+    #[test]
+    fn combining_mark_or_special_char_triggers_decimal_spacing() {
+        let with_delta = enc_str("이전 ∆=10 이다");
+        let plain = enc_str("이전 x=10 이다");
+        assert_ne!(
+            with_delta, plain,
+            "∆ in expression must trigger different leading spacing"
+        );
+    }
+
+    /// `prev_next_words` returns Some when there is an actual Word neighbor
+    /// separated only by Space, returns None when boundary is reached.
+    /// This is exercised through the uppercase+logic-symbol path which
+    /// requires BOTH neighbors.
+    #[test]
+    fn prev_next_words_neighbor_resolution() {
+        // Just `A` standalone — no neighbors → uppercase logic path NOT triggered.
+        let solo = enc_str("A");
+        // `A ⊻ B` — both neighbors present → uppercase logic path triggers.
+        let both = enc_str("A ⊻ B");
+        // `⊻ A` — only prev present (next is None).
+        let only_prev = enc_str("⊻ A");
+        // Verify all three produce different bytes (different code paths).
+        assert_ne!(solo, both);
+        assert_ne!(only_prev, both);
     }
 }

@@ -1129,11 +1129,11 @@ mod tests {
         //   × at 2, prev_idx=1 (Var z) → not plain. Hmm.
         // Hard. Let me just verify the function behavior with a comprehensive case:
         let case_a = vec![
-            kw("원"),               // 0: plain (no ×, no space, no parens)
+            kw("원"),                 // 0: plain (no ×, no space, no parens)
             MathToken::Variable('z'), // 1
             MathToken::Operator('×'), // 2: target
             MathToken::Variable('y'), // 3
-            kw("원의 둘레"),         // 4: wrapped
+            kw("원의 둘레"),          // 4: wrapped
         ];
         // × at index 2: prev_idx=1 (Var z, not plain), next_idx=3 (Var y, not plain)
         // plain_korean_both_sides = false && false = false
