@@ -13,23 +13,11 @@ fn next_non_space(tokens: &[MathToken], mut index: usize) -> Option<usize> {
     tokens.get(index).map(|_| index)
 }
 
-fn split_definite_integral_bounds(
-    tokens: &[MathToken],
-) -> Option<(Vec<MathToken>, Vec<MathToken>)> {
-    let comma_index = tokens
-        .iter()
-        .position(|token| matches!(token, MathToken::Operator(',')))?;
+fn split_definite_integral_bounds(tokens: &[MathToken]) -> Option<(Vec<MathToken>, Vec<MathToken>)> {
+    let comma_index = tokens.iter().position(|token| matches!(token, MathToken::Operator(',')))?;
 
-    let lower = tokens[..comma_index]
-        .iter()
-        .filter(|token| !matches!(token, MathToken::Space))
-        .cloned()
-        .collect::<Vec<_>>();
-    let upper = tokens[comma_index + 1..]
-        .iter()
-        .filter(|token| !matches!(token, MathToken::Space))
-        .cloned()
-        .collect::<Vec<_>>();
+    let lower = tokens[..comma_index].iter().filter(|token| !matches!(token, MathToken::Space)).cloned().collect::<Vec<_>>();
+    let upper = tokens[comma_index + 1..].iter().filter(|token| !matches!(token, MathToken::Space)).cloned().collect::<Vec<_>>();
 
     if lower.is_empty() || upper.is_empty() {
         return None;
@@ -53,28 +41,17 @@ impl MathTokenRule for DefiniteIntegralRule {
         let Some(open_index) = next_non_space(tokens, index + 1) else {
             return false;
         };
-        matches!(tokens.get(index), Some(MathToken::MathSymbol('\u{222B}')))
-            && matches!(tokens.get(open_index), Some(MathToken::OpenParen(_)))
+        matches!(tokens.get(index), Some(MathToken::MathSymbol('\u{222B}'))) && matches!(tokens.get(open_index), Some(MathToken::OpenParen(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
-        let open_index = next_non_space(tokens, index + 1)
-            .ok_or_else(|| "Missing bounds opener in definite integral".to_string())?;
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+        let open_index = next_non_space(tokens, index + 1).ok_or_else(|| "Missing bounds opener in definite integral".to_string())?;
 
         let Some(close_index) = rule_6::find_matching_paren(tokens, open_index) else {
             return Ok(MathTokenResult::Skip);
         };
 
-        let Some((lower, upper)) =
-            split_definite_integral_bounds(&tokens[open_index + 1..close_index])
-        else {
+        let Some((lower, upper)) = split_definite_integral_bounds(&tokens[open_index + 1..close_index]) else {
             return Ok(MathTokenResult::Skip);
         };
 
@@ -104,17 +81,11 @@ mod tests {
 
     #[test]
     fn encodes_parenthesized_bounds() {
-        assert_eq!(
-            encode_math_expression("∫(a,b) f(x)dx").unwrap(),
-            vec![46, 48, 1, 0, 3, 0, 11, 38, 45, 52, 25, 45]
-        );
+        assert_eq!(encode_math_expression("∫(a,b) f(x)dx").unwrap(), vec![46, 48, 1, 0, 3, 0, 11, 38, 45, 52, 25, 45]);
     }
 
     #[test]
     fn encodes_parenthesized_bounds_with_space_after_integral() {
-        assert_eq!(
-            encode_math_expression("∫ (a,b) f(x)dx").unwrap(),
-            vec![46, 48, 1, 0, 3, 0, 11, 38, 45, 52, 25, 45]
-        );
+        assert_eq!(encode_math_expression("∫ (a,b) f(x)dx").unwrap(), vec![46, 48, 1, 0, 3, 0, 11, 38, 45, 52, 25, 45]);
     }
 }

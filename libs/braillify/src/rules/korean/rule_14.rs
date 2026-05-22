@@ -22,13 +22,7 @@ use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::split::split_korean_jauem;
 use crate::utils::has_choseong_o;
 
-pub static META: RuleMeta = RuleMeta {
-    section: "14",
-    subsection: None,
-    name: "no_abbrev_before_vowel",
-    standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.14",
-    description: "나,다,마,바,자,카,타,파,하 followed by vowel-initial syllable: no abbreviation",
-};
+pub static META: RuleMeta = RuleMeta { section: "14", subsection: None, name: "no_abbrev_before_vowel", standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.14", description: "나,다,마,바,자,카,타,파,하 followed by vowel-initial syllable: no abbreviation" };
 
 /// The 9 syllables subject to this rule.
 /// These syllables use abbreviation EXCEPT when followed by a vowel-initial syllable.
@@ -73,10 +67,7 @@ pub fn is_no_abbrev_target(ch: char) -> bool {
     if jung_idx != 0 {
         return false;
     }
-    const CHOSEONG: [char; 19] = [
-        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
-        'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
-    ];
+    const CHOSEONG: [char; 19] = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
     let cho = CHOSEONG[cho_idx];
     if let Ok((cho0, Some(cho1))) = split_korean_jauem(cho)
         && cho0 == cho1
@@ -193,11 +184,7 @@ mod tests {
         ];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 14 golden test failed for: {}",
-                input
-            );
+            assert_eq!(result, expected, "Rule 14 golden test failed for: {}", input);
         }
     }
 }

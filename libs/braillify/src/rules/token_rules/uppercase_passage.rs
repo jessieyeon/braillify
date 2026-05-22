@@ -5,13 +5,7 @@ use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 pub struct UppercasePassageRule;
 
 fn prev_word<'a>(tokens: &'a [Token<'a>], index: usize) -> Option<&'a WordToken<'a>> {
-    tokens[..index].iter().rev().find_map(|t| {
-        if let Token::Word(w) = t {
-            Some(w)
-        } else {
-            None
-        }
-    })
+    tokens[..index].iter().rev().find_map(|t| if let Token::Word(w) = t { Some(w) } else { None })
 }
 
 /// Return the next two Word tokens after `index`, in order, lazily.
@@ -21,17 +15,8 @@ fn prev_word<'a>(tokens: &'a [Token<'a>], index: usize) -> Option<&'a WordToken<
 /// the full tail of upcoming words, so avoid materializing a `Vec`. This
 /// turns what was previously an O(N²) scan (one full tail-collect per
 /// token application) into O(1) amortized lookahead.
-fn next_two_words<'a>(
-    tokens: &'a [Token<'a>],
-    index: usize,
-) -> (Option<&'a WordToken<'a>>, Option<&'a WordToken<'a>>) {
-    let mut iter = tokens.iter().skip(index + 1).filter_map(|t| {
-        if let Token::Word(w) = t {
-            Some(w)
-        } else {
-            None
-        }
-    });
+fn next_two_words<'a>(tokens: &'a [Token<'a>], index: usize) -> (Option<&'a WordToken<'a>>, Option<&'a WordToken<'a>>) {
+    let mut iter = tokens.iter().skip(index + 1).filter_map(|t| if let Token::Word(w) = t { Some(w) } else { None });
     let first = iter.next();
     let second = iter.next();
     (first, second)
@@ -50,12 +35,7 @@ impl TokenRule for UppercasePassageRule {
         100
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -67,27 +47,18 @@ impl TokenRule for UppercasePassageRule {
         let word_len = word.chars.len();
         let ascii_starts_at_beginning = word.meta.starts_with_ascii;
 
-        let needs_inline_entry = state.english_indicator
-            && !state.is_english
-            && word.meta.has_ascii_alphabetic
-            && ascii_starts_at_beginning;
+        let needs_inline_entry = state.english_indicator && !state.is_english && word.meta.has_ascii_alphabetic && ascii_starts_at_beginning;
 
         if word.meta.is_all_uppercase && !state.triple_big_english && ascii_starts_at_beginning {
             if needs_inline_entry {
-                let entry = if state.needs_english_continuation {
-                    ModeEvent::EnterEnglishContinue
-                } else {
-                    ModeEvent::EnterEnglish
-                };
+                let entry = if state.needs_english_continuation { ModeEvent::EnterEnglishContinue } else { ModeEvent::EnterEnglish };
                 prefix.push(Token::Mode(entry));
                 state.is_english = true;
                 state.needs_english_continuation = false;
             }
 
             let prev_ascii = prev_word(tokens, index).is_some_and(is_ascii_word);
-            let can_start_passage = (!state.has_processed_word || !prev_ascii)
-                && upcoming_first.is_some_and(is_ascii_word)
-                && upcoming_second.is_some_and(is_ascii_word);
+            let can_start_passage = (!state.has_processed_word || !prev_ascii) && upcoming_first.is_some_and(is_ascii_word) && upcoming_second.is_some_and(is_ascii_word);
 
             // UEB §5.7.2 + §10.9: prepend Grade-1 indicator (⠰) when the uppercase
             // letters spell a multi-letter shortform (e.g. CD = "could"). This forces

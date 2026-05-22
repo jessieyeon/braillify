@@ -4,50 +4,16 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_29::{ENGLISH_CONTINUATION, ROMAN_INDICATOR};
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "69",
-    subsection: None,
-    name: "measurement_symbols",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.69",
-    description: "Measurement and scientific unit symbols",
-};
+pub static META: RuleMeta = RuleMeta { section: "69", subsection: None, name: "measurement_symbols", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.69", description: "Measurement and scientific unit symbols" };
 
-const SINGLE_MAPPINGS: &[(char, &str)] = &[
-    ('㎎', "⠴⠍⠛"),
-    ('㎗', "⠙⠇⠲"),
-    ('㎠', "⠉⠍⠘⠼⠃"),
-    ('㎞', "⠴⠅⠍⠲"),
-    ('㎒', "⠴⠠⠍⠠⠓⠵⠲"),
-    ('Ω', "⠴⠠⠨⠺⠲"),
-    ('%', "⠴⠏"),
-    ('‰', "⠴⠏⠍"),
-    ('°', "⠴⠙"),
-    ('℃', "⠴⠙⠠⠉"),
-    ('℉', "⠴⠙⠠⠋"),
-    ('′', "⠴⠤"),
-    ('″', "⠴⠤⠤"),
-    ('Å', "⠴⠡"),
-];
+const SINGLE_MAPPINGS: &[(char, &str)] = &[('㎎', "⠴⠍⠛"), ('㎗', "⠙⠇⠲"), ('㎠', "⠉⠍⠘⠼⠃"), ('㎞', "⠴⠅⠍⠲"), ('㎒', "⠴⠠⠍⠠⠓⠵⠲"), ('Ω', "⠴⠠⠨⠺⠲"), ('%', "⠴⠏"), ('‰', "⠴⠏⠍"), ('°', "⠴⠙"), ('℃', "⠴⠙⠠⠉"), ('℉', "⠴⠙⠠⠋"), ('′', "⠴⠤"), ('″', "⠴⠤⠤"), ('Å', "⠴⠡")];
 
-const ASCII_UNIT_MAPPINGS: &[(&str, &str)] = &[
-    ("cm", "⠴⠉⠍⠲"),
-    ("kg", "⠴⠅⠛⠲"),
-    ("in", "⠴⠊⠝⠲"),
-    ("mm", "⠴⠍⠍⠲"),
-    ("min", "⠍⠔⠲"),
-    ("cal", "⠴⠉⠁⠇"),
-    ("GB", "⠴⠠⠠⠛⠃⠲"),
-    ("m", "⠴⠍⠲"),
-    ("h", "⠴⠓⠲"),
-];
+const ASCII_UNIT_MAPPINGS: &[(&str, &str)] = &[("cm", "⠴⠉⠍⠲"), ("kg", "⠴⠅⠛⠲"), ("in", "⠴⠊⠝⠲"), ("mm", "⠴⠍⠍⠲"), ("min", "⠍⠔⠲"), ("cal", "⠴⠉⠁⠇"), ("GB", "⠴⠠⠠⠛⠃⠲"), ("m", "⠴⠍⠲"), ("h", "⠴⠓⠲")];
 
 const SEPARATED_SYMBOLS: &[char] = &['%', '‰', '°', '℃', '℉'];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode
-        .chars()
-        .map(crate::unicode::decode_unicode)
-        .collect()
+    unicode.chars().map(crate::unicode::decode_unicode).collect()
 }
 
 pub fn is_rule_69_symbol(c: char) -> bool {
@@ -55,21 +21,11 @@ pub fn is_rule_69_symbol(c: char) -> bool {
 }
 
 fn next_non_ascii_after(word: &[char], start: usize) -> Option<char> {
-    word.iter()
-        .skip(start)
-        .copied()
-        .find(|ch| !ch.is_ascii_alphabetic())
+    word.iter().skip(start).copied().find(|ch| !ch.is_ascii_alphabetic())
 }
 
 fn is_numeric_or_unit_context(ctx: &RuleContext) -> bool {
-    ctx.prev_char()
-        .is_some_and(|prev| prev.is_ascii_digit() || matches!(prev, '/' | 'μ'))
-        || ctx.prev_word.chars().next().is_some()
-            && ctx
-                .prev_word
-                .chars()
-                .all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
-        || ctx.prev_char() == Some('/')
+    ctx.prev_char().is_some_and(|prev| prev.is_ascii_digit() || matches!(prev, '/' | 'μ')) || ctx.prev_word.chars().next().is_some() && ctx.prev_word.chars().all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.')) || ctx.prev_char() == Some('/')
 }
 
 /// 단어 자체가 단위 연쇄(cal/㎠/min 등)로 구성된 경우 첫 음절이 한국어 뒤에 와도
@@ -90,14 +46,8 @@ fn word_looks_like_unit_chain(word: &[char]) -> bool {
 
 fn is_symbol_measurement_context(ctx: &RuleContext, symbol: char) -> bool {
     match symbol {
-        'μ' => {
-            ctx.next_char().is_some_and(|ch| ch.is_ascii_alphabetic())
-                || is_numeric_or_unit_context(ctx)
-        }
-        'Ω' => {
-            ctx.next_char().is_some_and(crate::utils::is_korean_char)
-                || is_numeric_or_unit_context(ctx)
-        }
+        'μ' => ctx.next_char().is_some_and(|ch| ch.is_ascii_alphabetic()) || is_numeric_or_unit_context(ctx),
+        'Ω' => ctx.next_char().is_some_and(crate::utils::is_korean_char) || is_numeric_or_unit_context(ctx),
         _ => true,
     }
 }
@@ -130,10 +80,7 @@ pub(crate) fn encode_ascii_unit(word: &[char], index: usize) -> Option<(Vec<u8>,
 }
 
 pub(crate) fn parse_numeric_ascii_unit_prefix(word: &[char]) -> Option<(String, Vec<u8>, usize)> {
-    let numeric_len = word
-        .iter()
-        .take_while(|c| c.is_ascii_digit() || matches!(**c, ',' | '.'))
-        .count();
+    let numeric_len = word.iter().take_while(|c| c.is_ascii_digit() || matches!(**c, ',' | '.')).count();
     if numeric_len == 0 || numeric_len >= word.len() {
         return None;
     }
@@ -144,10 +91,7 @@ pub(crate) fn parse_numeric_ascii_unit_prefix(word: &[char]) -> Option<(String, 
 }
 
 fn trim_recent_english_indicator(result: &mut Vec<u8>) {
-    if result
-        .last()
-        .is_some_and(|cell| matches!(*cell, ENGLISH_CONTINUATION | ROMAN_INDICATOR))
-    {
+    if result.last().is_some_and(|cell| matches!(*cell, ENGLISH_CONTINUATION | ROMAN_INDICATOR)) {
         result.pop();
     }
 }
@@ -196,8 +140,7 @@ impl BrailleRule for Rule69 {
         }
 
         if matches!(ctx.char_type, CharType::English(_))
-            && (is_numeric_or_unit_context(ctx)
-                || (ctx.index == 0 && word_looks_like_unit_chain(ctx.word_chars)))
+            && (is_numeric_or_unit_context(ctx) || (ctx.index == 0 && word_looks_like_unit_chain(ctx.word_chars)))
             && let Some((encoded, consumed)) = encode_ascii_unit(ctx.word_chars, ctx.index)
         {
             trim_recent_english_indicator(ctx.result);
@@ -208,31 +151,17 @@ impl BrailleRule for Rule69 {
             return Ok(RuleResult::Consumed);
         }
 
-        if ctx.current_char() == '%'
-            && ctx.word_chars.get(ctx.index + 1) == Some(&'i')
-            && ctx.word_chars.get(ctx.index + 2) == Some(&'l')
-            && ctx.word_chars.get(ctx.index + 3) == Some(&'e')
-        {
+        if ctx.current_char() == '%' && ctx.word_chars.get(ctx.index + 1) == Some(&'i') && ctx.word_chars.get(ctx.index + 2) == Some(&'l') && ctx.word_chars.get(ctx.index + 3) == Some(&'e') {
             let encoded = encode_unicode_cells("⠴⠏⠞");
             ctx.emit_slice(&encoded);
             *ctx.skip_count = 3;
             return Ok(RuleResult::Consumed);
         }
 
-        if ctx.current_char() == '%'
-            && ctx.word_chars.get(ctx.index + 1) == Some(&'p')
-            && ctx
-                .word_chars
-                .get(ctx.index + 2)
-                .is_none_or(|ch| !ch.is_ascii_alphabetic())
-        {
+        if ctx.current_char() == '%' && ctx.word_chars.get(ctx.index + 1) == Some(&'p') && ctx.word_chars.get(ctx.index + 2).is_none_or(|ch| !ch.is_ascii_alphabetic()) {
             ctx.emit_slice(&encode_unicode_cells("⠴⠏⠏"));
             *ctx.skip_count = 1;
-            if ctx
-                .word_chars
-                .get(ctx.index + 2)
-                .is_some_and(|ch| crate::utils::is_korean_char(*ch))
-            {
+            if ctx.word_chars.get(ctx.index + 2).is_some_and(|ch| crate::utils::is_korean_char(*ch)) {
                 ctx.emit(0);
             }
             return Ok(RuleResult::Consumed);
@@ -243,8 +172,7 @@ impl BrailleRule for Rule69 {
             let mut encoded = encode_unicode_cells("⠴⠨⠍");
             let mut consumed = 1usize;
 
-            if let Some((unit_encoded, unit_len)) = encode_ascii_unit(ctx.word_chars, ctx.index + 1)
-            {
+            if let Some((unit_encoded, unit_len)) = encode_ascii_unit(ctx.word_chars, ctx.index + 1) {
                 let mut unit_without_prefix = unit_encoded;
                 if unit_without_prefix.first() == Some(&crate::unicode::decode_unicode('⠴')) {
                     unit_without_prefix.remove(0);
@@ -262,10 +190,7 @@ impl BrailleRule for Rule69 {
             return Ok(RuleResult::Consumed);
         }
 
-        let Some((_, unicode)) = SINGLE_MAPPINGS
-            .iter()
-            .find(|(candidate, _)| *candidate == ctx.current_char())
-        else {
+        let Some((_, unicode)) = SINGLE_MAPPINGS.iter().find(|(candidate, _)| *candidate == ctx.current_char()) else {
             return Ok(RuleResult::Skip);
         };
         let encoded = encode_unicode_cells(unicode);

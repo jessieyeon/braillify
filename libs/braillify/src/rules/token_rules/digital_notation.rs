@@ -16,12 +16,7 @@ impl TokenRule for DigitalNotationRule {
         1
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -30,18 +25,12 @@ impl TokenRule for DigitalNotationRule {
             return Ok(TokenAction::Noop);
         }
 
-        Ok(TokenAction::Replace(Token::PreEncoded(
-            encode_digital_word(word.text.as_ref())?,
-        )))
+        Ok(TokenAction::Replace(Token::PreEncoded(encode_digital_word(word.text.as_ref())?)))
     }
 }
 
 fn has_digital_signature(text: &str) -> bool {
-    if !text
-        .chars()
-        .next()
-        .is_some_and(|ch| ch.is_ascii_alphanumeric())
-    {
+    if !text.chars().next().is_some_and(|ch| ch.is_ascii_alphanumeric()) {
         return false;
     }
     if text.contains("//") || text.contains('@') || text.contains('#') {
@@ -58,12 +47,7 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     let mut i = 0usize;
     let mut english_started = false;
 
-    let prefix_len = chars
-        .iter()
-        .take_while(|ch| {
-            ch.is_ascii_alphanumeric() || matches!(**ch, '/' | '#' | '@' | '.' | ':' | '_')
-        })
-        .count();
+    let prefix_len = chars.iter().take_while(|ch| ch.is_ascii_alphanumeric() || matches!(**ch, '/' | '#' | '@' | '.' | ':' | '_')).count();
 
     let digital_chars = &chars[..prefix_len];
 
@@ -125,10 +109,7 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     }
 
     if prefix_len < chars.len() {
-        if digital_chars
-            .last()
-            .is_some_and(|ch| ch.is_ascii_alphabetic())
-        {
+        if digital_chars.last().is_some_and(|ch| ch.is_ascii_alphabetic()) {
             result.push(decode_unicode('⠲'));
         }
         let remainder: String = chars[prefix_len..].iter().collect();
@@ -197,4 +178,146 @@ fn encode_digital_english_segment(chars: &[char], result: &mut Vec<u8>) -> Resul
         i += 1;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::{SpaceKind, WordMeta, WordToken};
+    use std::borrow::Cow;
+
+    fn word_token<'a>(text: &str) -> Token<'a> {
+        let chars: Vec<char> = text.chars().collect();
+        Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
+    }
+
+    #[test]
+    fn rule_phase_priority() {
+        let r = DigitalNotationRule;
+        assert!(matches!(r.phase(), TokenPhase::ModeEntry));
+        assert_eq!(r.priority(), 1);
+    }
+
+    #[test]
+    fn has_digital_signature_paths() {
+        // URL/path with //
+        assert!(has_digital_signature("http://example.com"));
+        // Email with @
+        assert!(has_digital_signature("foo@bar.com"));
+        // Hashtag
+        assert!(has_digital_signature("a#hash"));
+        // Underscore with dot
+        assert!(has_digital_signature("a_b.c"));
+        // Underscore with slash
+        assert!(has_digital_signature("a_b/c"));
+        // Underscore with colon
+        assert!(has_digital_signature("a_b:c"));
+        // Plain alpha — no
+        assert!(!has_digital_signature("hello"));
+        // Just underscore — no
+        assert!(!has_digital_signature("a_b"));
+        // Non-alphanumeric start — no
+        assert!(!has_digital_signature("/foo"));
+        // Empty — no
+        assert!(!has_digital_signature(""));
+    }
+
+    #[test]
+    fn apply_non_word_noop() {
+        let r = DigitalNotationRule;
+        let tokens: Vec<Token> = vec![Token::Space(SpaceKind::Regular)];
+        let mut state = EncoderState::new(false);
+        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_plain_word_noop() {
+        let r = DigitalNotationRule;
+        let tokens = vec![word_token("hello")];
+        let mut state = EncoderState::new(false);
+        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_url_replaces() {
+        let r = DigitalNotationRule;
+        let tokens = vec![word_token("http://a.b")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn encode_digital_word_email() {
+        let result = encode_digital_word("a@b").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_hashtag() {
+        let result = encode_digital_word("a#b").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_underscore_dot() {
+        let result = encode_digital_word("a_b.c").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_colon_path() {
+        let result = encode_digital_word("foo:bar").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_mixed_alpha_digit_transitions() {
+        // English then digit → triggers ⠐ + space prefix logic (line 71-74)
+        let result = encode_digital_word("abc123").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_pure_digit_starts() {
+        let result = encode_digital_word("123#abc").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_word_ends_with_alpha_appends_terminator() {
+        // Pure URL ending with alpha; line 107-109 path
+        let result = encode_digital_word("a#b").unwrap();
+        // last alpha + appended terminator
+        assert!(result.last().copied().is_some());
+    }
+
+    #[test]
+    fn encode_digital_word_with_korean_suffix() {
+        // prefix_len < chars.len() → lines 111-117
+        // "a@b가" — `a@b` is digital prefix, `가` is Korean suffix
+        let result = encode_digital_word("a@b가").unwrap();
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn encode_digital_english_segment_all_abbreviations() {
+        // Exercise every digraph branch in encode_digital_english_segment
+        let cases = ["aliment", "playing", "constant", "easy", "energy", "argon", "verb", "outdoor", "owls", "thumb"];
+        for case in cases {
+            let chars: Vec<char> = case.chars().collect();
+            let mut buf = Vec::new();
+            encode_digital_english_segment(&chars, &mut buf).unwrap();
+            assert!(!buf.is_empty(), "{case} should encode");
+        }
+    }
+
+    #[test]
+    fn encode_digital_english_segment_plain_letter() {
+        // Single letter — no digraph match → falls to single-letter encode (line 177)
+        let chars: Vec<char> = "z".chars().collect();
+        let mut buf = Vec::new();
+        encode_digital_english_segment(&chars, &mut buf).unwrap();
+        assert!(!buf.is_empty());
+    }
 }

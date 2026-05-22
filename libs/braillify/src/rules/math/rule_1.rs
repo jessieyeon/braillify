@@ -46,14 +46,7 @@ impl MathTokenRule for NumberRule {
         matches!(tokens.get(index), Some(MathToken::Number(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        _engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
         let Some(MathToken::Number(digits)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };

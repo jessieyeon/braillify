@@ -72,9 +72,7 @@ impl Encoder {
         rule_engine.register(Box::new(rules::korean::rule_2::Rule2));
         rule_engine.register(Box::new(rules::korean::rule_1::Rule1));
         rule_engine.register(Box::new(rules::korean::rule_3::Rule3));
-        rule_engine.register(Box::new(
-            rules::korean::rule_english_symbol::RuleEnglishSymbol,
-        ));
+        rule_engine.register(Box::new(rules::korean::rule_english_symbol::RuleEnglishSymbol));
         rule_engine.register(Box::new(rules::korean::rule_68::Rule68));
         rule_engine.register(Box::new(rules::korean::rule_69::Rule69));
         rule_engine.register(Box::new(rules::korean::rule_70::Rule70));
@@ -103,73 +101,29 @@ impl Encoder {
         let mut token_engine = rules::token_engine::TokenRuleEngine::new();
         // PDF 한국어 제73항 [붙임 1] — U+F000 빈칸 + 슬래시-대안 조사 prefix 삽입.
         // 매우 일찍 등록(다른 규칙이 토큰을 분리하기 전).
-        token_engine.register(Box::new(
-            rules::token_rules::rule_73_appendix_placeholder::Rule73AppendixPlaceholderRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::middle_korean_detector::MiddleKoreanDetectorRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::historical_gloss_spacing::HistoricalGlossSpacingRule,
-        ));
+        token_engine.register(Box::new(rules::token_rules::rule_73_appendix_placeholder::Rule73AppendixPlaceholderRule));
+        token_engine.register(Box::new(rules::token_rules::middle_korean_detector::MiddleKoreanDetectorRule));
+        token_engine.register(Box::new(rules::token_rules::historical_gloss_spacing::HistoricalGlossSpacingRule));
         token_engine.register(Box::new(rules::token_rules::normalize::NormalizeEllipsis));
         // PDF 한국어 제33항 — 학술 인용 형식 year-suffix token (1998a,, 1998b;).
-        token_engine.register(Box::new(
-            rules::token_rules::rule_33_citation::Rule33CitationYearSuffixRule,
-        ));
+        token_engine.register(Box::new(rules::token_rules::rule_33_citation::Rule33CitationYearSuffixRule));
         token_engine.register(Box::new(rules::token_rules::latex_math::LatexMergeRule));
-        token_engine.register(Box::new(
-            rules::token_rules::emphasis_ring::EmphasisRingRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::math_expression::MathExpressionTokenRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::latex_fraction::LatexFractionRule,
-        ));
+        token_engine.register(Box::new(rules::token_rules::emphasis_ring::EmphasisRingRule));
+        token_engine.register(Box::new(rules::token_rules::math_expression::MathExpressionTokenRule));
+        token_engine.register(Box::new(rules::token_rules::latex_fraction::LatexFractionRule));
         token_engine.register(Box::new(rules::token_rules::latex_math::LatexMathRule));
-        token_engine.register(Box::new(
-            rules::token_rules::inline_fraction::InlineFractionRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::word_shortcut::WordShortcutRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::roman_numeral::RomanNumeralRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::digital_notation::DigitalNotationRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::uppercase_passage::UppercasePassageRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::middle_dot_spacing::MiddleDotSpacingRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::quote_attachment::QuoteAttachmentRule,
-        ));
+        token_engine.register(Box::new(rules::token_rules::inline_fraction::InlineFractionRule));
+        token_engine.register(Box::new(rules::token_rules::word_shortcut::WordShortcutRule));
+        token_engine.register(Box::new(rules::token_rules::roman_numeral::RomanNumeralRule));
+        token_engine.register(Box::new(rules::token_rules::digital_notation::DigitalNotationRule));
+        token_engine.register(Box::new(rules::token_rules::uppercase_passage::UppercasePassageRule));
+        token_engine.register(Box::new(rules::token_rules::middle_dot_spacing::MiddleDotSpacingRule));
+        token_engine.register(Box::new(rules::token_rules::quote_attachment::QuoteAttachmentRule));
         token_engine.register(Box::new(rules::token_rules::spacing::AsteriskSpacingRule));
-        token_engine.register(Box::new(
-            rules::token_rules::spacing::KoreanAuxiliaryVerbSpacingRule,
-        ));
-        token_engine.register(Box::new(
-            rules::token_rules::english_dominant_korean_wrap::EnglishDominantKoreanWrapRule,
-        ));
+        token_engine.register(Box::new(rules::token_rules::spacing::KoreanAuxiliaryVerbSpacingRule));
+        token_engine.register(Box::new(rules::token_rules::english_dominant_korean_wrap::EnglishDominantKoreanWrapRule));
 
-        Self {
-            english_indicator,
-            is_english: false,
-            triple_big_english: false,
-            has_processed_word: false,
-            needs_english_continuation: false,
-            parenthesis_stack: Vec::new(),
-            default_mode: None,
-            matrix_context_active: false,
-            math_mode_active: false,
-            rule_engine,
-            token_engine,
-        }
+        Self { english_indicator, is_english: false, triple_big_english: false, has_processed_word: false, needs_english_continuation: false, parenthesis_stack: Vec::new(), default_mode: None, matrix_context_active: false, math_mode_active: false, rule_engine, token_engine }
     }
 
     pub fn english_indicator(&self) -> bool {
@@ -206,12 +160,7 @@ impl Encoder {
         self.encode_via_ir_with_transform(text, result, |_, _| Ok(()))
     }
 
-    fn encode_via_ir_with_transform<F>(
-        &mut self,
-        text: &str,
-        result: &mut Vec<u8>,
-        transform: F,
-    ) -> Result<(), String>
+    fn encode_via_ir_with_transform<F>(&mut self, text: &str, result: &mut Vec<u8>, transform: F) -> Result<(), String>
     where
         F: FnOnce(&str, &mut Vec<Token<'_>>) -> Result<(), String>,
     {
@@ -230,10 +179,7 @@ impl Encoder {
         // This keeps PostWord rule dispatch O(1) per token instead of re-scanning
         // the full document for each token.
         if document_has_ascii_and_korean(&ir.tokens) {
-            ir.state.doc_summary =
-                rules::token_rules::english_dominant_korean_wrap::compute_document_summary(
-                    &ir.tokens,
-                );
+            ir.state.doc_summary = rules::token_rules::english_dominant_korean_wrap::compute_document_summary(&ir.tokens);
         }
 
         let state_before_token_rules = ir.state.clone();
@@ -264,32 +210,19 @@ impl Encoder {
         self.encode_via_ir(text, result)
     }
 
-    pub fn encode_with_formatting(
-        &mut self,
-        text: &str,
-        spans: &[crate::FormattingSpan],
-        result: &mut Vec<u8>,
-    ) -> Result<(), String> {
+    pub fn encode_with_formatting(&mut self, text: &str, spans: &[crate::FormattingSpan], result: &mut Vec<u8>) -> Result<(), String> {
         if spans.is_empty() {
             return self.encode(text, result);
         }
 
-        self.encode_via_ir_with_transform(text, result, |source, tokens| {
-            inject_formatting_tokens(source, spans, tokens)
-        })
+        self.encode_via_ir_with_transform(text, result, |source, tokens| inject_formatting_tokens(source, spans, tokens))
     }
 }
 
-fn inject_formatting_tokens(
-    text: &str,
-    spans: &[crate::FormattingSpan],
-    tokens: &mut Vec<Token<'_>>,
-) -> Result<(), String> {
+fn inject_formatting_tokens(text: &str, spans: &[crate::FormattingSpan], tokens: &mut Vec<Token<'_>>) -> Result<(), String> {
     let text_len = text.len();
-    let mut starts: std::collections::BTreeMap<usize, Vec<crate::FormattingKind>> =
-        std::collections::BTreeMap::new();
-    let mut ends: std::collections::BTreeMap<usize, Vec<crate::FormattingKind>> =
-        std::collections::BTreeMap::new();
+    let mut starts: std::collections::BTreeMap<usize, Vec<crate::FormattingKind>> = std::collections::BTreeMap::new();
+    let mut ends: std::collections::BTreeMap<usize, Vec<crate::FormattingKind>> = std::collections::BTreeMap::new();
 
     for span in spans {
         let start = span.range.start;
@@ -298,14 +231,10 @@ fn inject_formatting_tokens(
             return Err(format!("Invalid formatting span range: {start}..{end}"));
         }
         if end > text_len {
-            return Err(format!(
-                "Formatting span out of bounds: {start}..{end} (len={text_len})"
-            ));
+            return Err(format!("Formatting span out of bounds: {start}..{end} (len={text_len})"));
         }
         if !text.is_char_boundary(start) || !text.is_char_boundary(end) {
-            return Err(format!(
-                "Formatting span must align to UTF-8 boundaries: {start}..{end}"
-            ));
+            return Err(format!("Formatting span must align to UTF-8 boundaries: {start}..{end}"));
         }
         starts.entry(start).or_default().push(span.kind);
         ends.entry(end).or_default().push(span.kind);
@@ -314,24 +243,20 @@ fn inject_formatting_tokens(
     let mut new_tokens = Vec::new();
     let mut cursor = 0usize;
 
-    let emit_events_at =
-        |pos: usize,
-         out: &mut Vec<Token<'_>>,
-         start_map: &mut std::collections::BTreeMap<usize, Vec<crate::FormattingKind>>,
-         end_map: &mut std::collections::BTreeMap<usize, Vec<crate::FormattingKind>>| {
-            if let Some(kinds) = end_map.remove(&pos) {
-                for kind in kinds.iter().rev() {
-                    let (_, close) = kind.markers();
-                    out.push(Token::PreEncoded(close.to_vec()));
-                }
+    let emit_events_at = |pos: usize, out: &mut Vec<Token<'_>>, start_map: &mut std::collections::BTreeMap<usize, Vec<crate::FormattingKind>>, end_map: &mut std::collections::BTreeMap<usize, Vec<crate::FormattingKind>>| {
+        if let Some(kinds) = end_map.remove(&pos) {
+            for kind in kinds.iter().rev() {
+                let (_, close) = kind.markers();
+                out.push(Token::PreEncoded(close.to_vec()));
             }
-            if let Some(kinds) = start_map.remove(&pos) {
-                for kind in kinds {
-                    let (open, _) = kind.markers();
-                    out.push(Token::PreEncoded(open.to_vec()));
-                }
+        }
+        if let Some(kinds) = start_map.remove(&pos) {
+            for kind in kinds {
+                let (open, _) = kind.markers();
+                out.push(Token::PreEncoded(open.to_vec()));
             }
-        };
+        }
+    };
 
     emit_events_at(cursor, &mut new_tokens, &mut starts, &mut ends);
 
@@ -340,28 +265,15 @@ fn inject_formatting_tokens(
             Token::Word(word) => {
                 let text_ref = word.text.as_ref();
                 let word_end = cursor.saturating_add(text_ref.len());
-                let mut internal_points = starts
-                    .keys()
-                    .chain(ends.keys())
-                    .copied()
-                    .filter(|pos| *pos > cursor && *pos < word_end)
-                    .map(|pos| pos - cursor)
-                    .collect::<Vec<_>>();
+                let mut internal_points = starts.keys().chain(ends.keys()).copied().filter(|pos| *pos > cursor && *pos < word_end).map(|pos| pos - cursor).collect::<Vec<_>>();
                 internal_points.sort_unstable();
                 internal_points.dedup();
 
                 let mut local_start = 0usize;
-                for local_end in internal_points
-                    .into_iter()
-                    .chain(std::iter::once(text_ref.len()))
-                {
+                for local_end in internal_points.into_iter().chain(std::iter::once(text_ref.len())) {
                     let seg = &text_ref[local_start..local_end];
                     let seg_chars: Vec<char> = seg.chars().collect();
-                    new_tokens.push(Token::Word(WordToken {
-                        text: Cow::Owned(seg.to_string()),
-                        chars: seg_chars.clone(),
-                        meta: WordMeta::from_chars(&seg_chars),
-                    }));
+                    new_tokens.push(Token::Word(WordToken { text: Cow::Owned(seg.to_string()), chars: seg_chars.clone(), meta: WordMeta::from_chars(&seg_chars) }));
 
                     cursor += seg.len();
                     emit_events_at(cursor, &mut new_tokens, &mut starts, &mut ends);

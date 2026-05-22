@@ -10,13 +10,7 @@ use crate::char_struct::CharType;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
-pub static META: RuleMeta = RuleMeta {
-    section: "41",
-    subsection: None,
-    name: "numeric_comma",
-    standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.41",
-    description: "Comma between digits/letters uses ⠂ (2) instead of standard comma",
-};
+pub static META: RuleMeta = RuleMeta { section: "41", subsection: None, name: "numeric_comma", standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.41", description: "Comma between digits/letters uses ⠂ (2) instead of standard comma" };
 
 /// Numeric comma braille code.
 const NUMERIC_COMMA: u8 = 2; // ⠂
@@ -55,8 +49,7 @@ impl BrailleRule for Rule41 {
         let next_is_alphanumeric = next_is_digit || next_is_ascii;
 
         // Comma between numbers, or between ASCII and alphanumeric
-        ((ctx.state.is_number || has_numeric_prefix) && next_is_digit)
-            || (has_ascii_prefix && next_is_alphanumeric)
+        ((ctx.state.is_number || has_numeric_prefix) && next_is_digit) || (has_ascii_prefix && next_is_alphanumeric)
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
@@ -89,11 +82,7 @@ fn scan_prefix(word_chars: &[char], index: usize) -> (bool, bool) {
 
 /// Get the next character (within word or from next word).
 fn get_next_char(ctx: &RuleContext) -> Option<char> {
-    if ctx.index + 1 < ctx.word_chars.len() {
-        Some(ctx.word_chars[ctx.index + 1])
-    } else {
-        ctx.remaining_words.first().and_then(|w| w.chars().next())
-    }
+    if ctx.index + 1 < ctx.word_chars.len() { Some(ctx.word_chars[ctx.index + 1]) } else { ctx.remaining_words.first().and_then(|w| w.chars().next()) }
 }
 
 #[cfg(test)]
@@ -124,11 +113,7 @@ mod tests {
         ];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 41 golden test failed for: {}",
-                input
-            );
+            assert_eq!(result, expected, "Rule 41 golden test failed for: {}", input);
         }
     }
 

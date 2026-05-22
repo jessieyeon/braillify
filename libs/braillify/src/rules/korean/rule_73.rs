@@ -3,13 +3,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "73",
-    subsection: None,
-    name: "fill_in_blank_markers",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.73",
-    description: "Render underscore fill-in blanks as ⠸⠤ markers",
-};
+pub static META: RuleMeta = RuleMeta { section: "73", subsection: None, name: "fill_in_blank_markers", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.73", description: "Render underscore fill-in blanks as ⠸⠤ markers" };
 
 const PREFIX: u8 = 56; // ⠸
 const BLANK: u8 = 36; // ⠤
@@ -35,14 +29,9 @@ impl BrailleRule for Rule73 {
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         if ctx.current_char() == '□' {
-            let next_word_starts_korean = ctx
-                .remaining_words
-                .first()
-                .and_then(|w| w.chars().next())
-                .is_some_and(crate::utils::is_korean_char);
+            let next_word_starts_korean = ctx.remaining_words.first().and_then(|w| w.chars().next()).is_some_and(crate::utils::is_korean_char);
 
-            let fill_blank_context = ctx.next_char() == Some('에')
-                || (ctx.next_char().is_none() && next_word_starts_korean);
+            let fill_blank_context = ctx.next_char() == Some('에') || (ctx.next_char().is_none() && next_word_starts_korean);
             if !fill_blank_context {
                 return Ok(RuleResult::Skip);
             }
@@ -57,10 +46,7 @@ impl BrailleRule for Rule73 {
         }
 
         // keep 제56항 종료표기(__") intact
-        if ctx.current_char() == '_'
-            && ctx.next_char() == Some('_')
-            && ctx.word_chars.get(ctx.index + 2) == Some(&'"')
-        {
+        if ctx.current_char() == '_' && ctx.next_char() == Some('_') && ctx.word_chars.get(ctx.index + 2) == Some(&'"') {
             return Ok(RuleResult::Skip);
         }
 
@@ -68,10 +54,7 @@ impl BrailleRule for Rule73 {
             return Ok(RuleResult::Consumed);
         }
 
-        let count = ctx.word_chars[ctx.index..]
-            .iter()
-            .take_while(|&&c| c == '_')
-            .count();
+        let count = ctx.word_chars[ctx.index..].iter().take_while(|&&c| c == '_').count();
 
         let marker_count = if count >= 3 { 1 } else { count.max(1) };
         for _ in 0..marker_count {

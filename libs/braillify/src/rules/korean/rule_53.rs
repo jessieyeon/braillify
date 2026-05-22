@@ -10,13 +10,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "53",
-    subsection: None,
-    name: "ellipsis_normalization",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.53",
-    description: "Normalize ellipsis: 6 dots→3, double middle dot→single",
-};
+pub static META: RuleMeta = RuleMeta { section: "53", subsection: None, name: "ellipsis_normalization", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.53", description: "Normalize ellipsis: 6 dots→3, double middle dot→single" };
 
 /// Normalize ellipsis patterns in a word.
 ///
@@ -120,5 +114,91 @@ mod tests {
     #[test]
     fn empty_string() {
         assert_eq!(normalize(""), "");
+    }
+
+    fn make_ctx<'a>(word_chars: &'a [char], index: usize, char_type: &'a crate::char_struct::CharType, skip_count: &'a mut usize, state: &'a mut crate::rules::context::EncoderState, result: &'a mut Vec<u8>) -> RuleContext<'a> {
+        RuleContext { word_chars, index, char_type, prev_word: "", remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: false, skip_count, state, result }
+    }
+
+    #[test]
+    fn rule53_meta_and_phase() {
+        let r = Rule53;
+        assert_eq!(r.meta().section, "53");
+        assert!(matches!(r.phase(), Phase::Preprocessing));
+    }
+
+    #[test]
+    fn rule53_matches_six_periods_run() {
+        use crate::char_struct::CharType;
+        let word_chars: Vec<char> = "......".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let ctx = make_ctx(&word_chars, 0, &ct, &mut skip, &mut state, &mut out);
+        assert!(Rule53.matches(&ctx));
+    }
+
+    #[test]
+    fn rule53_matches_double_ellipsis() {
+        use crate::char_struct::CharType;
+        let word_chars: Vec<char> = "……".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let ctx = make_ctx(&word_chars, 0, &ct, &mut skip, &mut state, &mut out);
+        assert!(Rule53.matches(&ctx));
+    }
+
+    #[test]
+    fn rule53_does_not_match_three_periods() {
+        use crate::char_struct::CharType;
+        let word_chars: Vec<char> = "...".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let ctx = make_ctx(&word_chars, 0, &ct, &mut skip, &mut state, &mut out);
+        assert!(!Rule53.matches(&ctx));
+    }
+
+    #[test]
+    fn rule53_match_resets_on_other_char() {
+        use crate::char_struct::CharType;
+        // "...a..." has two runs of three; should NOT trigger six-period match
+        let word_chars: Vec<char> = "...a...".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let ctx = make_ctx(&word_chars, 0, &ct, &mut skip, &mut state, &mut out);
+        assert!(!Rule53.matches(&ctx));
+    }
+
+    #[test]
+    fn rule53_match_false_when_not_at_word_start() {
+        use crate::char_struct::CharType;
+        let word_chars: Vec<char> = "......".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let ctx = make_ctx(&word_chars, 1, &ct, &mut skip, &mut state, &mut out);
+        assert!(!Rule53.matches(&ctx));
+    }
+
+    #[test]
+    fn rule53_apply_just_continues() {
+        use crate::char_struct::CharType;
+        let word_chars: Vec<char> = "......".chars().collect();
+        let ct = CharType::new(word_chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let mut ctx = make_ctx(&word_chars, 0, &ct, &mut skip, &mut state, &mut out);
+        let res = Rule53.apply(&mut ctx).unwrap();
+        assert!(matches!(res, RuleResult::Continue));
+        assert!(out.is_empty());
     }
 }

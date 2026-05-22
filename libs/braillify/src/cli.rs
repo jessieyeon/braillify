@@ -38,10 +38,7 @@ fn run_one_shot(text: &str) -> Result<()> {
 fn run_repl() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
     let mut stdout = io::stdout();
-    writeln!(
-        stdout,
-        "braillify REPL - 입력을 점자로 변환합니다. 종료: Ctrl+C or Ctrl+D"
-    )?;
+    writeln!(stdout, "braillify REPL - 입력을 점자로 변환합니다. 종료: Ctrl+C or Ctrl+D")?;
     stdout.flush()?;
 
     loop {

@@ -3,13 +3,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "21",
-    subsection: None,
-    name: "middle_korean_hieuh_series",
-    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.21",
-    description: "Middle Korean aspirated old-consonant composites",
-};
+pub static META: RuleMeta = RuleMeta { section: "21", subsection: None, name: "middle_korean_hieuh_series", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.21", description: "Middle Korean aspirated old-consonant composites" };
 
 /// PDF 제21항 — 각자 병서로 만들어진 옛 자음자 (단독 사용 시).
 ///
@@ -23,38 +17,18 @@ const OLD_CONSONANT_BODIES_RULE21: &[(char, &str)] = &[
 
 fn old_consonant_body_rule21(c: char) -> Option<&'static [u8]> {
     static CACHE: std::sync::OnceLock<Vec<(char, Vec<u8>)>> = std::sync::OnceLock::new();
-    let cache = CACHE.get_or_init(|| {
-        OLD_CONSONANT_BODIES_RULE21
-            .iter()
-            .map(|(c, s)| (*c, encode_unicode_cells(s)))
-            .collect()
-    });
-    cache
-        .iter()
-        .find(|(candidate, _)| *candidate == c)
-        .map(|(_, bytes)| bytes.as_slice())
+    let cache = CACHE.get_or_init(|| OLD_CONSONANT_BODIES_RULE21.iter().map(|(c, s)| (*c, encode_unicode_cells(s))).collect());
+    cache.iter().find(|(candidate, _)| *candidate == c).map(|(_, bytes)| bytes.as_slice())
 }
 
-const MAPPINGS: &[(char, &str)] = &[
-    ('', "⠐⠉⠉⠐⠼"),
-    ('', "⠚⠐⠼⠗"),
-    ('', "⠐⠛⠛⠱"),
-    ('', "⠐⠐⠼"),
-    ('', "⠐⠚⠚⠱"),
-];
+const MAPPINGS: &[(char, &str)] = &[('', "⠐⠉⠉⠐⠼"), ('', "⠚⠐⠼⠗"), ('', "⠐⠛⠛⠱"), ('', "⠐⠐⠼"), ('', "⠐⠚⠚⠱")];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode
-        .chars()
-        .map(crate::unicode::decode_unicode)
-        .collect()
+    unicode.chars().map(crate::unicode::decode_unicode).collect()
 }
 
 fn encode_legacy(c: char) -> Option<Vec<u8>> {
-    MAPPINGS
-        .iter()
-        .find(|(candidate, _)| *candidate == c)
-        .map(|(_, unicode)| encode_unicode_cells(unicode))
+    MAPPINGS.iter().find(|(candidate, _)| *candidate == c).map(|(_, unicode)| encode_unicode_cells(unicode))
 }
 
 pub struct Rule21;
@@ -84,13 +58,7 @@ impl BrailleRule for Rule21 {
             && let Some(body) = old_consonant_body_rule21(*c)
         {
             let is_symbol_fn = |ch: char| matches!(CharType::new(ch), Ok(CharType::Symbol(_)));
-            let prefix = crate::rules::korean::rule_8::determine_prefix(
-                ctx.word_len(),
-                ctx.index,
-                ctx.word_chars,
-                ctx.has_korean_char,
-                is_symbol_fn,
-            );
+            let prefix = crate::rules::korean::rule_8::determine_prefix(ctx.word_len(), ctx.index, ctx.word_chars, ctx.has_korean_char, is_symbol_fn);
             ctx.emit(prefix);
             ctx.emit_slice(body);
             return Ok(RuleResult::Consumed);

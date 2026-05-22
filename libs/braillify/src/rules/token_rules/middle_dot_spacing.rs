@@ -12,12 +12,7 @@ impl TokenRule for MiddleDotSpacingRule {
         126
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Space(_)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -32,13 +27,7 @@ impl TokenRule for MiddleDotSpacingRule {
         let prev_text = prev.text.as_ref();
         let next_text = next.text.as_ref();
 
-        if (prev_text.ends_with('\'') || prev_text.ends_with('’'))
-            && next_text
-                .chars()
-                .next()
-                .is_some_and(crate::utils::is_korean_char)
-            && next_text.starts_with("이다")
-        {
+        if (prev_text.ends_with('\'') || prev_text.ends_with('’')) && next_text.chars().next().is_some_and(crate::utils::is_korean_char) && next_text.starts_with("이다") {
             return Ok(TokenAction::ReplaceMany(vec![]));
         }
 

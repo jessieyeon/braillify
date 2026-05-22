@@ -15,12 +15,7 @@ impl TokenRule for WordShortcutRule {
         100
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -34,13 +29,6 @@ impl TokenRule for WordShortcutRule {
         }
 
         let rest_chars: Vec<char> = rest.chars().collect();
-        Ok(TokenAction::ReplaceMany(vec![
-            Token::PreEncoded(code.to_vec()),
-            Token::Word(WordToken {
-                text: Cow::Owned(rest),
-                chars: rest_chars.clone(),
-                meta: WordMeta::from_chars(&rest_chars),
-            }),
-        ]))
+        Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(code.to_vec()), Token::Word(WordToken { text: Cow::Owned(rest), chars: rest_chars.clone(), meta: WordMeta::from_chars(&rest_chars) })]))
     }
 }

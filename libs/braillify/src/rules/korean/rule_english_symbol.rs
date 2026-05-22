@@ -13,13 +13,7 @@ use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::symbol_shortcut;
 use crate::utils;
 
-pub static META: RuleMeta = RuleMeta {
-    section: "49",
-    subsection: Some("eng"),
-    name: "english_symbol_context",
-    standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 + Ch.6 Sec.13",
-    description: "English-context punctuation rendering with parenthesis tracking",
-};
+pub static META: RuleMeta = RuleMeta { section: "49", subsection: Some("eng"), name: "english_symbol_context", standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 + Ch.6 Sec.13", description: "English-context punctuation rendering with parenthesis tracking" };
 
 pub struct RuleEnglishSymbol;
 
@@ -45,15 +39,7 @@ impl BrailleRule for RuleEnglishSymbol {
             return Ok(RuleResult::Skip);
         };
 
-        let mut use_english_symbol = english_logic::should_render_symbol_as_english(
-            ctx.state.english_indicator,
-            ctx.state.is_english,
-            &ctx.state.parenthesis_stack,
-            *sym,
-            ctx.word_chars,
-            ctx.index,
-            ctx.remaining_words,
-        );
+        let mut use_english_symbol = english_logic::should_render_symbol_as_english(ctx.state.english_indicator, ctx.state.is_english, &ctx.state.parenthesis_stack, *sym, ctx.word_chars, ctx.index, ctx.remaining_words);
 
         // 제39항 영-한 wrap context: 단어 끝의 영어 모드 유지 가능 기호(. , : ;)
         // 다음에 한글 어절(wrap 대상)이 이어지면 그 기호를 영어 점자로 처리한다.
@@ -72,11 +58,7 @@ impl BrailleRule for RuleEnglishSymbol {
         if *sym == '(' {
             ctx.state.parenthesis_stack.push(use_english_symbol);
         } else if *sym == ')' {
-            use_english_symbol = ctx
-                .state
-                .parenthesis_stack
-                .pop()
-                .unwrap_or(use_english_symbol);
+            use_english_symbol = ctx.state.parenthesis_stack.pop().unwrap_or(use_english_symbol);
         }
 
         let has_ascii_alphabetic = ctx.word_chars.iter().any(|ch| ch.is_ascii_alphabetic());
@@ -93,10 +75,7 @@ impl BrailleRule for RuleEnglishSymbol {
                 if *sym == '-' && ctx.state.is_english {
                     // 다음 글자가 숫자이면 수표(⠼)가 emit되므로 연속표(⠰)는
                     // 불필요하다 (제35항 D-100 같은 영문-숫자 인접 패턴).
-                    let next_is_digit = ctx
-                        .word_chars
-                        .get(ctx.index + 1)
-                        .is_some_and(|c| c.is_ascii_digit());
+                    let next_is_digit = ctx.word_chars.get(ctx.index + 1).is_some_and(|c| c.is_ascii_digit());
                     if !next_is_digit {
                         ctx.emit(crate::rules::korean::rule_29::ENGLISH_CONTINUATION);
                     }
@@ -106,9 +85,7 @@ impl BrailleRule for RuleEnglishSymbol {
         }
 
         if *sym == ',' {
-            let next_char = ctx
-                .next_char()
-                .or_else(|| ctx.remaining_words.first().and_then(|w| w.chars().next()));
+            let next_char = ctx.next_char().or_else(|| ctx.remaining_words.first().and_then(|w| w.chars().next()));
             if next_char.is_some_and(utils::is_korean_char) {
                 ctx.emit_slice(symbol_shortcut::encode_char_symbol_shortcut(*sym)?);
                 return Ok(RuleResult::Consumed);

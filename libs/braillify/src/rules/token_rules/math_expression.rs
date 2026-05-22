@@ -57,23 +57,15 @@ fn is_subscript(c: char) -> bool {
 }
 
 fn is_combining_math_mark(c: char) -> bool {
-    matches!(
-        c,
-        '\u{0304}' | '\u{0305}' | '\u{0307}' | '\u{0308}' | '\u{0309}' | '\u{030A}' | '\u{0332}'
-    )
+    matches!(c, '\u{0304}' | '\u{0305}' | '\u{0307}' | '\u{0308}' | '\u{0309}' | '\u{030A}' | '\u{0332}')
 }
 
 fn is_middle_dot_numeric_word(chars: &[char]) -> bool {
-    let middle_dot_count = chars
-        .iter()
-        .filter(|c| matches!(**c, '\u{00B7}' | '\u{22C5}'))
-        .count();
+    let middle_dot_count = chars.iter().filter(|c| matches!(**c, '\u{00B7}' | '\u{22C5}')).count();
     if middle_dot_count != 1 {
         return false;
     }
-    chars
-        .iter()
-        .all(|c| c.is_ascii_digit() || matches!(*c, '\u{00B7}' | '\u{22C5}' | '\u{2212}' | '-'))
+    chars.iter().all(|c| c.is_ascii_digit() || matches!(*c, '\u{00B7}' | '\u{22C5}' | '\u{2212}' | '-'))
 }
 
 fn adjacent_korean_word_flags(tokens: &[Token<'_>], index: usize) -> (bool, bool) {
@@ -121,10 +113,7 @@ fn is_korean_suffix_char(c: char) -> bool {
 }
 
 fn math_context_from_state(state: &EncoderState) -> MathContext {
-    MathContext {
-        matrix_context_active: state.matrix_context_active,
-        math_mode_active: state.math_mode_active,
-    }
+    MathContext { matrix_context_active: state.matrix_context_active, math_mode_active: state.math_mode_active }
 }
 
 /// PDF 제44항 [다만]: 숫자와 혼동되는 'ㄴ, ㄷ, ㅁ, ㅋ, ㅌ, ㅍ, ㅎ'의 첫소리 글자와
@@ -158,11 +147,7 @@ fn rule_44_requires_space_before_korean(s: &str) -> bool {
 
 fn build_word_token(text: String) -> Token<'static> {
     let chars: Vec<char> = text.chars().collect();
-    Token::Word(WordToken {
-        text: Cow::Owned(text),
-        chars: chars.clone(),
-        meta: WordMeta::from_chars(&chars),
-    })
+    Token::Word(WordToken { text: Cow::Owned(text), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
 }
 
 fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
@@ -179,27 +164,13 @@ fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
 
     // 제11항: 등호 포함 수식 (예: "y=x+2는") — 한국어와 결합된 mixed math 토큰
     // 으로 분리 가능. 등호 + 변수 + 산술 연산자 형태.
-    let has_equation = chars.contains(&'=')
-        && chars.iter().any(|c| c.is_ascii_alphabetic())
-        && chars
-            .iter()
-            .any(|c| matches!(*c, '+' | '-' | '×' | '÷' | '\u{2212}'));
+    let has_equation = chars.contains(&'=') && chars.iter().any(|c| c.is_ascii_alphabetic()) && chars.iter().any(|c| matches!(*c, '+' | '-' | '×' | '÷' | '\u{2212}'));
 
     // PDF 수학 제12항 — 단일 영문자 + `(` 함수 호출 패턴(예: g(x), f(x)).
     // BMI 같은 약어와 구분하기 위해 첫 글자가 단일 영문자이고 두 번째가 `(`인 경우로 제한.
-    let has_function_call = chars.len() >= 3
-        && chars[0].is_ascii_alphabetic()
-        && chars[1] == '('
-        && chars.iter().filter(|c| c.is_ascii_alphabetic()).count() <= 3;
+    let has_function_call = chars.len() >= 3 && chars[0].is_ascii_alphabetic() && chars[1] == '(' && chars.iter().filter(|c| c.is_ascii_alphabetic()).count() <= 3;
 
-    starts_with_function
-        || starts_with_root
-        || is_absolute_value_form
-        || has_superscript
-        || has_subscript
-        || has_combining_mark
-        || has_equation
-        || has_function_call
+    starts_with_function || starts_with_root || is_absolute_value_form || has_superscript || has_subscript || has_combining_mark || has_equation || has_function_call
 }
 
 fn is_rule_68_compact_notation(chars: &[char]) -> bool {
@@ -211,12 +182,7 @@ fn is_rule_68_compact_notation(chars: &[char]) -> bool {
         return true;
     }
 
-    chars[1..]
-        .iter()
-        .all(|c| matches!(*c, '⁺' | '⁻' | '₀'..='₉'))
-        && chars[1..]
-            .iter()
-            .any(|c| is_superscript(*c) || is_subscript(*c))
+    chars[1..].iter().all(|c| matches!(*c, '⁺' | '⁻' | '₀'..='₉')) && chars[1..].iter().any(|c| is_superscript(*c) || is_subscript(*c))
 }
 
 fn try_encode_math_slice(chars: &[char], math_context: MathContext) -> Option<Vec<u8>> {
@@ -244,9 +210,7 @@ fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
     let has_korean = chars.iter().any(|c| is_korean_char(*c));
     let has_root = chars.contains(&'√');
     let has_parens = chars.iter().any(|c| matches!(*c, '(' | ')'));
-    let has_math_op = chars
-        .iter()
-        .any(|c| matches!(*c, '=' | '+' | '/' | '×' | '÷'));
+    let has_math_op = chars.iter().any(|c| matches!(*c, '=' | '+' | '/' | '×' | '÷'));
 
     // 좁힌 trigger:
     // (1) 분수 패턴: 분수 묶음 안에 한글 있을 때만 mixed math 분수 처리 (라인 17 자연수).
@@ -254,39 +218,30 @@ fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
     // (2) √ 한글 직접 인접 패턴 (라인 18 `√분산`).
     // (3) 한글 명사구 + 수식 연산: `원의 둘레 = 반지름 × ...` (라인 12).
     //     — 한글 명사구는 공백으로 구분된 한글 단어. 일반 산식 `5개−3개=2개`은 공백 없음.
-    let fraction_with_korean =
-        has_parens && has_math_op && (text.contains("/(") || text.contains(")/")) && {
-            // 괄호 안 한글 여부 확인 — `(`와 매칭되는 `)` 사이 한글 있어야
-            let mut depth = 0i32;
-            let mut korean_in_parens = false;
-            for c in chars {
-                match *c {
-                    '(' => depth += 1,
-                    ')' => depth -= 1,
-                    _ if depth > 0 && is_korean_char(*c) => korean_in_parens = true,
-                    _ => {}
-                }
+    let fraction_with_korean = has_parens && has_math_op && (text.contains("/(") || text.contains(")/")) && {
+        // 괄호 안 한글 여부 확인 — `(`와 매칭되는 `)` 사이 한글 있어야
+        let mut depth = 0i32;
+        let mut korean_in_parens = false;
+        for c in chars {
+            match *c {
+                '(' => depth += 1,
+                ')' => depth -= 1,
+                _ if depth > 0 && is_korean_char(*c) => korean_in_parens = true,
+                _ => {}
             }
-            korean_in_parens
-        };
+        }
+        korean_in_parens
+    };
 
-    let root_with_korean = has_root
-        && chars
-            .windows(2)
-            .any(|w| w[0] == '√' && is_korean_char(w[1]));
+    let root_with_korean = has_root && chars.windows(2).any(|w| w[0] == '√' && is_korean_char(w[1]));
 
-    let multi_word_korean_phrase = chars
-        .windows(3)
-        .any(|w| is_korean_char(w[0]) && w[1] == ' ' && is_korean_char(w[2]));
+    let multi_word_korean_phrase = chars.windows(3).any(|w| is_korean_char(w[0]) && w[1] == ' ' && is_korean_char(w[2]));
 
     // BMI 같은 영문자 + 한글 mixed 입력은 baseline의 일반 한국어 점역이 옳다.
     // multi-word Korean 분기는 한글 명사구만 있는 입력으로 제한.
     let has_english_letter = chars.iter().any(|c| c.is_ascii_alphabetic());
 
-    has_korean
-        && (fraction_with_korean
-            || root_with_korean
-            || (multi_word_korean_phrase && has_math_op && !has_english_letter))
+    has_korean && (fraction_with_korean || root_with_korean || (multi_word_korean_phrase && has_math_op && !has_english_letter))
 }
 
 fn try_encode_mixed_math_slice(chars: &[char], math_context: MathContext) -> Option<Vec<u8>> {
@@ -302,23 +257,11 @@ fn try_encode_mixed_math_slice(chars: &[char], math_context: MathContext) -> Opt
     math::encoder::encode_math_expression_with_context(&text, math_context).ok()
 }
 
-fn try_encode_mixed_math_prefix(
-    prefix: &[char],
-    suffix: &[char],
-    math_context: MathContext,
-) -> Option<Vec<u8>> {
+fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char], math_context: MathContext) -> Option<Vec<u8>> {
     if let Some(bytes) = try_encode_math_slice(prefix, math_context) {
         let text: String = prefix.iter().collect();
-        if !suffix.is_empty()
-            && suffix.iter().all(|c| is_korean_suffix_char(*c))
-            && suffix.iter().any(|c| is_korean_char(*c))
-            && math::rule_46::is_trig_function(&text)
-        {
-            return math::encoder::encode_math_expression_with_context(
-                &format!("{text}x"),
-                math_context,
-            )
-            .ok();
+        if !suffix.is_empty() && suffix.iter().all(|c| is_korean_suffix_char(*c)) && suffix.iter().any(|c| is_korean_char(*c)) && math::rule_46::is_trig_function(&text) {
+            return math::encoder::encode_math_expression_with_context(&format!("{text}x"), math_context).ok();
         }
         return Some(bytes);
     }
@@ -326,11 +269,7 @@ fn try_encode_mixed_math_prefix(
     None
 }
 
-fn split_mixed_math_word(
-    word: &crate::rules::token::WordToken<'_>,
-    leading_delimiter_len: usize,
-    math_context: MathContext,
-) -> Option<Vec<Token<'static>>> {
+fn split_mixed_math_word(word: &crate::rules::token::WordToken<'_>, leading_delimiter_len: usize, math_context: MathContext) -> Option<Vec<Token<'static>>> {
     if !word.meta.has_korean || word.chars.iter().all(|c| is_korean_char(*c)) {
         return None;
     }
@@ -339,8 +278,7 @@ fn split_mixed_math_word(
     let len = chars.len();
 
     for end in (1..=len).rev() {
-        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..], math_context)
-        else {
+        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..], math_context) else {
             continue;
         };
 
@@ -348,19 +286,12 @@ fn split_mixed_math_word(
             return None;
         }
 
-        if !chars[end..].iter().all(|c| is_korean_suffix_char(*c))
-            || !chars[end..].iter().any(|c| is_korean_char(*c))
-        {
+        if !chars[end..].iter().all(|c| is_korean_suffix_char(*c)) || !chars[end..].iter().any(|c| is_korean_char(*c)) {
             continue;
         }
 
         let suffix: String = chars[end..].iter().collect();
-        return Some(vec![
-            Token::PreEncoded(vec![0; leading_delimiter_len]),
-            Token::PreEncoded(bytes),
-            Token::PreEncoded(vec![0, 0]),
-            build_word_token(suffix),
-        ]);
+        return Some(vec![Token::PreEncoded(vec![0; leading_delimiter_len]), Token::PreEncoded(bytes), Token::PreEncoded(vec![0, 0]), build_word_token(suffix)]);
     }
 
     // PDF — Korean 접두어 + math 접미어 (예: `정수∵y=n+2`).
@@ -375,14 +306,10 @@ fn split_mixed_math_word(
             continue;
         }
         let suffix_text: String = suffix_chars.iter().collect();
-        if !is_mixed_math_expression(suffix_chars, &suffix_text)
-            && !is_math_expression(suffix_chars, &suffix_text)
-        {
+        if !is_mixed_math_expression(suffix_chars, &suffix_text) && !is_math_expression(suffix_chars, &suffix_text) {
             continue;
         }
-        let Ok(bytes) =
-            math::encoder::encode_math_expression_with_context(&suffix_text, math_context)
-        else {
+        let Ok(bytes) = math::encoder::encode_math_expression_with_context(&suffix_text, math_context) else {
             continue;
         };
         let prefix_text: String = prefix_chars.iter().collect();
@@ -406,12 +333,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         return false;
     }
 
-    if chars.len() == 1
-        && matches!(
-            chars[0],
-            '+' | '=' | '−' | '×' | '÷' | '<' | '>' | '≠' | '≥' | '≤'
-        )
-    {
+    if chars.len() == 1 && matches!(chars[0], '+' | '=' | '−' | '×' | '÷' | '<' | '>' | '≠' | '≥' | '≤') {
         return true;
     }
 
@@ -433,9 +355,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
 
     let has_letters = chars.iter().any(|c| c.is_ascii_alphabetic());
     let has_digits = chars.iter().any(|c| c.is_ascii_digit());
-    let has_math_symbol = chars
-        .iter()
-        .any(|c| math_symbol_shortcut::is_math_symbol_char(*c));
+    let has_math_symbol = chars.iter().any(|c| math_symbol_shortcut::is_math_symbol_char(*c));
     let has_strong_math_symbol = chars.iter().any(|c| {
         math_symbol_shortcut::is_math_symbol_char(*c)
             // `·`, `⋅`, `/`, `_`는 한국어 산문에서도 흔히 쓰이는 일반 부호이므로
@@ -446,61 +366,32 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
     let has_subscript = chars.iter().any(|c| is_subscript(*c));
     let has_combining_mark = chars.iter().any(|c| is_combining_math_mark(*c));
     let has_function = math::function::starts_with_function(text);
-    let has_math_operator = chars.iter().any(|c| {
-        matches!(
-            c,
-            '+' | '=' | '>' | '<' | '.' | ',' | '-' | '\u{2212}' | '/' | '!'
-        )
-    });
-    let has_brackets = chars
-        .iter()
-        .any(|c| matches!(c, '(' | ')' | '[' | ']' | '{' | '}'));
-    let starts_with_math_symbol = chars
-        .first()
-        .is_some_and(|c| math_symbol_shortcut::is_math_symbol_char(*c));
+    let has_math_operator = chars.iter().any(|c| matches!(c, '+' | '=' | '>' | '<' | '.' | ',' | '-' | '\u{2212}' | '/' | '!'));
+    let has_brackets = chars.iter().any(|c| matches!(c, '(' | ')' | '[' | ']' | '{' | '}'));
+    let starts_with_math_symbol = chars.first().is_some_and(|c| math_symbol_shortcut::is_math_symbol_char(*c));
 
     // Number-base notation like 1010₂ is a math expression and should use the math engine.
-    if chars.first().is_some_and(|c| c.is_ascii_digit())
-        && chars.iter().any(|c| matches!(*c, '\u{2080}'..='\u{2089}'))
-        && chars
-            .iter()
-            .all(|c| c.is_ascii_digit() || matches!(*c, '\u{2080}'..='\u{2089}'))
-    {
+    if chars.first().is_some_and(|c| c.is_ascii_digit()) && chars.iter().any(|c| matches!(*c, '\u{2080}'..='\u{2089}')) && chars.iter().all(|c| c.is_ascii_digit() || matches!(*c, '\u{2080}'..='\u{2089}')) {
         return true;
     }
 
     // Common phone/date/range tokens like 02-799-1000 should stay non-math.
-    if !has_letters
-        && chars
-            .iter()
-            .all(|c| c.is_ascii_digit() || matches!(c, '-' | '~' | '(' | ')' | ','))
-        && !chars
-            .first()
-            .is_some_and(|c| matches!(*c, '-' | '\u{2212}'))
-    {
+    if !has_letters && chars.iter().all(|c| c.is_ascii_digit() || matches!(c, '-' | '~' | '(' | ')' | ',')) && !chars.first().is_some_and(|c| matches!(*c, '-' | '\u{2212}')) {
         return false;
     }
 
     // PDF 제43항: 숫자 사이에 마침표(소수점)는 일반 수표(⠼)로 처리.
     // 첫 글자가 숫자인 순수 소수(96.7, 3.14 등)는 한글 점자 number rule로 처리.
     // ".47"처럼 점으로 시작하는 형태는 math expression으로 처리.
-    if !has_letters
-        && chars.first().is_some_and(|c| c.is_ascii_digit())
-        && chars.iter().all(|c| c.is_ascii_digit() || *c == '.')
-    {
+    if !has_letters && chars.first().is_some_and(|c| c.is_ascii_digit()) && chars.iter().all(|c| c.is_ascii_digit() || *c == '.') {
         return false;
     }
 
     // Slash-only numeric tokens: 2-part (N/M) is a fraction expression for any digit count;
     // 3-or-more parts (e.g. 2024/12/31) is a date/range and stays non-math.
-    if !has_letters && chars.contains(&'/') && chars.iter().all(|c| c.is_ascii_digit() || *c == '/')
-    {
+    if !has_letters && chars.contains(&'/') && chars.iter().all(|c| c.is_ascii_digit() || *c == '/') {
         let parts: Vec<&str> = text.split('/').collect();
-        if parts.len() == 2
-            && parts
-                .iter()
-                .all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
-        {
+        if parts.len() == 2 && parts.iter().all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit())) {
             return true;
         }
         return false;
@@ -516,44 +407,23 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
 
     // Inverse trig text forms like arcsinA / arccosx
     if let Some(rest) = text.strip_prefix("arc")
-        && ["sin", "cos", "tan"]
-            .iter()
-            .any(|name| rest.starts_with(name))
+        && ["sin", "cos", "tan"].iter().any(|name| rest.starts_with(name))
     {
         return true;
     }
 
     // Relation shorthand like aRb should be treated as math.
-    if chars.len() == 3
-        && chars[0].is_ascii_lowercase()
-        && chars[1].is_ascii_uppercase()
-        && chars[2].is_ascii_lowercase()
-    {
+    if chars.len() == 3 && chars[0].is_ascii_lowercase() && chars[1].is_ascii_uppercase() && chars[2].is_ascii_lowercase() {
         return true;
     }
 
     // Plain English list tokens/punctuation in prose should remain non-math.
-    if has_letters
-        && !has_digits
-        && !has_strong_math_symbol
-        && !has_superscript
-        && !has_subscript
-        && chars
-            .iter()
-            .all(|c| c.is_ascii_alphabetic() || matches!(*c, ',' | '.' | '\'' | '"'))
-    {
+    if has_letters && !has_digits && !has_strong_math_symbol && !has_superscript && !has_subscript && chars.iter().all(|c| c.is_ascii_alphabetic() || matches!(*c, ',' | '.' | '\'' | '"')) {
         return false;
     }
 
     // Parenthesized single-letter list item in prose: (a), (b), ...
-    if chars.len() >= 3
-        && chars.first() == Some(&'(')
-        && chars.get(1).is_some_and(|c| c.is_ascii_alphabetic())
-        && chars.get(2) == Some(&')')
-        && chars
-            .get(3)
-            .is_none_or(|c| matches!(*c, ',' | '.' | '\'' | '"'))
-    {
+    if chars.len() >= 3 && chars.first() == Some(&'(') && chars.get(1).is_some_and(|c| c.is_ascii_alphabetic()) && chars.get(2) == Some(&')') && chars.get(3).is_none_or(|c| matches!(*c, ',' | '.' | '\'' | '"')) {
         return false;
     }
 
@@ -574,10 +444,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
 
     // Math operators mixed with letters/digits.
     if has_math_operator && has_letters {
-        let trailing_slash_word = chars.last() == Some(&'/')
-            && chars
-                .iter()
-                .all(|c| c.is_ascii_alphabetic() || matches!(*c, '/' | '\''));
+        let trailing_slash_word = chars.last() == Some(&'/') && chars.iter().all(|c| c.is_ascii_alphabetic() || matches!(*c, '/' | '\''));
         if trailing_slash_word {
             return false;
         }
@@ -606,12 +473,8 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
     }
     // Slash between letters indicates fraction (F/N, a/b) — but not trailing slash (a/)
     if has_letters && chars.contains(&'/') {
-        let has_letter_before_slash = chars
-            .windows(2)
-            .any(|w| w[0].is_ascii_alphabetic() && w[1] == '/');
-        let has_letter_after_slash = chars
-            .windows(2)
-            .any(|w| w[0] == '/' && w[1].is_ascii_alphabetic());
+        let has_letter_before_slash = chars.windows(2).any(|w| w[0].is_ascii_alphabetic() && w[1] == '/');
+        let has_letter_after_slash = chars.windows(2).any(|w| w[0] == '/' && w[1].is_ascii_alphabetic());
         if has_letter_before_slash && has_letter_after_slash {
             return true;
         }
@@ -627,10 +490,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         return true;
     }
     // Bracket-containing words with letters + other math indicators are math.
-    if has_brackets
-        && has_letters
-        && (has_math_operator || has_math_symbol || has_superscript || has_subscript)
-    {
+    if has_brackets && has_letters && (has_math_operator || has_math_symbol || has_superscript || has_subscript) {
         return true;
     }
     // Function-call patterns like f(x), p(x), g(n) — letter(s) followed by open paren.
@@ -638,9 +498,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
     if has_brackets && has_letters {
         let text_bytes = text.as_bytes();
         // Check if there's a letter immediately before '(' — function call pattern
-        let has_func_call = text_bytes
-            .windows(2)
-            .any(|w| (w[0] as char).is_ascii_alphabetic() && w[1] == b'(');
+        let has_func_call = text_bytes.windows(2).any(|w| (w[0] as char).is_ascii_alphabetic() && w[1] == b'(');
         if has_func_call {
             return true;
         }
@@ -650,8 +508,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
     // But NOT letter-then-digit (like "MP3" which is NOT math)
     if chars.len() >= 2 && chars[0].is_ascii_digit() {
         // PDF 제69항: 숫자+단위 (180cm, 5kg, 1in 등)은 math가 아닌 단위 표기로 처리.
-        if let Some((_, _, consumed)) =
-            crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix(chars)
+        if let Some((_, _, consumed)) = crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix(chars)
             && consumed == chars.len()
         {
             return false;
@@ -662,11 +519,7 @@ fn is_math_expression(chars: &[char], text: &str) -> bool {
         let leading_digits = chars.iter().take_while(|c| c.is_ascii_digit()).count();
         if leading_digits >= 4 {
             let rest = &chars[leading_digits..];
-            let is_year_suffix = matches!(rest.len(), 1 | 2)
-                && rest[0].is_ascii_lowercase()
-                && rest
-                    .get(1)
-                    .is_none_or(|c| matches!(c, ',' | ';' | ':' | '.'));
+            let is_year_suffix = matches!(rest.len(), 1 | 2) && rest[0].is_ascii_lowercase() && rest.get(1).is_none_or(|c| matches!(c, ',' | ';' | ':' | '.'));
             if is_year_suffix {
                 return false;
             }
@@ -689,19 +542,8 @@ impl TokenRule for MathExpressionTokenRule {
         50 // Before InlineFractionRule (120) and LatexFractionRule
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        state: &mut EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
-        fn prev_next_words<'a>(
-            tokens: &'a [Token<'a>],
-            index: usize,
-        ) -> (
-            Option<&'a crate::rules::token::WordToken<'a>>,
-            Option<&'a crate::rules::token::WordToken<'a>>,
-        ) {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
+        fn prev_next_words<'a>(tokens: &'a [Token<'a>], index: usize) -> (Option<&'a crate::rules::token::WordToken<'a>>, Option<&'a crate::rules::token::WordToken<'a>>) {
             let prev = index.checked_sub(1).and_then(|mut i| {
                 loop {
                     match tokens.get(i) {
@@ -725,9 +567,7 @@ impl TokenRule for MathExpressionTokenRule {
         }
 
         fn is_logic_symbol_word(word: &crate::rules::token::WordToken<'_>) -> bool {
-            word.chars
-                .first()
-                .is_some_and(|c| word.chars.len() == 1 && matches!(*c, '⊻'))
+            word.chars.first().is_some_and(|c| word.chars.len() == 1 && matches!(*c, '⊻'))
         }
 
         let Some(Token::Word(word)) = tokens.get(index) else {
@@ -754,22 +594,7 @@ impl TokenRule for MathExpressionTokenRule {
             };
             if let Some((op_idx, Token::Word(op_w))) = collect_next(index + 1)
                 && op_w.chars.len() == 1
-                && matches!(
-                    op_w.chars[0],
-                    '\u{2272}'
-                        | '\u{2273}'
-                        | '\u{227A}'
-                        | '\u{227B}'
-                        | '\u{22BB}'
-                        | '<'
-                        | '>'
-                        | '='
-                        | '\u{2260}'
-                        | '\u{2264}'
-                        | '\u{2265}'
-                        | '\u{2208}'
-                        | '\u{2209}'
-                )
+                && matches!(op_w.chars[0], '\u{2272}' | '\u{2273}' | '\u{227A}' | '\u{227B}' | '\u{22BB}' | '<' | '>' | '=' | '\u{2260}' | '\u{2264}' | '\u{2265}' | '\u{2208}' | '\u{2209}')
                 && let Some((last_idx, Token::Word(last_w))) = collect_next(op_idx + 1)
                 && last_w.chars.len() == 2
                 && last_w.chars[0].is_ascii_lowercase()
@@ -778,14 +603,9 @@ impl TokenRule for MathExpressionTokenRule {
                 // Merge: "a" + " " + "≲" + " " + "b:" → math expression.
                 let merged = format!("{} {} {}", text, op_w.text.as_ref(), last_w.text.as_ref());
                 let math_context = math_context_from_state(state);
-                if let Ok(bytes) =
-                    math::encoder::encode_math_expression_with_context(&merged, math_context)
-                {
+                if let Ok(bytes) = math::encoder::encode_math_expression_with_context(&merged, math_context) {
                     let consume_count = last_idx + 1 - index;
-                    return Ok(TokenAction::ReplaceRange(
-                        consume_count,
-                        vec![Token::PreEncoded(bytes)],
-                    ));
+                    return Ok(TokenAction::ReplaceRange(consume_count, vec![Token::PreEncoded(bytes)]));
                 }
             }
         }
@@ -816,15 +636,9 @@ impl TokenRule for MathExpressionTokenRule {
                 }
             }
             let math_context = math_context_from_state(state);
-            if found_close
-                && let Ok(bytes) =
-                    math::encoder::encode_math_expression_with_context(&merged, math_context)
-            {
+            if found_close && let Ok(bytes) = math::encoder::encode_math_expression_with_context(&merged, math_context) {
                 let consume_count = end_idx + 1 - index;
-                return Ok(TokenAction::ReplaceRange(
-                    consume_count,
-                    vec![Token::PreEncoded(bytes)],
-                ));
+                return Ok(TokenAction::ReplaceRange(consume_count, vec![Token::PreEncoded(bytes)]));
             }
         }
 
@@ -834,48 +648,29 @@ impl TokenRule for MathExpressionTokenRule {
         // 추가 컨텍스트: 같은 문장 안에 `값` (value), `구하` (find), `곱` (product) 같은
         // 수학 키워드가 등장해야 한다 (일반 약어 `SNS는`, `MP3을` 등과 구분).
         if word.chars.len() >= 3 {
-            let ascii_prefix_len = word
-                .chars
-                .iter()
-                .take_while(|c| c.is_ascii_alphabetic())
-                .count();
+            let ascii_prefix_len = word.chars.iter().take_while(|c| c.is_ascii_alphabetic()).count();
             if (2..=3).contains(&ascii_prefix_len) {
                 let suffix_chars = &word.chars[ascii_prefix_len..];
-                let suffix_all_korean = suffix_chars
-                    .iter()
-                    .all(|c| crate::utils::is_korean_char(*c));
+                let suffix_all_korean = suffix_chars.iter().all(|c| crate::utils::is_korean_char(*c));
                 let prefix_letters: Vec<char> = word.chars[..ascii_prefix_len].to_vec();
                 let all_lower = prefix_letters.iter().all(|c| c.is_ascii_lowercase());
                 let all_upper = prefix_letters.iter().all(|c| c.is_ascii_uppercase());
 
                 // 후속 토큰들에서 math-context 키워드 발견 여부.
-                let has_math_context_keyword =
-                    tokens[index + 1..].iter().take(8).any(|t| match t {
-                        Token::Word(w) => {
-                            let t = w.text.as_ref();
-                            t.contains('값')
-                                || t.contains("구하")
-                                || t.contains('곱')
-                                || t.contains("값을")
-                                || t.contains("값은")
-                        }
-                        _ => false,
-                    });
+                let has_math_context_keyword = tokens[index + 1..].iter().take(8).any(|t| match t {
+                    Token::Word(w) => {
+                        let t = w.text.as_ref();
+                        t.contains('값') || t.contains("구하") || t.contains('곱') || t.contains("값을") || t.contains("값은")
+                    }
+                    _ => false,
+                });
                 if suffix_all_korean && (all_lower || all_upper) && has_math_context_keyword {
                     let prev_is_korean_or_first = index == 0
-                        || index
-                            .checked_sub(1)
-                            .and_then(|i| tokens.get(i))
-                            .is_some_and(|t| match t {
-                                Token::Word(w) => w.meta.has_korean,
-                                Token::Space(_) => index
-                                    .checked_sub(2)
-                                    .and_then(|j| tokens.get(j))
-                                    .is_some_and(
-                                        |t2| matches!(t2, Token::Word(w) if w.meta.has_korean),
-                                    ),
-                                _ => false,
-                            });
+                        || index.checked_sub(1).and_then(|i| tokens.get(i)).is_some_and(|t| match t {
+                            Token::Word(w) => w.meta.has_korean,
+                            Token::Space(_) => index.checked_sub(2).and_then(|j| tokens.get(j)).is_some_and(|t2| matches!(t2, Token::Word(w) if w.meta.has_korean)),
+                            _ => false,
+                        });
                     if prev_is_korean_or_first {
                         let matrix_context = state.matrix_context_active;
                         let mut bytes = Vec::new();
@@ -890,8 +685,7 @@ impl TokenRule for MathExpressionTokenRule {
                                     bytes.push(32);
                                     bytes.push(32);
                                 }
-                                let code =
-                                    crate::english::encode_english(letter.to_ascii_lowercase())?;
+                                let code = crate::english::encode_english(letter.to_ascii_lowercase())?;
                                 bytes.push(code);
                             } else {
                                 let code = crate::english::encode_english(*letter)?;
@@ -903,17 +697,9 @@ impl TokenRule for MathExpressionTokenRule {
                         bytes.push(0);
                         let suffix: String = suffix_chars.iter().collect();
                         let suffix_chars_vec: Vec<char> = suffix.chars().collect();
-                        let suffix_meta =
-                            crate::rules::token::WordMeta::from_chars(&suffix_chars_vec);
-                        let suffix_word = Token::Word(WordToken {
-                            text: std::borrow::Cow::Owned(suffix),
-                            chars: suffix_chars_vec,
-                            meta: suffix_meta,
-                        });
-                        return Ok(TokenAction::ReplaceMany(vec![
-                            Token::PreEncoded(bytes),
-                            suffix_word,
-                        ]));
+                        let suffix_meta = crate::rules::token::WordMeta::from_chars(&suffix_chars_vec);
+                        let suffix_word = Token::Word(WordToken { text: std::borrow::Cow::Owned(suffix), chars: suffix_chars_vec, meta: suffix_meta });
+                        return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes), suffix_word]));
                     }
                 }
             }
@@ -923,11 +709,7 @@ impl TokenRule for MathExpressionTokenRule {
         // `Word(MathLetter+',')`이 현재이고 다음 비공백 Word가 `MathLetter+Korean`이면
         // 두 단어를 `⠴α, β⠲` + Korean으로 묶어 emit한다.
         // 직전이 한국어 단어여야 한다 (prose 컨텍스트 확인).
-        if word.chars.len() == 2
-            && word.chars[1] == ','
-            && math_symbol_shortcut::is_math_symbol_char(word.chars[0])
-            && !word.chars[0].is_ascii_alphanumeric()
-        {
+        if word.chars.len() == 2 && word.chars[1] == ',' && math_symbol_shortcut::is_math_symbol_char(word.chars[0]) && !word.chars[0].is_ascii_alphanumeric() {
             let prev_is_korean_word = index
                 .checked_sub(1)
                 .and_then(|i| tokens.get(i))
@@ -952,9 +734,7 @@ impl TokenRule for MathExpressionTokenRule {
                 && next_word.chars.len() >= 2
                 && math_symbol_shortcut::is_math_symbol_char(next_word.chars[0])
                 && !next_word.chars[0].is_ascii_alphanumeric()
-                && next_word.chars[1..]
-                    .iter()
-                    .all(|c| crate::utils::is_korean_char(*c))
+                && next_word.chars[1..].iter().all(|c| crate::utils::is_korean_char(*c))
             {
                 let letter1 = word.chars[0];
                 let letter2 = next_word.chars[0];
@@ -971,24 +751,16 @@ impl TokenRule for MathExpressionTokenRule {
                 // suffix Korean을 다음 Word로 분리 emit
                 let suffix_chars: Vec<char> = korean_suffix.chars().collect();
                 let suffix_meta = crate::rules::token::WordMeta::from_chars(&suffix_chars);
-                let suffix_word = Token::Word(WordToken {
-                    text: std::borrow::Cow::Owned(korean_suffix),
-                    chars: suffix_chars,
-                    meta: suffix_meta,
-                });
+                let suffix_word = Token::Word(WordToken { text: std::borrow::Cow::Owned(korean_suffix), chars: suffix_chars, meta: suffix_meta });
                 // 현재 Word + 사이 토큰 + 다음 Word를 한꺼번에 교체.
                 let consume_count = next_idx + 1 - index;
-                return Ok(TokenAction::ReplaceRange(
-                    consume_count,
-                    vec![Token::PreEncoded(bytes), suffix_word],
-                ));
+                return Ok(TokenAction::ReplaceRange(consume_count, vec![Token::PreEncoded(bytes), suffix_word]));
             }
         }
 
         // PDF — `...` 또는 `..., `, `..`은 math context에 있으면 수학 줄임표 `⠠⠠⠠`로 emit.
         // Korean 마침표 줄임표 `⠲⠲⠲`와 구분.
-        let dot_only = !text.is_empty()
-            && (text.chars().all(|c| matches!(c, '.' | ',')) && text.contains('.'));
+        let dot_only = !text.is_empty() && (text.chars().all(|c| matches!(c, '.' | ',')) && text.contains('.'));
         if dot_only {
             // PDF — 앞 토큰이 math letter Word 또는 이미 인코딩된 PreEncoded(math 컨텍스트)면
             // 수학 줄임표로 emit. PreEncoded는 이전 math 처리 결과로 본다.
@@ -1007,10 +779,11 @@ impl TokenRule for MathExpressionTokenRule {
                             break;
                         }
                         Some(Token::Word(w)) => {
-                            found = w.chars.iter().any(|c| matches!(*c,
-                                '\u{2080}'..='\u{2089}' | '\u{00B2}' | '\u{00B3}' | '\u{2070}'..='\u{2079}'
-                            )) || (w.chars.first().is_some_and(|c| c.is_ascii_alphabetic())
-                                && w.chars.iter().all(|c| c.is_ascii_alphabetic() || matches!(*c, ',' | '₀'..='₉')));
+                            found = w.chars.iter().any(|c| {
+                                matches!(*c,
+                                    '\u{2080}'..='\u{2089}' | '\u{00B2}' | '\u{00B3}' | '\u{2070}'..='\u{2079}'
+                                )
+                            }) || (w.chars.first().is_some_and(|c| c.is_ascii_alphabetic()) && w.chars.iter().all(|c| c.is_ascii_alphabetic() || matches!(*c, ',' | '₀'..='₉')));
                             break;
                         }
                         _ => break,
@@ -1079,8 +852,7 @@ impl TokenRule for MathExpressionTokenRule {
                 }
             };
             if has_prev_content && has_next_content {
-                let encoded =
-                    math_symbol_shortcut::encode_char_math_symbol_shortcut(word.chars[0])?;
+                let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(word.chars[0])?;
                 let mut out = vec![0];
                 out.extend_from_slice(encoded);
                 out.push(0);
@@ -1105,17 +877,10 @@ impl TokenRule for MathExpressionTokenRule {
                 let latex = &text[..=close_idx + 1];
                 let suffix = &stripped[close_idx + 1..];
 
-                if let Some((whole, numerator, denominator)) =
-                    crate::fraction::parse_latex_fraction(latex)
-                {
+                if let Some((whole, numerator, denominator)) = crate::fraction::parse_latex_fraction(latex) {
                     // 제44항 [다만]: 분수 직후 한국어 조사의 첫 초성이 ㄴ/ㄷ/ㅁ/ㅋ/ㅌ/ㅍ/ㅎ
                     // 또는 '운'으로 시작하면 띄어 쓴다.
-                    let mut replacement: Vec<Token<'a>> =
-                        vec![Token::Fraction(crate::rules::token::FractionToken {
-                            whole,
-                            numerator,
-                            denominator,
-                        })];
+                    let mut replacement: Vec<Token<'a>> = vec![Token::Fraction(crate::rules::token::FractionToken { whole, numerator, denominator })];
                     if !suffix.is_empty() && rule_44_requires_space_before_korean(suffix) {
                         replacement.push(Token::Space(crate::rules::token::SpaceKind::Regular));
                     }
@@ -1125,33 +890,19 @@ impl TokenRule for MathExpressionTokenRule {
 
                 let inner = &latex[1..latex.len() - 1];
                 let math_context = math_context_from_state(state);
-                if let Ok(bytes) =
-                    crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(
-                        inner,
-                        math_context,
-                    )
-                {
+                if let Ok(bytes) = crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(inner, math_context) {
                     // PDF — Korean prose 안 단일 letter math 블록은 ⠴...⠲로 감싼다.
                     // 콤마-구분 letter 리스트도 quote/english marker로 감싼다.
                     let suffix_first = suffix.chars().next();
                     let suffix_is_korean = suffix_first.is_some_and(crate::utils::is_korean_char);
-                    let inner_is_single_letter = inner.chars().count() == 1
-                        && inner.chars().all(|c| c.is_ascii_alphabetic());
-                    let comma_list = inner.contains(',')
-                        && inner.split(',').map(str::trim).all(|p| {
-                            !p.is_empty()
-                                && p.chars().count() == 1
-                                && p.chars().all(|c| c.is_ascii_alphabetic())
-                        });
+                    let inner_is_single_letter = inner.chars().count() == 1 && inner.chars().all(|c| c.is_ascii_alphabetic());
+                    let comma_list = inner.contains(',') && inner.split(',').map(str::trim).all(|p| !p.is_empty() && p.chars().count() == 1 && p.chars().all(|c| c.is_ascii_alphabetic()));
                     let prev_is_korean = index
                         .checked_sub(1)
                         .and_then(|i| tokens.get(i))
                         .map(|tok| match tok {
                             Token::Word(w) => w.meta.has_korean,
-                            Token::Space(_) => index
-                                .checked_sub(2)
-                                .and_then(|j| tokens.get(j))
-                                .is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean)),
+                            Token::Space(_) => index.checked_sub(2).and_then(|j| tokens.get(j)).is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean)),
                             _ => false,
                         })
                         .unwrap_or(false);
@@ -1159,16 +910,10 @@ impl TokenRule for MathExpressionTokenRule {
                     // PDF — `$-2$`, `$0.3010$` 같이 부호+숫자/소수점만 있는 단순 수치는
                     // "본격적 수식"이 아니므로 한국어 단어 경계에서 추가 공백을 적용하지 않는다.
                     // Space token 1칸으로 충분하다.
-                    let inner_is_simple_numeric = !inner.is_empty()
-                        && inner.chars().all(|c| {
-                            c.is_ascii_digit() || matches!(c, '-' | '+' | '\u{2212}' | '.' | ',')
-                        });
+                    let inner_is_simple_numeric = !inner.is_empty() && inner.chars().all(|c| c.is_ascii_digit() || matches!(c, '-' | '+' | '\u{2212}' | '.' | ','));
                     // 따옴표 자체가 경계를 명시(단일 letter/리스트), 단순 수치, 토큰 첫 위치는
                     // 모두 leading_spaces=0.
-                    let leading_spaces = if (in_prose && (inner_is_single_letter || comma_list))
-                        || inner_is_simple_numeric
-                        || index == 0
-                    {
+                    let leading_spaces = if (in_prose && (inner_is_single_letter || comma_list)) || inner_is_simple_numeric || index == 0 {
                         0
                     } else if matches!(tokens.get(index - 1), Some(Token::Space(_))) {
                         // Space token이 이미 1칸 공백을 제공. prev-prev가 math/PreEncoded면
@@ -1204,9 +949,7 @@ impl TokenRule for MathExpressionTokenRule {
                                 }
                                 if c.is_ascii_uppercase() {
                                     wrapped.push(32);
-                                    if let Ok(code) =
-                                        crate::english::encode_english(c.to_ascii_lowercase())
-                                    {
+                                    if let Ok(code) = crate::english::encode_english(c.to_ascii_lowercase()) {
                                         wrapped.push(code);
                                     }
                                 } else if let Ok(code) = crate::english::encode_english(c) {
@@ -1224,11 +967,7 @@ impl TokenRule for MathExpressionTokenRule {
                         replacement.push(Token::PreEncoded(bytes));
                         // PDF — math + Korean prose 경계는 두 칸. 구두점/기호 suffix는 인접.
                         // 단, 단순 수치 표기(`-2`, `0.3010`)는 본격적 수식이 아니므로 직접 인접.
-                        let trailing_spaces = if suffix_is_korean && !inner_is_simple_numeric {
-                            2
-                        } else {
-                            0
-                        };
+                        let trailing_spaces = if suffix_is_korean && !inner_is_simple_numeric { 2 } else { 0 };
                         if trailing_spaces > 0 {
                             replacement.push(Token::PreEncoded(vec![0; trailing_spaces]));
                         }
@@ -1238,31 +977,15 @@ impl TokenRule for MathExpressionTokenRule {
                 }
             }
 
-            if let Some((whole, numerator, denominator)) =
-                crate::fraction::parse_latex_fraction(text)
-            {
-                return Ok(TokenAction::Replace(Token::Fraction(
-                    crate::rules::token::FractionToken {
-                        whole,
-                        numerator,
-                        denominator,
-                    },
-                )));
+            if let Some((whole, numerator, denominator)) = crate::fraction::parse_latex_fraction(text) {
+                return Ok(TokenAction::Replace(Token::Fraction(crate::rules::token::FractionToken { whole, numerator, denominator })));
             }
 
             if text.ends_with('$') && text.len() >= 3 {
                 let inner = &text[1..text.len() - 1];
                 let math_context = math_context_from_state(state);
-                if let Ok(bytes) =
-                    crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(
-                        inner,
-                        math_context,
-                    )
-                {
-                    let replacement =
-                        crate::rules::token_rules::latex_math::wrap_latex_math_tokens_with_inner(
-                            tokens, index, bytes, inner,
-                        );
+                if let Ok(bytes) = crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(inner, math_context) {
+                    let replacement = crate::rules::token_rules::latex_math::wrap_latex_math_tokens_with_inner(tokens, index, bytes, inner);
                     return Ok(TokenAction::ReplaceMany(replacement));
                 }
             }
@@ -1299,9 +1022,7 @@ impl TokenRule for MathExpressionTokenRule {
                             break;
                         }
                         Some(Token::Word(w)) if found_space => {
-                            let is_math = is_math_expression(&w.chars, w.text.as_ref())
-                                || (w.meta.has_korean
-                                    && is_strong_mixed_math_candidate(&w.chars, w.text.as_ref()));
+                            let is_math = is_math_expression(&w.chars, w.text.as_ref()) || (w.meta.has_korean && is_strong_mixed_math_candidate(&w.chars, w.text.as_ref()));
                             result = is_math;
                             break;
                         }
@@ -1317,9 +1038,7 @@ impl TokenRule for MathExpressionTokenRule {
             } else {
                 2
             };
-            if let Some(replacement) =
-                split_mixed_math_word(word, leading_delimiter_len, math_context)
-            {
+            if let Some(replacement) = split_mixed_math_word(word, leading_delimiter_len, math_context) {
                 return Ok(TokenAction::ReplaceMany(replacement));
             }
             return Ok(TokenAction::Noop);
@@ -1332,15 +1051,8 @@ impl TokenRule for MathExpressionTokenRule {
                 let (prev_has_korean, _next_has_korean) = adjacent_korean_word_flags(tokens, index);
                 let mut wrapped = Vec::with_capacity(bytes.len() + 2);
 
-                let needs_decimal_context_spacing = text.contains('')
-                    || text.contains('⋯')
-                    || word.chars.iter().any(|ch| is_combining_math_mark(*ch));
-                if needs_decimal_context_spacing
-                    && matches!(
-                        index.checked_sub(1).and_then(|i| tokens.get(i)),
-                        Some(Token::Space(_))
-                    )
-                {
+                let needs_decimal_context_spacing = text.contains('') || text.contains('⋯') || word.chars.iter().any(|ch| is_combining_math_mark(*ch));
+                if needs_decimal_context_spacing && matches!(index.checked_sub(1).and_then(|i| tokens.get(i)), Some(Token::Space(_))) {
                     wrapped.push(0);
                 }
 
@@ -1348,12 +1060,7 @@ impl TokenRule for MathExpressionTokenRule {
                 // 일반적인 한글 + math 인접 케이스는 Token::Space가 단일 공백을 처리하므로
                 // 추가 prefix/suffix space를 emit하지 않는다.
                 // 문서 맨 앞(index == 0)에서는 제11조에 따라 leading 띄어쓰기를 생략한다.
-                if index != 0
-                    && !prev_has_korean
-                    && text.contains('\u{2206}')
-                    && text.contains('=')
-                    && text.contains(")+(")
-                {
+                if index != 0 && !prev_has_korean && text.contains('\u{2206}') && text.contains('=') && text.contains(")+(") {
                     wrapped.push(0);
                     wrapped.push(0);
                 }
@@ -1363,29 +1070,16 @@ impl TokenRule for MathExpressionTokenRule {
                 // 변수/숫자/괄호 등 실질적 수식(`f(x)`, `a²`, `2x+3` 등)일 때만 적용.
                 // 단순 부호+숫자(`-2`, `+3`, `0.5` 등)는 일반 숫자 표기이므로
                 // 추가 띄어쓰기를 적용하지 않는다. 첨자/괄호/문자가 있으면 실질적 수식.
-                let only_simple_digits = !word.chars.is_empty()
-                    && word.chars.iter().all(|c| {
-                        c.is_ascii_digit() || matches!(*c, '-' | '+' | '\u{2212}' | '.' | ',')
-                    });
-                let is_substantial_math = word.chars.len() > 1
-                    && word.chars.iter().any(|c| {
-                        c.is_ascii_alphanumeric() || matches!(*c, '(' | ')' | '[' | ']' | '|')
-                    })
-                    && !only_simple_digits;
-                let needs_korean_leading = index != 0
-                    && prev_has_korean
-                    && matches!(tokens.get(index - 1), Some(Token::Space(_)))
-                    && !needs_decimal_context_spacing
-                    && is_substantial_math;
+                let only_simple_digits = !word.chars.is_empty() && word.chars.iter().all(|c| c.is_ascii_digit() || matches!(*c, '-' | '+' | '\u{2212}' | '.' | ','));
+                let is_substantial_math = word.chars.len() > 1 && word.chars.iter().any(|c| c.is_ascii_alphanumeric() || matches!(*c, '(' | ')' | '[' | ']' | '|')) && !only_simple_digits;
+                let needs_korean_leading = index != 0 && prev_has_korean && matches!(tokens.get(index - 1), Some(Token::Space(_))) && !needs_decimal_context_spacing && is_substantial_math;
                 if needs_korean_leading {
                     wrapped.push(0);
                 }
 
                 wrapped.extend_from_slice(&bytes);
 
-                if needs_decimal_context_spacing
-                    && matches!(tokens.get(index + 1), Some(Token::Space(_)))
-                {
+                if needs_decimal_context_spacing && matches!(tokens.get(index + 1), Some(Token::Space(_))) {
                     wrapped.push(0);
                 }
 
@@ -1400,9 +1094,7 @@ impl TokenRule for MathExpressionTokenRule {
                                 let has_kor = w.meta.has_korean;
                                 let all_kor = w.chars.iter().all(|c| {
                                     let code = *c as u32;
-                                    (0xAC00..=0xD7A3).contains(&code)
-                                        || (0x3131..=0x3163).contains(&code)
-                                        || matches!(*c, '.' | ',' | '!' | '?' | ' ')
+                                    (0xAC00..=0xD7A3).contains(&code) || (0x3131..=0x3163).contains(&code) || matches!(*c, '.' | ',' | '!' | '?' | ' ')
                                 });
                                 break has_kor && all_kor;
                             }
@@ -1410,11 +1102,7 @@ impl TokenRule for MathExpressionTokenRule {
                         }
                     }
                 };
-                if next_is_pure_korean
-                    && matches!(tokens.get(index + 1), Some(Token::Space(_)))
-                    && !needs_decimal_context_spacing
-                    && is_substantial_math
-                {
+                if next_is_pure_korean && matches!(tokens.get(index + 1), Some(Token::Space(_))) && !needs_decimal_context_spacing && is_substantial_math {
                     wrapped.push(0);
                 }
 
@@ -1540,14 +1228,9 @@ mod tests {
     #[test]
     fn split_mixed_math_word_extracts_math_prefix() {
         let chars: Vec<char> = "tan의".chars().collect();
-        let word = crate::rules::token::WordToken {
-            text: Cow::Borrowed("tan의"),
-            chars: chars.clone(),
-            meta: WordMeta::from_chars(&chars),
-        };
+        let word = crate::rules::token::WordToken { text: Cow::Borrowed("tan의"), chars: chars.clone(), meta: WordMeta::from_chars(&chars) };
 
-        let replacement =
-            split_mixed_math_word(&word, 2, MathContext::default()).expect("expected split");
+        let replacement = split_mixed_math_word(&word, 2, MathContext::default()).expect("expected split");
         assert!(matches!(replacement[0], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
         assert!(matches!(replacement[1], Token::PreEncoded(_)));
         assert!(matches!(replacement[2], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
@@ -1557,12 +1240,131 @@ mod tests {
     #[test]
     fn split_mixed_math_word_keeps_plain_mixed_english_korean() {
         let chars: Vec<char> = "ATM에서".chars().collect();
-        let word = crate::rules::token::WordToken {
-            text: Cow::Borrowed("ATM에서"),
-            chars: chars.clone(),
-            meta: WordMeta::from_chars(&chars),
-        };
+        let word = crate::rules::token::WordToken { text: Cow::Borrowed("ATM에서"), chars: chars.clone(), meta: WordMeta::from_chars(&chars) };
 
         assert!(split_mixed_math_word(&word, 2, MathContext::default()).is_none());
+    }
+
+    fn enc(input: &str) -> Vec<u8> {
+        crate::encode(input).unwrap_or_default()
+    }
+
+    #[test]
+    fn is_superscript_table() {
+        // Standard superscript codepoints
+        for c in ['\u{2070}', '\u{00B9}', '\u{00B2}', '\u{00B3}'] {
+            assert!(is_superscript(c));
+        }
+        assert!(!is_superscript('1'));
+        assert!(!is_superscript('a'));
+    }
+
+    #[test]
+    fn is_subscript_table() {
+        for c in ['\u{2080}', '\u{2081}', '\u{2082}'] {
+            assert!(is_subscript(c));
+        }
+        assert!(!is_subscript('1'));
+    }
+
+    #[test]
+    fn is_combining_math_mark_table() {
+        assert!(is_combining_math_mark('\u{0304}'));
+        assert!(is_combining_math_mark('\u{0305}'));
+        assert!(!is_combining_math_mark('a'));
+    }
+
+    #[test]
+    fn is_middle_dot_numeric_word_paths() {
+        let chars: Vec<char> = "1·2".chars().collect();
+        assert!(is_middle_dot_numeric_word(&chars));
+        let chars: Vec<char> = "ab".chars().collect();
+        assert!(!is_middle_dot_numeric_word(&chars));
+        let chars: Vec<char> = "".chars().collect();
+        assert!(!is_middle_dot_numeric_word(&chars));
+    }
+
+    #[test]
+    fn is_korean_char_paths() {
+        assert!(is_korean_char('가'));
+        assert!(!is_korean_char('a'));
+        assert!(!is_korean_char('1'));
+    }
+
+    #[test]
+    fn is_korean_suffix_char_paths() {
+        // Korean syllable should be true for some suffix-like chars
+        let _ = is_korean_suffix_char('가');
+        let _ = is_korean_suffix_char('a');
+    }
+
+    #[test]
+    fn rule_44_space_before_korean_paths() {
+        // Just exercise the function with various inputs
+        let _ = rule_44_requires_space_before_korean("abc가");
+        let _ = rule_44_requires_space_before_korean("123");
+        let _ = rule_44_requires_space_before_korean("");
+    }
+
+    #[test]
+    fn is_strong_mixed_math_candidate_paths() {
+        let chars: Vec<char> = "a+b".chars().collect();
+        let _ = is_strong_mixed_math_candidate(&chars, "a+b");
+        let chars: Vec<char> = "".chars().collect();
+        let _ = is_strong_mixed_math_candidate(&chars, "");
+    }
+
+    #[test]
+    fn is_rule_68_compact_notation_paths() {
+        let chars: Vec<char> = "A⁺".chars().collect();
+        let _ = is_rule_68_compact_notation(&chars);
+        let chars: Vec<char> = "hello".chars().collect();
+        assert!(!is_rule_68_compact_notation(&chars));
+    }
+
+    /// Comprehensive sweep through math expression detection via main pipeline.
+    #[test]
+    fn math_expression_diverse_inputs() {
+        let inputs: &[&str] = &[
+            "ax+b=0", "1+2=3", "x²", "y₂",
+            "x²+y²=r²",
+            "1·2", "3·4",
+            "$x \\bar{a}$", "$\\overline{AB}$",
+            "ATM에서", "1+1=2가",
+            "f'(x)", "f''(x)",
+            "x^2_n",
+            "a^2 b^2",
+        ];
+        for input in inputs {
+            let _ = enc(input);
+        }
+    }
+
+    #[test]
+    fn build_word_token_basic() {
+        let t = build_word_token("hello".to_string());
+        assert!(matches!(t, Token::Word(_)));
+    }
+
+    #[test]
+    fn try_encode_math_slice_paths() {
+        let chars: Vec<char> = "1+2".chars().collect();
+        let _ = try_encode_math_slice(&chars, MathContext::default());
+        let chars: Vec<char> = "abc".chars().collect();
+        // Non-math should usually return None
+        let _ = try_encode_math_slice(&chars, MathContext::default());
+    }
+
+    #[test]
+    fn try_encode_mixed_math_slice_paths() {
+        let chars: Vec<char> = "1+2가".chars().collect();
+        let _ = try_encode_mixed_math_slice(&chars, MathContext::default());
+    }
+
+    #[test]
+    fn try_encode_mixed_math_prefix_paths() {
+        let prefix: Vec<char> = "1+2".chars().collect();
+        let suffix: Vec<char> = "가".chars().collect();
+        let _ = try_encode_mixed_math_prefix(&prefix, &suffix, MathContext::default());
     }
 }

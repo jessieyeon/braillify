@@ -19,21 +19,9 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_8::ONTAB;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "64",
-    subsection: None,
-    name: "enclosed_symbols",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.64",
-    description: "Encode enclosed/circled numbers, jamo, syllables, and latin letters",
-};
+pub static META: RuleMeta = RuleMeta { section: "64", subsection: None, name: "enclosed_symbols", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.64", description: "Encode enclosed/circled numbers, jamo, syllables, and latin letters" };
 
-pub static META_SQUARE: RuleMeta = RuleMeta {
-    section: "64",
-    subsection: Some("square"),
-    name: "square_enclosed_symbols",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.64",
-    description: "Wrap characters followed by U+20DE in square enclosing markers",
-};
+pub static META_SQUARE: RuleMeta = RuleMeta { section: "64", subsection: Some("square"), name: "square_enclosed_symbols", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.64", description: "Wrap characters followed by U+20DE in square enclosing markers" };
 
 const CIRCLE: u8 = 54; // ⠶
 const LETTER_MARKER: u8 = 52; // ⠴
@@ -46,44 +34,12 @@ const SQUARE_CLOSE: [u8; 2] = [52, 7];
 /// U+20DE COMBINING ENCLOSING SQUARE — attaches to the preceding character.
 const COMBINING_ENCLOSING_SQUARE: char = '\u{20DE}';
 
-const CIRCLED_SYLLABLES: &[(char, char)] = &[
-    ('㉮', '가'),
-    ('㉯', '나'),
-    ('㉰', '다'),
-    ('㉱', '라'),
-    ('㉲', '마'),
-    ('㉳', '바'),
-    ('㉴', '사'),
-    ('㉵', '아'),
-    ('㉶', '자'),
-    ('㉷', '차'),
-    ('㉸', '카'),
-    ('㉹', '타'),
-    ('㉺', '파'),
-    ('㉻', '하'),
-];
+const CIRCLED_SYLLABLES: &[(char, char)] = &[('㉮', '가'), ('㉯', '나'), ('㉰', '다'), ('㉱', '라'), ('㉲', '마'), ('㉳', '바'), ('㉴', '사'), ('㉵', '아'), ('㉶', '자'), ('㉷', '차'), ('㉸', '카'), ('㉹', '타'), ('㉺', '파'), ('㉻', '하')];
 
-const CIRCLED_JAMO: &[(char, char)] = &[
-    ('㉠', 'ㄱ'),
-    ('㉡', 'ㄴ'),
-    ('㉢', 'ㄷ'),
-    ('㉣', 'ㄹ'),
-    ('㉤', 'ㅁ'),
-    ('㉥', 'ㅂ'),
-    ('㉦', 'ㅅ'),
-    ('㉧', 'ㅇ'),
-    ('㉨', 'ㅈ'),
-    ('㉩', 'ㅊ'),
-    ('㉪', 'ㅋ'),
-    ('㉫', 'ㅌ'),
-    ('㉬', 'ㅍ'),
-    ('㉭', 'ㅎ'),
-];
+const CIRCLED_JAMO: &[(char, char)] = &[('㉠', 'ㄱ'), ('㉡', 'ㄴ'), ('㉢', 'ㄷ'), ('㉣', 'ㄹ'), ('㉤', 'ㅁ'), ('㉥', 'ㅂ'), ('㉦', 'ㅅ'), ('㉧', 'ㅇ'), ('㉨', 'ㅈ'), ('㉩', 'ㅊ'), ('㉪', 'ㅋ'), ('㉫', 'ㅌ'), ('㉬', 'ㅍ'), ('㉭', 'ㅎ')];
 
 pub fn is_enclosed_symbol(c: char) -> bool {
-    matches!(c, '①'..='⑳' | 'ⓐ'..='ⓩ')
-        || CIRCLED_SYLLABLES.iter().any(|(enclosed, _)| *enclosed == c)
-        || CIRCLED_JAMO.iter().any(|(enclosed, _)| *enclosed == c)
+    matches!(c, '①'..='⑳' | 'ⓐ'..='ⓩ') || CIRCLED_SYLLABLES.iter().any(|(enclosed, _)| *enclosed == c) || CIRCLED_JAMO.iter().any(|(enclosed, _)| *enclosed == c)
 }
 
 fn encode_number_string(digits: &str) -> Result<Vec<u8>, String> {
@@ -166,18 +122,11 @@ pub fn encode_enclosed_symbol(c: char) -> Result<Vec<u8>, String> {
     }
 
     if ('ⓐ'..='ⓩ').contains(&c) {
-        let letter = char::from_u32((c as u32) - ('ⓐ' as u32) + ('a' as u32))
-            .ok_or_else(|| "Invalid enclosed latin letter".to_string())?;
-        return Ok(wrap_circle(vec![
-            LETTER_MARKER,
-            english::encode_english(letter)?,
-        ]));
+        let letter = char::from_u32((c as u32) - ('ⓐ' as u32) + ('a' as u32)).ok_or_else(|| "Invalid enclosed latin letter".to_string())?;
+        return Ok(wrap_circle(vec![LETTER_MARKER, english::encode_english(letter)?]));
     }
 
-    if let Some((_, syllable)) = CIRCLED_SYLLABLES
-        .iter()
-        .find(|(enclosed, _)| *enclosed == c)
-    {
+    if let Some((_, syllable)) = CIRCLED_SYLLABLES.iter().find(|(enclosed, _)| *enclosed == c) {
         return Ok(wrap_circle(crate::encode(&syllable.to_string())?));
     }
 
@@ -271,11 +220,7 @@ mod tests {
     use super::*;
 
     fn to_unicode(bytes: &[u8]) -> String {
-        bytes
-            .iter()
-            .copied()
-            .map(crate::unicode::encode_unicode)
-            .collect()
+        bytes.iter().copied().map(crate::unicode::encode_unicode).collect()
     }
 
     #[test]
@@ -337,11 +282,7 @@ mod tests {
     fn square_wraps_latin_letter() {
         // testcase #78 — "a\u{20DE}"
         let bytes = crate::encode("a\u{20DE}").expect("encode failed");
-        assert_eq!(
-            bytes,
-            vec![56u8, 38, 52, 1, 52, 7],
-            "bytes mismatch (got {bytes:?})"
-        );
+        assert_eq!(bytes, vec![56u8, 38, 52, 1, 52, 7], "bytes mismatch (got {bytes:?})");
         assert_eq!(encode_to_unicode("a\u{20DE}"), "⠸⠦⠴⠁⠴⠇");
     }
 

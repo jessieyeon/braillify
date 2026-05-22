@@ -9,13 +9,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "65",
-    subsection: None,
-    name: "currency_symbols",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.65",
-    description: "Encode currency symbols with currency marker sequence",
-};
+pub static META: RuleMeta = RuleMeta { section: "65", subsection: None, name: "currency_symbols", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.65", description: "Encode currency symbols with currency marker sequence" };
 
 const LETTER_MARKER: u8 = 52; // ⠴
 const CURRENCY_MARKER: u8 = 8; // ⠈
@@ -39,11 +33,7 @@ pub fn is_currency_symbol(c: char) -> bool {
 
 pub fn encode_currency_symbol(c: char) -> Result<Vec<u8>, String> {
     let letter = currency_letter(c).ok_or_else(|| "Invalid currency symbol".to_string())?;
-    Ok(vec![
-        LETTER_MARKER,
-        CURRENCY_MARKER,
-        english::encode_english(letter)?,
-    ])
+    Ok(vec![LETTER_MARKER, CURRENCY_MARKER, english::encode_english(letter)?])
 }
 
 pub struct Rule65;
@@ -88,11 +78,7 @@ mod tests {
     use crate::unicode::decode_unicode;
 
     fn to_unicode(bytes: &[u8]) -> String {
-        bytes
-            .iter()
-            .copied()
-            .map(crate::unicode::encode_unicode)
-            .collect()
+        bytes.iter().copied().map(crate::unicode::encode_unicode).collect()
     }
 
     #[test]

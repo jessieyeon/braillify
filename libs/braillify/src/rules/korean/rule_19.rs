@@ -3,26 +3,11 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "19",
-    subsection: None,
-    name: "middle_korean_old_consonants",
-    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.19",
-    description: "Old consonants and legacy Middle Korean syllable glyphs",
-};
+pub static META: RuleMeta = RuleMeta { section: "19", subsection: None, name: "middle_korean_old_consonants", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.19", description: "Old consonants and legacy Middle Korean syllable glyphs" };
 
-const OLD_ZIYEUT: [u8; 2] = [
-    crate::unicode::decode_unicode('⠐'),
-    crate::unicode::decode_unicode('⠅'),
-];
-const OLD_IEUNG: [u8; 2] = [
-    crate::unicode::decode_unicode('⠐'),
-    crate::unicode::decode_unicode('⠲'),
-];
-const OLD_HIEUH: [u8; 2] = [
-    crate::unicode::decode_unicode('⠐'),
-    crate::unicode::decode_unicode('⠴'),
-];
+const OLD_ZIYEUT: [u8; 2] = [crate::unicode::decode_unicode('⠐'), crate::unicode::decode_unicode('⠅')];
+const OLD_IEUNG: [u8; 2] = [crate::unicode::decode_unicode('⠐'), crate::unicode::decode_unicode('⠲')];
+const OLD_HIEUH: [u8; 2] = [crate::unicode::decode_unicode('⠐'), crate::unicode::decode_unicode('⠴')];
 
 const LEGACY_MAPPINGS: &[(char, &str)] = &[
     ('', "⠐⠨⠐⠼"),
@@ -37,10 +22,7 @@ const LEGACY_MAPPINGS: &[(char, &str)] = &[
 ];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode
-        .chars()
-        .map(crate::unicode::decode_unicode)
-        .collect()
+    unicode.chars().map(crate::unicode::decode_unicode).collect()
 }
 
 fn old_consonant_body(c: char) -> Option<&'static [u8]> {
@@ -69,20 +51,11 @@ fn forced_prefix_for_historical_jamo(ctx: &RuleContext) -> u8 {
     }
 
     let is_symbol_fn = |ch: char| matches!(CharType::new(ch), Ok(CharType::Symbol(_)));
-    crate::rules::korean::rule_8::determine_prefix(
-        ctx.word_len(),
-        ctx.index,
-        ctx.word_chars,
-        ctx.has_korean_char,
-        is_symbol_fn,
-    )
+    crate::rules::korean::rule_8::determine_prefix(ctx.word_len(), ctx.index, ctx.word_chars, ctx.has_korean_char, is_symbol_fn)
 }
 
 fn legacy_symbol_bytes(c: char) -> Option<Vec<u8>> {
-    LEGACY_MAPPINGS
-        .iter()
-        .find(|(candidate, _)| *candidate == c)
-        .map(|(_, unicode)| encode_unicode_cells(unicode))
+    LEGACY_MAPPINGS.iter().find(|(candidate, _)| *candidate == c).map(|(_, unicode)| encode_unicode_cells(unicode))
 }
 
 pub struct Rule19;
@@ -101,10 +74,7 @@ impl BrailleRule for Rule19 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::KoreanPart(c) if old_consonant_body(*c).is_some())
-            || matches!(ctx.char_type, CharType::Symbol(c) if old_consonant_body(*c).is_some())
-            || matches!(ctx.char_type, CharType::KoreanPart('ㄱ' | 'ㄷ' | 'ㅂ' | 'ㅅ' | 'ㄹ') if has_ja_annotation_markers(ctx))
-            || matches!(ctx.char_type, CharType::Symbol(c) if legacy_symbol_bytes(*c).is_some())
+        matches!(ctx.char_type, CharType::KoreanPart(c) if old_consonant_body(*c).is_some()) || matches!(ctx.char_type, CharType::Symbol(c) if old_consonant_body(*c).is_some()) || matches!(ctx.char_type, CharType::KoreanPart('ㄱ' | 'ㄷ' | 'ㅂ' | 'ㅅ' | 'ㄹ') if has_ja_annotation_markers(ctx)) || matches!(ctx.char_type, CharType::Symbol(c) if legacy_symbol_bytes(*c).is_some())
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

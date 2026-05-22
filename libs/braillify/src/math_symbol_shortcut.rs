@@ -240,11 +240,7 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
 };
 
 pub fn encode_char_math_symbol_shortcut(text: char) -> Result<&'static [u8], String> {
-    if let Some(code) = SHORTCUT_MAP.get(&text) {
-        Ok(code)
-    } else {
-        Err("Invalid math symbol character".to_string())
-    }
+    if let Some(code) = SHORTCUT_MAP.get(&text) { Ok(code) } else { Err("Invalid math symbol character".to_string()) }
 }
 
 pub fn is_math_symbol_char(text: char) -> bool {
@@ -268,28 +264,15 @@ mod test {
     #[test]
     fn test_superscript() {
         // ² should be ^#b = ⠘⠼⠃
-        assert_eq!(
-            encode_char_math_symbol_shortcut('²').unwrap(),
-            &[
-                decode_unicode('⠘'),
-                decode_unicode('⠼'),
-                decode_unicode('⠃')
-            ]
-        );
+        assert_eq!(encode_char_math_symbol_shortcut('²').unwrap(), &[decode_unicode('⠘'), decode_unicode('⠼'), decode_unicode('⠃')]);
     }
 
     #[test]
     fn test_inequality() {
         // ≥ should be 44 = ⠲⠲
-        assert_eq!(
-            encode_char_math_symbol_shortcut('≥').unwrap(),
-            &[decode_unicode('⠲'), decode_unicode('⠲')]
-        );
+        assert_eq!(encode_char_math_symbol_shortcut('≥').unwrap(), &[decode_unicode('⠲'), decode_unicode('⠲')]);
         // ≤ should be 66 = ⠖⠖
-        assert_eq!(
-            encode_char_math_symbol_shortcut('≤').unwrap(),
-            &[decode_unicode('⠖'), decode_unicode('⠖')]
-        );
+        assert_eq!(encode_char_math_symbol_shortcut('≤').unwrap(), &[decode_unicode('⠖'), decode_unicode('⠖')]);
     }
 
     #[test]

@@ -14,13 +14,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "1",
-    subsection: Some("general"),
-    name: "korean_syllable_encoding",
-    standard_ref: "2024 Korean Braille Standard, Ch.1-2 (composite)",
-    description: "General Korean syllable encoding via encode_korean_char()",
-};
+pub static META: RuleMeta = RuleMeta { section: "1", subsection: Some("general"), name: "korean_syllable_encoding", standard_ref: "2024 Korean Braille Standard, Ch.1-2 (composite)", description: "General Korean syllable encoding via encode_korean_char()" };
 
 /// Plugin struct for the rule engine.
 ///
@@ -66,11 +60,7 @@ mod tests {
         let cases = vec![("안녕", "⠣⠒⠉⠻"), ("고마워", "⠈⠥⠑⠣⠏"), ("사랑", "⠇⠐⠣⠶")];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Korean syllable golden test failed for: {}",
-                input
-            );
+            assert_eq!(result, expected, "Korean syllable golden test failed for: {}", input);
         }
     }
 

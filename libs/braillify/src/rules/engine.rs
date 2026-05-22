@@ -32,11 +32,7 @@ pub struct RuleEngine {
 impl RuleEngine {
     /// Create an empty engine.
     pub fn new() -> Self {
-        Self {
-            rules: Vec::new(),
-            disabled: HashSet::new(),
-            sorted: false,
-        }
+        Self { rules: Vec::new(), disabled: HashSet::new(), sorted: false }
     }
 
     /// Register a rule plugin.
@@ -71,10 +67,7 @@ impl RuleEngine {
     /// Get count of currently enabled rules.
     #[cfg(test)]
     pub fn enabled_count(&self) -> usize {
-        self.rules
-            .iter()
-            .filter(|r| self.is_enabled(r.meta().section))
-            .count()
+        self.rules.iter().filter(|r| self.is_enabled(r.meta().section)).count()
     }
 
     /// List all registered rule metadata (for introspection/debugging).
@@ -119,11 +112,7 @@ impl RuleEngine {
     }
 
     /// Apply only rules in a specific phase.
-    pub fn apply_phase(
-        &mut self,
-        phase: Phase,
-        ctx: &mut RuleContext,
-    ) -> Result<RuleResult, String> {
+    pub fn apply_phase(&mut self, phase: Phase, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         self.ensure_sorted();
 
         for rule in &self.rules {
@@ -159,13 +148,7 @@ mod tests {
     use crate::rules::RuleMeta;
     use crate::rules::context::EncoderState;
 
-    static TEST_META: RuleMeta = RuleMeta {
-        section: "test",
-        subsection: None,
-        name: "test_rule",
-        standard_ref: "test",
-        description: "test rule that emits byte 99",
-    };
+    static TEST_META: RuleMeta = RuleMeta { section: "test", subsection: None, name: "test_rule", standard_ref: "test", description: "test rule that emits byte 99" };
 
     struct TestRule;
     impl BrailleRule for TestRule {
@@ -196,19 +179,7 @@ mod tests {
         let mut result = Vec::new();
         let mut skip = 0usize;
         let empty: Vec<&str> = vec![];
-        let mut ctx = RuleContext {
-            word_chars: &word_chars,
-            index: 0,
-            char_type: &char_type,
-            prev_word: "",
-            remaining_words: &empty,
-            has_korean_char: true,
-            is_all_uppercase: false,
-            ascii_starts_at_beginning: false,
-            skip_count: &mut skip,
-            state: &mut state,
-            result: &mut result,
-        };
+        let mut ctx = RuleContext { word_chars: &word_chars, index: 0, char_type: &char_type, prev_word: "", remaining_words: &empty, has_korean_char: true, is_all_uppercase: false, ascii_starts_at_beginning: false, skip_count: &mut skip, state: &mut state, result: &mut result };
 
         let outcome = engine.apply(&mut ctx).unwrap();
         assert_eq!(outcome, RuleResult::Consumed);
@@ -230,20 +201,8 @@ mod tests {
 
     #[test]
     fn engine_sorts_by_phase_and_priority() {
-        static META_A: RuleMeta = RuleMeta {
-            section: "a",
-            subsection: None,
-            name: "post",
-            standard_ref: "",
-            description: "",
-        };
-        static META_B: RuleMeta = RuleMeta {
-            section: "b",
-            subsection: None,
-            name: "core",
-            standard_ref: "",
-            description: "",
-        };
+        static META_A: RuleMeta = RuleMeta { section: "a", subsection: None, name: "post", standard_ref: "", description: "" };
+        static META_B: RuleMeta = RuleMeta { section: "b", subsection: None, name: "core", standard_ref: "", description: "" };
 
         struct PostRule;
         impl BrailleRule for PostRule {

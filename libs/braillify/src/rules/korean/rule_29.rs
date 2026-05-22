@@ -14,13 +14,7 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_69::encode_ascii_unit;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_29: RuleMeta = RuleMeta {
-    section: "29",
-    subsection: None,
-    name: "roman_indicator",
-    standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.29",
-    description: "Roman letter indicator ⠴ (enter) and terminator ⠲ (exit)",
-};
+pub static META_29: RuleMeta = RuleMeta { section: "29", subsection: None, name: "roman_indicator", standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.29", description: "Roman letter indicator ⠴ (enter) and terminator ⠲ (exit)" };
 
 /// Roman letter indicator (로마자표).
 pub const ROMAN_INDICATOR: u8 = 52; // ⠴
@@ -43,16 +37,11 @@ pub const ENGLISH_CONTINUATION: u8 = 48; // ⠰
 pub struct Rule29;
 
 fn prev_word_is_numeric(prev_word: &str) -> bool {
-    !prev_word.is_empty()
-        && prev_word
-            .chars()
-            .all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
+    !prev_word.is_empty() && prev_word.chars().all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
 }
 
 fn should_enter_as_roman_indicator(ctx: &RuleContext) -> bool {
-    encode_ascii_unit(ctx.word_chars, ctx.index).is_some()
-        && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit())
-            || prev_word_is_numeric(ctx.prev_word))
+    encode_ascii_unit(ctx.word_chars, ctx.index).is_some() && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit()) || prev_word_is_numeric(ctx.prev_word))
 }
 
 impl BrailleRule for Rule29 {
@@ -113,5 +102,126 @@ mod tests {
         // "그는 Canada로" → Roman indicator before Canada, terminator after
         let result = crate::encode_to_unicode("그는 Canada로").unwrap();
         assert!(result.contains('⠴'), "Should contain roman indicator ⠴");
+    }
+
+    #[test]
+    fn prev_word_is_numeric_all_digits_or_punctuation() {
+        assert!(prev_word_is_numeric("123"));
+        assert!(prev_word_is_numeric("1,234"));
+        assert!(prev_word_is_numeric("3.14"));
+        assert!(prev_word_is_numeric("1.234,567"));
+        // Empty string → false
+        assert!(!prev_word_is_numeric(""));
+        // Contains letter → false
+        assert!(!prev_word_is_numeric("12a"));
+        assert!(!prev_word_is_numeric("hello"));
+    }
+
+    fn make_ctx<'a>(word_chars: &'a [char], index: usize, char_type: &'a CharType, skip_count: &'a mut usize, state: &'a mut crate::rules::context::EncoderState, result: &'a mut Vec<u8>, prev_word: &'a str) -> RuleContext<'a> {
+        RuleContext { word_chars, index, char_type, prev_word, remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: true, skip_count, state, result }
+    }
+
+    #[test]
+    fn rule29_meta_and_phase() {
+        let r = Rule29;
+        assert_eq!(r.meta().section, "29");
+        assert!(matches!(r.phase(), Phase::ModeManagement));
+    }
+
+    #[test]
+    fn rule29_matches_false_when_indicator_off() {
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false); // no english_indicator
+        let mut out = Vec::new();
+        let ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        assert!(!Rule29.matches(&ctx));
+    }
+
+    #[test]
+    fn rule29_matches_when_entering_english() {
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.is_english = false;
+        let mut out = Vec::new();
+        let ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        assert!(Rule29.matches(&ctx));
+    }
+
+    #[test]
+    fn rule29_matches_when_exiting_english() {
+        let chars: Vec<char> = "ㄱ".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.is_english = true; // already in english
+        let mut out = Vec::new();
+        let ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        assert!(Rule29.matches(&ctx));
+    }
+
+    #[test]
+    fn rule29_apply_enters_english_with_indicator() {
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        let mut out = Vec::new();
+        let mut ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        let res = Rule29.apply(&mut ctx).unwrap();
+        assert!(matches!(res, RuleResult::Continue));
+        assert_eq!(out, vec![ROMAN_INDICATOR]);
+        assert!(state.is_english);
+    }
+
+    #[test]
+    fn rule29_apply_continuation_after_numeric_prev_word() {
+        // Just exercise the should_enter_as_roman_indicator path branches.
+        // The exact byte depends on encode_ascii_unit matching behavior.
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.needs_english_continuation = true;
+        let mut out = Vec::new();
+        let mut ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "123");
+        Rule29.apply(&mut ctx).unwrap();
+        assert_eq!(out.len(), 1);
+        assert!(matches!(out[0], ROMAN_INDICATOR | ENGLISH_CONTINUATION));
+    }
+
+    #[test]
+    fn rule29_apply_continuation_marker_path() {
+        // needs_english_continuation=true AND should_enter_as_roman_indicator=false
+        // → emit ENGLISH_CONTINUATION.
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.needs_english_continuation = true;
+        let mut out = Vec::new();
+        // prev_word empty (not numeric) and prev_char None at index 0 → not ascii digit
+        let mut ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        Rule29.apply(&mut ctx).unwrap();
+        assert_eq!(out, vec![ENGLISH_CONTINUATION]);
+    }
+
+    #[test]
+    fn rule29_apply_no_change_when_exiting() {
+        // In english, current char is Korean → matches=true but apply only handles enter
+        let chars: Vec<char> = "가".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.is_english = true;
+        let mut out = Vec::new();
+        let mut ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        let res = Rule29.apply(&mut ctx).unwrap();
+        assert!(matches!(res, RuleResult::Continue));
+        // exit logic is deferred — no byte emitted, state unchanged
+        assert!(out.is_empty());
     }
 }

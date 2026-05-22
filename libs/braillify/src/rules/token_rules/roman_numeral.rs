@@ -49,10 +49,7 @@ fn is_valid_roman_1_to_39(text: &str) -> bool {
     }
 
     let rest: String = chars.collect();
-    let ones_ok = matches!(
-        rest.as_str(),
-        "" | "I" | "II" | "III" | "IV" | "V" | "VI" | "VII" | "VIII" | "IX"
-    );
+    let ones_ok = matches!(rest.as_str(), "" | "I" | "II" | "III" | "IV" | "V" | "VI" | "VII" | "VIII" | "IX");
 
     (x_count > 0 || !rest.is_empty()) && ones_ok
 }
@@ -93,11 +90,7 @@ fn has_prev_ascii_word<'a>(tokens: &[Token<'a>], index: usize) -> bool {
 
 fn build_word_token<'a>(text: &str) -> Token<'a> {
     let chars: Vec<char> = text.chars().collect();
-    Token::Word(WordToken {
-        text: Cow::Owned(text.to_string()),
-        chars: chars.clone(),
-        meta: WordMeta::from_chars(&chars),
-    })
+    Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
 }
 
 fn encode_roman_segment(text: &str, entry: u8, with_terminator: bool) -> Result<Vec<u8>, String> {
@@ -135,12 +128,7 @@ impl TokenRule for RomanNumeralRule {
         5
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -166,11 +154,7 @@ impl TokenRule for RomanNumeralRule {
             && is_valid_roman_1_to_39(second)
             && !starts_with_ascii_alpha(suffix)
         {
-            let first_entry = if has_prev_ascii_word(tokens, index) {
-                ROMAN_CONTINUATION
-            } else {
-                ROMAN_INDICATOR
-            };
+            let first_entry = if has_prev_ascii_word(tokens, index) { ROMAN_CONTINUATION } else { ROMAN_INDICATOR };
             let mut bytes = encode_roman_segment(first, first_entry, false)?;
             bytes.push(HYPHEN);
             bytes.extend(encode_roman_segment(second, ROMAN_CONTINUATION, true)?);
@@ -179,30 +163,246 @@ impl TokenRule for RomanNumeralRule {
                 return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
             }
 
-            return Ok(TokenAction::ReplaceMany(vec![
-                Token::PreEncoded(bytes),
-                build_word_token(suffix),
-            ]));
+            return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes), build_word_token(suffix)]));
         }
 
         if starts_with_ascii_alpha(rest) {
             return Ok(TokenAction::Noop);
         }
 
-        let entry = if has_prev_ascii_word(tokens, index) {
-            ROMAN_CONTINUATION
-        } else {
-            ROMAN_INDICATOR
-        };
+        let entry = if has_prev_ascii_word(tokens, index) { ROMAN_CONTINUATION } else { ROMAN_INDICATOR };
 
         let bytes = encode_roman_segment(first, entry, true)?;
         if rest.is_empty() {
             return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
         }
 
-        Ok(TokenAction::ReplaceMany(vec![
-            Token::PreEncoded(bytes),
-            build_word_token(rest),
-        ]))
+        Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes), build_word_token(rest)]))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::context::EncoderState;
+    use crate::rules::token::SpaceKind;
+
+    #[test]
+    fn is_upper_lower_roman_char_basic() {
+        for c in ['I', 'V', 'X'] {
+            assert!(is_upper_roman_char(c));
+            assert!(!is_lower_roman_char(c));
+        }
+        for c in ['i', 'v', 'x'] {
+            assert!(is_lower_roman_char(c));
+            assert!(!is_upper_roman_char(c));
+        }
+        assert!(!is_upper_roman_char('A'));
+        assert!(!is_lower_roman_char('a'));
+    }
+
+    #[test]
+    fn roman_case_all_upper_all_lower_mixed() {
+        assert_eq!(roman_case("XII"), Some(true));
+        assert_eq!(roman_case("xii"), Some(false));
+        assert_eq!(roman_case("Xi"), None);
+        assert_eq!(roman_case("XA"), None);
+    }
+
+    #[test]
+    fn is_valid_roman_1_to_39_table() {
+        // Empty
+        assert!(!is_valid_roman_1_to_39(""));
+        // Mixed case → invalid
+        assert!(!is_valid_roman_1_to_39("Iv"));
+        // All ones
+        for s in ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"] {
+            assert!(is_valid_roman_1_to_39(s), "{s} should be valid");
+        }
+        // With X prefix
+        for s in ["X", "XI", "XV", "XXIX", "XXX", "XXXIX"] {
+            assert!(is_valid_roman_1_to_39(s), "{s} should be valid");
+        }
+        // Too many X (>3)
+        assert!(!is_valid_roman_1_to_39("XXXX"));
+        // Invalid ones part
+        assert!(!is_valid_roman_1_to_39("IIII"));
+        assert!(!is_valid_roman_1_to_39("VV"));
+        // Non-Roman char
+        assert!(!is_valid_roman_1_to_39("XXA"));
+    }
+
+    #[test]
+    fn split_roman_prefix_various() {
+        assert_eq!(split_roman_prefix("IV"), ("IV", ""));
+        assert_eq!(split_roman_prefix("IVs"), ("IV", "s"));
+        assert_eq!(split_roman_prefix("IV-V"), ("IV", "-V"));
+        assert_eq!(split_roman_prefix("abc"), ("", "abc"));
+        assert_eq!(split_roman_prefix(""), ("", ""));
+    }
+
+    #[test]
+    fn split_after_hyphen_paths() {
+        assert_eq!(split_after_hyphen("-V"), Some(("V", "")));
+        assert_eq!(split_after_hyphen("-Vs"), Some(("V", "s")));
+        assert_eq!(split_after_hyphen("V"), None);
+        assert_eq!(split_after_hyphen("-"), None);
+        assert_eq!(split_after_hyphen("-abc"), None); // not Roman after hyphen
+    }
+
+    #[test]
+    fn starts_with_ascii_alpha_branches() {
+        assert!(starts_with_ascii_alpha("abc"));
+        assert!(starts_with_ascii_alpha("Z"));
+        assert!(!starts_with_ascii_alpha("123"));
+        assert!(!starts_with_ascii_alpha(""));
+        assert!(!starts_with_ascii_alpha("-"));
+    }
+
+    #[test]
+    fn encode_roman_segment_upper_single_then_multi() {
+        // Single upper letter: indicator + single ⠠ + lowercase encode + terminator
+        let bytes = encode_roman_segment("I", ROMAN_INDICATOR, true).unwrap();
+        assert_eq!(bytes[0], ROMAN_INDICATOR);
+        assert_eq!(bytes[1], UPPERCASE_SIGN);
+        assert_eq!(*bytes.last().unwrap(), ROMAN_TERMINATOR);
+        // Multi upper: double ⠠⠠
+        let bytes = encode_roman_segment("IV", ROMAN_INDICATOR, true).unwrap();
+        assert_eq!(bytes[0], ROMAN_INDICATOR);
+        assert_eq!(bytes[1], UPPERCASE_SIGN);
+        assert_eq!(bytes[2], UPPERCASE_SIGN);
+        // Lower: no uppercase sign
+        let bytes = encode_roman_segment("iv", ROMAN_INDICATOR, true).unwrap();
+        assert_eq!(bytes[0], ROMAN_INDICATOR);
+        assert_ne!(bytes[1], UPPERCASE_SIGN);
+        // Without terminator
+        let bytes = encode_roman_segment("v", ROMAN_INDICATOR, false).unwrap();
+        assert_ne!(*bytes.last().unwrap(), ROMAN_TERMINATOR);
+        // Invalid case (mixed) → Err
+        assert!(encode_roman_segment("Iv", ROMAN_INDICATOR, true).is_err());
+    }
+
+    fn make_word_token<'a>(text: &str) -> Token<'a> {
+        build_word_token(text)
+    }
+
+    #[test]
+    fn apply_non_word_token_noop() {
+        let rule = RomanNumeralRule;
+        let tokens: Vec<Token> = vec![Token::Space(SpaceKind::Regular)];
+        let mut state = EncoderState::new(false);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_pure_roman_replace() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("IV")];
+        let mut state = EncoderState::new(false); // not english_indicator
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_single_letter_no_indicator_noop() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("I")];
+        let mut state = EncoderState::new(false); // not english_indicator, single char
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        // allow_standalone = false, then english_indicator=false → Noop
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_single_letter_with_indicator_replace() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("I")];
+        let mut state = EncoderState::new(true); // english_indicator
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_roman_with_suffix_alpha_noop() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("IVs")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        // After split: ("IV", "s") — s is ASCII alpha → returns Noop at line 169-170
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_roman_hyphen_roman_no_suffix() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("IV-V")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_roman_hyphen_roman_with_suffix() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("IV-V형")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        // suffix "형" starts with non-ASCII → split path taken
+        assert!(matches!(action, TokenAction::ReplaceMany(_)));
+    }
+
+    #[test]
+    fn apply_roman_hyphen_with_ascii_suffix_falls_through() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("IV-Vs")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        // suffix "s" is ASCII → hyphen branch skipped → normal branch.
+        // Normal branch: rest = "-Vs". starts_with_ascii_alpha("-Vs")? '-' is not alpha → false.
+        // → continues to encode segment + ReplaceMany.
+        assert!(matches!(action, TokenAction::ReplaceMany(_)));
+    }
+
+    #[test]
+    fn apply_non_roman_word_noop() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("hello")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 0, &mut state).unwrap();
+        // first = "" (no Roman prefix) → Noop at line 149-150
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_prev_ascii_word_uses_continuation() {
+        let rule = RomanNumeralRule;
+        let tokens = vec![make_word_token("hello"), Token::Space(SpaceKind::Regular), make_word_token("II")];
+        let mut state = EncoderState::new(true);
+        // Apply at index 2 (the "II") — but allow_standalone is true (count=2)
+        // so the first branch fires with ROMAN_INDICATOR, not continuation.
+        let action = rule.apply(&tokens, 2, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_continuation_path_with_suffix() {
+        let rule = RomanNumeralRule;
+        // "II한국" — "II" is valid Roman, "한국" is non-ASCII suffix
+        let tokens = vec![make_word_token("hello"), Token::Space(SpaceKind::Regular), make_word_token("II한국")];
+        let mut state = EncoderState::new(true);
+        let action = rule.apply(&tokens, 2, &mut state).unwrap();
+        // First branch fails (whole text not valid Roman). Falls to split path.
+        // first="II", rest="한국". No hyphen. starts_with_ascii_alpha("한국")=false.
+        // has_prev_ascii_word=true → entry=ROMAN_CONTINUATION
+        // Returns ReplaceMany with PreEncoded + suffix word.
+        assert!(matches!(action, TokenAction::ReplaceMany(_)));
+    }
+
+    #[test]
+    fn rule_phase_and_priority() {
+        let rule = RomanNumeralRule;
+        assert!(matches!(rule.phase(), TokenPhase::ModeEntry));
+        assert_eq!(rule.priority(), 5);
     }
 }

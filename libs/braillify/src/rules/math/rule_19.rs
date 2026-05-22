@@ -26,22 +26,14 @@ fn prev_non_space(tokens: &[MathToken], mut idx: usize) -> Option<&MathToken> {
 }
 
 fn is_plain_numeric_subscript(content: &[MathToken]) -> bool {
-    content
-        .iter()
-        .all(|token| matches!(token, MathToken::Number(_) | MathToken::DecimalPoint))
+    content.iter().all(|token| matches!(token, MathToken::Number(_) | MathToken::DecimalPoint))
 }
 
 pub fn should_group_subscript(content: &[MathToken]) -> bool {
     if content.len() <= 1 {
         return false;
     }
-    if matches!(
-        (content.first(), content.last()),
-        (
-            Some(MathToken::OpenParen(BracketKind::MathParen)),
-            Some(MathToken::CloseParen(BracketKind::MathParen))
-        )
-    ) {
+    if matches!((content.first(), content.last()), (Some(MathToken::OpenParen(BracketKind::MathParen)), Some(MathToken::CloseParen(BracketKind::MathParen)))) {
         return false;
     }
     !is_plain_numeric_subscript(content)
@@ -49,11 +41,7 @@ pub fn should_group_subscript(content: &[MathToken]) -> bool {
 
 /// PDF 수학 제62항 — 순열/조합 묶음 안의 첨자 내용을 인코딩한다.
 /// 단일 숫자/변수/연산자 조합을 평탄하게 출력한다.
-fn encode_combo_subscript_content(
-    content: &[MathToken],
-    result: &mut Vec<u8>,
-    engine: &MathTokenEngine,
-) -> Result<(), String> {
+fn encode_combo_subscript_content(content: &[MathToken], result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<(), String> {
     if let [MathToken::Number(n)] = content {
         rule_1::encode_number_literal(n, result);
         return Ok(());
@@ -106,28 +94,15 @@ fn is_left_subscript_position(tokens: &[MathToken], index: usize) -> bool {
         return false;
     }
     // 뒤에 좌하첨자의 대상이 될 토큰이 있어야 한다.
-    matches!(
-        next_non_space(tokens, index),
-        Some(MathToken::Variable(_))
-            | Some(MathToken::UpperVariable(_))
-            | Some(MathToken::MathSymbol(_))
-    )
+    matches!(next_non_space(tokens, index), Some(MathToken::Variable(_)) | Some(MathToken::UpperVariable(_)) | Some(MathToken::MathSymbol(_)))
 }
 
-pub fn encode_subscript(
-    tokens: &[MathToken],
-    i: &mut usize,
-    content: &[MathToken],
-    result: &mut Vec<u8>,
-    engine: &MathTokenEngine,
-) -> Result<bool, String> {
+pub fn encode_subscript(tokens: &[MathToken], i: &mut usize, content: &[MathToken], result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<bool, String> {
     // PDF 수학 제62항 — 순열(_nP_r) / 조합(_nC_r) / 중복조합(_nH_r) 표기.
     // 좌하첨자 + 대문자 변수(P/C/H) + 우하첨자가 연속되면 특수 표기를 적용한다.
     //   ⠠ <letter> ⠷ left ⠀ right ⠾
-    if matches!(
-        tokens.get(*i + 1),
-        Some(MathToken::UpperVariable('P' | 'C' | 'H'))
-    ) && let Some(MathToken::Subscript(right_content)) = tokens.get(*i + 2)
+    if matches!(tokens.get(*i + 1), Some(MathToken::UpperVariable('P' | 'C' | 'H')))
+        && let Some(MathToken::Subscript(right_content)) = tokens.get(*i + 2)
         && let Some(MathToken::UpperVariable(mark)) = tokens.get(*i + 1)
     {
         result.push(32); // ⠠ (대문자 표지)
@@ -177,11 +152,7 @@ pub fn encode_subscript(
         let mut cursor = *i;
         loop {
             match prev_non_space(tokens, cursor) {
-                Some(MathToken::MathSymbol(
-                    '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
-                    | '\u{2200}' | '\u{2203}',
-                ))
-                | Some(MathToken::FunctionName(_)) => break true,
+                Some(MathToken::MathSymbol('\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}' | '\u{2200}' | '\u{2203}')) | Some(MathToken::FunctionName(_)) => break true,
                 Some(MathToken::Subscript(_)) => {
                     // 이전 토큰이 첨자이면 한 단계 더 거슬러 본다 (substack 펼침 케이스).
                     let mut prev_cursor = cursor;
@@ -264,12 +235,7 @@ fn needs_quantifier_trailing_space(tokens: &[MathToken], idx: usize) -> bool {
         match &tokens[cursor] {
             MathToken::Space => return false,
             MathToken::Superscript(_) => return false,
-            MathToken::Variable(_)
-            | MathToken::UpperVariable(_)
-            | MathToken::Number(_)
-            | MathToken::OpenParen(_)
-            | MathToken::FunctionName(_)
-            | MathToken::MathSymbol(_) => return true,
+            MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_) | MathToken::OpenParen(_) | MathToken::FunctionName(_) | MathToken::MathSymbol(_) => return true,
             _ => cursor += 1,
         }
     }
@@ -291,14 +257,7 @@ impl MathTokenRule for SubscriptRule {
         matches!(tokens.get(index), Some(MathToken::Subscript(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
         let Some(MathToken::Subscript(content)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -311,21 +270,84 @@ impl MathTokenRule for SubscriptRule {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use super::super::encoder::encode_math_expression;
 
     #[test]
     fn encodes_number_base_notation_without_explicit_subscript_parentheses() {
-        assert_eq!(
-            encode_math_expression("1010₂").expect("math encoding should succeed"),
-            vec![60, 1, 26, 1, 26, 48, 38, 60, 3, 52]
-        );
+        assert_eq!(encode_math_expression("1010₂").expect("math encoding should succeed"), vec![60, 1, 26, 1, 26, 48, 38, 60, 3, 52]);
     }
 
     #[test]
     fn encodes_number_base_notation_with_explicit_subscript_parentheses() {
-        assert_eq!(
-            encode_math_expression("1101₍₂₎").expect("math encoding should succeed"),
-            vec![60, 1, 1, 26, 1, 48, 38, 60, 3, 52]
-        );
+        assert_eq!(encode_math_expression("1101₍₂₎").expect("math encoding should succeed"), vec![60, 1, 1, 26, 1, 48, 38, 60, 3, 52]);
+    }
+
+    fn enc(input: &str) -> Vec<u8> {
+        crate::encode(input).unwrap_or_default()
+    }
+
+    #[test]
+    fn subscript_simple_digit() {
+        let bytes = enc("$x_2$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn subscript_compound_index() {
+        let bytes = enc("$x_{i+1}$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn subscript_quantifier_with_following_var() {
+        // ∑_{i=1}^n i — subscript follows quantifier, then superscript path
+        let bytes = enc("$\\sum_{i=1}^{n} i$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn subscript_after_function_then_paren() {
+        // log_2(x) — exercise subscript after function name, then paren arg
+        let bytes = enc("$\\log_{2}(x)$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn subscript_multi_digit_index() {
+        let bytes = enc("$a_{12}$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn subscript_with_negative_index() {
+        let bytes = enc("$x_{-1}$");
+        assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn needs_quantifier_trailing_space_branches() {
+        // Space → false
+        let toks = vec![MathToken::Space];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+        // Variable → true
+        let toks = vec![MathToken::Variable('x')];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        // Superscript at idx → false (line 231-233 path)
+        let toks = vec![MathToken::Superscript(vec![MathToken::Number("2".into())])];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+        // Number → true
+        let toks = vec![MathToken::Number("1".into())];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        // Empty → false
+        let toks: Vec<MathToken> = vec![];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+    }
+
+    #[test]
+    fn subscript_rule_priority_and_name() {
+        let r = SubscriptRule;
+        assert_eq!(r.priority(), 50);
+        assert_eq!(r.name(), "SubscriptRule");
     }
 }

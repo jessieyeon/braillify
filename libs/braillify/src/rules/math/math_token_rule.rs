@@ -23,11 +23,7 @@ pub struct MathEncodeState {
 
 impl MathEncodeState {
     pub fn with_context(logic_context: bool, context: MathContext) -> Self {
-        Self {
-            prev_was_number: false,
-            logic_context,
-            matrix_context_active: context.matrix_context_active,
-        }
+        Self { prev_was_number: false, logic_context, matrix_context_active: context.matrix_context_active }
     }
 }
 
@@ -53,14 +49,7 @@ pub trait MathTokenRule: Send + Sync {
     fn matches(&self, tokens: &[MathToken], index: usize, state: &MathEncodeState) -> bool;
 
     /// Encode the matched tokens. Returns how many tokens were consumed.
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String>;
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String>;
 }
 
 /// Engine that dispatches math tokens to registered rules.
@@ -71,10 +60,7 @@ pub struct MathTokenEngine {
 
 impl MathTokenEngine {
     pub fn with_context(context: MathContext) -> Self {
-        Self {
-            rules: Vec::new(),
-            context,
-        }
+        Self { rules: Vec::new(), context }
     }
 
     pub fn register(&mut self, rule: Box<dyn MathTokenRule>) {
@@ -108,35 +94,13 @@ impl MathTokenEngine {
                 }
             }
             if !handled {
-                return Err(format!(
-                    "No rule matched token at index {}: {:?}",
-                    i, tokens[i]
-                ));
+                return Err(format!("No rule matched token at index {}: {:?}", i, tokens[i]));
             }
         }
         Ok(())
     }
 
     fn has_logic_symbol(tokens: &[MathToken]) -> bool {
-        tokens.iter().any(|token| {
-            matches!(
-                token,
-                MathToken::MathSymbol(
-                    '\u{00AC}'
-                        | '\u{21D2}'
-                        | '\u{2194}'
-                        | '\u{21D4}'
-                        | '\u{21C4}'
-                        | '\u{2227}'
-                        | '\u{2228}'
-                        | '\u{22BB}'
-                        | '\u{2193}'
-                        | '\u{2191}'
-                        | '\u{2200}'
-                        | '\u{2203}'
-                        | '\u{2204}'
-                )
-            )
-        })
+        tokens.iter().any(|token| matches!(token, MathToken::MathSymbol('\u{00AC}' | '\u{21D2}' | '\u{2194}' | '\u{21D4}' | '\u{21C4}' | '\u{2227}' | '\u{2228}' | '\u{22BB}' | '\u{2193}' | '\u{2191}' | '\u{2200}' | '\u{2203}' | '\u{2204}')))
     }
 }

@@ -44,12 +44,7 @@ impl TokenRule for EmphasisRingRule {
         120
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         match tokens.get(index) {
             Some(Token::Word(word)) => {
                 let text = word.text.as_ref();
@@ -68,24 +63,13 @@ impl TokenRule for EmphasisRingRule {
                 }
 
                 let trimmed_chars: Vec<char> = trimmed.chars().collect();
-                Ok(TokenAction::ReplaceMany(vec![
-                    Token::PreEncoded(vec![decode_unicode('⠠'), decode_unicode('⠤')]),
-                    Token::Word(WordToken {
-                        text: Cow::Owned(trimmed),
-                        chars: trimmed_chars.clone(),
-                        meta: crate::rules::token::WordMeta::from_chars(&trimmed_chars),
-                    }),
-                    Token::PreEncoded(vec![decode_unicode('⠤'), decode_unicode('⠄')]),
-                ]))
+                Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(vec![decode_unicode('⠠'), decode_unicode('⠤')]), Token::Word(WordToken { text: Cow::Owned(trimmed), chars: trimmed_chars.clone(), meta: crate::rules::token::WordMeta::from_chars(&trimmed_chars) }), Token::PreEncoded(vec![decode_unicode('⠤'), decode_unicode('⠄')])]))
             }
             Some(Token::Space(_)) => {
-                let prev_word = index
-                    .checked_sub(1)
-                    .and_then(|i| tokens.get(i))
-                    .and_then(|t| match t {
-                        Token::Word(w) => Some(w.text.as_ref()),
-                        _ => None,
-                    });
+                let prev_word = index.checked_sub(1).and_then(|i| tokens.get(i)).and_then(|t| match t {
+                    Token::Word(w) => Some(w.text.as_ref()),
+                    _ => None,
+                });
                 let next_word = tokens.get(index + 1).and_then(|t| match t {
                     Token::Word(w) => Some(w.text.as_ref()),
                     _ => None,
@@ -94,35 +78,22 @@ impl TokenRule for EmphasisRingRule {
                 // 직전 토큰이 강조 종료 마커(⠤⠄)인 경우: 강조 끝과 다음 단어 사이의
                 // 분리용 공백은 종료 마커가 이미 흡수했으므로 제거한다(rule_49 예시
                 // 「훈민정음̊」 + 이다 → 종료 후 공백 없이 「이다」가 이어진다).
-                let prev_is_emphasis_close = index
-                    .checked_sub(1)
-                    .and_then(|i| tokens.get(i))
-                    .is_some_and(|t| match t {
-                        Token::PreEncoded(bytes) => {
-                            bytes.as_slice()
-                                == [decode_unicode('⠤'), decode_unicode('⠄')].as_slice()
-                        }
-                        _ => false,
-                    });
+                let prev_is_emphasis_close = index.checked_sub(1).and_then(|i| tokens.get(i)).is_some_and(|t| match t {
+                    Token::PreEncoded(bytes) => bytes.as_slice() == [decode_unicode('⠤'), decode_unicode('⠄')].as_slice(),
+                    _ => false,
+                });
                 if prev_is_emphasis_close && next_word.is_some_and(|w| !is_ring_mark_only(w)) {
                     return Ok(TokenAction::ReplaceMany(vec![]));
                 }
 
                 // Remove spacing around standalone combining-emphasis words.
-                if prev_word.is_some_and(is_ring_mark_only)
-                    || next_word.is_some_and(is_ring_mark_only)
-                {
+                if prev_word.is_some_and(is_ring_mark_only) || next_word.is_some_and(is_ring_mark_only) {
                     return Ok(TokenAction::ReplaceMany(vec![]));
                 }
 
                 // Close emphasis immediately before the next real word.
-                if prev_word.is_some_and(|w| is_emphasis_word(w) || is_ring_mark_only(w))
-                    && next_word.is_some_and(|w| !is_ring_mark_only(w))
-                {
-                    return Ok(TokenAction::Replace(Token::PreEncoded(vec![
-                        decode_unicode('⠤'),
-                        decode_unicode('⠄'),
-                    ])));
+                if prev_word.is_some_and(|w| is_emphasis_word(w) || is_ring_mark_only(w)) && next_word.is_some_and(|w| !is_ring_mark_only(w)) {
+                    return Ok(TokenAction::Replace(Token::PreEncoded(vec![decode_unicode('⠤'), decode_unicode('⠄')])));
                 }
 
                 Ok(TokenAction::Noop)

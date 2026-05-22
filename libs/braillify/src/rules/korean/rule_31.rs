@@ -3,13 +3,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "31",
-    subsection: None,
-    name: "greek_letters",
-    standard_ref: "2024 Korean Braille Standard, Ch.4 Art.31",
-    description: "Greek letters in Korean context use Roman indicators and Greek braille cells",
-};
+pub static META: RuleMeta = RuleMeta { section: "31", subsection: None, name: "greek_letters", standard_ref: "2024 Korean Braille Standard, Ch.4 Art.31", description: "Greek letters in Korean context use Roman indicators and Greek braille cells" };
 
 fn greek_braille(c: char) -> Option<&'static str> {
     match c {
@@ -35,19 +29,11 @@ fn greek_braille(c: char) -> Option<&'static str> {
 }
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode
-        .chars()
-        .map(crate::unicode::decode_unicode)
-        .collect()
+    unicode.chars().map(crate::unicode::decode_unicode).collect()
 }
 
 fn korean_context(ctx: &RuleContext) -> bool {
-    ctx.has_korean_char
-        || ctx.prev_word.chars().any(crate::utils::is_korean_char)
-        || ctx
-            .remaining_words
-            .first()
-            .is_some_and(|word| word.chars().any(crate::utils::is_korean_char))
+    ctx.has_korean_char || ctx.prev_word.chars().any(crate::utils::is_korean_char) || ctx.remaining_words.first().is_some_and(|word| word.chars().any(crate::utils::is_korean_char))
 }
 
 pub fn is_greek_letter(c: char) -> bool {

@@ -72,20 +72,10 @@ impl MathTokenRule for BracketRule {
     }
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
-        matches!(
-            tokens.get(index),
-            Some(MathToken::OpenParen(_) | MathToken::CloseParen(_))
-        )
+        matches!(tokens.get(index), Some(MathToken::OpenParen(_) | MathToken::CloseParen(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        _engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
         match tokens.get(index) {
             Some(MathToken::OpenParen(kind)) => encode_open_paren(*kind, result),
             Some(MathToken::CloseParen(kind)) => encode_close_paren(*kind, result),

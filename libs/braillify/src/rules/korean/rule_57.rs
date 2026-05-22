@@ -7,13 +7,7 @@ use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::utils;
 
-pub static META: RuleMeta = RuleMeta {
-    section: "57",
-    subsection: None,
-    name: "symbol_grouping",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.57",
-    description: "Group repeated placeholder symbols with ⠸ ... ⠇",
-};
+pub static META: RuleMeta = RuleMeta { section: "57", subsection: None, name: "symbol_grouping", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.57", description: "Group repeated placeholder symbols with ⠸ ... ⠇" };
 
 const PREFIX: u8 = 56; // ⠸
 const SUFFIX: u8 = 7; // ⠇
@@ -39,8 +33,7 @@ fn is_math_times_context(ctx: &RuleContext) -> bool {
     let next = ctx.next_char();
 
     // 수식 문맥에서는 기존 수학 기호 규칙(RuleMath)을 유지한다.
-    (prev.is_some_and(|c| c.is_ascii_digit()) && next.is_some_and(|c| c.is_ascii_digit()))
-        || (prev.is_some_and(utils::is_korean_char) && next.is_some_and(utils::is_korean_char))
+    (prev.is_some_and(|c| c.is_ascii_digit()) && next.is_some_and(|c| c.is_ascii_digit())) || (prev.is_some_and(utils::is_korean_char) && next.is_some_and(utils::is_korean_char))
 }
 
 fn is_placeholder_times_context(ctx: &RuleContext) -> bool {
@@ -53,9 +46,7 @@ fn is_placeholder_times_context(ctx: &RuleContext) -> bool {
     }
 
     // 연속된 ×, 또는 단독 시작(×란) 문맥은 가림표로 본다.
-    ctx.prev_char().is_some_and(|c| c == '×')
-        || ctx.next_char().is_some_and(|c| c == '×')
-        || (ctx.prev_char().is_none() && ctx.next_char().is_some_and(utils::is_korean_char))
+    ctx.prev_char().is_some_and(|c| c == '×') || ctx.next_char().is_some_and(|c| c == '×') || (ctx.prev_char().is_none() && ctx.next_char().is_some_and(utils::is_korean_char))
 }
 
 pub struct Rule57;
@@ -93,10 +84,7 @@ impl BrailleRule for Rule57 {
             return Ok(RuleResult::Skip);
         };
 
-        let count = ctx.word_chars[ctx.index..]
-            .iter()
-            .take_while(|&&c| c == current)
-            .count();
+        let count = ctx.word_chars[ctx.index..].iter().take_while(|&&c| c == current).count();
 
         ctx.emit(PREFIX);
         for _ in 0..count {

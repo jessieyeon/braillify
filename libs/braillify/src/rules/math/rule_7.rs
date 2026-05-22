@@ -15,18 +15,13 @@ pub fn slash_as_fraction_symbol(tokens: &[MathToken], i: usize) -> bool {
     let left = tokens.get(i.saturating_sub(1));
     let right = tokens.get(i + 1);
 
-    matches!(
-        (left, right),
-        (
-            Some(MathToken::UpperVariable(_)),
-            Some(MathToken::UpperVariable(_))
+    matches!((left, right), (Some(MathToken::UpperVariable(_)), Some(MathToken::UpperVariable(_))))
+        || matches!(
+            (left, right),
+            (Some(MathToken::Number(l)), Some(MathToken::Number(r)))
+                if l.chars().all(|c| c.is_ascii_digit())
+                    && r.chars().all(|c| c.is_ascii_digit())
         )
-    ) || matches!(
-        (left, right),
-        (Some(MathToken::Number(l)), Some(MathToken::Number(r)))
-            if l.chars().all(|c| c.is_ascii_digit())
-                && r.chars().all(|c| c.is_ascii_digit())
-    )
 }
 
 pub struct FractionReversalRule;
@@ -43,30 +38,14 @@ impl MathTokenRule for GroupedFractionReversalRule {
     }
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
-        matches!(tokens.get(index), Some(MathToken::OpenParen(_)))
-            && rule_6::find_matching_paren(tokens, index).is_some_and(|close| {
-                matches!(
-                    tokens.get(close + 1),
-                    Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
-                )
-            })
+        matches!(tokens.get(index), Some(MathToken::OpenParen(_))) && rule_6::find_matching_paren(tokens, index).is_some_and(|close| matches!(tokens.get(close + 1), Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
         let Some(left_close) = rule_6::find_matching_paren(tokens, index) else {
             return Ok(MathTokenResult::Skip);
         };
-        if !matches!(
-            tokens.get(left_close + 1),
-            Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
-        ) {
+        if !matches!(tokens.get(left_close + 1), Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))) {
             return Ok(MathTokenResult::Skip);
         }
         let right_start = left_close + 2;
@@ -124,12 +103,7 @@ fn find_simple_right_end(tokens: &[MathToken], start: usize) -> usize {
     let mut i = start;
     while i < tokens.len() {
         match &tokens[i] {
-            MathToken::Number(_)
-            | MathToken::Variable(_)
-            | MathToken::UpperVariable(_)
-            | MathToken::Superscript(_)
-            | MathToken::Subscript(_)
-            | MathToken::Prime => {
+            MathToken::Number(_) | MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Superscript(_) | MathToken::Subscript(_) | MathToken::Prime => {
                 i += 1;
             }
             _ => break,
@@ -148,23 +122,11 @@ impl MathTokenRule for FractionReversalRule {
     }
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
-        matches!(tokens.get(index), Some(MathToken::Number(_)))
-            && matches!(tokens.get(index + 1), Some(MathToken::Operator('/')))
-            && matches!(tokens.get(index + 2), Some(MathToken::Number(_)))
-            && !slash_as_fraction_symbol(tokens, index + 1)
+        matches!(tokens.get(index), Some(MathToken::Number(_))) && matches!(tokens.get(index + 1), Some(MathToken::Operator('/'))) && matches!(tokens.get(index + 2), Some(MathToken::Number(_))) && !slash_as_fraction_symbol(tokens, index + 1)
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        _engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
-        let (Some(MathToken::Number(left)), Some(MathToken::Number(right))) =
-            (tokens.get(index), tokens.get(index + 2))
-        else {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+        let (Some(MathToken::Number(left)), Some(MathToken::Number(right))) = (tokens.get(index), tokens.get(index + 2)) else {
             return Ok(MathTokenResult::Skip);
         };
 
@@ -191,38 +153,20 @@ impl MathTokenRule for VariableFractionInListRule {
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
         // 패턴: V '/' V (+ optional Subscript) AND prev is OpenParen/Operator(',')/None(독립 cell)
-        matches!(tokens.get(index), Some(MathToken::Variable(_)))
-            && matches!(tokens.get(index + 1), Some(MathToken::Operator('/')))
-            && matches!(tokens.get(index + 2), Some(MathToken::Variable(_)))
-            && {
-                let prev = rule_12::prev_non_space(tokens, index);
-                matches!(
-                    prev,
-                    None | Some(MathToken::OpenParen(_)) | Some(MathToken::Operator(','))
-                )
-            }
+        matches!(tokens.get(index), Some(MathToken::Variable(_))) && matches!(tokens.get(index + 1), Some(MathToken::Operator('/'))) && matches!(tokens.get(index + 2), Some(MathToken::Variable(_))) && {
+            let prev = rule_12::prev_non_space(tokens, index);
+            matches!(prev, None | Some(MathToken::OpenParen(_)) | Some(MathToken::Operator(',')))
+        }
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
-        let (Some(MathToken::Variable(num)), Some(MathToken::Variable(den))) =
-            (tokens.get(index), tokens.get(index + 2))
-        else {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+        let (Some(MathToken::Variable(num)), Some(MathToken::Variable(den))) = (tokens.get(index), tokens.get(index + 2)) else {
             return Ok(MathTokenResult::Skip);
         };
 
         // 분모 right side는 V + optional Subscript까지 수집
         let mut den_end = index + 3;
-        while matches!(
-            tokens.get(den_end),
-            Some(MathToken::Subscript(_)) | Some(MathToken::Superscript(_))
-        ) {
+        while matches!(tokens.get(den_end), Some(MathToken::Subscript(_)) | Some(MathToken::Superscript(_))) {
             den_end += 1;
         }
 
@@ -251,29 +195,11 @@ impl MathTokenRule for ConditionalProbFractionRule {
     }
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
-        matches!(tokens.get(index), Some(MathToken::Number(_)))
-            && matches!(tokens.get(index + 1), Some(MathToken::Operator('/')))
-            && matches!(tokens.get(index + 2), Some(MathToken::Number(_)))
-            && matches!(
-                rule_12::prev_non_space(tokens, index),
-                Some(MathToken::Operator('='))
-            )
-            && tokens
-                .iter()
-                .any(|token| matches!(token, MathToken::MathSymbol('|')))
+        matches!(tokens.get(index), Some(MathToken::Number(_))) && matches!(tokens.get(index + 1), Some(MathToken::Operator('/'))) && matches!(tokens.get(index + 2), Some(MathToken::Number(_))) && matches!(rule_12::prev_non_space(tokens, index), Some(MathToken::Operator('='))) && tokens.iter().any(|token| matches!(token, MathToken::MathSymbol('|')))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        _engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
-        let (Some(MathToken::Number(left)), Some(MathToken::Number(right))) =
-            (tokens.get(index), tokens.get(index + 2))
-        else {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+        let (Some(MathToken::Number(left)), Some(MathToken::Number(right))) = (tokens.get(index), tokens.get(index + 2)) else {
             return Ok(MathTokenResult::Skip);
         };
 

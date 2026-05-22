@@ -35,11 +35,7 @@ pub static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
 };
 
 pub fn encode_char_shortcut(text: char) -> Result<&'static [u8], String> {
-    if let Some(code) = SHORTCUT_MAP.get(&text) {
-        Ok(code)
-    } else {
-        Err("Invalid Korean char shortcut".to_string())
-    }
+    if let Some(code) = SHORTCUT_MAP.get(&text) { Ok(code) } else { Err("Invalid Korean char shortcut".to_string()) }
 }
 
 #[cfg(test)]
@@ -59,9 +55,6 @@ mod test {
         assert_eq!(encode_char_shortcut('타').unwrap(), &[decode_unicode('⠓')]);
         assert_eq!(encode_char_shortcut('파').unwrap(), &[decode_unicode('⠙')]);
         assert_eq!(encode_char_shortcut('하').unwrap(), &[decode_unicode('⠚')]);
-        assert_eq!(
-            encode_char_shortcut('것').unwrap(),
-            &[decode_unicode('⠸'), decode_unicode('⠎')]
-        );
+        assert_eq!(encode_char_shortcut('것').unwrap(), &[decode_unicode('⠸'), decode_unicode('⠎')]);
     }
 }

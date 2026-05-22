@@ -9,10 +9,7 @@ pub struct TokenRuleEngine {
 
 impl TokenRuleEngine {
     pub fn new() -> Self {
-        Self {
-            rules: Vec::new(),
-            sorted: false,
-        }
+        Self { rules: Vec::new(), sorted: false }
     }
 
     pub fn register(&mut self, rule: Box<dyn TokenRule>) {
@@ -28,21 +25,10 @@ impl TokenRuleEngine {
     }
 
     /// Apply all rules in phase order. Handle token insertions/removals correctly.
-    pub fn apply_all<'a>(
-        &mut self,
-        tokens: &mut Vec<Token<'a>>,
-        state: &mut EncoderState,
-    ) -> Result<(), String> {
+    pub fn apply_all<'a>(&mut self, tokens: &mut Vec<Token<'a>>, state: &mut EncoderState) -> Result<(), String> {
         self.ensure_sorted();
 
-        for phase in [
-            TokenPhase::Normalization,
-            TokenPhase::FractionDetection,
-            TokenPhase::WordShortcut,
-            TokenPhase::ModeEntry,
-            TokenPhase::UppercasePassage,
-            TokenPhase::PostWord,
-        ] {
+        for phase in [TokenPhase::Normalization, TokenPhase::FractionDetection, TokenPhase::WordShortcut, TokenPhase::ModeEntry, TokenPhase::UppercasePassage, TokenPhase::PostWord] {
             let mut i = 0usize;
 
             'outer: while i < tokens.len() {
@@ -122,12 +108,7 @@ mod tests {
         fn phase(&self) -> TokenPhase {
             TokenPhase::Normalization
         }
-        fn apply<'a>(
-            &self,
-            tokens: &[Token<'a>],
-            index: usize,
-            _state: &mut EncoderState,
-        ) -> Result<TokenAction<'a>, String> {
+        fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
             if index == 0 {
                 return Ok(TokenAction::Replace(Token::PreEncoded(vec![9])));
             }
@@ -143,16 +124,9 @@ mod tests {
         fn phase(&self) -> TokenPhase {
             TokenPhase::PostWord
         }
-        fn apply<'a>(
-            &self,
-            tokens: &[Token<'a>],
-            index: usize,
-            _state: &mut EncoderState,
-        ) -> Result<TokenAction<'a>, String> {
+        fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
             if index == 1 && matches!(tokens.get(index), Some(Token::Word(_))) {
-                return Ok(TokenAction::InsertBefore(vec![Token::Space(
-                    SpaceKind::Regular,
-                )]));
+                return Ok(TokenAction::InsertBefore(vec![Token::Space(SpaceKind::Regular)]));
             }
             Ok(TokenAction::Noop)
         }
@@ -163,12 +137,7 @@ mod tests {
         fn phase(&self) -> TokenPhase {
             TokenPhase::PostWord
         }
-        fn apply<'a>(
-            &self,
-            tokens: &[Token<'a>],
-            index: usize,
-            _state: &mut EncoderState,
-        ) -> Result<TokenAction<'a>, String> {
+        fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
             if let Some(Token::Word(w)) = tokens.get(index)
                 && w.text == "b"
             {
@@ -186,19 +155,11 @@ mod tests {
         fn priority(&self) -> u16 {
             50
         }
-        fn apply<'a>(
-            &self,
-            tokens: &[Token<'a>],
-            index: usize,
-            _state: &mut EncoderState,
-        ) -> Result<TokenAction<'a>, String> {
+        fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
             if let Some(Token::Word(w)) = tokens.get(index)
                 && w.text == "b"
             {
-                return Ok(TokenAction::ReplaceMany(vec![
-                    Token::PreEncoded(vec![1]),
-                    Token::PreEncoded(vec![2]),
-                ]));
+                return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(vec![1]), Token::PreEncoded(vec![2])]));
             }
             Ok(TokenAction::Noop)
         }
@@ -206,11 +167,7 @@ mod tests {
 
     fn word_token(text: &'static str) -> Token<'static> {
         let chars: Vec<char> = text.chars().collect();
-        Token::Word(WordToken {
-            text: Cow::Borrowed(text),
-            chars: chars.clone(),
-            meta: WordMeta::from_chars(&chars),
-        })
+        Token::Word(WordToken { text: Cow::Borrowed(text), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
     }
 
     #[test]

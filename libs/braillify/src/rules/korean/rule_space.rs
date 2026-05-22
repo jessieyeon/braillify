@@ -7,13 +7,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "space",
-    subsection: None,
-    name: "space_encoding",
-    standard_ref: "N/A",
-    description: "Encode space (0) and newline (255)",
-};
+pub static META: RuleMeta = RuleMeta { section: "space", subsection: None, name: "space_encoding", standard_ref: "N/A", description: "Encode space (0) and newline (255)" };
 
 pub struct RuleSpace;
 

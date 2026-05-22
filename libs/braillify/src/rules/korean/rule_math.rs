@@ -10,13 +10,7 @@ use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::utils;
 
-pub static META: RuleMeta = RuleMeta {
-    section: "math",
-    subsection: None,
-    name: "math_symbol_encoding",
-    standard_ref: "2024 Korean Braille Standard (math symbols)",
-    description: "Math symbols with Korean spacing rules",
-};
+pub static META: RuleMeta = RuleMeta { section: "math", subsection: None, name: "math_symbol_encoding", standard_ref: "2024 Korean Braille Standard (math symbols)", description: "Math symbols with Korean spacing rules" };
 
 /// Korean particles (josa) that should NOT have spacing before them.
 const JOSA: &[&str] = &["과", "와", "이다", "하고", "이랑", "와", "랑", "아니다"];
@@ -52,9 +46,7 @@ impl BrailleRule for RuleMath {
         //     기호 양쪽을 띄어쓰지 않는다.
         //     예: `반지름×3.14이다` → `이다`는 JOSA → 띄어쓰지 않음.
         //     예: `5개−3개=2개` → `개`는 JOSA가 아님 → 띄어씀.
-        let prev_has_korean = ctx.word_chars[..ctx.index]
-            .iter()
-            .any(|c| utils::is_korean_char(*c));
+        let prev_has_korean = ctx.word_chars[..ctx.index].iter().any(|c| utils::is_korean_char(*c));
 
         let next_korean_is_non_josa = {
             let mut korean = Vec::new();

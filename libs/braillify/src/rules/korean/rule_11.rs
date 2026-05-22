@@ -10,13 +10,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "11",
-    subsection: None,
-    name: "vowel_ye_separator",
-    standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.5 Art.11",
-    description: "Insert separator ⠤ between vowel-ending syllable and 예 (ㅇ+ㅖ)",
-};
+pub static META: RuleMeta = RuleMeta { section: "11", subsection: None, name: "vowel_ye_separator", standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.5 Art.11", description: "Insert separator ⠤ between vowel-ending syllable and 예 (ㅇ+ㅖ)" };
 
 const SEPARATOR: u8 = 36; // ⠤
 
@@ -27,11 +21,7 @@ const SEPARATOR: u8 = 36; // ⠤
 /// * `next` - The next raw character in the word
 /// * `result` - The braille output buffer to append to
 #[cfg(test)]
-fn apply(
-    current: &crate::char_struct::KoreanChar,
-    next: char,
-    result: &mut Vec<u8>,
-) -> Result<(), String> {
+fn apply(current: &crate::char_struct::KoreanChar, next: char, result: &mut Vec<u8>) -> Result<(), String> {
     if let CharType::Korean(korean) = CharType::new(next)?
         && current.jong.is_none()
         && korean.cho == 'ㅇ'
@@ -149,19 +139,10 @@ mod tests {
     #[test]
     fn golden_test_alignment() {
         // From test_cases/rule_11.json
-        let cases = vec![
-            ("아예", "⠣⠤⠌"),
-            ("도예", "⠊⠥⠤⠌"),
-            ("뭐예요", "⠑⠏⠤⠌⠬"),
-            ("서예", "⠠⠎⠤⠌"),
-        ];
+        let cases = vec![("아예", "⠣⠤⠌"), ("도예", "⠊⠥⠤⠌"), ("뭐예요", "⠑⠏⠤⠌⠬"), ("서예", "⠠⠎⠤⠌")];
         for (input, expected_unicode) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected_unicode,
-                "Rule 11 golden test failed for input: {}",
-                input
-            );
+            assert_eq!(result, expected_unicode, "Rule 11 golden test failed for input: {}", input);
         }
     }
 

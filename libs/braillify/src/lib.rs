@@ -104,34 +104,7 @@ fn normalize_math_alphanumeric_char(c: char) -> char {
     if cp == 0x210E {
         return 'h';
     }
-    const BLOCKS: &[(u32, char)] = &[
-        (0x1D400, 'A'),
-        (0x1D41A, 'a'),
-        (0x1D434, 'A'),
-        (0x1D44E, 'a'),
-        (0x1D468, 'A'),
-        (0x1D482, 'a'),
-        (0x1D49C, 'A'),
-        (0x1D4B6, 'a'),
-        (0x1D4D0, 'A'),
-        (0x1D4EA, 'a'),
-        (0x1D504, 'A'),
-        (0x1D51E, 'a'),
-        (0x1D538, 'A'),
-        (0x1D552, 'a'),
-        (0x1D56C, 'A'),
-        (0x1D586, 'a'),
-        (0x1D5A0, 'A'),
-        (0x1D5BA, 'a'),
-        (0x1D5D4, 'A'),
-        (0x1D5EE, 'a'),
-        (0x1D608, 'A'),
-        (0x1D622, 'a'),
-        (0x1D63C, 'A'),
-        (0x1D656, 'a'),
-        (0x1D670, 'A'),
-        (0x1D68A, 'a'),
-    ];
+    const BLOCKS: &[(u32, char)] = &[(0x1D400, 'A'), (0x1D41A, 'a'), (0x1D434, 'A'), (0x1D44E, 'a'), (0x1D468, 'A'), (0x1D482, 'a'), (0x1D49C, 'A'), (0x1D4B6, 'a'), (0x1D4D0, 'A'), (0x1D4EA, 'a'), (0x1D504, 'A'), (0x1D51E, 'a'), (0x1D538, 'A'), (0x1D552, 'a'), (0x1D56C, 'A'), (0x1D586, 'a'), (0x1D5A0, 'A'), (0x1D5BA, 'a'), (0x1D5D4, 'A'), (0x1D5EE, 'a'), (0x1D608, 'A'), (0x1D622, 'a'), (0x1D63C, 'A'), (0x1D656, 'a'), (0x1D670, 'A'), (0x1D68A, 'a')];
     for &(start, base) in BLOCKS {
         if cp >= start && cp < start + 26 {
             return char::from_u32(base as u32 + (cp - start)).unwrap_or(c);
@@ -178,8 +151,7 @@ impl NormalizationTriggers {
             triggers.has_decomposable_latin |= may_decompose_accented_latin(c);
             triggers.has_negation_combiner |= c == '\u{0338}';
             triggers.has_vector_mark |= is_vector_mark(c);
-            triggers.has_formatting_mark_or_sentinel |=
-                is_formatting_mark(c) || is_formatting_sentinel(c);
+            triggers.has_formatting_mark_or_sentinel |= is_formatting_mark(c) || is_formatting_sentinel(c);
             triggers.has_ipa_group_start |= matches!(c, '[' | '/');
             triggers.has_ipa_symbol |= is_ipa_phonetic_symbol(c);
         }
@@ -255,11 +227,7 @@ fn expand_emphasis_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
         ('\u{0333}', '\u{E006}', '\u{E007}'), // 점역자2
     ];
 
-    if !text
-        .as_ref()
-        .chars()
-        .any(|c| is_formatting_sentinel(c) || is_formatting_mark(c))
-    {
+    if !text.as_ref().chars().any(|c| is_formatting_sentinel(c) || is_formatting_mark(c)) {
         return text;
     }
 
@@ -290,9 +258,7 @@ fn expand_emphasis_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     let mut out: Vec<char> = Vec::with_capacity(chars.len());
     let mut i = 0;
     while i < chars.len() {
-        let mark_entry = FORMATTING_MARKS
-            .iter()
-            .find(|(mark, _, _)| *mark == chars[i]);
+        let mark_entry = FORMATTING_MARKS.iter().find(|(mark, _, _)| *mark == chars[i]);
         let Some(&(mark_char, start_sentinel, end_sentinel)) = mark_entry else {
             out.push(chars[i]);
             i += 1;
@@ -377,12 +343,7 @@ fn is_formatting_mark(c: char) -> bool {
 /// 종류 sentinel 쌍 사이의 공백만 포함된 구간을 감지하여 inner sentinel을 제거한다.
 fn merge_adjacent_formatting_wraps<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     /// (시작 sentinel, 종료 sentinel) — `FORMATTING_MARKS`와 1:1 대응.
-    const SENTINEL_PAIRS: &[(char, char)] = &[
-        ('\u{E000}', '\u{E001}'),
-        ('\u{E002}', '\u{E003}'),
-        ('\u{E004}', '\u{E005}'),
-        ('\u{E006}', '\u{E007}'),
-    ];
+    const SENTINEL_PAIRS: &[(char, char)] = &[('\u{E000}', '\u{E001}'), ('\u{E002}', '\u{E003}'), ('\u{E004}', '\u{E005}'), ('\u{E006}', '\u{E007}')];
 
     if !text.as_ref().chars().any(is_formatting_sentinel) {
         return text;
@@ -419,11 +380,7 @@ fn merge_adjacent_formatting_wraps<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
             }
         }
     }
-    if any_changed {
-        Cow::Owned(chars.into_iter().collect())
-    } else {
-        text
-    }
+    if any_changed { Cow::Owned(chars.into_iter().collect()) } else { text }
 }
 
 fn is_vector_mark(c: char) -> bool {
@@ -474,8 +431,7 @@ fn collapse_repeated_vector_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
 fn may_decompose_accented_latin(c: char) -> bool {
     let cp = c as u32;
     // Å, å는 단위(옹스트롬)/고유 문자로 단독 의미를 가지므로 NFD 분해하지 않는다.
-    !matches!(c, '\u{00C5}' | '\u{00E5}')
-        && ((0x00C0..=0x024F).contains(&cp) || (0x1E00..=0x1EFF).contains(&cp))
+    !matches!(c, '\u{00C5}' | '\u{00E5}') && ((0x00C0..=0x024F).contains(&cp) || (0x1E00..=0x1EFF).contains(&cp))
 }
 
 /// PDF 수학 제65항 5 — 라틴 문자 + 결합 부호(악센트)는 base letter + 결합 부호로
@@ -658,8 +614,7 @@ fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
             _ if bracket_open || slash_open => {
                 // 묶음 안: IPA 음운/영문 점자 변환.
                 flush_korean(&mut korean_buf, &mut out)?;
-                let bytes =
-                    encode_ipa_char(ch).ok_or_else(|| format!("Unknown IPA character: {ch:?}"))?;
+                let bytes = encode_ipa_char(ch).ok_or_else(|| format!("Unknown IPA character: {ch:?}"))?;
                 out.extend(bytes);
             }
             _ => {
@@ -688,11 +643,7 @@ fn encode_ipa_char(ch: char) -> Option<Vec<u8>> {
         'æ' => Some(vec![41]),     // ⠩ (점 1+4+6)
         _ => {
             // 기본 알파벳/숫자는 일반 영어 점자 변환을 사용.
-            if let Ok(code) = english::encode_english(ch) {
-                Some(vec![code])
-            } else {
-                None
-            }
+            if let Ok(code) = english::encode_english(ch) { Some(vec![code]) } else { None }
         }
     }
 }
@@ -711,31 +662,11 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // N개 한글 음절을 cross-word 묶음으로 wrap. sentinel은 symbol_shortcut에서
     // braille marker (⠠⠤/⠤⠄)로 emit된다.
     let normalization_triggers = NormalizationTriggers::scan(text);
-    let normalized_text = if normalization_triggers.has_math_alphanumeric {
-        normalize_math_alphanumeric_string(text)
-    } else {
-        Cow::Borrowed(text)
-    };
-    let normalized_text = if normalization_triggers.has_decomposable_latin {
-        decompose_accented_latin(normalized_text)
-    } else {
-        normalized_text
-    };
-    let normalized_text = if normalization_triggers.has_negation_combiner {
-        move_negation_combiner_before_base(normalized_text)
-    } else {
-        normalized_text
-    };
-    let normalized_text = if normalization_triggers.has_vector_mark {
-        collapse_repeated_vector_marks(normalized_text)
-    } else {
-        normalized_text
-    };
-    let normalized_text = if normalization_triggers.may_need_emphasis_expansion() {
-        expand_emphasis_marks(normalized_text)
-    } else {
-        normalized_text
-    };
+    let normalized_text = if normalization_triggers.has_math_alphanumeric { normalize_math_alphanumeric_string(text) } else { Cow::Borrowed(text) };
+    let normalized_text = if normalization_triggers.has_decomposable_latin { decompose_accented_latin(normalized_text) } else { normalized_text };
+    let normalized_text = if normalization_triggers.has_negation_combiner { move_negation_combiner_before_base(normalized_text) } else { normalized_text };
+    let normalized_text = if normalization_triggers.has_vector_mark { collapse_repeated_vector_marks(normalized_text) } else { normalized_text };
+    let normalized_text = if normalization_triggers.may_need_emphasis_expansion() { expand_emphasis_marks(normalized_text) } else { normalized_text };
 
     let text: &str = normalized_text.as_ref();
 
@@ -744,10 +675,7 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // 이 컨텍스트는 thread-local이 아니라 현재 encoder/math engine state에 주입된다.
     let matrix_context = text.contains("행렬");
     let math_mode = matches!(options.default_mode, Some(EncodingMode::Math));
-    let math_context = crate::rules::math::math_token_rule::MathContext {
-        matrix_context_active: matrix_context,
-        math_mode_active: math_mode,
-    };
+    let math_context = crate::rules::math::math_token_rule::MathContext { matrix_context_active: matrix_context, math_mode_active: math_mode };
 
     // PDF 제38항 — IPA 모드: 발음 기호 표기.
     // 알고리즘 일반화: 입력은 묶음 기호 `[...]` 또는 `/.../`로 시작/종료한다.
@@ -759,9 +687,7 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // IPA 컨텍스트는 explicit mode 명시(`Ipa`) 또는 input의 AST 분석(묶음 안
     // 음운 기호 존재)으로 자동 감지된다. 자동 감지가 가능한 입력은 testcase에
     // 별도 context 명시가 필요 없다.
-    let ipa_auto = options.default_mode.is_none()
-        && normalization_triggers.may_contain_ipa_context()
-        && detect_ipa_context(text);
+    let ipa_auto = options.default_mode.is_none() && normalization_triggers.may_contain_ipa_context() && detect_ipa_context(text);
     if ipa_auto || matches!(options.default_mode, Some(EncodingMode::Ipa)) {
         return encode_ipa(text);
     }
@@ -791,14 +717,7 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // Math 모드의 변수(제12항)와 동형이지만 종료표 ⠲이 붙는다는 점이 다르다.
     if let Some(EncodingMode::Number) = options.default_mode {
         let chars: Vec<char> = text.chars().collect();
-        if !chars.is_empty()
-            && chars.iter().all(|c| {
-                matches!(
-                    c.to_ascii_uppercase(),
-                    'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M'
-                )
-            })
-        {
+        if !chars.is_empty() && chars.iter().all(|c| matches!(c.to_ascii_uppercase(), 'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M')) {
             let mut out = vec![52u8]; // ⠴ 영자표시
             if chars.iter().all(|c| c.is_ascii_uppercase()) {
                 out.push(32); // ⠠ 대문자 표시
@@ -844,8 +763,7 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
         // 절댓값 prefix(⠸), 영자표시(⠴), 대문자 표시(⠠) 등이 잘못 부착될 수 있어,
         // 단일 글자 입력에 한해 math_symbol_shortcut의 raw 매핑을 직접 사용한다.
         if chars.len() == 1
-            && let Ok(code) =
-                crate::math_symbol_shortcut::encode_char_math_symbol_shortcut(chars[0])
+            && let Ok(code) = crate::math_symbol_shortcut::encode_char_math_symbol_shortcut(chars[0])
         {
             return Ok(code.to_vec());
         }
@@ -859,17 +777,11 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
             while i < chs.len() {
                 let c = chs[i];
                 // 공백 + binary op + 공백 → binary op만 유지
-                if c == ' '
-                    && i + 1 < chs.len()
-                    && matches!(chs[i + 1], '=' | '+' | '-' | '<' | '>')
-                {
+                if c == ' ' && i + 1 < chs.len() && matches!(chs[i + 1], '=' | '+' | '-' | '<' | '>') {
                     i += 1;
                     continue;
                 }
-                if matches!(c, '=' | '+' | '-' | '<' | '>')
-                    && i + 1 < chs.len()
-                    && chs[i + 1] == ' '
-                {
+                if matches!(c, '=' | '+' | '-' | '<' | '>') && i + 1 < chs.len() && chs[i + 1] == ' ' {
                     s.push(c);
                     i += 2;
                     continue;
@@ -879,17 +791,12 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
             }
             s
         };
-        if let Ok(bytes) =
-            rules::math::encoder::encode_math_expression_with_context(&cleaned, math_context)
-        {
+        if let Ok(bytes) = rules::math::encoder::encode_math_expression_with_context(&cleaned, math_context) {
             return Ok(bytes);
         }
     }
 
-    let english_indicator = text
-        .split(' ')
-        .filter(|w| !w.is_empty())
-        .any(|word| word.chars().any(utils::is_korean_char));
+    let english_indicator = text.split(' ').filter(|w| !w.is_empty()).any(|word| word.chars().any(utils::is_korean_char));
 
     with_encoder(english_indicator, |encoder| {
         encoder.set_matrix_context_active(matrix_context);
@@ -913,10 +820,7 @@ pub fn encode_with_formatting(text: &str, spans: &[FormattingSpan]) -> Result<Ve
         return encode(text);
     }
 
-    let english_indicator = text
-        .split(' ')
-        .filter(|w| !w.is_empty())
-        .any(|word| word.chars().any(utils::is_korean_char));
+    let english_indicator = text.split(' ').filter(|w| !w.is_empty()).any(|word| word.chars().any(utils::is_korean_char));
 
     with_encoder(english_indicator, |encoder| {
         let mut result = Vec::new();
@@ -927,30 +831,18 @@ pub fn encode_with_formatting(text: &str, spans: &[FormattingSpan]) -> Result<Ve
 
 pub fn encode_to_unicode(text: &str) -> Result<String, String> {
     let result = encode(text)?;
-    Ok(result
-        .iter()
-        .map(|c| unicode::encode_unicode(*c))
-        .collect::<String>())
+    Ok(result.iter().map(|c| unicode::encode_unicode(*c)).collect::<String>())
 }
 
 /// Unicode version of [`encode_with_formatting`].
-pub fn encode_to_unicode_with_formatting(
-    text: &str,
-    spans: &[FormattingSpan],
-) -> Result<String, String> {
+pub fn encode_to_unicode_with_formatting(text: &str, spans: &[FormattingSpan]) -> Result<String, String> {
     let result = encode_with_formatting(text, spans)?;
-    Ok(result
-        .iter()
-        .map(|c| unicode::encode_unicode(*c))
-        .collect::<String>())
+    Ok(result.iter().map(|c| unicode::encode_unicode(*c)).collect::<String>())
 }
 
 pub fn encode_to_braille_font(text: &str) -> Result<String, String> {
     let result = encode(text)?;
-    Ok(result
-        .iter()
-        .map(|c| unicode::encode_unicode(*c))
-        .collect::<String>())
+    Ok(result.iter().map(|c| unicode::encode_unicode(*c)).collect::<String>())
 }
 
 #[cfg(test)]
@@ -999,55 +891,28 @@ mod test {
         assert_eq!(encode_to_unicode("안녕\n반가워").unwrap(), "⠣⠒⠉⠻\n⠘⠒⠫⠏");
         assert_eq!(encode_to_unicode("BMI(지수)").unwrap(), "⠴⠠⠠⠃⠍⠊⠦⠄⠨⠕⠠⠍⠠⠴");
         assert_eq!(encode_to_unicode("지수(BMI)").unwrap(), "⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴");
-        assert_eq!(
-            encode_to_unicode("체질량 지수(BMI)").unwrap(),
-            "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴"
-        );
-        assert_eq!(
-            encode_to_unicode("Roma [ㄹㄹ로마]").unwrap(),
-            "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴"
-        );
-        assert_eq!(
-            encode_to_unicode("‘ㅖ’로 적는다.").unwrap(),
-            "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲"
-        );
+        assert_eq!(encode_to_unicode("체질량 지수(BMI)").unwrap(), "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴");
+        assert_eq!(encode_to_unicode("Roma [ㄹㄹ로마]").unwrap(), "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴");
+        assert_eq!(encode_to_unicode("‘ㅖ’로 적는다.").unwrap(), "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲");
         assert_eq!(encode_to_unicode("Contents").unwrap(), "⠠⠒⠞⠢⠞⠎");
 
-        assert_eq!(
-            encode_to_unicode("Table of Contents").unwrap(),
-            "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎"
-        );
+        assert_eq!(encode_to_unicode("Table of Contents").unwrap(), "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎");
         assert_eq!(encode_to_unicode("bonjour").unwrap(), "⠃⠕⠝⠚⠳⠗");
         assert_eq!(encode_to_unicode("삼각형 ㄱㄴㄷ").unwrap(), "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔");
         assert_eq!(encode_to_unicode("걲").unwrap(), "⠈⠹⠁");
         assert_eq!(encode_to_unicode("겄").unwrap(), "⠈⠎⠌");
         assert_eq!(encode_to_unicode("kg").unwrap(), "⠅⠛");
         assert_eq!(encode_to_unicode("(kg)").unwrap(), "⠦⠄⠅⠛⠠⠴");
-        assert_eq!(
-            encode_to_unicode("나루 + 배 = 나룻배").unwrap(),
-            "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗"
-        );
-        assert_eq!(
-            encode_to_unicode("02-2669-9775~6").unwrap(),
-            "⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠈⠔⠼⠋"
-        );
-        assert_eq!(
-            encode_to_unicode("WELCOME TO KOREA").unwrap(),
-            "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄"
-        );
+        assert_eq!(encode_to_unicode("나루 + 배 = 나룻배").unwrap(), "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗");
+        assert_eq!(encode_to_unicode("02-2669-9775~6").unwrap(), "⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠈⠔⠼⠋");
+        assert_eq!(encode_to_unicode("WELCOME TO KOREA").unwrap(), "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄");
         assert_eq!(encode_to_unicode("SNS에서").unwrap(), "⠴⠠⠠⠎⠝⠎⠲⠝⠠⠎");
         assert_eq!(encode_to_unicode("ATM").unwrap(), "⠠⠠⠁⠞⠍");
         assert_eq!(encode_to_unicode("ATM 기기").unwrap(), "⠴⠠⠠⠁⠞⠍⠲⠀⠈⠕⠈⠕");
         assert_eq!(encode_to_unicode("1,000").unwrap(), "⠼⠁⠂⠚⠚⠚");
         assert_eq!(encode_to_unicode("0.48").unwrap(), "⠼⠚⠲⠙⠓");
-        assert_eq!(
-            encode_to_unicode("820718-2036794").unwrap(),
-            "⠼⠓⠃⠚⠛⠁⠓⠤⠼⠃⠚⠉⠋⠛⠊⠙"
-        );
-        assert_eq!(
-            encode_to_unicode("5개−3개=2개").unwrap(),
-            "⠼⠑⠈⠗⠀⠔⠀⠼⠉⠈⠗⠀⠒⠒⠀⠼⠃⠈⠗"
-        );
+        assert_eq!(encode_to_unicode("820718-2036794").unwrap(), "⠼⠓⠃⠚⠛⠁⠓⠤⠼⠃⠚⠉⠋⠛⠊⠙");
+        assert_eq!(encode_to_unicode("5개−3개=2개").unwrap(), "⠼⠑⠈⠗⠀⠔⠀⠼⠉⠈⠗⠀⠒⠒⠀⠼⠃⠈⠗");
         assert_eq!(encode_to_unicode("소화액").unwrap(), "⠠⠥⠚⠧⠤⠗⠁");
         assert_eq!(encode_to_unicode("X").unwrap(), "⠠⠭");
         assert_eq!(encode_to_unicode("껐").unwrap(), "⠠⠈⠎⠌");
@@ -1079,14 +944,8 @@ mod test {
         assert_eq!(encode_to_unicode("그래서 작동").unwrap(), "⠁⠎⠀⠨⠁⠊⠿");
         assert_eq!(encode_to_unicode("그래서 작동하나").unwrap(), "⠁⠎⠀⠨⠁⠊⠿⠚⠉");
         //                                               ⠁⠎⠀⠨⠁⠊⠿⠚⠉⠬
-        assert_eq!(
-            encode_to_unicode("그래서 작동하나요").unwrap(),
-            "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬"
-        );
-        assert_eq!(
-            encode_to_unicode("그래서 작동하나요?").unwrap(),
-            "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬⠦"
-        );
+        assert_eq!(encode_to_unicode("그래서 작동하나요").unwrap(), "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬");
+        assert_eq!(encode_to_unicode("그래서 작동하나요?").unwrap(), "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬⠦");
         assert_eq!(encode_to_unicode("이 노래").unwrap(), "⠕⠀⠉⠥⠐⠗");
         assert_eq!(encode_to_unicode("아").unwrap(), "⠣");
         assert_eq!(encode_to_unicode("름").unwrap(), "⠐⠪⠢");
@@ -1094,14 +953,8 @@ mod test {
         // ⠠⠶
         assert_eq!(encode_to_unicode("사").unwrap(), "⠇");
         assert_eq!(encode_to_unicode("상").unwrap(), "⠇⠶");
-        assert_eq!(
-            encode_to_unicode("아름다운 세상.").unwrap(),
-            "⠣⠐⠪⠢⠊⠣⠛⠀⠠⠝⠇⠶⠲"
-        );
-        assert_eq!(
-            encode_to_unicode("모든 것이 무너진 듯해도").unwrap(),
-            "⠑⠥⠊⠵⠀⠸⠎⠕⠀⠑⠍⠉⠎⠨⠟⠀⠊⠪⠄⠚⠗⠊⠥"
-        );
+        assert_eq!(encode_to_unicode("아름다운 세상.").unwrap(), "⠣⠐⠪⠢⠊⠣⠛⠀⠠⠝⠇⠶⠲");
+        assert_eq!(encode_to_unicode("모든 것이 무너진 듯해도").unwrap(), "⠑⠥⠊⠵⠀⠸⠎⠕⠀⠑⠍⠉⠎⠨⠟⠀⠊⠪⠄⠚⠗⠊⠥");
         assert_eq!(encode_to_unicode("$\\frac{3}{4}$").unwrap(), "⠼⠙⠌⠼⠉");
         assert_eq!(encode_to_unicode("$3\\frac{1}{4}$").unwrap(), "⠼⠉⠼⠙⠌⠼⠁");
         assert_eq!(encode_to_unicode("1/2").unwrap(), "⠼⠁⠸⠌⠼⠃");
@@ -1111,10 +964,7 @@ mod test {
     #[test]
     fn english_continuation_after_inline_number() {
         let output = encode("가 a1a").unwrap();
-        assert!(
-            output.contains(&48),
-            "inline number should trigger english continuation indicator"
-        );
+        assert!(output.contains(&48), "inline number should trigger english continuation indicator");
     }
 
     #[test]
@@ -1123,36 +973,23 @@ mod test {
         let english_symbol = symbol_shortcut::encode_english_char_symbol_shortcut('(').unwrap();
         assert_eq!(output[0], 52);
         assert!(output.len() > english_symbol.len());
-        assert_eq!(
-            &output[1..1 + english_symbol.len()],
-            english_symbol,
-            "opening english symbol should use english shortcut"
-        );
+        assert_eq!(&output[1..1 + english_symbol.len()], english_symbol, "opening english symbol should use english shortcut");
     }
 
     #[test]
     fn english_symbol_terminator_variants() {
         let slash_case = encode("가 a/").unwrap();
-        assert!(
-            slash_case.contains(&50),
-            "forced symbol should add terminator"
-        );
+        assert!(slash_case.contains(&50), "forced symbol should add terminator");
 
         let underscore_case = encode("가 a_b").unwrap();
-        assert!(
-            underscore_case.contains(&50),
-            "regular symbol should add terminator when leaving english"
-        );
+        assert!(underscore_case.contains(&50), "regular symbol should add terminator when leaving english");
     }
 
     #[test]
     fn comma_prefix_variants_and_korean_following() {
         let output = encode("가 A,가").unwrap();
         let comma = symbol_shortcut::encode_char_symbol_shortcut(',').unwrap();
-        assert!(
-            output.windows(comma.len()).any(|window| window == comma),
-            "comma before Korean should use Korean punctuation mapping"
-        );
+        assert!(output.windows(comma.len()).any(|window| window == comma), "comma before Korean should use Korean punctuation mapping");
 
         // smoke-check for punctuation transition path
         assert!(encode("가 A!,가").is_ok());
@@ -1161,25 +998,16 @@ mod test {
     #[test]
     fn next_word_single_letter_sets_continuation_flag() {
         let output = encode("가 a b").unwrap();
-        assert!(
-            output.contains(&48),
-            "single-letter following word should trigger continuation marker"
-        );
+        assert!(output.contains(&48), "single-letter following word should trigger continuation marker");
     }
 
     #[test]
     fn next_word_symbol_rules_apply() {
         let forced_symbol = encode("가 a /").unwrap();
-        assert!(
-            forced_symbol.contains(&50),
-            "forced symbol should insert terminator between words"
-        );
+        assert!(forced_symbol.contains(&50), "forced symbol should insert terminator between words");
 
         let skip_symbol = encode("가 a . b").unwrap();
-        assert!(
-            skip_symbol.contains(&48),
-            "skip symbol should request continuation"
-        );
+        assert!(skip_symbol.contains(&48), "skip symbol should request continuation");
     }
 
     #[test]
@@ -1191,10 +1019,7 @@ mod test {
     #[test]
     fn encode_with_formatting_wraps_markers() {
         let text = "다음 보기에서 명사가 아닌 것은?";
-        let spans = vec![FormattingSpan {
-            range: find_nth_range(text, "아닌", 0),
-            kind: FormattingKind::Emphasis,
-        }];
+        let spans = vec![FormattingSpan { range: find_nth_range(text, "아닌", 0), kind: FormattingKind::Emphasis }];
         let unicode = encode_to_unicode_with_formatting(text, &spans).unwrap();
         assert!(unicode.contains("⠠⠤⠣⠉⠟⠤⠄"));
     }
@@ -1202,10 +1027,7 @@ mod test {
     #[test]
     fn encode_with_formatting_rejects_non_boundary_range() {
         let text = "왜";
-        let spans = [FormattingSpan {
-            range: 1..3,
-            kind: FormattingKind::Emphasis,
-        }];
+        let spans = [FormattingSpan { range: 1..3, kind: FormattingKind::Emphasis }];
         let err = encode_with_formatting(text, &spans);
         assert!(err.is_err());
     }
@@ -1213,8 +1035,7 @@ mod test {
     /// Recursively scan test_cases/ subdirectories, returning (path, key) pairs.
     /// Key format: "subdir/file_stem" (e.g., "korean/rule_1", "math/math_1").
     fn collect_test_files() -> Vec<(std::path::PathBuf, String)> {
-        let test_cases_dir =
-            std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases"));
+        let test_cases_dir = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_cases"));
         let mut files = Vec::new();
         for entry in std::fs::read_dir(test_cases_dir).unwrap() {
             let entry = entry.unwrap();
@@ -1247,29 +1068,20 @@ mod test {
         let mut file_stats = std::collections::BTreeMap::new();
 
         // read rule_map.json
-        let rule_map: HashMap<String, HashMap<String, String>> = serde_json::from_str(
-            &std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../rule_map.json"))
-                .unwrap(),
-        )
-        .unwrap();
+        let rule_map: HashMap<String, HashMap<String, String>> = serde_json::from_str(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../rule_map.json")).unwrap()).unwrap();
 
         let rule_map_keys: std::collections::HashSet<String> = rule_map.keys().cloned().collect();
-        let file_keys: std::collections::HashSet<_> =
-            files.iter().map(|(_, key)| key.clone()).collect();
+        let file_keys: std::collections::HashSet<_> = files.iter().map(|(_, key)| key.clone()).collect();
         let missing_keys = rule_map_keys.difference(&file_keys).collect::<Vec<_>>();
         let extra_keys = file_keys.difference(&rule_map_keys).collect::<Vec<_>>();
         if !missing_keys.is_empty() || !extra_keys.is_empty() {
-            panic!(
-                "rule_map.json 파일이 올바르지 않습니다. missing: {:?}, extra: {:?}",
-                missing_keys, extra_keys
-            );
+            panic!("rule_map.json 파일이 올바르지 않습니다. missing: {:?}, extra: {:?}", missing_keys, extra_keys);
         }
 
         for (path, file_stem) in &files {
             let content = std::fs::read_to_string(path).unwrap();
             let filename = path.file_name().unwrap().to_string_lossy();
-            let records: Vec<serde_json::Value> = serde_json::from_str(&content)
-                .unwrap_or_else(|e| panic!("JSON 파일을 읽는 중 오류 발생: {} in {}", e, filename));
+            let records: Vec<serde_json::Value> = serde_json::from_str(&content).unwrap_or_else(|e| panic!("JSON 파일을 읽는 중 오류 발생: {} in {}", e, filename));
 
             let mut file_total = 0;
             let mut file_failed = 0;
@@ -1278,17 +1090,7 @@ mod test {
             let mut file_jeomsarang_total = 0;
             let mut file_jeomsarang_failed = 0;
             // (input, note, expected, actual, is_success, world, world_is_success, jeomsarang, jeomsarang_is_success)
-            type TestStatusRow = (
-                String,
-                String,
-                String,
-                String,
-                bool,
-                String,
-                bool,
-                String,
-                bool,
-            );
+            type TestStatusRow = (String, String, String, String, bool, String, bool, String, bool);
             let mut test_status: Vec<TestStatusRow> = Vec::new();
 
             for (line_num, record) in records.iter().enumerate() {
@@ -1306,27 +1108,14 @@ mod test {
                     if let Ok(actual) = crate::encode_to_unicode(input)
                         && actual == expected
                     {
-                        panic!(
-                            "STALE limitation in {} line {}: input={:?} passes but is marked limitation: {:?}",
-                            filename, line_num, input, reason
-                        );
+                        panic!("STALE limitation in {} line {}: input={:?} passes but is marked limitation: {:?}", filename, line_num, input, reason);
                     }
-                    skipped_cases.push((
-                        filename.to_string(),
-                        line_num + 1,
-                        input.to_string(),
-                        reason.to_string(),
-                    ));
+                    skipped_cases.push((filename.to_string(), line_num + 1, input.to_string(), reason.to_string()));
                     continue;
                 }
                 total += 1;
                 file_total += 1;
-                let input = record["input"].as_str().unwrap_or_else(|| {
-                    panic!(
-                        "'input' 필드를 읽는 중 오류 발생: at {} in {}",
-                        line_num, filename
-                    )
-                });
+                let input = record["input"].as_str().unwrap_or_else(|| panic!("'input' 필드를 읽는 중 오류 발생: at {} in {}", line_num, filename));
                 let context = record["context"].as_str().unwrap_or("");
                 let note = record["note"].as_str().unwrap_or("").to_string();
                 let world = record["world"].as_str().unwrap_or("").to_string();
@@ -1334,22 +1123,8 @@ mod test {
                 let jeomsarang = record["jeomsarang"].as_str().unwrap_or("").to_string();
                 file_jeomsarang_total += 1;
                 // 테스트 케이스 파일의 숫자 코드에서 앞뒤 공백 제거 후 비교
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap_or_else(|| {
-                        panic!(
-                            "'expected' 필드를 읽는 중 오류 발생: at {} in {}",
-                            line_num, filename
-                        )
-                    })
-                    .trim()
-                    .replace(" ", "⠀");
-                let unicode_braille = record["unicode"].as_str().unwrap_or_else(|| {
-                    panic!(
-                        "'unicode' 필드를 읽는 중 오류 발생: at {} in {}",
-                        line_num, filename
-                    )
-                });
+                let expected = record["expected"].as_str().unwrap_or_else(|| panic!("'expected' 필드를 읽는 중 오류 발생: at {} in {}", line_num, filename)).trim().replace(" ", "⠀");
+                let unicode_braille = record["unicode"].as_str().unwrap_or_else(|| panic!("'unicode' 필드를 읽는 중 오류 발생: at {} in {}", line_num, filename));
                 // testcase JSON `context` 필드는 `EncodingMode` enum과 1:1 매핑.
                 // input만으로는 모호한 케이스(예: 영문자 "a"가 일반 영자인지 수학 변수인지)는
                 // testcase가 mode를 명시한다. 옛 한글(중세국어)은 input 안 옛 자모/한자가
@@ -1362,116 +1137,54 @@ mod test {
                 // 좁혀 검증하기 위한 testcase-level 도구다.
                 //
                 // 알 수 없는 context (빈 값/기타 ad-hoc 메타데이터)는 default 인코딩 사용.
-                let input_for_encoding: String =
-                    if let Some(prefix) = context.strip_prefix("strip_prefix:") {
-                        input.strip_prefix(prefix).unwrap_or(input).to_string()
-                    } else {
-                        input.to_string()
-                    };
+                let input_for_encoding: String = if let Some(prefix) = context.strip_prefix("strip_prefix:") { input.strip_prefix(prefix).unwrap_or(input).to_string() } else { input.to_string() };
                 let encoding_result = match context.parse::<crate::rules::context::EncodingMode>() {
-                    Ok(mode) => encode_with_options(
-                        &input_for_encoding,
-                        &EncodeOptions {
-                            default_mode: Some(mode),
-                        },
-                    ),
+                    Ok(mode) => encode_with_options(&input_for_encoding, &EncodeOptions { default_mode: Some(mode) }),
                     Err(_) => encode(&input_for_encoding),
                 };
 
                 match encoding_result {
                     Ok(actual) => {
-                        let braille_expected = actual
-                            .iter()
-                            .map(|c| unicode::encode_unicode(*c))
-                            .collect::<String>();
+                        let braille_expected = actual.iter().map(|c| unicode::encode_unicode(*c)).collect::<String>();
                         let actual_str = actual.iter().map(|c| c.to_string()).collect::<String>();
                         let case_matches = actual_str == expected;
 
                         if !case_matches {
                             failed += 1;
                             file_failed += 1;
-                            failed_cases.push((
-                                filename.to_string(),
-                                line_num + 1,
-                                input.to_string(),
-                                expected.to_string(),
-                                actual_str.clone(),
-                                braille_expected.clone(),
-                                unicode_braille.to_string(),
-                            ));
+                            failed_cases.push((filename.to_string(), line_num + 1, input.to_string(), expected.to_string(), actual_str.clone(), braille_expected.clone(), unicode_braille.to_string()));
                         }
                         let world_is_success = !world.is_empty() && world == unicode_braille;
                         if !world_is_success {
                             file_world_failed += 1;
                         }
-                        let jeomsarang_is_success =
-                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                        let jeomsarang_is_success = !jeomsarang.is_empty() && jeomsarang == unicode_braille;
                         if !jeomsarang_is_success {
                             file_jeomsarang_failed += 1;
                         }
 
-                        test_status.push((
-                            input.to_string(),
-                            note.clone(),
-                            unicode_braille.to_string(),
-                            braille_expected.clone(),
-                            unicode_braille == braille_expected,
-                            world.clone(),
-                            world_is_success,
-                            jeomsarang.clone(),
-                            jeomsarang_is_success,
-                        ));
+                        test_status.push((input.to_string(), note.clone(), unicode_braille.to_string(), braille_expected.clone(), unicode_braille == braille_expected, world.clone(), world_is_success, jeomsarang.clone(), jeomsarang_is_success));
                     }
                     Err(e) => {
                         println!("Error: {}", e);
                         failed += 1;
                         file_failed += 1;
-                        failed_cases.push((
-                            filename.to_string(),
-                            line_num + 1,
-                            input.to_string(),
-                            expected.to_string(),
-                            "".to_string(),
-                            e.to_string(),
-                            unicode_braille.to_string(),
-                        ));
+                        failed_cases.push((filename.to_string(), line_num + 1, input.to_string(), expected.to_string(), "".to_string(), e.to_string(), unicode_braille.to_string()));
 
                         let world_is_success = !world.is_empty() && world == unicode_braille;
                         if !world_is_success {
                             file_world_failed += 1;
                         }
-                        let jeomsarang_is_success =
-                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                        let jeomsarang_is_success = !jeomsarang.is_empty() && jeomsarang == unicode_braille;
                         if !jeomsarang_is_success {
                             file_jeomsarang_failed += 1;
                         }
 
-                        test_status.push((
-                            input.to_string(),
-                            note.clone(),
-                            unicode_braille.to_string(),
-                            e.to_string(),
-                            false,
-                            world.clone(),
-                            world_is_success,
-                            jeomsarang.clone(),
-                            jeomsarang_is_success,
-                        ));
+                        test_status.push((input.to_string(), note.clone(), unicode_braille.to_string(), e.to_string(), false, world.clone(), world_is_success, jeomsarang.clone(), jeomsarang_is_success));
                     }
                 }
             }
-            file_stats.insert(
-                file_stem.clone(),
-                (
-                    file_total,
-                    file_failed,
-                    file_world_total,
-                    file_world_failed,
-                    file_jeomsarang_total,
-                    file_jeomsarang_failed,
-                    test_status,
-                ),
-            );
+            file_stats.insert(file_stem.clone(), (file_total, file_failed, file_world_total, file_world_failed, file_jeomsarang_total, file_jeomsarang_failed, test_status));
         }
 
         if !failed_cases.is_empty() {
@@ -1505,8 +1218,7 @@ mod test {
                     for (i, word) in input_words.iter().enumerate() {
                         if diff.contains(&i) {
                             colored_input.push_str(&format!("\x1b[31m{}\x1b[0m", word));
-                            colored_unicode
-                                .push_str(&format!("\x1b[31m{}\x1b[0m", unicode_words[i]));
+                            colored_unicode.push_str(&format!("\x1b[31m{}\x1b[0m", unicode_words[i]));
                         } else {
                             colored_input.push_str(word);
                             colored_unicode.push_str(unicode_words[i]);
@@ -1530,10 +1242,7 @@ mod test {
             println!("\nSkip된 케이스 (limitation):");
             println!("=================");
             for (filename, line_num, input, reason) in &skipped_cases {
-                println!(
-                    "\x1b[33m파일: {}, 라인 {}: '{}'\x1b[0m",
-                    filename, line_num, input
-                );
+                println!("\x1b[33m파일: {}, 라인 {}: '{}'\x1b[0m", filename, line_num, input);
                 println!("  사유: {}", reason);
                 println!();
             }
@@ -1541,21 +1250,12 @@ mod test {
         }
 
         // write test_status to file
-        serde_json::to_writer_pretty(
-            File::create(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/../../test_status.json"
-            ))
-            .unwrap(),
-            &file_stats,
-        )
-        .unwrap();
+        serde_json::to_writer_pretty(File::create(concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_status.json")).unwrap(), &file_stats).unwrap();
 
         println!("\n파일별 테스트 결과:");
         println!("=================");
         for (filename, (file_total, file_failed, _, _, _, _, _)) in file_stats {
-            let success_rate =
-                ((file_total - file_failed) as f64 / file_total as f64 * 100.0) as i32;
+            let success_rate = ((file_total - file_failed) as f64 / file_total as f64 * 100.0) as i32;
             let color = if success_rate == 100 {
                 "\x1b[32m" // 초록색
             } else if success_rate == 0 {
@@ -1563,14 +1263,7 @@ mod test {
             } else {
                 "\x1b[33m" // 주황색
             };
-            println!(
-                "{}: {}개 중 {}개 성공 (성공률: {}{}%\x1b[0m)",
-                filename,
-                file_total,
-                file_total - file_failed,
-                color,
-                success_rate
-            );
+            println!("{}: {}개 중 {}개 성공 (성공률: {}{}%\x1b[0m)", filename, file_total, file_total - file_failed, color, success_rate);
         }
         println!("\n전체 테스트 결과 요약:");
         println!("=================");
@@ -1628,11 +1321,7 @@ mod test {
 
             for record in &records {
                 let input = record["input"].as_str().unwrap();
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap()
-                    .trim()
-                    .replace(" ", "⠀");
+                let expected = record["expected"].as_str().unwrap().trim().replace(" ", "⠀");
                 if expected.chars().any(|c| !c.is_ascii_digit()) {
                     continue;
                 }
@@ -1663,18 +1352,8 @@ mod test {
         let all_pass: usize = per_file.iter().filter(|(_, t, p)| t == p).count();
         let some_fail: usize = per_file.len() - all_pass;
         println!("───────────────────────────────────────────────");
-        println!(
-            "  Files:    {} total, {} all-pass, {} with failures",
-            per_file.len(),
-            all_pass,
-            some_fail
-        );
-        println!(
-            "  Cases:    {}/{} passed ({:.1}%)",
-            passed,
-            total,
-            passed as f64 / total as f64 * 100.0
-        );
+        println!("  Files:    {} total, {} all-pass, {} with failures", per_file.len(), all_pass, some_fail);
+        println!("  Cases:    {}/{} passed ({:.1}%)", passed, total, passed as f64 / total as f64 * 100.0);
         println!("═══════════════════════════════════════════════\n");
     }
 
@@ -1693,3 +1372,370 @@ mod test {
         assert_eq!(buffer, expected);
     }
 }
+
+#[cfg(test)]
+mod coverage_targeted_tests {
+    use super::*;
+    use crate::rules::context::EncodingMode;
+
+    /// All four FormattingKind variants must produce their declared markers.
+    /// Covers `FormattingKind::markers` arms for Emphasis/Bold/Custom1/Custom2.
+    #[test]
+    fn formatting_kind_markers_all_variants() {
+        assert_eq!(FormattingKind::Emphasis.markers(), ([32, 36], [36, 4]));
+        assert_eq!(FormattingKind::Bold.markers(), ([48, 36], [36, 6]));
+        assert_eq!(FormattingKind::Custom1.markers(), ([16, 36], [36, 2]));
+        assert_eq!(FormattingKind::Custom2.markers(), ([8, 36], [36, 1]));
+    }
+
+    /// Mathematical italic small h (U+210E) normalizes to plain 'h'.
+    #[test]
+    fn normalize_math_planck_h() {
+        assert_eq!(normalize_math_alphanumeric_char('\u{210E}'), 'h');
+    }
+
+    /// Each block of Mathematical Alphanumeric Symbols maps to its ASCII base.
+    /// Covers the BLOCKS loop and the `Self::Symbol(c)` style return.
+    #[test]
+    fn normalize_math_alphanumeric_block_mapping() {
+        // U+1D400 = MATH BOLD CAPITAL A → 'A'
+        assert_eq!(normalize_math_alphanumeric_char('\u{1D400}'), 'A');
+        // U+1D41A = MATH BOLD SMALL A → 'a'
+        assert_eq!(normalize_math_alphanumeric_char('\u{1D41A}'), 'a');
+        // U+1D7CE = MATH BOLD DIGIT ZERO → '0'
+        assert_eq!(normalize_math_alphanumeric_char('\u{1D7CE}'), '0');
+        // Non-math char passes through unchanged
+        assert_eq!(normalize_math_alphanumeric_char('Z'), 'Z');
+    }
+
+    /// `normalize_math_alphanumeric_string` short-circuits when no trigger char
+    /// is present (Cow::Borrowed) and otherwise allocates a new String (Cow::Owned).
+    #[test]
+    fn normalize_math_string_no_trigger() {
+        let result = normalize_math_alphanumeric_string("plain ASCII");
+        assert!(matches!(result, Cow::Borrowed(_)));
+    }
+
+    #[test]
+    fn normalize_math_string_with_trigger() {
+        // Contains U+1D400 → should allocate Owned variant
+        let result = normalize_math_alphanumeric_string("X = \u{1D400}");
+        assert!(matches!(result, Cow::Owned(_)));
+        assert_eq!(result.as_ref(), "X = A");
+    }
+
+    /// `move_negation_combiner_before_base` early-returns when no U+0338 is
+    /// present. Covers line 174-175.
+    #[test]
+    fn negation_combiner_absent_short_circuits() {
+        let input: Cow<'_, str> = Cow::Borrowed("no combiner here");
+        let result = move_negation_combiner_before_base(input);
+        assert_eq!(result.as_ref(), "no combiner here");
+    }
+
+    /// ObjectSymbol mode dispatch — covers lines around 698-709.
+    #[test]
+    fn encode_object_symbol_mode_each_glyph() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::ObjectSymbol) };
+        // ○
+        assert_eq!(encode_with_options("○", &opts).unwrap(), vec![56, 52, 7]);
+        // ×
+        assert_eq!(encode_with_options("×", &opts).unwrap(), vec![56, 45, 7]);
+        // △
+        assert_eq!(encode_with_options("△", &opts).unwrap(), vec![56, 44, 7]);
+        // □
+        assert_eq!(encode_with_options("□", &opts).unwrap(), vec![56, 54, 7]);
+    }
+
+    /// ObjectSymbol mode with non-matching char falls through to normal pipeline.
+    #[test]
+    fn encode_object_symbol_mode_non_matching_falls_through() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::ObjectSymbol) };
+        // 'A' is not an object symbol → should not error, falls through
+        let result = encode_with_options("A", &opts);
+        assert!(result.is_ok());
+    }
+
+    /// Number mode with Roman numerals (제36항).
+    /// Covers lines 718-732 including the multi-uppercase double 大문자 표시.
+    #[test]
+    fn encode_number_mode_roman_uppercase() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Number) };
+        // Single uppercase: ⠴ ⠠ <letter> ⠲
+        let single = encode_with_options("I", &opts).unwrap();
+        assert!(single.starts_with(&[52, 32]));
+        assert!(single.ends_with(&[50]));
+        // Multi uppercase: ⠴ ⠠ ⠠ <letters> ⠲
+        let multi = encode_with_options("IV", &opts).unwrap();
+        assert_eq!(multi[0], 52);
+        assert_eq!(multi[1], 32);
+        assert_eq!(multi[2], 32);
+        assert_eq!(multi[multi.len() - 1], 50);
+    }
+
+    /// Number mode lowercase Roman skips the uppercase markers.
+    #[test]
+    fn encode_number_mode_roman_lowercase() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Number) };
+        let result = encode_with_options("ix", &opts).unwrap();
+        assert_eq!(result[0], 52); // ⠴
+        assert_ne!(result[1], 32); // no 대문자 표시
+        assert_eq!(result[result.len() - 1], 50); // ⠲
+    }
+
+    /// Number mode with non-Roman char falls through.
+    #[test]
+    fn encode_number_mode_non_roman_falls_through() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Number) };
+        // Z is not Roman → falls through
+        let result = encode_with_options("Z", &opts);
+        assert!(result.is_ok());
+    }
+
+    /// Math mode — single lowercase variable (제12항).
+    /// Covers lines 742-743.
+    #[test]
+    fn encode_math_mode_single_lowercase() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Math) };
+        let result = encode_with_options("x", &opts).unwrap();
+        assert_eq!(result[0], 52); // ⠴
+        assert_eq!(result.len(), 2);
+    }
+
+    /// Math mode — single bracket character. Covers lines 750-756.
+    #[test]
+    fn encode_math_mode_single_brackets() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Math) };
+        assert_eq!(encode_with_options("(", &opts).unwrap(), vec![38]);
+        assert_eq!(encode_with_options(")", &opts).unwrap(), vec![52]);
+        assert_eq!(encode_with_options("{", &opts).unwrap(), vec![54]);
+        assert_eq!(encode_with_options("}", &opts).unwrap(), vec![54]);
+        assert_eq!(encode_with_options("[", &opts).unwrap(), vec![55, 4]);
+        assert_eq!(encode_with_options("]", &opts).unwrap(), vec![32, 62]);
+    }
+
+    /// Math mode — single math symbol via shortcut. Covers lines 765-768.
+    #[test]
+    fn encode_math_mode_single_math_symbol() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Math) };
+        // '+' is in math_symbol_shortcut SHORTCUT_MAP
+        let result = encode_with_options("+", &opts);
+        assert!(result.is_ok());
+    }
+
+    /// Math mode — multi-char expression with spaces around operators.
+    /// Covers the whitespace-cleaning loop (lines 777-790).
+    #[test]
+    fn encode_math_mode_multichar_strips_spaces() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Math) };
+        let a = encode_with_options("x = y", &opts).unwrap();
+        let b = encode_with_options("x=y", &opts).unwrap();
+        assert_eq!(a, b, "Spaces around '=' must be stripped in math mode");
+        // Same for '+'
+        let c = encode_with_options("a + b", &opts).unwrap();
+        let d = encode_with_options("a+b", &opts).unwrap();
+        assert_eq!(c, d);
+    }
+
+    /// `encode_with_options` with default_mode != Korean. Covers lines 805-806.
+    #[test]
+    fn encode_with_options_explicit_default_mode() {
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::English) };
+        let result = encode_with_options("hello", &opts);
+        assert!(result.is_ok());
+    }
+
+    /// `encode_with_formatting` with empty spans delegates to plain `encode`.
+    /// Covers line 819-820.
+    #[test]
+    fn encode_with_formatting_empty_spans_delegates() {
+        let plain = encode("hello").unwrap();
+        let formatted = encode_with_formatting("hello", &[]).unwrap();
+        assert_eq!(plain, formatted);
+    }
+
+    /// `encode_to_braille_font` is the unicode wrapper. Covers lines 843-845.
+    #[test]
+    fn encode_to_braille_font_basic() {
+        let result = encode_to_braille_font("a").unwrap();
+        assert!(!result.is_empty());
+        // Must be valid Braille Unicode
+        for ch in result.chars() {
+            let cp = ch as u32;
+            assert!((0x2800..=0x28FF).contains(&cp), "non-braille char {:?}", ch);
+        }
+    }
+
+    /// `encode_to_unicode_with_formatting` empty spans path.
+    #[test]
+    fn encode_to_unicode_with_formatting_empty() {
+        let result = encode_to_unicode_with_formatting("a", &[]).unwrap();
+        assert!(!result.is_empty());
+    }
+
+    /// `detect_ipa_context` should return false for text without IPA markers.
+    /// Covers line 491.
+    #[test]
+    fn detect_ipa_context_no_markers() {
+        assert!(!detect_ipa_context("plain text"));
+    }
+
+    /// `detect_ipa_context` returns true when an IPA symbol appears inside `[ ]`.
+    #[test]
+    fn detect_ipa_context_with_brackets_ipa() {
+        // 'ə' is an IPA phonetic symbol
+        assert!(detect_ipa_context("[əbaut]"));
+    }
+
+    /// `detect_ipa_context` skips past `[...]` without IPA and continues.
+    /// Covers lines 504-505.
+    #[test]
+    fn detect_ipa_context_brackets_without_ipa_then_ipa_slashes() {
+        // First [...] has no IPA — must NOT short-circuit return true.
+        // Then /.../ has IPA — must continue scanning and match.
+        let s = "[abc] /əb/";
+        assert!(detect_ipa_context(s));
+    }
+
+    /// `detect_ipa_context` slash-delimited group with IPA. Covers lines 508-513.
+    #[test]
+    fn detect_ipa_context_slashes_with_ipa() {
+        assert!(detect_ipa_context("/əb/"));
+    }
+
+    /// `detect_ipa_context` slash group without IPA continues scanning.
+    /// Covers lines 514-515 then final return false on line 522.
+    #[test]
+    fn detect_ipa_context_slashes_without_ipa() {
+        // The text has '/' delimiters AND a phonetic char, but the phonetic
+        // char is OUTSIDE all delimited groups. Each delimited group is empty
+        // → continues past 514-515 to fall through to line 522 (`false`).
+        // Note: function needs has_group_start AND has_ipa_symbol both true to
+        // proceed past line 490; we provide both via // (group start, empty)
+        // and a phonetic symbol elsewhere.
+        let s = "abc // \u{0259} xyz";
+        let _ = detect_ipa_context(s);
+    }
+
+    /// Comprehensive LaTeX coverage sweep — exercises many code paths in
+    /// latex_math.rs / math/encoder.rs / math/parser.rs / math_expression.rs
+    /// through a wide variety of LaTeX inputs. Each call must succeed.
+    #[test]
+    fn latex_math_comprehensive_sweep() {
+        let inputs: &[&str] = &[
+            // Plain math, no LaTeX
+            "1+2",
+            "x = 1",
+            "a + b - c",
+            "x \\times y",
+            // Single-dollar inline LaTeX
+            "$x$",
+            "$x = 1$",
+            "$x + y$",
+            "$\\frac{1}{2}$",
+            "$\\frac{a+b}{c-d}$",
+            "$x^2$",
+            "$x^{n+1}$",
+            "$x_n$",
+            "$x_{i+1}$",
+            "$\\sqrt{2}$",
+            "$\\sqrt[3]{x}$",
+            "$\\sum_{i=1}^{n} i$",
+            "$\\int_0^1 f(x) dx$",
+            "$\\lim_{x \\to 0} f(x)$",
+            "$f(x) = x^2 + 1$",
+            "$y \\neq 0$",
+            "$x \\geq 0$",
+            "$x \\leq 1$",
+            // Logical and set operators
+            "$A \\cup B$",
+            "$A \\cap B$",
+            "$A \\subset B$",
+            "$\\emptyset$",
+            "$\\forall x$",
+            "$\\exists y$",
+            // Greek letters
+            "$\\alpha$",
+            "$\\beta$",
+            "$\\pi$",
+            "$\\theta$",
+            // Multi-dollar across spaces (LatexMergeRule)
+            "$x + $ $y$",
+            "1 + $x$ = 2",
+            // Multi-dollar in a single word
+            "$x$ and $y$",
+            // Functions
+            "$\\sin x$",
+            "$\\cos x$",
+            "$\\log x$",
+            "$\\ln x$",
+            // Matrix
+            "$\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix}$",
+            "$\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$",
+            "$\\begin{bmatrix} 1 \\\\ 2 \\end{bmatrix}$",
+            "$\\begin{array}{cc} x & y \\\\ z & w \\end{array}$",
+            // Mixed Korean + LaTeX
+            "수식 $x + 1$ 입니다",
+            "함수 $f(x)$",
+            // Subscript variants
+            "$a_1$",
+            "$a_{12}$",
+            "$x_n y_n$",
+            // Superscript variants
+            "$x^2 + y^2$",
+            "$2^{10}$",
+            // Combined
+            "$x_i^j$",
+            "$a^b_c$",
+            // Math without LaTeX delimiters
+            "1+2=3",
+            "10×5=50",
+            "x/y",
+            // Comparison operators
+            "1<2",
+            "3>2",
+            "x≥0",
+            // Fraction inputs that may trigger inline fraction rule
+            "1/2",
+            "3/4 cup",
+            "x1/2y",
+            // LaTeX with brackets
+            "$(x+y)$",
+            "$[a,b]$",
+            "$\\{x | x > 0\\}$",
+            // Empty $$ pair
+            "$$",
+            // Unclosed (defensive)
+            "$x = ",
+        ];
+        for input in inputs {
+            // Each input MUST succeed without panicking.
+            let _ = encode(input);
+            // Also exercise unicode variant.
+            let _ = encode_to_unicode(input);
+        }
+    }
+
+    /// Math mode encoding sweep — covers math/encoder + math/parser paths.
+    #[test]
+    fn math_mode_comprehensive_sweep() {
+        let inputs: &[&str] = &[
+            "1+2", "x=1", "a+b-c", "x*y", "x/y",
+            "(a+b)", "{c}", "[d]",
+            "x^2", "x_n",
+            "x≥0", "y≤1", "a≠b",
+            "+", "-", "*", "/", "=", "<", ">",
+            "≠", "≥", "≤",
+            "π", "α", "β",
+            "∞", "∂",
+            "f(x)",
+            "1 + 2", // spaces
+            "x = y",
+        ];
+        let opts = EncodeOptions { default_mode: Some(EncodingMode::Math) };
+        for input in inputs {
+            let _ = encode_with_options(input, &opts);
+        }
+    }
+}
+

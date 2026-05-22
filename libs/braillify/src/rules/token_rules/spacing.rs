@@ -45,12 +45,7 @@ impl TokenRule for KoreanAuxiliaryVerbSpacingRule {
         50 // Word_shortcut(100)·LaTeX(110+)보다 먼저 분리
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -69,27 +64,12 @@ impl TokenRule for KoreanAuxiliaryVerbSpacingRule {
         let prefix_chars: Vec<char> = prefix_owned.chars().collect();
         let suffix_chars: Vec<char> = suffix_owned.chars().collect();
 
-        Ok(TokenAction::ReplaceMany(vec![
-            Token::Word(WordToken {
-                text: Cow::Owned(prefix_owned),
-                chars: prefix_chars.clone(),
-                meta: WordMeta::from_chars(&prefix_chars),
-            }),
-            Token::Space(SpaceKind::Regular),
-            Token::Word(WordToken {
-                text: Cow::Owned(suffix_owned),
-                chars: suffix_chars.clone(),
-                meta: WordMeta::from_chars(&suffix_chars),
-            }),
-        ]))
+        Ok(TokenAction::ReplaceMany(vec![Token::Word(WordToken { text: Cow::Owned(prefix_owned), chars: prefix_chars.clone(), meta: WordMeta::from_chars(&prefix_chars) }), Token::Space(SpaceKind::Regular), Token::Word(WordToken { text: Cow::Owned(suffix_owned), chars: suffix_chars.clone(), meta: WordMeta::from_chars(&suffix_chars) })]))
     }
 }
 
 fn is_last_word_index(tokens: &[Token], index: usize) -> bool {
-    !tokens
-        .iter()
-        .skip(index + 1)
-        .any(|t| matches!(t, Token::Word(_)))
+    !tokens.iter().skip(index + 1).any(|t| matches!(t, Token::Word(_)))
 }
 
 impl TokenRule for AsteriskSpacingRule {
@@ -101,12 +81,7 @@ impl TokenRule for AsteriskSpacingRule {
         400
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(current)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -125,10 +100,7 @@ impl TokenRule for AsteriskSpacingRule {
             return Ok(TokenAction::Noop);
         }
 
-        let replacement = vec![
-            Token::Word(current.clone()),
-            Token::PreEncoded(vec![0; trailing_spaces]),
-        ];
+        let replacement = vec![Token::Word(current.clone()), Token::PreEncoded(vec![0; trailing_spaces])];
         Ok(TokenAction::ReplaceMany(replacement))
     }
 }

@@ -64,12 +64,7 @@ impl TokenRule for QuoteAttachmentRule {
         130
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut crate::rules::context::EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Space(_)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -84,28 +79,14 @@ impl TokenRule for QuoteAttachmentRule {
         let prev_text = prev.text.as_ref();
         let next_text = next.text.as_ref();
         let balance = quote_balance_before(tokens, index) + quote_delta(prev_text);
-        let has_ascii_double_quote = tokens
-            .iter()
-            .any(|t| matches!(t, Token::Word(w) if w.text.contains('"')));
+        let has_ascii_double_quote = tokens.iter().any(|t| matches!(t, Token::Word(w) if w.text.contains('"')));
 
         // Inside quoted prose (not jamo listings), 붙여쓰기 with attach separator.
-        if has_ascii_double_quote
-            && balance > 0
-            && has_korean_syllable(prev_text)
-            && has_korean_syllable(next_text)
-            && !has_jamo_only(prev_text)
-            && !has_jamo_only(next_text)
-        {
+        if has_ascii_double_quote && balance > 0 && has_korean_syllable(prev_text) && has_korean_syllable(next_text) && !has_jamo_only(prev_text) && !has_jamo_only(next_text) {
             return Ok(TokenAction::Replace(Token::PreEncoded(vec![8])));
         }
 
-        if prev_text.ends_with('“')
-            || prev_text.ends_with('‘')
-            || prev_text.ends_with('"')
-            || next_text.starts_with('”')
-            || next_text.starts_with('’')
-            || next_text.starts_with('"')
-        {
+        if prev_text.ends_with('“') || prev_text.ends_with('‘') || prev_text.ends_with('"') || next_text.starts_with('”') || next_text.starts_with('’') || next_text.starts_with('"') {
             return Ok(TokenAction::Replace(Token::PreEncoded(vec![8])));
         }
 
@@ -126,66 +107,33 @@ mod tests {
 
     fn word(text: &'static str) -> Token<'static> {
         let chars: Vec<char> = text.chars().collect();
-        Token::Word(WordToken {
-            text: Cow::Borrowed(text),
-            chars: chars.clone(),
-            meta: WordMeta::from_chars(&chars),
-        })
+        Token::Word(WordToken { text: Cow::Borrowed(text), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
     }
 
     #[test]
     fn attaches_space_inside_ascii_double_quote() {
-        let tokens = vec![
-            word("\"빨리"),
-            Token::Space(SpaceKind::Regular),
-            word("말해!\""),
-        ];
+        let tokens = vec![word("\"빨리"), Token::Space(SpaceKind::Regular), word("말해!\"")];
         let mut state = EncoderState::new(false);
         let action = QuoteAttachmentRule.apply(&tokens, 1, &mut state).unwrap();
 
-        assert!(
-            matches!(action, TokenAction::Replace(Token::PreEncoded(bytes)) if bytes == vec![8])
-        );
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(bytes)) if bytes == vec![8]));
     }
 
     #[test]
     fn pipeline_keeps_attachment_for_ascii_quote_sentence() {
         let mut ir = crate::rules::token::DocumentIR::parse("\"빨리 말해!\"", true);
         let mut engine = crate::rules::token_engine::TokenRuleEngine::new();
-        engine.register(Box::new(
-            crate::rules::token_rules::normalize::NormalizeEllipsis,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::emphasis_ring::EmphasisRingRule,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::latex_fraction::LatexFractionRule,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::inline_fraction::InlineFractionRule,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::word_shortcut::WordShortcutRule,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::uppercase_passage::UppercasePassageRule,
-        ));
-        engine.register(Box::new(
-            crate::rules::token_rules::middle_dot_spacing::MiddleDotSpacingRule,
-        ));
+        engine.register(Box::new(crate::rules::token_rules::normalize::NormalizeEllipsis));
+        engine.register(Box::new(crate::rules::token_rules::emphasis_ring::EmphasisRingRule));
+        engine.register(Box::new(crate::rules::token_rules::latex_fraction::LatexFractionRule));
+        engine.register(Box::new(crate::rules::token_rules::inline_fraction::InlineFractionRule));
+        engine.register(Box::new(crate::rules::token_rules::word_shortcut::WordShortcutRule));
+        engine.register(Box::new(crate::rules::token_rules::uppercase_passage::UppercasePassageRule));
+        engine.register(Box::new(crate::rules::token_rules::middle_dot_spacing::MiddleDotSpacingRule));
         engine.register(Box::new(QuoteAttachmentRule));
-        engine.register(Box::new(
-            crate::rules::token_rules::spacing::AsteriskSpacingRule,
-        ));
-        engine
-            .apply_all(&mut ir.tokens, &mut ir.state)
-            .expect("token rules should succeed");
+        engine.register(Box::new(crate::rules::token_rules::spacing::AsteriskSpacingRule));
+        engine.apply_all(&mut ir.tokens, &mut ir.state).expect("token rules should succeed");
 
-        assert!(
-            ir.tokens
-                .iter()
-                .any(|t| matches!(t, Token::PreEncoded(bytes) if bytes == &vec![8])),
-            "expected attach marker token in pipeline output"
-        );
+        assert!(ir.tokens.iter().any(|t| matches!(t, Token::PreEncoded(bytes) if bytes == &vec![8])), "expected attach marker token in pipeline output");
     }
 }

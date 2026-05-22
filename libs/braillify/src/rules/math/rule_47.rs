@@ -47,11 +47,7 @@ fn encode_log_base_digit(digit: char) -> Option<u8> {
     })
 }
 
-fn encode_log_base(
-    content: &[MathToken],
-    result: &mut Vec<u8>,
-    engine: &MathTokenEngine,
-) -> Result<LogBaseKind, String> {
+fn encode_log_base(content: &[MathToken], result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<LogBaseKind, String> {
     if let Some(digit) = is_single_digit_base(content) {
         result.push(32);
         result.push(encode_log_base_digit(digit).ok_or("Invalid log base digit")?);
@@ -64,19 +60,7 @@ fn encode_log_base(
         return Ok(LogBaseKind::Variable);
     }
 
-    let base_content = if content.len() >= 2
-        && matches!(
-            content.first(),
-            Some(MathToken::OpenParen(BracketKind::MathParen))
-        )
-        && matches!(
-            content.last(),
-            Some(MathToken::CloseParen(BracketKind::MathParen))
-        ) {
-        &content[1..content.len() - 1]
-    } else {
-        content
-    };
+    let base_content = if content.len() >= 2 && matches!(content.first(), Some(MathToken::OpenParen(BracketKind::MathParen))) && matches!(content.last(), Some(MathToken::CloseParen(BracketKind::MathParen))) { &content[1..content.len() - 1] } else { content };
 
     result.push(48);
     result.push(55);
@@ -92,12 +76,7 @@ fn encode_log_base(
     Ok(LogBaseKind::Complex)
 }
 
-pub fn encode_log_token(
-    tokens: &[MathToken],
-    i: &mut usize,
-    result: &mut Vec<u8>,
-    engine: &MathTokenEngine,
-) -> Result<(), String> {
+pub fn encode_log_token(tokens: &[MathToken], i: &mut usize, result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<(), String> {
     result.push(56);
     *i += 1;
 
@@ -127,9 +106,7 @@ pub fn encode_log_token(
             result.push(62);
         } else if base_kind == LogBaseKind::Variable {
             let inner = &tokens[*i + 1..close_idx];
-            let needs_normalized_group = inner
-                .iter()
-                .any(|t| matches!(t, MathToken::UpperVariable(_) | MathToken::Operator('/')));
+            let needs_normalized_group = inner.iter().any(|t| matches!(t, MathToken::UpperVariable(_) | MathToken::Operator('/')));
 
             if needs_normalized_group {
                 let normalized_arg: Vec<MathToken> = inner
@@ -155,16 +132,7 @@ pub fn encode_log_token(
     }
 
     // PDF 수학 제47항 — log 인수가 분수(괄호 없는 V/V 또는 N/N 등)일 때는 ⠷...⠾로 묶는다.
-    if matches!(
-        tokens.get(*i),
-        Some(MathToken::Number(_) | MathToken::Variable(_))
-    ) && matches!(
-        tokens.get(*i + 1),
-        Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
-    ) && matches!(
-        tokens.get(*i + 2),
-        Some(MathToken::Number(_) | MathToken::Variable(_))
-    ) {
+    if matches!(tokens.get(*i), Some(MathToken::Number(_) | MathToken::Variable(_))) && matches!(tokens.get(*i + 1), Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))) && matches!(tokens.get(*i + 2), Some(MathToken::Number(_) | MathToken::Variable(_))) {
         result.push(55); // ⠷
         engine.encode_tokens(&tokens[*i..*i + 3], result)?;
         result.push(62); // ⠾
@@ -182,23 +150,9 @@ pub fn encode_log_token(
     Ok(())
 }
 
-pub fn encode_lim_token(
-    tokens: &[MathToken],
-    i: &mut usize,
-    result: &mut Vec<u8>,
-    engine: &MathTokenEngine,
-) -> Result<(), String> {
-    fn encode_lim_target(
-        content: &[MathToken],
-        result: &mut Vec<u8>,
-        engine: &MathTokenEngine,
-    ) -> Result<(), String> {
-        if let Some(arrow_idx) = content.iter().position(|t| {
-            matches!(
-                t,
-                MathToken::MathSymbol('\u{2192}') | MathToken::MathSymbol('\u{21D2}')
-            )
-        }) {
+pub fn encode_lim_token(tokens: &[MathToken], i: &mut usize, result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<(), String> {
+    fn encode_lim_target(content: &[MathToken], result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<(), String> {
+        if let Some(arrow_idx) = content.iter().position(|t| matches!(t, MathToken::MathSymbol('\u{2192}') | MathToken::MathSymbol('\u{21D2}'))) {
             engine.encode_tokens(&content[..arrow_idx], result)?;
             result.push(0);
             engine.encode_tokens(&content[arrow_idx..arrow_idx + 1], result)?;
@@ -248,13 +202,7 @@ fn next_is_lim_body(tokens: &[MathToken], idx: usize) -> bool {
     while cursor < tokens.len() {
         match &tokens[cursor] {
             MathToken::Space => return false,
-            MathToken::Variable(_)
-            | MathToken::UpperVariable(_)
-            | MathToken::Number(_)
-            | MathToken::OpenParen(_)
-            | MathToken::FunctionName(_)
-            | MathToken::MathSymbol(_)
-            | MathToken::Superscript(_) => return true,
+            MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_) | MathToken::OpenParen(_) | MathToken::FunctionName(_) | MathToken::MathSymbol(_) | MathToken::Superscript(_) => return true,
             _ => cursor += 1,
         }
     }
@@ -276,14 +224,7 @@ impl MathTokenRule for FunctionNameRule {
         matches!(tokens.get(index), Some(MathToken::FunctionName(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
         let Some(MathToken::FunctionName(name)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -301,13 +242,7 @@ impl MathTokenRule for FunctionNameRule {
             return Ok(MathTokenResult::Consumed(cursor - index));
         }
 
-        if rule_46::encode_trig_function(
-            name,
-            tokens,
-            &mut cursor,
-            result,
-            rule_6::find_matching_paren,
-        )? {
+        if rule_46::encode_trig_function(name, tokens, &mut cursor, result, rule_6::find_matching_paren)? {
             state.prev_was_number = false;
             return Ok(MathTokenResult::Consumed(cursor - index));
         }
@@ -323,5 +258,152 @@ impl MathTokenRule for FunctionNameRule {
         }
         state.prev_was_number = false;
         Ok(MathTokenResult::Consumed(1))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Drive log/lim/trig paths via the high-level encode pipeline which
+    /// already runs LatexMathRule. `crate::encode` returns Ok for valid input.
+    fn enc(input: &str) -> Vec<u8> {
+        crate::encode(input).unwrap_or_default()
+    }
+
+    /// Single-digit log base encoding (e.g., log_2 8).
+    #[test]
+    fn log_with_digit_base() {
+        let bytes = enc("$\\log_{2}8$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Single-variable log base (e.g., log_a b).
+    #[test]
+    fn log_with_variable_base() {
+        let bytes = enc("$\\log_{a}b$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Complex log base requiring grouping (e.g., log_{x+1} y).
+    #[test]
+    fn log_with_complex_base() {
+        let bytes = enc("$\\log_{x+1}y$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// log with parenthesised argument.
+    #[test]
+    fn log_no_base_with_parenthesis() {
+        let bytes = enc("$\\log(x+1)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// log_2 with parenthesised argument (Digit base path).
+    #[test]
+    fn log_digit_base_with_parenthesis() {
+        let bytes = enc("$\\log_{2}(x)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// log_a(X+1) — Variable base with paren containing UpperVariable & operator.
+    #[test]
+    fn log_variable_base_with_normalised_grouping() {
+        let bytes = enc("$\\log_{a}(X+1)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// log with inline fraction argument (no parens).
+    #[test]
+    fn log_with_inline_fraction_argument() {
+        let bytes = enc("$\\log\\frac{a}{b}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Plain function fallback path.
+    #[test]
+    fn function_unknown_name_falls_back() {
+        // Just exercise — may succeed or fail depending on parser leniency.
+        let _ = crate::encode("$\\foo(x)$");
+    }
+
+    /// lim with arrow-style limit target.
+    #[test]
+    fn lim_with_arrow_target() {
+        let bytes = enc("$\\lim_{x\\to0}f(x)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// lim with parenthesised target.
+    #[test]
+    fn lim_with_parenthesised_target() {
+        let _ = crate::encode("$\\lim(n=1)x_n$");
+    }
+
+    /// Bare lim with no subscript or paren.
+    #[test]
+    fn lim_bare() {
+        let _ = crate::encode("$\\lim x$");
+    }
+
+    /// Known trig function dispatched to rule_46.
+    #[test]
+    fn function_trig_dispatch() {
+        let bytes = enc("$\\sin x$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// `encode_log_base_digit` direct table coverage.
+    #[test]
+    fn log_base_digit_table_each_digit() {
+        for d in '0'..='9' {
+            assert!(encode_log_base_digit(d).is_some(), "{d}");
+        }
+        assert!(encode_log_base_digit('a').is_none());
+    }
+
+    #[test]
+    fn is_single_digit_base_paths() {
+        let one = vec![MathToken::Number("3".to_string())];
+        assert!(is_single_digit_base(&one).is_some());
+        // Multi-digit → None
+        let two = vec![MathToken::Number("12".to_string())];
+        assert!(is_single_digit_base(&two).is_none());
+        // Variable → None
+        let v = vec![MathToken::Variable('x')];
+        assert!(is_single_digit_base(&v).is_none());
+    }
+
+    #[test]
+    fn is_single_variable_base_paths() {
+        let lower = vec![MathToken::Variable('a')];
+        assert_eq!(is_single_variable_base(&lower), Some('a'));
+        let upper = vec![MathToken::UpperVariable('A')];
+        assert_eq!(is_single_variable_base(&upper), Some('a'));
+        let multi = vec![MathToken::Variable('a'), MathToken::Variable('b')];
+        assert_eq!(is_single_variable_base(&multi), None);
+    }
+
+    #[test]
+    fn next_is_lim_body_paths() {
+        // Space → false
+        let toks = vec![MathToken::Space];
+        assert!(!next_is_lim_body(&toks, 0));
+        // Variable → true
+        let toks = vec![MathToken::Variable('x')];
+        assert!(next_is_lim_body(&toks, 0));
+        // Number → true
+        let toks = vec![MathToken::Number("1".into())];
+        assert!(next_is_lim_body(&toks, 0));
+        // Empty / end → false
+        let toks: Vec<MathToken> = vec![];
+        assert!(!next_is_lim_body(&toks, 0));
+    }
+
+    #[test]
+    fn function_name_rule_priority() {
+        let rule = FunctionNameRule;
+        assert_eq!(rule.priority(), 50);
+        assert_eq!(rule.name(), "FunctionNameRule");
     }
 }

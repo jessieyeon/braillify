@@ -3,28 +3,12 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "72",
-    subsection: None,
-    name: "placeholder_markers",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.72",
-    description: "Single list and placeholder markers without grouping suffix",
-};
+pub static META: RuleMeta = RuleMeta { section: "72", subsection: None, name: "placeholder_markers", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.72", description: "Single list and placeholder markers without grouping suffix" };
 
-const MAPPINGS: &[(char, &str)] = &[
-    ('○', "⠸⠴"),
-    ('□', "⠸⠶"),
-    ('△', "⠸⠬"),
-    ('•', "⠸⠲"),
-    ('◎', "⠸⠴⠴"),
-    ('▣', "⠸⠶⠶"),
-];
+const MAPPINGS: &[(char, &str)] = &[('○', "⠸⠴"), ('□', "⠸⠶"), ('△', "⠸⠬"), ('•', "⠸⠲"), ('◎', "⠸⠴⠴"), ('▣', "⠸⠶⠶")];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode
-        .chars()
-        .map(crate::unicode::decode_unicode)
-        .collect()
+    unicode.chars().map(crate::unicode::decode_unicode).collect()
 }
 
 pub fn is_rule_72_symbol(c: char) -> bool {
@@ -57,17 +41,12 @@ impl BrailleRule for Rule72 {
             return Ok(RuleResult::Skip);
         }
 
-        let contextual_marker = ctx.word_len() == 1
-            || ctx
-                .next_char()
-                .is_some_and(|c| c.is_whitespace() || matches!(c, '(' | '\'' | '"'))
-            || matches!(current, '◎' | '▣');
+        let contextual_marker = ctx.word_len() == 1 || ctx.next_char().is_some_and(|c| c.is_whitespace() || matches!(c, '(' | '\'' | '"')) || matches!(current, '◎' | '▣');
         if !contextual_marker {
             return Ok(RuleResult::Skip);
         }
 
-        let Some((_, unicode)) = MAPPINGS.iter().find(|(candidate, _)| *candidate == current)
-        else {
+        let Some((_, unicode)) = MAPPINGS.iter().find(|(candidate, _)| *candidate == current) else {
             return Ok(RuleResult::Skip);
         };
         let encoded = encode_unicode_cells(unicode);

@@ -49,38 +49,14 @@ impl MathTokenRule for PartialDerivativeFractionRule {
             return false;
         };
 
-        matches!(tokens.get(index), Some(MathToken::MathSymbol('\u{2202}')))
-            && matches!(
-                tokens.get(numerator_index),
-                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
-            )
-            && matches!(tokens.get(slash_index), Some(MathToken::Operator('/')))
-            && matches!(
-                tokens.get(second_partial_index),
-                Some(MathToken::MathSymbol('\u{2202}'))
-            )
-            && matches!(
-                tokens.get(denominator_index),
-                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
-            )
+        matches!(tokens.get(index), Some(MathToken::MathSymbol('\u{2202}'))) && matches!(tokens.get(numerator_index), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) && matches!(tokens.get(slash_index), Some(MathToken::Operator('/'))) && matches!(tokens.get(second_partial_index), Some(MathToken::MathSymbol('\u{2202}'))) && matches!(tokens.get(denominator_index), Some(MathToken::Variable(_) | MathToken::UpperVariable(_)))
     }
 
-    fn apply(
-        &self,
-        tokens: &[MathToken],
-        index: usize,
-        result: &mut Vec<u8>,
-        state: &mut MathEncodeState,
-        engine: &MathTokenEngine,
-    ) -> Result<MathTokenResult, String> {
-        let numerator_index = next_non_space(tokens, index + 1)
-            .ok_or_else(|| "Missing numerator in partial derivative".to_string())?;
-        let slash_index = next_non_space(tokens, numerator_index + 1)
-            .ok_or_else(|| "Missing slash in partial derivative".to_string())?;
-        let second_partial_index = next_non_space(tokens, slash_index + 1)
-            .ok_or_else(|| "Missing denominator partial symbol".to_string())?;
-        let denominator_index = next_non_space(tokens, second_partial_index + 1)
-            .ok_or_else(|| "Missing denominator in partial derivative".to_string())?;
+    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+        let numerator_index = next_non_space(tokens, index + 1).ok_or_else(|| "Missing numerator in partial derivative".to_string())?;
+        let slash_index = next_non_space(tokens, numerator_index + 1).ok_or_else(|| "Missing slash in partial derivative".to_string())?;
+        let second_partial_index = next_non_space(tokens, slash_index + 1).ok_or_else(|| "Missing denominator partial symbol".to_string())?;
+        let denominator_index = next_non_space(tokens, second_partial_index + 1).ok_or_else(|| "Missing denominator in partial derivative".to_string())?;
 
         let numerator = tokens[numerator_index..numerator_index + 1].to_vec();
         let denominator = tokens[denominator_index..denominator_index + 1].to_vec();
@@ -108,17 +84,11 @@ mod tests {
 
     #[test]
     fn encodes_partial_derivative_fraction() {
-        assert_eq!(
-            encode_math_expression("∂z/∂x").unwrap(),
-            vec![43, 45, 12, 43, 53]
-        );
+        assert_eq!(encode_math_expression("∂z/∂x").unwrap(), vec![43, 45, 12, 43, 53]);
     }
 
     #[test]
     fn encodes_partial_derivative_fraction_with_spaces() {
-        assert_eq!(
-            encode_math_expression("∂z / ∂x").unwrap(),
-            vec![43, 45, 12, 43, 53]
-        );
+        assert_eq!(encode_math_expression("∂z / ∂x").unwrap(), vec![43, 45, 12, 43, 53]);
     }
 }

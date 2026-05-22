@@ -11,12 +11,7 @@ fn corpus(name: &str) -> String {
 
 fn bench_short_strings(c: &mut Criterion) {
     let mut group = c.benchmark_group("encode/short");
-    let cases = [
-        ("greet", "안녕하세요"),
-        ("name", "오정민입니다"),
-        ("mixed", "BMI는 22.5kg/m²이다."),
-        ("punct", "그래서, 그러나, 그리고…"),
-    ];
+    let cases = [("greet", "안녕하세요"), ("name", "오정민입니다"), ("mixed", "BMI는 22.5kg/m²이다."), ("punct", "그래서, 그러나, 그리고…")];
 
     for (name, input) in cases {
         group.throughput(Throughput::Bytes(input.len() as u64));
@@ -37,13 +32,7 @@ fn bench_prose(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("encode/prose");
     group.sample_size(10);
-    for (label, text) in [
-        ("kim_sowol", &kim_sowol),
-        ("kim_yujeong", &kim_yujeong),
-        ("synth_1k", &synth1k),
-        ("synth_10k", &synth10k),
-        ("synth_100k", &synth100k),
-    ] {
+    for (label, text) in [("kim_sowol", &kim_sowol), ("kim_yujeong", &kim_yujeong), ("synth_1k", &synth1k), ("synth_10k", &synth10k), ("synth_100k", &synth100k)] {
         group.throughput(Throughput::Bytes(text.len() as u64));
         group.bench_with_input(BenchmarkId::from_parameter(label), text.as_str(), |b, s| {
             b.iter(|| braillify::encode(black_box(s)));

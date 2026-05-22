@@ -3,10 +3,7 @@
 //! 로마 숫자열(I,V,X,L,C,D,M)을 로마숫자 지시(0)로 감싸 인코딩한다.
 
 pub fn is_roman_numeral_expression(input: &str) -> bool {
-    !input.is_empty()
-        && input
-            .chars()
-            .all(|c| matches!(c, 'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M'))
+    !input.is_empty() && input.chars().all(|c| matches!(c, 'I' | 'V' | 'X' | 'L' | 'C' | 'D' | 'M'))
 }
 
 pub fn encode_roman_numeral_expression(input: &str) -> Result<Vec<u8>, String> {

@@ -3,28 +3,15 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta {
-    section: "67",
-    subsection: None,
-    name: "braille_cell_mentions",
-    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.67",
-    description: "Braille cells mentioned inside prose are prefixed with ⠸⠿",
-};
+pub static META: RuleMeta = RuleMeta { section: "67", subsection: None, name: "braille_cell_mentions", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.67", description: "Braille cells mentioned inside prose are prefixed with ⠸⠿" };
 
 fn is_braille_cell(c: char) -> bool {
     (0x2800..=0x28ff).contains(&(c as u32))
 }
 
 fn explanatory_context(ctx: &RuleContext) -> bool {
-    let braille_run_len = ctx.word_chars[ctx.index..]
-        .iter()
-        .take_while(|&&c| is_braille_cell(c))
-        .count();
-    let mentions_symbol_name = ctx
-        .remaining_words
-        .iter()
-        .take(3)
-        .any(|word| word.contains("기호"));
+    let braille_run_len = ctx.word_chars[ctx.index..].iter().take_while(|&&c| is_braille_cell(c)).count();
+    let mentions_symbol_name = ctx.remaining_words.iter().take(3).any(|word| word.contains("기호"));
 
     (ctx.has_korean_char && braille_run_len == 1) || (!ctx.has_korean_char && mentions_symbol_name)
 }
@@ -45,8 +32,7 @@ impl BrailleRule for Rule67 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::Symbol(c) if is_braille_cell(*c))
-            && explanatory_context(ctx)
+        matches!(ctx.char_type, CharType::Symbol(c) if is_braille_cell(*c)) && explanatory_context(ctx)
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

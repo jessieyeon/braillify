@@ -78,12 +78,7 @@ impl TokenRule for Rule33CitationYearSuffixRule {
         50
     }
 
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        _state: &mut EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -126,11 +121,7 @@ impl TokenRule for Rule33CitationYearSuffixRule {
             bytes.push(encode_number(c)?);
         }
         // ⠴ (begin) 또는 ⠰ (continue)
-        bytes.push(if prev_is_same_pattern {
-            decode_unicode('⠰')
-        } else {
-            decode_unicode('⠴')
-        });
+        bytes.push(if prev_is_same_pattern { decode_unicode('⠰') } else { decode_unicode('⠴') });
         // letter
         bytes.push(encode_english(letter)?);
         // 구두점 — 영어 모드 inside
@@ -145,5 +136,143 @@ impl TokenRule for Rule33CitationYearSuffixRule {
         }
 
         Ok(TokenAction::Replace(Token::PreEncoded(bytes)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::{SpaceKind, WordMeta, WordToken};
+    use std::borrow::Cow;
+
+    fn word_token<'a>(text: &str) -> Token<'a> {
+        let chars: Vec<char> = text.chars().collect();
+        Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
+    }
+
+    #[test]
+    fn rule_phase_priority() {
+        let r = Rule33CitationYearSuffixRule;
+        assert!(matches!(r.phase(), TokenPhase::Normalization));
+        assert_eq!(r.priority(), 50);
+    }
+
+    #[test]
+    fn match_year_suffix_paths() {
+        // Valid forms
+        assert!(match_year_suffix("1998a,").is_some());
+        assert!(match_year_suffix("2024z;").is_some());
+        assert!(match_year_suffix("1900b.").is_some());
+        // Wrong length
+        assert!(match_year_suffix("1998a").is_none());
+        assert!(match_year_suffix("1998abc,").is_none());
+        // Non-digit prefix
+        assert!(match_year_suffix("199xa,").is_none());
+        // Uppercase letter
+        assert!(match_year_suffix("1998A,").is_none());
+        // Wrong punctuation
+        assert!(match_year_suffix("1998a!").is_none());
+    }
+
+    #[test]
+    fn is_rule33_emission_detects_own_output() {
+        // ⠼(60) + 1998 + ⠴(52) + 'a'(1) + ⠂(2)
+        let bytes = vec![60, 1, 11, 11, 27, 52, 1, 2];
+        assert!(is_rule33_emission(&bytes));
+        // With ⠰ continue marker
+        let bytes2 = vec![60, 1, 11, 11, 27, 48, 1, 2];
+        assert!(is_rule33_emission(&bytes2));
+        // Period suffix
+        let bytes3 = vec![60, 1, 11, 11, 27, 52, 1, 50];
+        assert!(is_rule33_emission(&bytes3));
+        // Semicolon suffix
+        let bytes4 = vec![60, 1, 11, 11, 27, 52, 1, 48, 6];
+        assert!(is_rule33_emission(&bytes4));
+        // Wrong length
+        assert!(!is_rule33_emission(&[]));
+        assert!(!is_rule33_emission(&[60, 1, 11, 11, 27, 52, 1]));
+        // Wrong prefix
+        assert!(!is_rule33_emission(&[59, 1, 11, 11, 27, 52, 1, 2]));
+        // Non-digit byte
+        assert!(!is_rule33_emission(&[60, 1, 11, 11, 99, 52, 1, 2]));
+        // Wrong marker
+        assert!(!is_rule33_emission(&[60, 1, 11, 11, 27, 99, 1, 2]));
+        // Out-of-range letter
+        assert!(!is_rule33_emission(&[60, 1, 11, 11, 27, 52, 99, 2]));
+        // Unknown suffix
+        assert!(!is_rule33_emission(&[60, 1, 11, 11, 27, 52, 1, 99]));
+    }
+
+    #[test]
+    fn apply_non_word_noop() {
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![Token::Space(SpaceKind::Regular)];
+        let mut state = EncoderState::new(false);
+        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_plain_word_noop() {
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![word_token("hello")];
+        let mut state = EncoderState::new(false);
+        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+    }
+
+    #[test]
+    fn apply_year_suffix_comma() {
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![word_token("1998a,")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_year_suffix_semicolon() {
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![word_token("1998a;")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_year_suffix_period() {
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![word_token("1998a.")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Replace(Token::PreEncoded(_))));
+    }
+
+    #[test]
+    fn apply_continuation_after_year_word() {
+        // Two year-suffix tokens — second should use ⠰ continuation marker
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![word_token("1998a,"), Token::Space(SpaceKind::Regular), word_token("1998b,")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 2, &mut state).unwrap();
+        if let TokenAction::Replace(Token::PreEncoded(bytes)) = action {
+            // Marker byte at index 5 should be 48 (⠰ continue)
+            assert_eq!(bytes[5], 48);
+        } else {
+            panic!("expected Replace");
+        }
+    }
+
+    #[test]
+    fn apply_continuation_after_preencoded() {
+        // Previous PreEncoded matches rule33 pattern → continue
+        let r = Rule33CitationYearSuffixRule;
+        let preenc_bytes = vec![60u8, 1, 11, 11, 27, 52, 1, 2];
+        let tokens = vec![Token::PreEncoded(preenc_bytes), Token::Space(SpaceKind::Regular), word_token("1998b,")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 2, &mut state).unwrap();
+        if let TokenAction::Replace(Token::PreEncoded(bytes)) = action {
+            assert_eq!(bytes[5], 48); // ⠰ continue
+        } else {
+            panic!("expected Replace");
+        }
     }
 }

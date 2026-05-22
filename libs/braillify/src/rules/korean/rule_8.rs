@@ -14,13 +14,7 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_8: RuleMeta = RuleMeta {
-    section: "8",
-    subsection: None,
-    name: "standalone_jamo",
-    standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.4 Art.8",
-    description: "Standalone jamo: prefix with 온표 ⠿ (63), consonants as jongseong",
-};
+pub static META_8: RuleMeta = RuleMeta { section: "8", subsection: None, name: "standalone_jamo", standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.4 Art.8", description: "Standalone jamo: prefix with 온표 ⠿ (63), consonants as jongseong" };
 
 /// Indicator prefix for standalone jamo (온표).
 pub const ONTAB: u8 = 63; // ⠿
@@ -38,13 +32,7 @@ pub const WORD_ATTACHED_PREFIX: u8 = 56; // ⠸
 /// * `word_chars` - all characters in the word
 /// * `has_korean_char` - whether the word contains Korean syllable characters
 /// * `is_symbol` - closure to check if a char is a symbol
-pub fn determine_prefix<F>(
-    word_len: usize,
-    char_index: usize,
-    word_chars: &[char],
-    has_korean_char: bool,
-    is_symbol: F,
-) -> u8
+pub fn determine_prefix<F>(word_len: usize, char_index: usize, word_chars: &[char], has_korean_char: bool, is_symbol: F) -> u8
 where
     F: Fn(char) -> bool,
 {
@@ -56,10 +44,8 @@ where
             let is_first_with_ja = char_index == 0 && word_len > 1 && word_chars[1] == '자';
 
             let is_bordered_by_symbols = {
-                let prev_is_symbol_or_start =
-                    char_index == 0 || (char_index > 0 && is_symbol(word_chars[char_index - 1]));
-                let next_is_symbol_or_end = word_len - 1 == char_index
-                    || (char_index < word_len - 1 && is_symbol(word_chars[char_index + 1]));
+                let prev_is_symbol_or_start = char_index == 0 || (char_index > 0 && is_symbol(word_chars[char_index - 1]));
+                let next_is_symbol_or_end = word_len - 1 == char_index || (char_index < word_len - 1 && is_symbol(word_chars[char_index + 1]));
                 prev_is_symbol_or_start && next_is_symbol_or_end
             };
 
@@ -106,13 +92,7 @@ impl BrailleRule for Rule8 {
             return Ok(RuleResult::Consumed);
         }
 
-        let prefix = determine_prefix(
-            ctx.word_len(),
-            ctx.index,
-            ctx.word_chars,
-            ctx.has_korean_char,
-            is_symbol_fn,
-        );
+        let prefix = determine_prefix(ctx.word_len(), ctx.index, ctx.word_chars, ctx.has_korean_char, is_symbol_fn);
         ctx.emit(prefix);
         ctx.emit_slice(korean_part::encode_korean_part(*c)?);
         Ok(RuleResult::Consumed)
@@ -158,10 +138,7 @@ mod tests {
     #[test]
     fn attached_to_korean_word() {
         let chars = ['가', 'ㄱ', '나'];
-        assert_eq!(
-            determine_prefix(3, 1, &chars, true, not_symbol),
-            WORD_ATTACHED_PREFIX
-        );
+        assert_eq!(determine_prefix(3, 1, &chars, true, not_symbol), WORD_ATTACHED_PREFIX);
     }
 
     #[test]

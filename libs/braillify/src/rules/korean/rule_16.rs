@@ -16,13 +16,7 @@ use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::split::split_korean_jauem;
 
-pub static META: RuleMeta = RuleMeta {
-    section: "16",
-    subsection: None,
-    name: "korean_exception_decomposition",
-    standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.14[붙임]/16[붙임]/17",
-    description: "Exception syllables (팠,껐,셩,쎵,졍,쪙,쳥,겄) fully decomposed",
-};
+pub static META: RuleMeta = RuleMeta { section: "16", subsection: None, name: "korean_exception_decomposition", standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.14[붙임]/16[붙임]/17", description: "Exception syllables (팠,껐,셩,쎵,졍,쪙,쳥,겄) fully decomposed" };
 
 /// The exception characters requiring full cho+jung+jong decomposition.
 pub const EXCEPTION_CHARS: [char; 8] = ['팠', '껐', '셩', '쎵', '졍', '쪙', '쳥', '겄'];
@@ -101,11 +95,7 @@ mod tests {
         ];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 16 golden test failed for: {}",
-                input
-            );
+            assert_eq!(result, expected, "Rule 16 golden test failed for: {}", input);
         }
     }
 

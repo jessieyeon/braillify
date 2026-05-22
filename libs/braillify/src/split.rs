@@ -70,18 +70,9 @@ pub fn split_korean_char(text: char) -> Result<Vec<KoreanChar>, String> {
         return Err("Invalid Korean character".to_string());
     }
 
-    const CHOSEONG: [char; 19] = [
-        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
-        'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
-    ];
-    const JUNGSEONG: [char; 21] = [
-        'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ',
-        'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ',
-    ];
-    const JONGSEONG: [char; 28] = [
-        ' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ',
-        'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
-    ];
+    const CHOSEONG: [char; 19] = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+    const JUNGSEONG: [char; 21] = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
+    const JONGSEONG: [char; 28] = [' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 
     let code = text as u32;
 
@@ -106,92 +97,34 @@ mod tests {
 
     #[test]
     fn test_split() {
-        assert_eq!(
-            split_korean_char('강'),
-            Ok(vec![
-                KoreanChar::Choseong('ㄱ'),
-                KoreanChar::Jungseong('ㅏ'),
-                KoreanChar::Jongseong('ㅇ')
-            ])
-        );
-        assert_eq!(
-            split_korean_char('한'),
-            Ok(vec![
-                KoreanChar::Choseong('ㅎ'),
-                KoreanChar::Jungseong('ㅏ'),
-                KoreanChar::Jongseong('ㄴ')
-            ])
-        );
-        assert_eq!(
-            split_korean_char('글'),
-            Ok(vec![
-                KoreanChar::Choseong('ㄱ'),
-                KoreanChar::Jungseong('ㅡ'),
-                KoreanChar::Jongseong('ㄹ')
-            ])
-        );
-        assert_eq!(
-            split_korean_char('안'),
-            Ok(vec![
-                KoreanChar::Choseong('ㅇ'),
-                KoreanChar::Jungseong('ㅏ'),
-                KoreanChar::Jongseong('ㄴ')
-            ])
-        );
-        assert_eq!(
-            split_korean_char('녕'),
-            Ok(vec![
-                KoreanChar::Choseong('ㄴ'),
-                KoreanChar::Jungseong('ㅕ'),
-                KoreanChar::Jongseong('ㅇ')
-            ])
-        );
+        assert_eq!(split_korean_char('강'), Ok(vec![KoreanChar::Choseong('ㄱ'), KoreanChar::Jungseong('ㅏ'), KoreanChar::Jongseong('ㅇ')]));
+        assert_eq!(split_korean_char('한'), Ok(vec![KoreanChar::Choseong('ㅎ'), KoreanChar::Jungseong('ㅏ'), KoreanChar::Jongseong('ㄴ')]));
+        assert_eq!(split_korean_char('글'), Ok(vec![KoreanChar::Choseong('ㄱ'), KoreanChar::Jungseong('ㅡ'), KoreanChar::Jongseong('ㄹ')]));
+        assert_eq!(split_korean_char('안'), Ok(vec![KoreanChar::Choseong('ㅇ'), KoreanChar::Jungseong('ㅏ'), KoreanChar::Jongseong('ㄴ')]));
+        assert_eq!(split_korean_char('녕'), Ok(vec![KoreanChar::Choseong('ㄴ'), KoreanChar::Jungseong('ㅕ'), KoreanChar::Jongseong('ㅇ')]));
 
-        assert_eq!(
-            split_korean_char('나'),
-            Ok(vec![
-                KoreanChar::Choseong('ㄴ'),
-                KoreanChar::Jungseong('ㅏ'),
-            ])
-        );
+        assert_eq!(split_korean_char('나'), Ok(vec![KoreanChar::Choseong('ㄴ'), KoreanChar::Jungseong('ㅏ'),]));
 
-        assert_eq!(
-            split_korean_char('라'),
-            Ok(vec![
-                KoreanChar::Choseong('ㄹ'),
-                KoreanChar::Jungseong('ㅏ'),
-            ])
-        );
+        assert_eq!(split_korean_char('라'), Ok(vec![KoreanChar::Choseong('ㄹ'), KoreanChar::Jungseong('ㅏ'),]));
     }
 
     #[test]
     fn test_split_choseong() {
-        for c in [
-            'ㄱ', 'ㄴ', 'ㄷ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
-        ] {
+        for c in ['ㄱ', 'ㄴ', 'ㄷ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'] {
             assert_eq!(split_korean_char(c), Ok(vec![KoreanChar::Choseong(c),]));
         }
     }
 
     #[test]
     fn test_split_jungseong() {
-        for c in [
-            'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ',
-            'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ',
-        ] {
+        for c in ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'] {
             assert_eq!(split_korean_char(c), Ok(vec![KoreanChar::Jungseong(c),]));
         }
     }
 
     #[test]
     fn test_split_wrong() {
-        assert_eq!(
-            split_korean_char('a'),
-            Err("Invalid Korean character".to_string())
-        );
-        assert_eq!(
-            split_korean_char('1'),
-            Err("Invalid Korean character".to_string())
-        );
+        assert_eq!(split_korean_char('a'), Err("Invalid Korean character".to_string()));
+        assert_eq!(split_korean_char('1'), Err("Invalid Korean character".to_string()));
     }
 }

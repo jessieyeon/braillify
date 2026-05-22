@@ -27,13 +27,6 @@ mod test {
 
     #[test]
     pub fn test_encode_word_shortcut() {
-        assert_eq!(
-            split_word_shortcut("그래서").unwrap(),
-            (
-                "그래서",
-                &[decode_unicode('⠁'), decode_unicode('⠎')][..],
-                "".to_string()
-            )
-        );
+        assert_eq!(split_word_shortcut("그래서").unwrap(), ("그래서", &[decode_unicode('⠁'), decode_unicode('⠎')][..], "".to_string()));
     }
 }

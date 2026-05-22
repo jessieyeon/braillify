@@ -20,11 +20,7 @@ pub static CHOSEONG_MAP: phf::Map<char, u8> = phf_map! {
 };
 
 pub fn encode_choseong(text: char) -> Result<u8, String> {
-    if let Some(code) = CHOSEONG_MAP.get(&text) {
-        Ok(*code)
-    } else {
-        Err("Invalid Korean choseong character".to_string())
-    }
+    if let Some(code) = CHOSEONG_MAP.get(&text) { Ok(*code) } else { Err("Invalid Korean choseong character".to_string()) }
 }
 
 #[cfg(test)]
