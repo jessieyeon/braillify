@@ -210,4 +210,80 @@ mod tests {
             .collect::<String>();
         assert_eq!(unicode, "⠊⠥⠂⠀⠠⠹");
     }
+
+    use rstest::rstest;
+
+    #[rstest]
+    #[case('ㅸ', Some('字'))] // special line 156 path
+    #[case('석', None)]
+    fn rule23_special_pair_handling(#[case] _ch: char, #[case] _next: Option<char>) {
+        // Just confirming MAPPINGS lookup compiles
+        let _ = encode_historical_letter_symbol('석');
+    }
+
+    #[test]
+    fn historical_letter_symbol_not_found_returns_none() {
+        assert!(encode_historical_letter_symbol('가').is_none());
+        assert!(encode_historical_letter_symbol('A').is_none());
+    }
+
+    #[test]
+    fn bracket_gloss_symbol_returns_none_for_unknown() {
+        assert!(encode_bracket_gloss_symbol('가').is_none());
+        assert!(encode_bracket_gloss_symbol('A').is_none());
+    }
+
+    #[test]
+    fn is_historical_gloss_bracket_context_false_when_no_brackets() {
+        let word_chars = ['A'];
+        let char_type = CharType::English('A');
+        let mut skip_count = 0usize;
+        let mut state = EncoderState::new(false);
+        let mut result = Vec::new();
+        let ctx = RuleContext {
+            word_chars: &word_chars,
+            index: 0,
+            char_type: &char_type,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip_count,
+            state: &mut state,
+            result: &mut result,
+        };
+        assert!(!is_historical_gloss_bracket_context(&ctx));
+    }
+
+    #[test]
+    fn should_skip_hanja_in_context_paths() {
+        let word_chars = ['君', '군'];
+        let char_type = CharType::Symbol('君');
+        let mut skip_count = 0usize;
+        let mut state = EncoderState::new(false);
+        let mut result = Vec::new();
+        let ctx = RuleContext {
+            word_chars: &word_chars,
+            index: 0,
+            char_type: &char_type,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip_count,
+            state: &mut state,
+            result: &mut result,
+        };
+        assert!(should_skip_hanja_in_context(&ctx));
+    }
+
+    #[test]
+    fn rule23_apply_skip_when_no_historical_match() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule23.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

@@ -380,4 +380,32 @@ mod tests {
         assert_eq!(r.priority(), 50);
         assert_eq!(r.name(), "SuperscriptRule");
     }
+
+    /// 10^2/10^3 pattern — Number with slash and Number-superscript follow-up.
+    #[test]
+    fn superscript_with_slash_and_superscript_follow() {
+        let bytes = enc("$10^{2}/10^{3}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Superscript followed by sqrt — special wrap path.
+    #[test]
+    fn superscript_followed_by_sqrt() {
+        let bytes = enc("$x^{2}\\sqrt{y}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Complex superscript content with parens that need extraction.
+    #[test]
+    fn superscript_with_paren_complex() {
+        let bytes = enc("$x^{(a+b)}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Bracket close + subscript + superscript — quantifier path.
+    #[test]
+    fn superscript_after_bracket_close() {
+        let bytes = enc("$\\sum_{i=1}^n$");
+        assert!(!bytes.is_empty());
+    }
 }

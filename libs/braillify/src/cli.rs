@@ -127,4 +127,21 @@ mod tests {
         let result = run_one_shot("😀");
         assert!(result.is_err());
     }
+
+    /// `run_cli` with explicit text input dispatches to `run_one_shot`.
+    /// Covers lines 16-26 (arg parsing + dispatch).
+    #[test]
+    fn run_cli_with_argument_runs_one_shot() {
+        let args = vec!["braillify".to_string(), "안녕".to_string()];
+        let result = run_cli(args);
+        assert!(result.is_ok());
+    }
+
+    /// `run_cli` with invalid input still returns Err from one_shot path.
+    #[test]
+    fn run_cli_with_invalid_input_propagates_error() {
+        let args = vec!["braillify".to_string(), "😀".to_string()];
+        let result = run_cli(args);
+        assert!(result.is_err());
+    }
 }

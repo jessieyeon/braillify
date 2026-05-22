@@ -177,11 +177,81 @@ mod tests {
     /// Underline-notation fraction normalization paths (lines around 300-330).
     #[test]
     fn underline_notation_fraction_paths() {
-        // U+0332 suffix on digit prefix → ⟨digits⟩/1
+        // U+0332 suffix on digit prefix → digits/1
         let _ = parse_math_expression("123\u{0332}");
-        // "1̲/(...)" pattern
+        // "1?/(...)" pattern
         let _ = parse_math_expression("1\u{0332}/(x+y)");
-        // "X̲/Y" generic underline-fraction
+        // "X?/Y" generic underline-fraction
         let _ = parse_math_expression("A\u{0332}/B");
+    }
+
+    /// Parser sweep — exercises diverse code paths.
+    #[test]
+    fn parser_diverse_input_sweep() {
+        let inputs: &[&str] = &[
+            // ASCII subscript syntaxes
+            "x_1",
+            "x_{12}",
+            "x_(n)",
+            "x_a",
+            "x_A",
+            // Number subscripts with decimal/slash inside
+            "x_{1.5}",
+            "x_{1/2}",
+            // Superscripts
+            "x^1",
+            "x^{n+1}",
+            "x^a",
+            // Combined
+            "x_1^2",
+            "x^a_b",
+            // Korean variables
+            "x가y",
+            "수식",
+            // Math symbols
+            "1≤x≤10",
+            "x≠y",
+            // Functions
+            "sin(x)",
+            "cos(2x)",
+            "log_2(8)",
+            // Parens & brackets
+            "(a+b)(c+d)",
+            "[a,b]",
+            "{x|x>0}",
+            // Decimal numbers
+            "3.14",
+            "0.5",
+            "1.234",
+            // Unicode operators
+            "x×y",
+            "x÷y",
+            "x±1",
+            // Multi-digit + multi-char
+            "12345",
+            "abc",
+            // Whitespace
+            "x + y",
+            "1  +  2",
+            // Empty / edge
+            "",
+            " ",
+            "  ",
+            // Single chars
+            "x",
+            "1",
+            "+",
+            // Compound math
+            "f(x)=x^2+2x+1",
+            "x^2 + 2x + 1 = 0",
+            // Greek letters
+            "α+β=γ",
+            "π/2",
+            // Roman numerals
+            "I+II",
+        ];
+        for input in inputs {
+            let _ = parse_math_expression(input);
+        }
     }
 }

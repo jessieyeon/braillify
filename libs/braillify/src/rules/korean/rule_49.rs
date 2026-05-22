@@ -212,4 +212,66 @@ mod tests {
     fn unknown_symbol_returns_error() {
         assert!(apply('@').is_err());
     }
+
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("?", true)] // Symbol
+    #[case("'", true)] // Symbol (apostrophe)
+    #[case("\"", true)] // Symbol (double quote)
+    #[case("A", false)] // English
+    #[case("가", false)] // Korean syllable
+    fn rule49_matches_symbols(#[case] input: &str, #[case] expected: bool) {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
+        let ctx = owned.ctx_at(0);
+        assert_eq!(Rule49.matches(&ctx), expected, "input={input}");
+    }
+
+    /// Single '×' in isolation — × is MathSymbol, so Rule49 (Symbol matcher) skips.
+    /// Just exercise the apply path for coverage.
+    #[test]
+    fn rule49_x_apply_exercises_path() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("×", false);
+        let mut ctx = owned.ctx_at(0);
+        let _ = Rule49.apply(&mut ctx);
+    }
+
+    /// Opening apostrophe at start of word.
+    #[test]
+    fn rule49_apostrophe_open() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("'", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(owned.result, vec![decode_unicode('⠠'), decode_unicode('⠦')]);
+    }
+
+    /// Closing apostrophe (preceded by another char).
+    #[test]
+    fn rule49_apostrophe_close() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A'", false);
+        let mut ctx = owned.ctx_at(1); // ' at index 1 (preceded by A)
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(owned.result, vec![decode_unicode('⠴'), decode_unicode('⠄')]);
+    }
+
+    /// Opening double quote at start.
+    #[test]
+    fn rule49_doublequote_open() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("\"", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(owned.result, vec![decode_unicode('⠦')]);
+    }
+
+    /// Apply skips non-symbol char_type.
+    #[test]
+    fn rule49_apply_skips_non_symbol() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

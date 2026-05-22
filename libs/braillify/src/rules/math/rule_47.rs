@@ -471,4 +471,39 @@ mod tests {
         assert_eq!(rule.priority(), 50);
         assert_eq!(rule.name(), "FunctionNameRule");
     }
+
+    /// Log base wrapped in extra parens — exercises lines 67-79 path.
+    #[test]
+    fn log_complex_base_with_paren_wrap() {
+        let bytes = enc("$\\log_{(x+1)}y$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Log base containing UpperVariable + operator triggers normalised grouping.
+    #[test]
+    fn log_variable_base_with_upper_operator() {
+        let bytes = enc("$\\log_{A}(X/Y)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Log digit base with paren argument — covers lines 103-106 explicitly.
+    #[test]
+    fn log_digit_base_with_simple_paren() {
+        let bytes = enc("$\\log_{2}(8)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Log with both base and Complex argument.
+    #[test]
+    fn log_complex_base_inline_fraction() {
+        let bytes = enc("$\\log_{2}a/b$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// Lim arrow body trigger — exercises encode_lim_target paths.
+    #[test]
+    fn lim_complex_target_with_arrow() {
+        let bytes = enc("$\\lim_{x\\to\\infty}\\frac{1}{x}$");
+        assert!(!bytes.is_empty());
+    }
 }
