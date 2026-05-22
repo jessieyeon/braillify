@@ -32,3 +32,7 @@ dhat-heap.json
 # then renames it over pkg/index_bg.wasm; if interrupted, the temp may linger).
 # pkg/ itself is already covered by packages/node/.gitignore.
 **/index_bg_opt.wasm
+
+# Playwright MCP output (screenshots, snapshots, console logs).
+.playwright-mcp/
+**/.playwright-mcp/
