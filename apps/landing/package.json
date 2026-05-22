@@ -8,15 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
-    "@devup-ui/components": "^0.1.44",
-    "@devup-ui/react": "^1.0.35",
+    "@devup-ui/components": "^0.1.45",
+    "@devup-ui/react": "^1.0.36",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.2.6",
     "@types/mdx": "^2.0.13",
     "braillify": "workspace:*",
     "clsx": "^2.1.1",
-    "katex": "^0.16.45",
+    "katex": "^0.16.47",
     "next": "16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
@@ -24,7 +24,7 @@
     "react-syntax-highlighter": "16.1.1"
   },
   "devDependencies": {
-    "@devup-ui/next-plugin": "^1.0.74",
+    "@devup-ui/next-plugin": "^1.0.76",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",

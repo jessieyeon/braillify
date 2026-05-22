@@ -8,11 +8,19 @@
 
 use crate::rules::context::EncoderState;
 use crate::rules::math;
+use crate::rules::math::math_token_rule::MathContext;
 use crate::rules::token::Token;
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 use crate::unicode::decode_unicode;
 
 pub struct LatexMathRule;
+
+fn math_context_from_state(state: &EncoderState) -> MathContext {
+    MathContext {
+        matrix_context_active: state.matrix_context_active,
+        math_mode_active: state.math_mode_active,
+    }
+}
 
 fn read_braced_content(chars: &mut std::iter::Peekable<std::str::Chars<'_>>) -> Option<String> {
     if chars.peek() != Some(&'{') {
@@ -177,21 +185,21 @@ fn promote_matrix_cell_variable(math_text: &str) -> String {
     math_text.to_string()
 }
 
-fn encode_trimmed_math(text: &str) -> Result<Vec<u8>, String> {
+fn encode_trimmed_math(text: &str, math_context: MathContext) -> Result<Vec<u8>, String> {
     let math_text = strip_latex_to_math(text.trim());
     if math_text.trim().is_empty() {
         return Ok(Vec::new());
     }
-    math::encoder::encode_math_expression(&math_text)
+    math::encoder::encode_math_expression_with_context(&math_text, math_context)
 }
 
-fn encode_matrix_cell(cell: &str) -> Result<Vec<u8>, String> {
+fn encode_matrix_cell(cell: &str, math_context: MathContext) -> Result<Vec<u8>, String> {
     let math_text = strip_latex_to_math(cell.trim());
     let matrix_text = promote_matrix_cell_variable(&math_text);
-    if let Some(bytes) = encode_matrix_letter_with_numeric_subscripts(&matrix_text)? {
+    if let Some(bytes) = encode_matrix_letter_with_numeric_subscripts(&matrix_text, math_context)? {
         return Ok(bytes);
     }
-    math::encoder::encode_math_expression(&matrix_text)
+    math::encoder::encode_math_expression_with_context(&matrix_text, math_context)
 }
 
 fn subscript_digit_to_ascii(ch: char) -> Option<char> {
@@ -210,7 +218,10 @@ fn subscript_digit_to_ascii(ch: char) -> Option<char> {
     }
 }
 
-fn encode_matrix_letter_with_numeric_subscripts(text: &str) -> Result<Option<Vec<u8>>, String> {
+fn encode_matrix_letter_with_numeric_subscripts(
+    text: &str,
+    math_context: MathContext,
+) -> Result<Option<Vec<u8>>, String> {
     let mut chars = text.chars();
     let Some(variable) = chars.next() else {
         return Ok(None);
@@ -228,30 +239,37 @@ fn encode_matrix_letter_with_numeric_subscripts(text: &str) -> Result<Option<Vec
         return Ok(None);
     }
 
-    let mut out = math::encoder::encode_math_expression(&variable.to_string())?;
+    let mut out =
+        math::encoder::encode_math_expression_with_context(&variable.to_string(), math_context)?;
     out.push(decode_unicode('⠰'));
     for subscript in subscripts {
         if let Some(digit) = subscript_digit_to_ascii(subscript) {
-            out.extend(math::encoder::encode_math_expression(&digit.to_string())?);
+            out.extend(math::encoder::encode_math_expression_with_context(
+                &digit.to_string(),
+                math_context,
+            )?);
         }
     }
     Ok(Some(out))
 }
 
-fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
+fn encode_latex_matrix(
+    matrix: &LatexMatrix<'_>,
+    math_context: MathContext,
+) -> Result<Vec<u8>, String> {
     // PDF 제10항 — `\begin{array}` 증감표: 위/아래 박스 테두리로 감싼 표.
     if matrix.delimiter == MatrixDelimiter::Array {
-        return encode_latex_array(matrix);
+        return encode_latex_array(matrix, math_context);
     }
 
-    let mut out = encode_trimmed_math(matrix.prefix)?;
+    let mut out = encode_trimmed_math(matrix.prefix, math_context)?;
     out.extend(matrix.delimiter.open_bytes());
 
     let rows = split_matrix_body(matrix.body);
     let is_cases = matrix.delimiter == MatrixDelimiter::Cases;
     for (row_index, row) in rows.iter().enumerate() {
         for (cell_index, cell) in row.iter().enumerate() {
-            out.extend(encode_matrix_cell(cell)?);
+            out.extend(encode_matrix_cell(cell, math_context)?);
             if cell_index + 1 < row.len() {
                 out.push(0);
             }
@@ -269,7 +287,7 @@ fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
     }
 
     out.extend(matrix.delimiter.close_bytes());
-    out.extend(encode_matrix_suffix(matrix.suffix)?);
+    out.extend(encode_matrix_suffix(matrix.suffix, math_context)?);
     Ok(out)
 }
 
@@ -281,8 +299,11 @@ fn encode_latex_matrix(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
 /// - 아래 테두리: `⠓` + 30 × `⠒` + `⠚`
 ///
 /// body에서 `\hline`을 제거하고 `\\`로 행 분리, `&`로 셀 분리한 뒤 각 셀을 math로 인코딩한다.
-fn encode_latex_array(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
-    let mut out = encode_trimmed_math(matrix.prefix)?;
+fn encode_latex_array(
+    matrix: &LatexMatrix<'_>,
+    math_context: MathContext,
+) -> Result<Vec<u8>, String> {
+    let mut out = encode_trimmed_math(matrix.prefix, math_context)?;
 
     // `\hline`을 제거하고 본문을 정리.
     let body_no_hline = matrix.body.replace("\\hline", "");
@@ -306,7 +327,7 @@ fn encode_latex_array(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
                 row_bytes.push(0); // 2 separator spaces
                 row_bytes.push(0);
             }
-            row_bytes.extend(encode_matrix_cell(cell)?);
+            row_bytes.extend(encode_matrix_cell(cell, math_context)?);
         }
         encoded_rows.push(row_bytes);
     }
@@ -338,7 +359,7 @@ fn encode_latex_array(matrix: &LatexMatrix<'_>) -> Result<Vec<u8>, String> {
     }
     out.push(decode_unicode('⠚'));
 
-    out.extend(encode_matrix_suffix(matrix.suffix)?);
+    out.extend(encode_matrix_suffix(matrix.suffix, math_context)?);
     Ok(out)
 }
 
@@ -366,16 +387,21 @@ fn parse_latex_letter_numeric_subscript(term: &str) -> Option<(char, Vec<char>)>
 fn encode_latex_letter_numeric_subscript(
     variable: char,
     digits: &[char],
+    math_context: MathContext,
 ) -> Result<Vec<u8>, String> {
-    let mut out = math::encoder::encode_math_expression(&variable.to_string())?;
+    let mut out =
+        math::encoder::encode_math_expression_with_context(&variable.to_string(), math_context)?;
     out.push(decode_unicode('⠰'));
     for digit in digits {
-        out.extend(math::encoder::encode_math_expression(&digit.to_string())?);
+        out.extend(math::encoder::encode_math_expression_with_context(
+            &digit.to_string(),
+            math_context,
+        )?);
     }
     Ok(out)
 }
 
-fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
+fn encode_matrix_suffix(suffix: &str, math_context: MathContext) -> Result<Vec<u8>, String> {
     let parts: Vec<&str> = suffix.split_whitespace().collect();
     if parts.is_empty() {
         return Ok(Vec::new());
@@ -384,7 +410,7 @@ fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
         .iter()
         .any(|part| parse_latex_letter_numeric_subscript(part).is_some())
     {
-        return encode_trimmed_math(suffix);
+        return encode_trimmed_math(suffix, math_context);
     }
 
     let mut out = Vec::new();
@@ -394,12 +420,16 @@ fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
             if previous_was_operand {
                 out.push(decode_unicode('⠐'));
             }
-            out.extend(encode_latex_letter_numeric_subscript(variable, &digits)?);
+            out.extend(encode_latex_letter_numeric_subscript(
+                variable,
+                &digits,
+                math_context,
+            )?);
             previous_was_operand = true;
             continue;
         }
 
-        out.extend(encode_trimmed_math(part)?);
+        out.extend(encode_trimmed_math(part, math_context)?);
         // PDF — 행렬 suffix 식에서 `-`는 인접한 단위(예: `a_{11}a_{22} - a_{12}a_{21}`)에
         // 공백 없이 결합된다. 점역기는 `⠔` 단독으로 emit하고 다음 피연산자가 곧 이어진다.
         previous_was_operand = false;
@@ -407,9 +437,12 @@ fn encode_matrix_suffix(suffix: &str) -> Result<Vec<u8>, String> {
     Ok(out)
 }
 
-pub(crate) fn encode_latex_math_bytes(latex_inner: &str) -> Result<Vec<u8>, String> {
+pub(crate) fn encode_latex_math_bytes_with_context(
+    latex_inner: &str,
+    math_context: MathContext,
+) -> Result<Vec<u8>, String> {
     if let Some(matrix) = find_latex_matrix(latex_inner) {
-        return encode_latex_matrix(&matrix);
+        return encode_latex_matrix(&matrix, math_context);
     }
 
     let math_text = strip_latex_to_math(latex_inner);
@@ -428,7 +461,7 @@ pub(crate) fn encode_latex_math_bytes(latex_inner: &str) -> Result<Vec<u8>, Stri
         return crate::encode(&math_text);
     }
 
-    math::encoder::encode_math_expression(&math_text)
+    math::encoder::encode_math_expression_with_context(&math_text, math_context)
 }
 
 fn previous_content_needs_math_spacing(tokens: &[Token<'_>], index: usize) -> usize {
@@ -1693,7 +1726,7 @@ impl TokenRule for LatexMergeRule {
         &self,
         tokens: &[Token<'a>],
         index: usize,
-        _state: &mut EncoderState,
+        state: &mut EncoderState,
     ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
@@ -1717,21 +1750,23 @@ impl TokenRule for LatexMergeRule {
                     .is_some_and(crate::utils::is_korean_char);
                 let inner_single_letter =
                     inner.chars().count() == 1 && inner.chars().all(|c| c.is_ascii_alphabetic());
-                if prefix_ends_korean
-                    && inner_single_letter
-                    && let Ok(prefix_bytes) = crate::encode(prefix)
-                    && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
-                    && let Ok(suffix_bytes) = crate::encode(suffix)
-                {
-                    let mut bytes = Vec::with_capacity(
-                        prefix_bytes.len() + inner_bytes.len() + suffix_bytes.len() + 2,
-                    );
-                    bytes.extend(prefix_bytes);
-                    bytes.push(52); // ⠴
-                    bytes.extend(inner_bytes);
-                    bytes.push(50); // ⠲
-                    bytes.extend(suffix_bytes);
-                    return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
+                if prefix_ends_korean && inner_single_letter {
+                    let math_context = math_context_from_state(state);
+                    if let Ok(prefix_bytes) = crate::encode(prefix)
+                        && let Ok(inner_bytes) =
+                            encode_latex_math_bytes_with_context(inner, math_context)
+                        && let Ok(suffix_bytes) = crate::encode(suffix)
+                    {
+                        let mut bytes = Vec::with_capacity(
+                            prefix_bytes.len() + inner_bytes.len() + suffix_bytes.len() + 2,
+                        );
+                        bytes.extend(prefix_bytes);
+                        bytes.push(52); // ⠴
+                        bytes.extend(inner_bytes);
+                        bytes.push(50); // ⠲
+                        bytes.extend(suffix_bytes);
+                        return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
+                    }
                 }
             }
         }
@@ -1772,9 +1807,11 @@ impl TokenRule for LatexMergeRule {
                 // Case 1: 단일 letter + Korean → ⠴letter⠲ PreEncoded + Korean Word
                 // suffix를 별도 Word로 유지해 다음 math expression이 Korean prose 컨텍스트로
                 // 두 칸 간격(혹은 quote-wrap)을 판정할 수 있게 한다.
+                let math_context = math_context_from_state(state);
                 if has_korean_suffix
                     && inner_is_short_letter
-                    && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
+                    && let Ok(inner_bytes) =
+                        encode_latex_math_bytes_with_context(inner, math_context)
                 {
                     let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
                     bytes.push(52); // ⠴
@@ -1871,7 +1908,8 @@ impl TokenRule for LatexMergeRule {
             let full = w.text.as_ref();
             if full.starts_with('$') && full.ends_with('$') && full.len() >= 3 {
                 let latex_inner = &full[1..full.len() - 1];
-                if let Ok(bytes) = encode_latex_math_bytes(latex_inner) {
+                let math_context = math_context_from_state(state);
+                if let Ok(bytes) = encode_latex_math_bytes_with_context(latex_inner, math_context) {
                     // Replace current token + consumed tokens
                     let mut final_replacement = vec![Token::PreEncoded(bytes)];
                     let consumed_count = j - index - 1; // tokens after index consumed
@@ -1900,7 +1938,7 @@ impl TokenRule for LatexMathRule {
         &self,
         tokens: &[Token<'a>],
         index: usize,
-        _state: &mut EncoderState,
+        state: &mut EncoderState,
     ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
@@ -1920,11 +1958,13 @@ impl TokenRule for LatexMathRule {
                     .chars()
                     .next()
                     .is_some_and(crate::utils::is_korean_char);
+                let math_context = math_context_from_state(state);
                 if has_korean_suffix
                     && !inner.is_empty()
                     && inner.chars().count() <= 2
                     && inner.chars().all(|c| c.is_ascii_alphabetic())
-                    && let Ok(inner_bytes) = encode_latex_math_bytes(inner)
+                    && let Ok(inner_bytes) =
+                        encode_latex_math_bytes_with_context(inner, math_context)
                 {
                     // ⠴ + inner + ⠲ 로 감싸고 suffix는 Korean으로 encode
                     let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
@@ -1947,9 +1987,10 @@ impl TokenRule for LatexMathRule {
 
         // Extract inner content (strip $ delimiters)
         let inner = &text[1..text.len() - 1];
+        let math_context = math_context_from_state(state);
 
         // Try to encode via math engine
-        match encode_latex_math_bytes(inner) {
+        match encode_latex_math_bytes_with_context(inner, math_context) {
             Ok(bytes) => Ok(TokenAction::ReplaceMany(wrap_latex_math_tokens_with_inner(
                 tokens, index, bytes, inner,
             ))),

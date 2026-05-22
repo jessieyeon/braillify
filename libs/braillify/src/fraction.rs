@@ -156,37 +156,91 @@ pub fn parse_latex_fraction(s: &str) -> Option<(Option<String>, String, String)>
 }
 
 pub fn parse_unicode_fraction(c: char) -> Option<(String, String)> {
-    let decomposed = c.nfkd().collect::<String>();
-    parse_decomposed_fraction(&decomposed)
+    parse_fraction_chars(c.nfkd())
 }
 
+#[cfg(test)]
 fn parse_decomposed_fraction(decomposed: &str) -> Option<(String, String)> {
-    if !decomposed.contains(FRACTION_SLASH) {
+    parse_fraction_chars(decomposed.chars())
+}
+
+/// Single-pass parser for `digits SLASH digits` (with optional surrounding
+/// whitespace per side). Equivalent to the previous
+/// `contains` → `split` → `trim` → `chars().all(is_ascii_digit)` chain but
+/// without intermediate `String`/`Vec<&str>` allocations.
+///
+/// Accepts any `Iterator<char>` so callers can stream from `char::nfkd()`
+/// directly without materializing the decomposition.
+fn parse_fraction_chars<I: Iterator<Item = char>>(chars: I) -> Option<(String, String)> {
+    let mut num = String::new();
+    let mut den = String::new();
+    // 0 = before SLASH (numerator), 1 = after SLASH (denominator).
+    let mut side: usize = 0;
+    // Set once a whitespace char follows a digit on the current side; any
+    // further non-whitespace char on that side is rejected (mirrors `.trim()`).
+    let mut sealed = false;
+
+    for ch in chars {
+        if ch == FRACTION_SLASH {
+            if side == 1 {
+                return None; // multi-slash → not a simple fraction
+            }
+            side = 1;
+            sealed = false;
+            continue;
+        }
+        if ch.is_whitespace() {
+            let part = if side == 0 { &num } else { &den };
+            if !part.is_empty() {
+                sealed = true;
+            }
+            continue;
+        }
+        if sealed || !ch.is_ascii_digit() {
+            return None;
+        }
+        if side == 0 {
+            num.push(ch);
+        } else {
+            den.push(ch);
+        }
+    }
+
+    if side != 1 || num.is_empty() || den.is_empty() {
         return None;
     }
-
-    let parts: Vec<&str> = decomposed.split(FRACTION_SLASH).collect();
-
-    if parts.len() == 2 {
-        let num_str = parts[0].trim();
-        let den_str = parts[1].trim();
-        if num_str.is_empty() || den_str.is_empty() {
-            return None;
-        }
-        if !num_str.chars().all(|c| c.is_ascii_digit()) {
-            return None;
-        }
-        if !den_str.chars().all(|c| c.is_ascii_digit()) {
-            return None;
-        }
-        Some((num_str.to_string(), den_str.to_string()))
-    } else {
-        None
-    }
+    Some((num, den))
 }
 
+/// Allocation-free fraction detector: returns `true` iff `c`'s NFKD form is
+/// `digits SLASH digits` (with optional whitespace).
 pub fn is_unicode_fraction(c: char) -> bool {
-    parse_unicode_fraction(c).is_some()
+    let mut side: usize = 0;
+    let mut has_digit = [false; 2];
+    let mut sealed = false;
+
+    for ch in c.nfkd() {
+        if ch == FRACTION_SLASH {
+            if side == 1 {
+                return false;
+            }
+            side = 1;
+            sealed = false;
+            continue;
+        }
+        if ch.is_whitespace() {
+            if has_digit[side] {
+                sealed = true;
+            }
+            continue;
+        }
+        if sealed || !ch.is_ascii_digit() {
+            return false;
+        }
+        has_digit[side] = true;
+    }
+
+    side == 1 && has_digit[0] && has_digit[1]
 }
 
 #[cfg(test)]

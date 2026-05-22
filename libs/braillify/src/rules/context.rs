@@ -5,6 +5,17 @@
 
 use crate::char_struct::{CharType, KoreanChar};
 
+/// Document-level predicates computed once before token rules run.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct DocumentSummary {
+    /// Result of `document_has_english_context_for_korean(tokens)`.
+    pub has_english_context_for_korean: bool,
+    /// Result of `document_is_english_majority(tokens)`.
+    pub is_english_majority: bool,
+    /// Result of `document_is_english_dominant(tokens)`.
+    pub is_english_dominant: bool,
+}
+
 /// The encoding context determines how ambiguous characters are interpreted.
 /// For example, `·` is a tone mark in MiddleKorean mode but a middle dot in Korean mode.
 ///
@@ -87,6 +98,14 @@ pub struct EncoderState {
     /// 제39항: 영어 주도(영어 어절 ≫ 한글) 문서. 영자표시(⠴)·단일 대문자 표시
     /// (⠠)·종료표(⠲)를 모두 생략한다.
     pub english_dominant_no_indicator: bool,
+    /// Document-level predicates cached for token rules.
+    pub doc_summary: DocumentSummary,
+    /// PDF 제12항 붙임 1 — document contains the `행렬` keyword.
+    /// Enables matrix-name rendering of two-letter uppercase math identifiers.
+    pub matrix_context_active: bool,
+    /// Explicit math mode (`context = math` in fixtures/API options).
+    /// Keeps parentheses in math form even when their contents include Hangul.
+    pub math_mode_active: bool,
     /// 짝맞춤 작은따옴표(`‘…’`) 추적: `‘`를 만나면 +1, 닫음 `’`로 -1.
     /// 0보다 크면 현재 위치는 paired closing 위치이므로 `’`를 `⠴⠄`로 emit.
     /// 0이면 standalone apostrophe로 `⠄` 한 셀만 emit. (PDF 제61항)
@@ -108,6 +127,9 @@ impl EncoderState {
             is_big_english: false,
             english_dominant_wrap_active: false,
             english_dominant_no_indicator: false,
+            doc_summary: DocumentSummary::default(),
+            matrix_context_active: false,
+            math_mode_active: false,
             unmatched_open_single_quotes: 0,
         }
     }

@@ -102,11 +102,18 @@ impl BrailleRule for Rule28 {
             }
         }
 
-        // English abbreviation lookup + fallback letter encoding
-        let remaining = ctx.word_chars[ctx.index..]
+        // English abbreviation lookup + fallback letter encoding.
+        //
+        // Rule28 only fires when `ctx.char_type` is `CharType::English(_)`, so the
+        // current character is ASCII. Non-ASCII trailing characters (e.g. Korean
+        // following an English run) are not lowercase-affected by the lookup tables,
+        // so `to_ascii_lowercase` per char is equivalent to the previous
+        // `.collect::<String>().to_lowercase()` for any input that reaches the
+        // lookup matchers — and avoids the second allocation + Unicode tables.
+        let remaining: String = ctx.word_chars[ctx.index..]
             .iter()
-            .collect::<String>()
-            .to_lowercase();
+            .map(|c| c.to_ascii_lowercase())
+            .collect();
         let is_whole_lowercase_word =
             ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
         let be_boundary_non_alpha = remaining.starts_with("be")

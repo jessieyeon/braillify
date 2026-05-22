@@ -12,8 +12,27 @@ pub struct Encoder {
     pub(crate) needs_english_continuation: bool,
     parenthesis_stack: Vec<bool>,
     default_mode: Option<EncodingMode>,
+    matrix_context_active: bool,
+    math_mode_active: bool,
     rule_engine: rules::engine::RuleEngine,
     token_engine: rules::token_engine::TokenRuleEngine,
+}
+
+fn document_has_ascii_and_korean(tokens: &[Token<'_>]) -> bool {
+    let mut has_ascii_alphabetic = false;
+    let mut has_korean = false;
+
+    for token in tokens {
+        if let Token::Word(word) = token {
+            has_ascii_alphabetic |= word.meta.has_ascii_alphabetic;
+            has_korean |= word.meta.has_korean;
+            if has_ascii_alphabetic && has_korean {
+                return true;
+            }
+        }
+    }
+
+    false
 }
 
 impl Encoder {
@@ -146,13 +165,41 @@ impl Encoder {
             needs_english_continuation: false,
             parenthesis_stack: Vec::new(),
             default_mode: None,
+            matrix_context_active: false,
+            math_mode_active: false,
             rule_engine,
             token_engine,
         }
     }
 
+    pub fn english_indicator(&self) -> bool {
+        self.english_indicator
+    }
+
+    pub fn reset_state(&mut self) {
+        self.is_english = false;
+        self.triple_big_english = false;
+        self.has_processed_word = false;
+        self.needs_english_continuation = false;
+        self.parenthesis_stack.clear();
+        self.default_mode = None;
+        self.matrix_context_active = false;
+        self.math_mode_active = false;
+    }
+
     pub fn set_default_mode(&mut self, mode: EncodingMode) {
+        if mode == EncodingMode::Math {
+            self.math_mode_active = true;
+        }
         self.default_mode = Some(mode);
+    }
+
+    pub fn set_matrix_context_active(&mut self, active: bool) {
+        self.matrix_context_active = active;
+    }
+
+    pub fn set_math_mode_active(&mut self, active: bool) {
+        self.math_mode_active = active;
     }
 
     fn encode_via_ir(&mut self, text: &str, result: &mut Vec<u8>) -> Result<(), String> {
@@ -169,12 +216,24 @@ impl Encoder {
         F: FnOnce(&str, &mut Vec<Token<'_>>) -> Result<(), String>,
     {
         let mut ir = rules::token::DocumentIR::parse(text, self.english_indicator);
+        ir.state.matrix_context_active = self.matrix_context_active;
+        ir.state.math_mode_active = self.math_mode_active;
 
         if let Some(mode) = self.default_mode
             && mode != ir.state.current_mode()
         {
             while ir.state.pop_mode().is_some() {}
             ir.state.push_mode(mode);
+        }
+
+        // Pre-compute document-level predicates used by EnglishDominantKoreanWrapRule.
+        // This keeps PostWord rule dispatch O(1) per token instead of re-scanning
+        // the full document for each token.
+        if document_has_ascii_and_korean(&ir.tokens) {
+            ir.state.doc_summary =
+                rules::token_rules::english_dominant_korean_wrap::compute_document_summary(
+                    &ir.tokens,
+                );
         }
 
         let state_before_token_rules = ir.state.clone();

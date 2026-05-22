@@ -14,18 +14,27 @@ fn prev_word<'a>(tokens: &'a [Token<'a>], index: usize) -> Option<&'a WordToken<
     })
 }
 
-fn next_words<'a>(tokens: &'a [Token<'a>], index: usize) -> Vec<&'a WordToken<'a>> {
-    tokens
-        .iter()
-        .skip(index + 1)
-        .filter_map(|t| {
-            if let Token::Word(w) = t {
-                Some(w)
-            } else {
-                None
-            }
-        })
-        .collect()
+/// Return the next two Word tokens after `index`, in order, lazily.
+///
+/// The caller only needs to know whether the next 1 and 2 upcoming Word
+/// tokens exist and whether they look like ASCII passages. We never need
+/// the full tail of upcoming words, so avoid materializing a `Vec`. This
+/// turns what was previously an O(N²) scan (one full tail-collect per
+/// token application) into O(1) amortized lookahead.
+fn next_two_words<'a>(
+    tokens: &'a [Token<'a>],
+    index: usize,
+) -> (Option<&'a WordToken<'a>>, Option<&'a WordToken<'a>>) {
+    let mut iter = tokens.iter().skip(index + 1).filter_map(|t| {
+        if let Token::Word(w) = t {
+            Some(w)
+        } else {
+            None
+        }
+    });
+    let first = iter.next();
+    let second = iter.next();
+    (first, second)
 }
 
 fn is_ascii_word(word: &WordToken) -> bool {
@@ -54,7 +63,7 @@ impl TokenRule for UppercasePassageRule {
         let mut prefix = Vec::new();
         let mut suffix = Vec::new();
 
-        let upcoming = next_words(tokens, index);
+        let (upcoming_first, upcoming_second) = next_two_words(tokens, index);
         let word_len = word.chars.len();
         let ascii_starts_at_beginning = word.meta.starts_with_ascii;
 
@@ -77,9 +86,8 @@ impl TokenRule for UppercasePassageRule {
 
             let prev_ascii = prev_word(tokens, index).is_some_and(is_ascii_word);
             let can_start_passage = (!state.has_processed_word || !prev_ascii)
-                && upcoming.len() >= 2
-                && is_ascii_word(upcoming[0])
-                && is_ascii_word(upcoming[1]);
+                && upcoming_first.is_some_and(is_ascii_word)
+                && upcoming_second.is_some_and(is_ascii_word);
 
             // UEB §5.7.2 + §10.9: prepend Grade-1 indicator (⠰) when the uppercase
             // letters spell a multi-letter shortform (e.g. CD = "could"). This forces
@@ -99,7 +107,7 @@ impl TokenRule for UppercasePassageRule {
             }
         }
 
-        let next_is_ascii = upcoming.first().is_some_and(|w| is_ascii_word(w));
+        let next_is_ascii = upcoming_first.is_some_and(is_ascii_word);
         if state.triple_big_english && !next_is_ascii {
             suffix.push(Token::Mode(ModeEvent::CapsPassageEnd));
             state.triple_big_english = false;

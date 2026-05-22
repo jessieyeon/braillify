@@ -53,9 +53,30 @@ impl BrailleRule for Rule53 {
         if ctx.index != 0 {
             return false;
         }
-        // Check if word contains ellipsis patterns that need normalization
-        let word: String = ctx.word_chars.iter().collect();
-        word.contains("......") || word.contains("……")
+        // Detect either pattern in a single forward pass over `&[char]` — no
+        // intermediate `String` allocation. Tracks the longest run of '.' and
+        // whether two consecutive '…' have appeared back-to-back.
+        let mut dot_run = 0u8;
+        let mut prev_ellipsis = false;
+        for &ch in ctx.word_chars {
+            if ch == '.' {
+                dot_run += 1;
+                if dot_run >= 6 {
+                    return true;
+                }
+                prev_ellipsis = false;
+            } else if ch == '…' {
+                if prev_ellipsis {
+                    return true;
+                }
+                prev_ellipsis = true;
+                dot_run = 0;
+            } else {
+                dot_run = 0;
+                prev_ellipsis = false;
+            }
+        }
+        false
     }
 
     fn apply(&self, _ctx: &mut RuleContext) -> Result<RuleResult, String> {

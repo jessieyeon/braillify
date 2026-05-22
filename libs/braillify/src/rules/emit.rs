@@ -6,12 +6,17 @@ use crate::rules::engine::RuleEngine;
 use crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix;
 use crate::rules::traits::Phase;
 
-use super::token::{DocumentIR, ModeEvent, SpaceKind, Token, WordMeta, WordToken};
+use super::token::{DocumentIR, ModeEvent, SpaceKind, Token, WordToken};
 
 /// 제39항 한글표 점형 (⠸⠷). 영어 어절 사이에 끼인 한글 어절을 감싼다.
 pub(crate) const HANGUL_WRAP_START_BYTES: [u8; 2] = [56, 55];
 /// 제39항 한글 종료표 점형 (⠸⠾).
 pub(crate) const HANGUL_WRAP_END_BYTES: [u8; 2] = [56, 62];
+
+struct WordContext<'a> {
+    prev_word: &'a str,
+    remaining_words: &'a [&'a str],
+}
 
 /// 토큰의 byte 슬라이스가 한글표(⠸⠷) 점형과 일치하는지.
 fn is_hangul_wrap_start(token: &Token<'_>) -> bool {
@@ -119,18 +124,34 @@ fn is_math_operator_space_suppression<'a>(tokens: &'a [Token<'a>], space_idx: us
 
 pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
+    let word_texts = if ir.tokens.len() > 1 {
+        collect_word_texts(&ir.tokens)
+    } else {
+        Vec::new()
+    };
+    let mut word_index = 0usize;
 
     for (idx, token) in ir.tokens.iter().enumerate() {
         match token {
             Token::Word(word) => {
+                let context = if word_texts.is_empty() {
+                    WordContext {
+                        prev_word: "",
+                        remaining_words: &[],
+                    }
+                } else {
+                    word_context(&word_texts, word_index)
+                };
                 emit_word(
                     word,
                     idx,
                     &mut ir.state,
                     char_engine,
                     &ir.tokens,
+                    context,
                     &mut result,
                 )?;
+                word_index += 1;
             }
             Token::Space(SpaceKind::Regular) => {
                 if !is_math_operator_space_suppression(&ir.tokens, idx) {
@@ -177,6 +198,30 @@ pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>
     }
 
     Ok(result)
+}
+
+fn collect_word_texts<'tokens, 'source>(tokens: &'tokens [Token<'source>]) -> Vec<&'tokens str> {
+    let mut word_texts = Vec::with_capacity(tokens.len().div_ceil(2));
+
+    for token in tokens {
+        if let Token::Word(word) = token {
+            word_texts.push(word.text.as_ref());
+        }
+    }
+
+    word_texts
+}
+
+fn word_context<'a>(word_texts: &'a [&'a str], word_index: usize) -> WordContext<'a> {
+    let prev_word = word_index
+        .checked_sub(1)
+        .map_or("", |prev_index| word_texts[prev_index]);
+    let remaining_words = &word_texts[word_index + 1..];
+
+    WordContext {
+        prev_word,
+        remaining_words,
+    }
 }
 
 fn emit_mode_event(event: ModeEvent, state: &mut EncoderState, result: &mut Vec<u8>) {
@@ -307,61 +352,35 @@ fn resume_english_from_roman_number_chain(state: &mut EncoderState) {
     state.roman_number_chain = false;
 }
 
-fn extract_word_context<'a>(
-    word: &WordToken<'a>,
-    all_tokens: &'a [Token<'a>],
-) -> (&'a str, Vec<&'a str>) {
-    let mut prev_word = "";
-    let mut remaining_words = Vec::new();
-    let mut seen_current = false;
-
-    for token in all_tokens {
-        if let Token::Word(candidate) = token {
-            if !seen_current {
-                if std::ptr::eq(candidate, word) {
-                    seen_current = true;
-                } else {
-                    prev_word = candidate.text.as_ref();
-                }
-            } else {
-                remaining_words.push(candidate.text.as_ref());
-            }
-        }
-    }
-
-    (prev_word, remaining_words)
-}
-
 fn emit_word(
     word: &WordToken,
     token_index: usize,
     state: &mut EncoderState,
     char_engine: &mut RuleEngine,
     all_tokens: &[Token],
+    context: WordContext<'_>,
     result: &mut Vec<u8>,
 ) -> Result<(), String> {
-    let (prev_word, remaining_words_vec) = extract_word_context(word, all_tokens);
-    let remaining_words = remaining_words_vec.as_slice();
+    let prev_word = context.prev_word;
+    let remaining_words = context.remaining_words;
     // 다음 비공백 토큰이 한글표(⠸⠷)이면 영어 모드를 끊지 않는다 (제39항).
     let next_is_hangul_wrap = next_non_space_is_hangul_wrap_start(all_tokens, token_index);
     // 직전 비공백 토큰이 한글 종료표(⠸⠾)이면 이 토큰의 시작 문장부호도
     // 영어 컨텍스트의 일부로 본다 (제39항 wrap 재개 직후).
     let prev_is_hangul_wrap_end = prev_non_space_is_hangul_wrap_end(all_tokens, token_index);
 
-    let word_text = word.text.as_ref();
-
     // ── [D] Per-character loop (encoder.rs:201-409) ──
-    let word_chars: Vec<char> = word_text.chars().collect();
+    let word_chars = word.chars.as_slice();
     let word_len = word_chars.len();
 
     if word_len > 0 {
-        let meta = WordMeta::from_chars(&word_chars);
+        let meta = word.meta;
         let is_all_uppercase = meta.is_all_uppercase;
         let has_korean_char = meta.has_korean;
         let has_ascii_alphabetic = meta.has_ascii_alphabetic;
 
         if word_chars.first().is_some_and(|ch| ch.is_ascii_digit())
-            && let Some((numeric, unit, consumed)) = parse_numeric_ascii_unit_prefix(&word_chars)
+            && let Some((numeric, unit, consumed)) = parse_numeric_ascii_unit_prefix(word_chars)
             && consumed == word_chars.len()
         {
             let mut encoded = crate::encode(&numeric)?;
@@ -419,7 +438,7 @@ fn emit_word(
                             && prev_is_hangul_wrap_end
                             && matches!(*sym, '.' | '/' | '@' | '#' | '_' | ':' | '-')
                             && english_logic::next_ascii_letter_or_digit(
-                                &word_chars,
+                                word_chars,
                                 i,
                                 remaining_words,
                             );
@@ -439,13 +458,13 @@ fn emit_word(
                                 state.is_english,
                                 &state.parenthesis_stack,
                                 *sym,
-                                &word_chars,
+                                word_chars,
                                 i,
                                 remaining_words,
                             )
                             || english_logic::should_keep_english_mode_for_symbol(
                                 *sym,
-                                &word_chars,
+                                word_chars,
                                 i,
                                 remaining_words,
                             )
@@ -491,45 +510,24 @@ fn emit_word(
             }
 
             // CoreEncoding via engine (encoder.rs:330-360)
-            let mut core_state = EncoderState {
-                mode_stack: state.mode_stack.clone(),
-                is_english: state.is_english,
-                english_indicator: state.english_indicator,
-                triple_big_english: state.triple_big_english,
-                has_processed_word: state.has_processed_word,
-                needs_english_continuation: state.needs_english_continuation,
-                roman_number_chain: state.roman_number_chain,
-                parenthesis_stack: state.parenthesis_stack.clone(),
-                is_number,
-                is_big_english,
-                english_dominant_wrap_active: state.english_dominant_wrap_active,
-                english_dominant_no_indicator: state.english_dominant_no_indicator,
-                unmatched_open_single_quotes: state.unmatched_open_single_quotes,
-            };
+            state.is_number = is_number;
+            state.is_big_english = is_big_english;
             apply_core_encoding_rules(
                 char_engine,
                 &char_type,
-                &word_chars,
+                word_chars,
                 i,
                 is_all_uppercase,
                 has_korean_char,
                 ascii_starts_at_beginning,
-                &mut core_state,
+                state,
                 &mut skip_count,
                 remaining_words,
                 prev_word,
                 result,
             )?;
-            state.is_english = core_state.is_english;
-            state.triple_big_english = core_state.triple_big_english;
-            state.has_processed_word = core_state.has_processed_word;
-            state.needs_english_continuation = core_state.needs_english_continuation;
-            state.roman_number_chain = core_state.roman_number_chain;
-            state.parenthesis_stack = core_state.parenthesis_stack;
-            state.mode_stack = core_state.mode_stack;
-            state.unmatched_open_single_quotes = core_state.unmatched_open_single_quotes;
-            is_number = core_state.is_number;
-            is_big_english = core_state.is_big_english;
+            is_number = state.is_number;
+            is_big_english = state.is_big_english;
 
             // InterCharacter via engine (encoder.rs:362-402)
             if let CharType::Korean(ref korean) = char_type
@@ -540,44 +538,24 @@ fn emit_word(
                     jung: korean.jung,
                     jong: korean.jong,
                 });
-                let mut inter_state = EncoderState {
-                    mode_stack: state.mode_stack.clone(),
-                    is_english: state.is_english,
-                    english_indicator: state.english_indicator,
-                    triple_big_english: state.triple_big_english,
-                    has_processed_word: state.has_processed_word,
-                    needs_english_continuation: state.needs_english_continuation,
-                    roman_number_chain: state.roman_number_chain,
-                    parenthesis_stack: state.parenthesis_stack.clone(),
-                    is_number,
-                    is_big_english,
-                    english_dominant_wrap_active: state.english_dominant_wrap_active,
-                    english_dominant_no_indicator: state.english_dominant_no_indicator,
-                    unmatched_open_single_quotes: state.unmatched_open_single_quotes,
-                };
+                state.is_number = is_number;
+                state.is_big_english = is_big_english;
                 apply_inter_character_rules(
                     char_engine,
                     &recon_type,
-                    &word_chars,
+                    word_chars,
                     i,
                     is_all_uppercase,
                     has_korean_char,
                     ascii_starts_at_beginning,
-                    &mut inter_state,
+                    state,
                     &mut skip_count,
                     remaining_words,
                     prev_word,
                     result,
                 )?;
-                state.is_english = inter_state.is_english;
-                state.triple_big_english = inter_state.triple_big_english;
-                state.has_processed_word = inter_state.has_processed_word;
-                state.needs_english_continuation = inter_state.needs_english_continuation;
-                state.roman_number_chain = inter_state.roman_number_chain;
-                state.parenthesis_stack = inter_state.parenthesis_stack;
-                state.mode_stack = inter_state.mode_stack;
-                is_number = inter_state.is_number;
-                is_big_english = inter_state.is_big_english;
+                is_number = state.is_number;
+                is_big_english = state.is_big_english;
             }
 
             // Post-char state reset (encoder.rs:403-408)
@@ -838,14 +816,10 @@ mod tests {
             })
             .collect::<Vec<_>>();
 
-        let target = match &tokens[1] {
-            Token::Word(w) => w,
-            _ => panic!("expected word"),
-        };
-
-        let (prev, rem) = extract_word_context(target, &tokens);
-        assert_eq!(prev, "A");
-        assert_eq!(rem, vec!["C"]);
+        let word_texts = collect_word_texts(&tokens);
+        let context = word_context(&word_texts, 1);
+        assert_eq!(context.prev_word, "A");
+        assert_eq!(context.remaining_words, ["C"]);
     }
 
     // ── Post-loop parity tests ──

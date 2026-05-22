@@ -102,10 +102,20 @@ fn is_symbol_measurement_context(ctx: &RuleContext, symbol: char) -> bool {
     }
 }
 
+/// Check whether `tail` starts with the ASCII-only string `s` (char-by-char).
+/// All entries in `ASCII_UNIT_MAPPINGS` are ASCII, so byte length and char count
+/// coincide; we avoid materializing `tail` into a `String` on the hot path.
+fn chars_start_with_ascii(tail: &[char], s: &str) -> bool {
+    if tail.len() < s.len() {
+        return false;
+    }
+    s.bytes().zip(tail.iter()).all(|(b, c)| (b as char) == *c)
+}
+
 pub(crate) fn encode_ascii_unit(word: &[char], index: usize) -> Option<(Vec<u8>, usize)> {
-    let tail = word[index..].iter().collect::<String>();
+    let tail = &word[index..];
     for (unit, unicode) in ASCII_UNIT_MAPPINGS {
-        if !tail.starts_with(unit) {
+        if !chars_start_with_ascii(tail, unit) {
             continue;
         }
 

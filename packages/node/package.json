@@ -19,7 +19,8 @@
   ],
   "version": "2.0.0",
   "scripts": {
-    "build": "wasm-pack build --target bundler --out-dir ./pkg --out-name index",
+    "build": "wasm-pack build --target bundler --out-dir ./pkg --out-name index --release && bun run optimize",
+    "optimize": "wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext -o pkg/index_bg_opt.wasm pkg/index_bg.wasm && mv pkg/index_bg_opt.wasm pkg/index_bg.wasm",
     "test": "wasm-pack test --node"
   },
   "publishConfig": {

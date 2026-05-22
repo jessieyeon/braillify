@@ -1,8 +1,9 @@
 [package]
 name = "node"
-version = "0.1.0"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 authors = ["owjs3901 <owjs3901@gmail.com>"]
-edition = "2024"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -24,3 +25,10 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.71"
+
+# Disable wasm-pack's bundled (legacy) wasm-opt; the bundled version does not
+# support bulk-memory ops emitted by modern rustc. The `build` script in
+# package.json runs the up-to-date `wasm-opt` from `npx` after `wasm-pack`.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+

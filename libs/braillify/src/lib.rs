@@ -1,3 +1,5 @@
+use std::{borrow::Cow, cell::RefCell};
+
 mod char_shortcut;
 pub(crate) mod char_struct;
 #[cfg(feature = "cli")]
@@ -22,6 +24,31 @@ pub(crate) mod utils;
 pub(crate) mod word_shortcut;
 
 pub use encoder::Encoder;
+
+thread_local! {
+    static ENCODER_CACHE: RefCell<Option<Encoder>> = const { RefCell::new(None) };
+}
+
+fn with_encoder<F, R>(english_indicator: bool, f: F) -> R
+where
+    F: FnOnce(&mut Encoder) -> R,
+{
+    ENCODER_CACHE.with(|cell| {
+        let Ok(mut cached) = cell.try_borrow_mut() else {
+            let mut encoder = Encoder::new(english_indicator);
+            encoder.reset_state();
+            return f(&mut encoder);
+        };
+
+        if !matches!(&*cached, Some(encoder) if encoder.english_indicator() == english_indicator) {
+            *cached = Some(Encoder::new(english_indicator));
+        }
+
+        let encoder = cached.as_mut().expect("encoder cache just initialized");
+        encoder.reset_state();
+        f(encoder)
+    })
+}
 
 /// Options for controlling encoding behavior.
 /// Used when context cannot be derived from input text alone.
@@ -119,15 +146,66 @@ fn normalize_math_alphanumeric_char(c: char) -> char {
     c
 }
 
-fn normalize_math_alphanumeric_string(text: &str) -> String {
-    text.chars().map(normalize_math_alphanumeric_char).collect()
+fn may_normalize_math_alphanumeric(c: char) -> bool {
+    let cp = c as u32;
+    cp == 0x210E || (0x1D400..=0x1D7FF).contains(&cp)
+}
+
+fn normalize_math_alphanumeric_string(text: &str) -> Cow<'_, str> {
+    if !text.chars().any(may_normalize_math_alphanumeric) {
+        return Cow::Borrowed(text);
+    }
+
+    Cow::Owned(text.chars().map(normalize_math_alphanumeric_char).collect())
+}
+
+#[derive(Clone, Copy, Default)]
+struct NormalizationTriggers {
+    has_math_alphanumeric: bool,
+    has_decomposable_latin: bool,
+    has_negation_combiner: bool,
+    has_vector_mark: bool,
+    has_formatting_mark_or_sentinel: bool,
+    has_ipa_group_start: bool,
+    has_ipa_symbol: bool,
+}
+
+impl NormalizationTriggers {
+    fn scan(text: &str) -> Self {
+        let mut triggers = Self::default();
+        for c in text.chars() {
+            triggers.has_math_alphanumeric |= may_normalize_math_alphanumeric(c);
+            triggers.has_decomposable_latin |= may_decompose_accented_latin(c);
+            triggers.has_negation_combiner |= c == '\u{0338}';
+            triggers.has_vector_mark |= is_vector_mark(c);
+            triggers.has_formatting_mark_or_sentinel |=
+                is_formatting_mark(c) || is_formatting_sentinel(c);
+            triggers.has_ipa_group_start |= matches!(c, '[' | '/');
+            triggers.has_ipa_symbol |= is_ipa_phonetic_symbol(c);
+        }
+        triggers
+    }
+
+    fn may_need_emphasis_expansion(self) -> bool {
+        // NFD decomposition can introduce formatting combining marks (for example U+0307).
+        self.has_formatting_mark_or_sentinel || self.has_decomposable_latin
+    }
+
+    fn may_contain_ipa_context(self) -> bool {
+        self.has_ipa_group_start && self.has_ipa_symbol
+    }
 }
 
 /// PDF 수학 제34항 — 부정 결합 부호(U+0338 COMBINING LONG SOLIDUS OVERLAY)는
 /// 점역 시 피수정 문자 앞으로 이동한다. 예: `ℛ̸` → `̸ℛ` → 점자 `⠨⠠⠗`.
-fn move_negation_combiner_before_base(text: &str) -> String {
-    let chars: Vec<char> = text.chars().collect();
-    let mut out = String::with_capacity(text.len());
+fn move_negation_combiner_before_base<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
+    if !text.as_ref().contains('\u{0338}') {
+        return text;
+    }
+
+    let source = text.as_ref();
+    let chars: Vec<char> = source.chars().collect();
+    let mut out = String::with_capacity(source.len());
     let mut i = 0;
     while i < chars.len() {
         if i + 1 < chars.len() && chars[i + 1] == '\u{0338}' {
@@ -139,7 +217,7 @@ fn move_negation_combiner_before_base(text: &str) -> String {
             i += 1;
         }
     }
-    out
+    Cow::Owned(out)
 }
 
 /// PDF 한글 제56항 — 결합 부호 기반 글자체 표지 처리.
@@ -167,7 +245,7 @@ fn move_negation_combiner_before_base(text: &str) -> String {
 /// - **수학 컨텍스트 자동 회피:** 현재 토큰(공백으로 구분된 비공백 연쇄)에 한글
 ///   음절이 없으면 결합 부호의 본래 결합 의미(반복소수 ̇, 수학 변수 underline ̲)를
 ///   보존하기 위해 변환하지 않는다.
-fn expand_emphasis_marks(text: &str) -> String {
+fn expand_emphasis_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     /// (결합 부호, 시작 sentinel, 종료 sentinel).
     /// PUA U+E000~U+E007이 symbol_shortcut에서 점자 marker로 매핑된다.
     const FORMATTING_MARKS: &[(char, char, char)] = &[
@@ -177,7 +255,16 @@ fn expand_emphasis_marks(text: &str) -> String {
         ('\u{0333}', '\u{E006}', '\u{E007}'), // 점역자2
     ];
 
-    let chars: Vec<char> = text.chars().collect();
+    if !text
+        .as_ref()
+        .chars()
+        .any(|c| is_formatting_sentinel(c) || is_formatting_mark(c))
+    {
+        return text;
+    }
+
+    let source = text.as_ref();
+    let chars: Vec<char> = source.chars().collect();
 
     // Pre-scan: 각 char 위치의 토큰(공백으로 구분된 비공백 연쇄)에 한글이 있는지 표시.
     // 토큰에 한글이 없으면 결합 부호의 본래 결합 의미를 보존한다 (수학/영어 컨텍스트).
@@ -270,12 +357,16 @@ fn expand_emphasis_marks(text: &str) -> String {
         // 결합 부호 그룹 모두 skip
         i = last + 1;
     }
-    merge_adjacent_formatting_wraps(out.into_iter().collect())
+    merge_adjacent_formatting_wraps(Cow::Owned(out.into_iter().collect()))
 }
 
 /// 포매팅 sentinel(U+E000~U+E007) 여부.
 fn is_formatting_sentinel(c: char) -> bool {
     matches!(c as u32, 0xE000..=0xE007)
+}
+
+fn is_formatting_mark(c: char) -> bool {
+    matches!(c, '\u{0307}' | '\u{0331}' | '\u{0332}' | '\u{0333}')
 }
 
 /// 인접한 같은 종류 글자체 wrap을 하나로 병합한다.
@@ -284,7 +375,7 @@ fn is_formatting_sentinel(c: char) -> bool {
 /// 독립 wrap으로 인코딩되어 `⠠⠤왜⠤⠄ ⠠⠤사느냐⠤⠄`처럼 분리된다. 그러나 PDF는
 /// 인접한 강조 단어를 하나의 wrap `⠠⠤왜 사느냐⠤⠄`로 묶는다. 이 함수는 같은
 /// 종류 sentinel 쌍 사이의 공백만 포함된 구간을 감지하여 inner sentinel을 제거한다.
-fn merge_adjacent_formatting_wraps(text: String) -> String {
+fn merge_adjacent_formatting_wraps<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     /// (시작 sentinel, 종료 sentinel) — `FORMATTING_MARKS`와 1:1 대응.
     const SENTINEL_PAIRS: &[(char, char)] = &[
         ('\u{E000}', '\u{E001}'),
@@ -293,8 +384,13 @@ fn merge_adjacent_formatting_wraps(text: String) -> String {
         ('\u{E006}', '\u{E007}'),
     ];
 
-    let mut chars: Vec<char> = text.chars().collect();
+    if !text.as_ref().chars().any(is_formatting_sentinel) {
+        return text;
+    }
+
+    let mut chars: Vec<char> = text.as_ref().chars().collect();
     // 단순 반복: 한 번 병합이 일어나면 위치가 바뀌므로 다시 처음부터 스캔.
+    let mut any_changed = false;
     let mut changed = true;
     while changed {
         changed = false;
@@ -315,6 +411,7 @@ fn merge_adjacent_formatting_wraps(text: String) -> String {
                     chars.remove(j);
                     chars.remove(i);
                     changed = true;
+                    any_changed = true;
                     // i는 그대로 둔다. 다음 close 찾기 시도.
                 } else {
                     i += 1;
@@ -322,22 +419,36 @@ fn merge_adjacent_formatting_wraps(text: String) -> String {
             }
         }
     }
-    chars.into_iter().collect()
+    if any_changed {
+        Cow::Owned(chars.into_iter().collect())
+    } else {
+        text
+    }
+}
+
+fn is_vector_mark(c: char) -> bool {
+    matches!(c, '\u{20D6}' | '\u{20D7}' | '\u{20E1}' | '\u{20D1}')
 }
 
 /// PDF 수학 제37,38항 — 벡터/반직선/직선 결합 부호 처리.
 /// 연속된 영문 대문자에 U+20D7(→), U+20D6(←), U+20E1(↔), U+20D1(반직선) 등의
 /// 결합 부호가 각각 붙어 있으면, 결합부호를 한 번만 prefix하고 본문은 연쇄로 본다.
 /// 예: `A⃗B⃗` → `⃗AB` → 점자 `⠒⠕⠠⠠⠁⠃`.
-fn collapse_repeated_vector_marks(text: &str) -> String {
-    let chars: Vec<char> = text.chars().collect();
-    let mut out = String::with_capacity(text.len());
+fn collapse_repeated_vector_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
+    if !text.as_ref().chars().any(is_vector_mark) {
+        return text;
+    }
+
+    let source = text.as_ref();
+    let chars: Vec<char> = source.chars().collect();
+    let mut out = String::with_capacity(source.len());
     let mut i = 0;
-    let is_vector_mark = |c: char| matches!(c, '\u{20D6}' | '\u{20D7}' | '\u{20E1}' | '\u{20D1}');
+    let mut changed = false;
     while i < chars.len() {
         // PDF 제37,38항 — 벡터/반직선 결합부호는 점자에서 letter 앞에 prefix한다.
         // 단독 `A⃗`도 `⃗A` 순으로 변환한다.
         if chars[i].is_ascii_alphabetic() && i + 1 < chars.len() && is_vector_mark(chars[i + 1]) {
+            changed = true;
             let mark = chars[i + 1];
             // 연속된 letter+mark 쌍을 수집한다 (예: A⃗B⃗ → ⃗AB).
             let mut letters = vec![chars[i]];
@@ -357,27 +468,30 @@ fn collapse_repeated_vector_marks(text: &str) -> String {
         out.push(chars[i]);
         i += 1;
     }
-    out
+    if changed { Cow::Owned(out) } else { text }
+}
+
+fn may_decompose_accented_latin(c: char) -> bool {
+    let cp = c as u32;
+    // Å, å는 단위(옹스트롬)/고유 문자로 단독 의미를 가지므로 NFD 분해하지 않는다.
+    !matches!(c, '\u{00C5}' | '\u{00E5}')
+        && ((0x00C0..=0x024F).contains(&cp) || (0x1E00..=0x1EFF).contains(&cp))
 }
 
 /// PDF 수학 제65항 5 — 라틴 문자 + 결합 부호(악센트)는 base letter + 결합 부호로
 /// NFD 분해한다. (예: `ã` → `a` + `\u{0303}`, `ä` → `a` + `\u{0308}`)
 /// 한글/CJK 문자는 분해되지 않도록 라틴 확장 범위에만 적용한다.
-fn decompose_accented_latin(text: &str) -> String {
+fn decompose_accented_latin<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     use unicode_normalization::UnicodeNormalization;
+
+    if !text.as_ref().chars().any(may_decompose_accented_latin) {
+        return text;
+    }
+
     let mut out = String::new();
-    for c in text.chars() {
-        let cp = c as u32;
-        // 일부 문자는 단위(Å = 옹스트롬)/고유 식별자로 단독 의미를 가지므로
-        // NFD 분해하지 않는다.
-        if matches!(c, '\u{00C5}' | '\u{00E5}') {
-            // Å, å — 단위 또는 고유 문자로 그대로 유지
-            out.push(c);
-            continue;
-        }
+    for c in text.as_ref().chars() {
         // Latin-1 Supplement, Latin Extended-A/B/Additional, IPA Extensions
-        let is_latin_extended = (0x00C0..=0x024F).contains(&cp) || (0x1E00..=0x1EFF).contains(&cp);
-        if is_latin_extended {
+        if may_decompose_accented_latin(c) {
             for d in std::iter::once(c).nfd() {
                 out.push(d);
             }
@@ -385,7 +499,11 @@ fn decompose_accented_latin(text: &str) -> String {
             out.push(c);
         }
     }
-    out
+    Cow::Owned(out)
+}
+
+fn is_ipa_phonetic_symbol(c: char) -> bool {
+    matches!(c, 'θ' | 'ə' | 'æ' | 'ŋ' | 'ː')
 }
 
 /// PDF 제38항 자동 감지 — input의 묶음 패턴 안 IPA 음운 기호로 IPA 컨텍스트 추론.
@@ -402,10 +520,21 @@ fn decompose_accented_latin(text: &str) -> String {
 /// 분수 `1/2`, 일반 대괄호 `[1]` 등이 IPA로 오인되지 않도록 한다.
 ///
 /// IPA 음운 기호 집합은 본 라이브러리가 인식하는 부분 집합이며,
-/// PDF 표에 새 기호 추가 시 `IPA_PHONETIC_SYMBOLS`와 `encode_ipa_char`을 함께 확장한다.
-const IPA_PHONETIC_SYMBOLS: &[char] = &['θ', 'ə', 'æ', 'ŋ', 'ː'];
-
+/// PDF 표에 새 기호 추가 시 `is_ipa_phonetic_symbol`와 `encode_ipa_char`을 함께 확장한다.
 fn detect_ipa_context(text: &str) -> bool {
+    let mut has_group_start = false;
+    let mut has_ipa_symbol = false;
+    for c in text.chars() {
+        has_group_start |= matches!(c, '[' | '/');
+        has_ipa_symbol |= is_ipa_phonetic_symbol(c);
+        if has_group_start && has_ipa_symbol {
+            break;
+        }
+    }
+    if !has_group_start || !has_ipa_symbol {
+        return false;
+    }
+
     let chars: Vec<char> = text.chars().collect();
     let mut i = 0;
     while i < chars.len() {
@@ -413,7 +542,7 @@ fn detect_ipa_context(text: &str) -> bool {
             '[' => {
                 if let Some(rel) = chars[i + 1..].iter().position(|&c| c == ']') {
                     let inner: &[char] = &chars[i + 1..i + 1 + rel];
-                    if inner.iter().any(|c| IPA_PHONETIC_SYMBOLS.contains(c)) {
+                    if inner.iter().any(|c| is_ipa_phonetic_symbol(*c)) {
                         return true;
                     }
                     i += rel + 2;
@@ -423,7 +552,7 @@ fn detect_ipa_context(text: &str) -> bool {
             '/' => {
                 if let Some(rel) = chars[i + 1..].iter().position(|&c| c == '/') {
                     let inner: &[char] = &chars[i + 1..i + 1 + rel];
-                    if inner.iter().any(|c| IPA_PHONETIC_SYMBOLS.contains(c)) {
+                    if inner.iter().any(|c| is_ipa_phonetic_symbol(*c)) {
                         return true;
                     }
                     i += rel + 2;
@@ -468,10 +597,11 @@ fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
             // 묶음 밖의 한국어/영문 등은 일반 인코더로 위임한다. 전체 입력에
             // 한국어가 있는 경우, 영어 단어 시작에 영자표시가 붙도록 강제한다.
             let enc = if has_korean_anywhere {
-                let mut encoder = Encoder::new(true);
-                let mut result = Vec::new();
-                encoder.encode(buf.as_str(), &mut result)?;
-                result
+                with_encoder(true, |encoder| {
+                    let mut result = Vec::new();
+                    encoder.encode(buf.as_str(), &mut result)?;
+                    Ok::<Vec<u8>, String>(result)
+                })?
             } else {
                 encode(buf.as_str())?
             };
@@ -580,37 +710,43 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // PDF 제56항 — U+0307 결합 강조점을 sentinel U+E000/U+E001로 변환하여
     // N개 한글 음절을 cross-word 묶음으로 wrap. sentinel은 symbol_shortcut에서
     // braille marker (⠠⠤/⠤⠄)로 emit된다.
-    let normalized_text = expand_emphasis_marks(&collapse_repeated_vector_marks(
-        &move_negation_combiner_before_base(&decompose_accented_latin(
-            &normalize_math_alphanumeric_string(text),
-        )),
-    ));
+    let normalization_triggers = NormalizationTriggers::scan(text);
+    let normalized_text = if normalization_triggers.has_math_alphanumeric {
+        normalize_math_alphanumeric_string(text)
+    } else {
+        Cow::Borrowed(text)
+    };
+    let normalized_text = if normalization_triggers.has_decomposable_latin {
+        decompose_accented_latin(normalized_text)
+    } else {
+        normalized_text
+    };
+    let normalized_text = if normalization_triggers.has_negation_combiner {
+        move_negation_combiner_before_base(normalized_text)
+    } else {
+        normalized_text
+    };
+    let normalized_text = if normalization_triggers.has_vector_mark {
+        collapse_repeated_vector_marks(normalized_text)
+    } else {
+        normalized_text
+    };
+    let normalized_text = if normalization_triggers.may_need_emphasis_expansion() {
+        expand_emphasis_marks(normalized_text)
+    } else {
+        normalized_text
+    };
 
-    let text: &str = &normalized_text;
+    let text: &str = normalized_text.as_ref();
 
     // PDF 제12항 붙임 1 — 입력에 `행렬` 키워드가 있으면 행렬명 컨텍스트 활성화.
     // 활성화 시 연속된 2개 대문자는 행렬명(각 글자에 ⠠ 개별 부착)으로 점역된다.
-    // 내부 재귀 호출 시 기존 flag를 덮어쓰지 않도록 OR-set: 이전 true는 유지.
+    // 이 컨텍스트는 thread-local이 아니라 현재 encoder/math engine state에 주입된다.
     let matrix_context = text.contains("행렬");
     let math_mode = matches!(options.default_mode, Some(EncodingMode::Math));
-    let _matrix_flag_guard = {
-        let prev_matrix = crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.get());
-        let prev_math = crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.get());
-        if matrix_context {
-            crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.set(true));
-        }
-        if math_mode {
-            crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.set(true));
-        }
-        // 재귀 호출에서는 이전 값을 유지(restore on drop).
-        struct Guard(bool, bool);
-        impl Drop for Guard {
-            fn drop(&mut self) {
-                crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.set(self.0));
-                crate::rules::math::rule_12::MATH_MODE_ACTIVE.with(|c| c.set(self.1));
-            }
-        }
-        Guard(prev_matrix, prev_math)
+    let math_context = crate::rules::math::math_token_rule::MathContext {
+        matrix_context_active: matrix_context,
+        math_mode_active: math_mode,
     };
 
     // PDF 제38항 — IPA 모드: 발음 기호 표기.
@@ -623,7 +759,9 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // IPA 컨텍스트는 explicit mode 명시(`Ipa`) 또는 input의 AST 분석(묶음 안
     // 음운 기호 존재)으로 자동 감지된다. 자동 감지가 가능한 입력은 testcase에
     // 별도 context 명시가 필요 없다.
-    let ipa_auto = options.default_mode.is_none() && detect_ipa_context(text);
+    let ipa_auto = options.default_mode.is_none()
+        && normalization_triggers.may_contain_ipa_context()
+        && detect_ipa_context(text);
     if ipa_auto || matches!(options.default_mode, Some(EncodingMode::Ipa)) {
         return encode_ipa(text);
     }
@@ -741,7 +879,9 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
             }
             s
         };
-        if let Ok(bytes) = rules::math::encoder::encode_math_expression(&cleaned) {
+        if let Ok(bytes) =
+            rules::math::encoder::encode_math_expression_with_context(&cleaned, math_context)
+        {
             return Ok(bytes);
         }
     }
@@ -750,17 +890,21 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
         .split(' ')
         .filter(|w| !w.is_empty())
         .any(|word| word.chars().any(utils::is_korean_char));
-    let mut encoder = Encoder::new(english_indicator);
 
-    if let Some(mode) = options.default_mode
-        && mode != EncodingMode::Korean
-    {
-        encoder.set_default_mode(mode);
-    }
+    with_encoder(english_indicator, |encoder| {
+        encoder.set_matrix_context_active(matrix_context);
+        encoder.set_math_mode_active(math_mode);
 
-    let mut result = Vec::new();
-    encoder.encode(text, &mut result)?;
-    Ok(result)
+        if let Some(mode) = options.default_mode
+            && mode != EncodingMode::Korean
+        {
+            encoder.set_default_mode(mode);
+        }
+
+        let mut result = Vec::new();
+        encoder.encode(text, &mut result)?;
+        Ok(result)
+    })
 }
 
 /// Encode text with explicit formatting spans.
@@ -774,11 +918,11 @@ pub fn encode_with_formatting(text: &str, spans: &[FormattingSpan]) -> Result<Ve
         .filter(|w| !w.is_empty())
         .any(|word| word.chars().any(utils::is_korean_char));
 
-    let mut encoder = Encoder::new(english_indicator);
-    let mut result = Vec::new();
-    encoder.encode_with_formatting(text, spans, &mut result)?;
-
-    Ok(result)
+    with_encoder(english_indicator, |encoder| {
+        let mut result = Vec::new();
+        encoder.encode_with_formatting(text, spans, &mut result)?;
+        Ok(result)
+    })
 }
 
 pub fn encode_to_unicode(text: &str) -> Result<String, String> {
@@ -807,6 +951,20 @@ pub fn encode_to_braille_font(text: &str) -> Result<String, String> {
         .iter()
         .map(|c| unicode::encode_unicode(*c))
         .collect::<String>())
+}
+
+#[cfg(test)]
+mod state_bleed_tests {
+    use super::encode;
+
+    #[test]
+    fn cached_encoder_resets_between_different_contexts() {
+        let before = encode("안녕").unwrap();
+        let _english = encode("hello").unwrap();
+        let after = encode("안녕").unwrap();
+
+        assert_eq!(before, after);
+    }
 }
 
 #[cfg(test)]

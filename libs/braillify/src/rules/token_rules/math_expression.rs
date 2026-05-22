@@ -7,6 +7,7 @@
 use crate::math_symbol_shortcut;
 use crate::rules::context::EncoderState;
 use crate::rules::math;
+use crate::rules::math::math_token_rule::MathContext;
 use crate::rules::token::{Token, WordMeta, WordToken};
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 use std::borrow::Cow;
@@ -119,6 +120,13 @@ fn is_korean_suffix_char(c: char) -> bool {
     is_korean_char(c) || matches!(c, ')' | ']' | '}' | '.' | ',' | '!' | '?')
 }
 
+fn math_context_from_state(state: &EncoderState) -> MathContext {
+    MathContext {
+        matrix_context_active: state.matrix_context_active,
+        math_mode_active: state.math_mode_active,
+    }
+}
+
 /// PDF 제44항 [다만]: 숫자와 혼동되는 'ㄴ, ㄷ, ㅁ, ㅋ, ㅌ, ㅍ, ㅎ'의 첫소리 글자와
 /// '운'의 약자는 숫자 뒤에 붙어 나오더라도 숫자와 한글을 띄어 쓴다.
 ///
@@ -211,7 +219,7 @@ fn is_rule_68_compact_notation(chars: &[char]) -> bool {
             .any(|c| is_superscript(*c) || is_subscript(*c))
 }
 
-fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
+fn try_encode_math_slice(chars: &[char], math_context: MathContext) -> Option<Vec<u8>> {
     if chars.is_empty() || chars.iter().any(|c| is_korean_char(*c)) {
         return None;
     }
@@ -226,7 +234,7 @@ fn try_encode_math_slice(chars: &[char]) -> Option<Vec<u8>> {
     // math engine이 처리하지 못하는 패턴(예: combining macron이 있는 순환소수
     // `2̄.3010`)은 일반 encode로 fallback한다. 일반 encode는 char-level 룰을
     // 거쳐 같은 결과를 산출한다.
-    if let Ok(bytes) = math::encoder::encode_math_expression(&text) {
+    if let Ok(bytes) = math::encoder::encode_math_expression_with_context(&text, math_context) {
         return Some(bytes);
     }
     crate::encode(&text).ok()
@@ -281,7 +289,7 @@ fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
             || (multi_word_korean_phrase && has_math_op && !has_english_letter))
 }
 
-fn try_encode_mixed_math_slice(chars: &[char]) -> Option<Vec<u8>> {
+fn try_encode_mixed_math_slice(chars: &[char], math_context: MathContext) -> Option<Vec<u8>> {
     if chars.is_empty() {
         return None;
     }
@@ -291,18 +299,26 @@ fn try_encode_mixed_math_slice(chars: &[char]) -> Option<Vec<u8>> {
         return None;
     }
 
-    math::encoder::encode_math_expression(&text).ok()
+    math::encoder::encode_math_expression_with_context(&text, math_context).ok()
 }
 
-fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char]) -> Option<Vec<u8>> {
-    if let Some(bytes) = try_encode_math_slice(prefix) {
+fn try_encode_mixed_math_prefix(
+    prefix: &[char],
+    suffix: &[char],
+    math_context: MathContext,
+) -> Option<Vec<u8>> {
+    if let Some(bytes) = try_encode_math_slice(prefix, math_context) {
         let text: String = prefix.iter().collect();
         if !suffix.is_empty()
             && suffix.iter().all(|c| is_korean_suffix_char(*c))
             && suffix.iter().any(|c| is_korean_char(*c))
             && math::rule_46::is_trig_function(&text)
         {
-            return math::encoder::encode_math_expression(&format!("{text}x")).ok();
+            return math::encoder::encode_math_expression_with_context(
+                &format!("{text}x"),
+                math_context,
+            )
+            .ok();
         }
         return Some(bytes);
     }
@@ -313,6 +329,7 @@ fn try_encode_mixed_math_prefix(prefix: &[char], suffix: &[char]) -> Option<Vec<
 fn split_mixed_math_word(
     word: &crate::rules::token::WordToken<'_>,
     leading_delimiter_len: usize,
+    math_context: MathContext,
 ) -> Option<Vec<Token<'static>>> {
     if !word.meta.has_korean || word.chars.iter().all(|c| is_korean_char(*c)) {
         return None;
@@ -322,7 +339,8 @@ fn split_mixed_math_word(
     let len = chars.len();
 
     for end in (1..=len).rev() {
-        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..]) else {
+        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..], math_context)
+        else {
             continue;
         };
 
@@ -362,7 +380,9 @@ fn split_mixed_math_word(
         {
             continue;
         }
-        let Ok(bytes) = math::encoder::encode_math_expression(&suffix_text) else {
+        let Ok(bytes) =
+            math::encoder::encode_math_expression_with_context(&suffix_text, math_context)
+        else {
             continue;
         };
         let prefix_text: String = prefix_chars.iter().collect();
@@ -673,7 +693,7 @@ impl TokenRule for MathExpressionTokenRule {
         &self,
         tokens: &[Token<'a>],
         index: usize,
-        _state: &mut EncoderState,
+        state: &mut EncoderState,
     ) -> Result<TokenAction<'a>, String> {
         fn prev_next_words<'a>(
             tokens: &'a [Token<'a>],
@@ -757,7 +777,10 @@ impl TokenRule for MathExpressionTokenRule {
             {
                 // Merge: "a" + " " + "≲" + " " + "b:" → math expression.
                 let merged = format!("{} {} {}", text, op_w.text.as_ref(), last_w.text.as_ref());
-                if let Ok(bytes) = math::encoder::encode_math_expression(&merged) {
+                let math_context = math_context_from_state(state);
+                if let Ok(bytes) =
+                    math::encoder::encode_math_expression_with_context(&merged, math_context)
+                {
                     let consume_count = last_idx + 1 - index;
                     return Ok(TokenAction::ReplaceRange(
                         consume_count,
@@ -792,7 +815,11 @@ impl TokenRule for MathExpressionTokenRule {
                     i += 1;
                 }
             }
-            if found_close && let Ok(bytes) = math::encoder::encode_math_expression(&merged) {
+            let math_context = math_context_from_state(state);
+            if found_close
+                && let Ok(bytes) =
+                    math::encoder::encode_math_expression_with_context(&merged, math_context)
+            {
                 let consume_count = end_idx + 1 - index;
                 return Ok(TokenAction::ReplaceRange(
                     consume_count,
@@ -850,8 +877,7 @@ impl TokenRule for MathExpressionTokenRule {
                                 _ => false,
                             });
                     if prev_is_korean_or_first {
-                        let matrix_context =
-                            crate::rules::math::rule_12::MATRIX_CONTEXT_ACTIVE.with(|c| c.get());
+                        let matrix_context = state.matrix_context_active;
                         let mut bytes = Vec::new();
                         // PDF 제11항 — 국어 문장 안 수식 앞뒤를 두 칸씩 띄어 쓴다.
                         // Token::Space가 1칸 보조하므로 leading 1칸 추가.
@@ -1098,8 +1124,12 @@ impl TokenRule for MathExpressionTokenRule {
                 }
 
                 let inner = &latex[1..latex.len() - 1];
+                let math_context = math_context_from_state(state);
                 if let Ok(bytes) =
-                    crate::rules::token_rules::latex_math::encode_latex_math_bytes(inner)
+                    crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(
+                        inner,
+                        math_context,
+                    )
                 {
                     // PDF — Korean prose 안 단일 letter math 블록은 ⠴...⠲로 감싼다.
                     // 콤마-구분 letter 리스트도 quote/english marker로 감싼다.
@@ -1222,8 +1252,12 @@ impl TokenRule for MathExpressionTokenRule {
 
             if text.ends_with('$') && text.len() >= 3 {
                 let inner = &text[1..text.len() - 1];
+                let math_context = math_context_from_state(state);
                 if let Ok(bytes) =
-                    crate::rules::token_rules::latex_math::encode_latex_math_bytes(inner)
+                    crate::rules::token_rules::latex_math::encode_latex_math_bytes_with_context(
+                        inner,
+                        math_context,
+                    )
                 {
                     let replacement =
                         crate::rules::token_rules::latex_math::wrap_latex_math_tokens_with_inner(
@@ -1237,7 +1271,8 @@ impl TokenRule for MathExpressionTokenRule {
         }
 
         if !is_math_expression(&word.chars, text) {
-            if let Some(bytes) = try_encode_mixed_math_slice(&word.chars) {
+            let math_context = math_context_from_state(state);
+            if let Some(bytes) = try_encode_mixed_math_slice(&word.chars, math_context) {
                 return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
             }
             // 제11항: 한글 문장 안의 수학적 표기는 앞뒤를 두 칸씩 띄어 쓴다.
@@ -1282,14 +1317,17 @@ impl TokenRule for MathExpressionTokenRule {
             } else {
                 2
             };
-            if let Some(replacement) = split_mixed_math_word(word, leading_delimiter_len) {
+            if let Some(replacement) =
+                split_mixed_math_word(word, leading_delimiter_len, math_context)
+            {
                 return Ok(TokenAction::ReplaceMany(replacement));
             }
             return Ok(TokenAction::Noop);
         }
 
         // Try to encode via math engine
-        match math::encoder::encode_math_expression(text) {
+        let math_context = math_context_from_state(state);
+        match math::encoder::encode_math_expression_with_context(text, math_context) {
             Ok(bytes) => {
                 let (prev_has_korean, _next_has_korean) = adjacent_korean_word_flags(tokens, index);
                 let mut wrapped = Vec::with_capacity(bytes.len() + 2);
@@ -1508,7 +1546,8 @@ mod tests {
             meta: WordMeta::from_chars(&chars),
         };
 
-        let replacement = split_mixed_math_word(&word, 2).expect("expected split");
+        let replacement =
+            split_mixed_math_word(&word, 2, MathContext::default()).expect("expected split");
         assert!(matches!(replacement[0], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
         assert!(matches!(replacement[1], Token::PreEncoded(_)));
         assert!(matches!(replacement[2], Token::PreEncoded(ref bytes) if bytes == &vec![0, 0]));
@@ -1524,6 +1563,6 @@ mod tests {
             meta: WordMeta::from_chars(&chars),
         };
 
-        assert!(split_mixed_math_word(&word, 2).is_none());
+        assert!(split_mixed_math_word(&word, 2, MathContext::default()).is_none());
     }
 }

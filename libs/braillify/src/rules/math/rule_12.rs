@@ -9,16 +9,6 @@ use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, 
 use super::rule_1;
 use super::rule_6;
 
-thread_local! {
-    /// PDF 제12항 붙임 1 — 행렬명(matrix-name) 컨텍스트 플래그.
-    /// 입력 텍스트에 `행렬` 키워드가 발견되면 lib.rs encode()에서 set.
-    /// 활성화되면 연속된 2개 대문자는 각 글자에 ⠠을 개별 부착(행렬명 표기).
-    pub static MATRIX_CONTEXT_ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
-    /// PDF — explicit math mode 컨텍스트. `context: math` testcase 사용 시 활성화.
-    /// 활성화되면 paren 안 Korean은 Hangul wrap 대신 MathParen 유지.
-    pub static MATH_MODE_ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
-}
-
 /// 현재 위치에서 시작해 좌측을 스캔, 적분(∫/∬/∮) 기호를 만나면 true 반환.
 /// 단, 다른 연산자/`=`를 만나면 새로운 적분 블록이 아니므로 false.
 fn integral_context_for_differential(tokens: &[MathToken], idx: usize) -> bool {
@@ -183,6 +173,7 @@ pub fn encode_upper_variable(
     i: &mut usize,
     prev_was_number: &mut bool,
     logic_context: bool,
+    matrix_context_active: bool,
     result: &mut Vec<u8>,
 ) -> Result<bool, String> {
     if matches!(
@@ -243,8 +234,7 @@ pub fn encode_upper_variable(
     }
 
     // PDF 제12항 붙임 1 — 행렬 컨텍스트면 2-cap 행렬명(`AB`)을 ⠠+letter 개별 표기.
-    let matrix_context = MATRIX_CONTEXT_ACTIVE.with(|c| c.get());
-    if uppercase_count == 2 && matrix_context {
+    if uppercase_count == 2 && matrix_context_active {
         for token in &tokens[*i..seq_end] {
             match token {
                 MathToken::UpperVariable(upper) => {
@@ -478,6 +468,7 @@ impl MathTokenRule for UpperVariableRule {
             &mut cursor,
             &mut state.prev_was_number,
             state.logic_context,
+            state.matrix_context_active,
             result,
         )?;
         Ok(MathTokenResult::Consumed(cursor - index))

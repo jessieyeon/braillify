@@ -279,6 +279,14 @@ fn normalize_math_alphanumeric(c: char) -> char {
 
 /// Parse a math expression string into tokens.
 pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
+    parse_math_expression_with_math_mode(input, false)
+}
+
+/// Parse a math expression string into tokens with an explicit math-mode flag.
+pub fn parse_math_expression_with_math_mode(
+    input: &str,
+    math_mode_active: bool,
+) -> Result<Vec<MathToken>, String> {
     // PDF 규정: Mathematical Alphanumeric 변형은 ASCII 라틴 문자와 동일하게 처리.
     let input_owned: String = input.chars().map(normalize_math_alphanumeric).collect();
     let input: &str = &input_owned;
@@ -306,7 +314,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         if let Some(prefix) = input.strip_suffix('\u{0332}')
             && prefix.chars().all(|c| c.is_ascii_digit())
         {
-            return parse_math_expression(&format!("{prefix}/1"));
+            return parse_math_expression_with_math_mode(&format!("{prefix}/1"), math_mode_active);
         }
 
         if let Some(rest) = input.strip_prefix("1̲/") {
@@ -315,7 +323,10 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                 let inner = &body[1..body.len() - 1];
                 let mut tokens = Vec::new();
                 tokens.push(MathToken::OpenParen(BracketKind::Grouping));
-                tokens.extend(parse_math_expression(inner)?);
+                tokens.extend(parse_math_expression_with_math_mode(
+                    inner,
+                    math_mode_active,
+                )?);
                 tokens.push(MathToken::CloseParen(BracketKind::Grouping));
                 tokens.push(MathToken::Operator('/'));
                 tokens.push(MathToken::Number("1".to_string()));
@@ -324,10 +335,13 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
         }
 
         if let Some((left, right)) = input.split_once("̲/") {
-            let mut tokens = parse_math_expression(right)?;
+            let mut tokens = parse_math_expression_with_math_mode(right, math_mode_active)?;
             tokens.push(MathToken::Operator('/'));
             tokens.push(MathToken::OpenParen(BracketKind::Grouping));
-            tokens.extend(parse_math_expression(left)?);
+            tokens.extend(parse_math_expression_with_math_mode(
+                left,
+                math_mode_active,
+            )?);
             tokens.push(MathToken::CloseParen(BracketKind::Grouping));
             return Ok(tokens);
         }
@@ -498,7 +512,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
 
                 if j < chars.len() && chars[j] == '}' {
                     let inner: String = chars[i + 2..j].iter().collect();
-                    let content = parse_math_expression(&inner)?;
+                    let content = parse_math_expression_with_math_mode(&inner, math_mode_active)?;
                     tokens.push(MathToken::Subscript(content));
                     i = j + 1;
                     continue;
@@ -530,7 +544,10 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     let inner: String = chars[i + 2..j].iter().collect();
                     let mut content = Vec::new();
                     content.push(MathToken::OpenParen(BracketKind::MathParen));
-                    content.extend(parse_math_expression(&inner)?);
+                    content.extend(parse_math_expression_with_math_mode(
+                        &inner,
+                        math_mode_active,
+                    )?);
                     content.push(MathToken::CloseParen(BracketKind::MathParen));
                     tokens.push(MathToken::Subscript(content));
                     i = j + 1;
@@ -586,7 +603,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
 
                 if j < chars.len() && chars[j] == '}' {
                     let inner: String = chars[i + 2..j].iter().collect();
-                    let content = parse_math_expression(&inner)?;
+                    let content = parse_math_expression_with_math_mode(&inner, math_mode_active)?;
                     tokens.push(MathToken::Superscript(content));
                     i = j + 1;
                     continue;
@@ -618,7 +635,10 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
                     let inner: String = chars[i + 2..j].iter().collect();
                     let mut content = Vec::new();
                     content.push(MathToken::OpenParen(BracketKind::MathParen));
-                    content.extend(parse_math_expression(&inner)?);
+                    content.extend(parse_math_expression_with_math_mode(
+                        &inner,
+                        math_mode_active,
+                    )?);
                     content.push(MathToken::CloseParen(BracketKind::MathParen));
                     tokens.push(MathToken::Superscript(content));
                     i = j + 1;
@@ -759,8 +779,7 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
             ')' => {
                 let kind = if let Some(group) = bracket_stack.pop() {
                     // PDF — math mode 컨텍스트면 Korean 내용 있어도 Hangul wrap 우회.
-                    let math_mode = super::rule_12::MATH_MODE_ACTIVE.with(|c| c.get());
-                    let resolved_kind = if !math_mode
+                    let resolved_kind = if !math_mode_active
                         && group.contains_korean
                         && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping)
                     {

@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use crate::rules::context::DocumentSummary;
 use crate::rules::token::{Token, WordMeta, WordToken};
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 use crate::utils::is_korean_char;
@@ -106,6 +107,18 @@ struct KoreanSegment {
     char_end: usize, // exclusive
 }
 
+#[derive(Default)]
+struct KoreanContextScan {
+    has_same_token_context: bool,
+    has_boundary_segment: bool,
+}
+
+#[derive(Default)]
+struct EnglishContextCandidates {
+    has_same_token_context: bool,
+    has_boundary_candidate: bool,
+}
+
 /// 토큰 텍스트에서 연속된 한글 char segment의 (시작, 끝) 인덱스를 모두 추출.
 fn find_korean_segments(chars: &[char]) -> Vec<KoreanSegment> {
     let mut segments = Vec::new();
@@ -131,27 +144,137 @@ fn find_korean_segments(chars: &[char]) -> Vec<KoreanSegment> {
     segments
 }
 
-/// 문서의 영어/한글 어절 분포로 영어가 다수파인지 판정.
-/// case B(토큰 경계 wrap)는 영어가 다수인 문장에서만 활성화한다.
-/// 한국어 주도 문장에 우연히 영어 어절 사이에 한국어가 끼어 있는 경우
-/// (예: "평창 ... SNS 계정은 pyeongchang ...")는 wrap 대상이 아니다.
-fn document_is_english_majority<'a>(tokens: &[Token<'a>]) -> bool {
+fn first_script_char(word: &WordToken<'_>) -> Option<char> {
+    if word.meta.starts_with_ascii {
+        return word.chars.first().copied();
+    }
+
+    if word.chars.first().is_some_and(|ch| is_korean_char(*ch)) {
+        return word.chars.first().copied();
+    }
+
+    word.chars
+        .iter()
+        .copied()
+        .find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch))
+}
+
+fn update_korean_context_scan(
+    chars: &[char],
+    char_start: usize,
+    char_end: usize,
+    scan: &mut KoreanContextScan,
+) {
+    let left_slice = &chars[..char_start];
+    let right_slice = &chars[char_end..];
+
+    let left_at_boundary = is_punct_only(left_slice);
+    let right_at_boundary = is_punct_only(right_slice);
+
+    match (left_at_boundary, right_at_boundary) {
+        (true, true) => scan.has_boundary_segment = true,
+        (false, false) => {
+            scan.has_same_token_context |=
+                same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice);
+        }
+        _ => {}
+    }
+}
+
+fn scan_korean_contexts(chars: &[char]) -> KoreanContextScan {
+    let mut scan = KoreanContextScan::default();
+    let mut current_start: Option<usize> = None;
+
+    for (idx, ch) in chars.iter().enumerate() {
+        if is_korean_char(*ch) {
+            if current_start.is_none() {
+                current_start = Some(idx);
+            }
+        } else if let Some(start) = current_start.take() {
+            update_korean_context_scan(chars, start, idx, &mut scan);
+        }
+    }
+
+    if let Some(start) = current_start {
+        update_korean_context_scan(chars, start, chars.len(), &mut scan);
+    }
+
+    scan
+}
+
+fn scan_english_context_candidates(tokens: &[Token<'_>]) -> EnglishContextCandidates {
+    let mut candidates = EnglishContextCandidates::default();
+    let mut pending_boundary_after_prev_english = false;
+    let mut prev_word_is_english_only: Option<bool> = None;
+
+    for token in tokens.iter() {
+        match token {
+            Token::Word(word) => {
+                if pending_boundary_after_prev_english && word_is_english_only(word) {
+                    candidates.has_boundary_candidate = true;
+                }
+                pending_boundary_after_prev_english = false;
+
+                if word.meta.has_korean && !candidates.has_same_token_context {
+                    let scan = scan_korean_contexts(&word.chars);
+                    candidates.has_same_token_context |= scan.has_same_token_context;
+                    if scan.has_boundary_segment && prev_word_is_english_only == Some(true) {
+                        pending_boundary_after_prev_english = true;
+                    }
+                }
+
+                prev_word_is_english_only = Some(word_is_english_only(word));
+            }
+            Token::Space(_) | Token::PreEncoded(_) => {}
+            _ => {
+                pending_boundary_after_prev_english = false;
+                prev_word_is_english_only = None;
+            }
+        }
+
+        if candidates.has_same_token_context && candidates.has_boundary_candidate {
+            break;
+        }
+    }
+
+    candidates
+}
+
+fn count_script_words(tokens: &[Token<'_>]) -> (usize, usize) {
     let mut english_words = 0usize;
     let mut korean_words = 0usize;
+
     for token in tokens.iter() {
         let Token::Word(word) = token else { continue };
-        let first = word
-            .chars
-            .iter()
-            .copied()
-            .find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch));
-        match first {
+        match first_script_char(word) {
             Some(c) if c.is_ascii_alphabetic() => english_words += 1,
             Some(c) if is_korean_char(c) => korean_words += 1,
             _ => {}
         }
     }
-    english_words >= korean_words.max(1)
+
+    (english_words, korean_words)
+}
+
+/// Compute all document-level English-Korean predicates once per encode call.
+pub fn compute_document_summary(tokens: &[Token<'_>]) -> DocumentSummary {
+    let candidates = scan_english_context_candidates(tokens);
+    if !candidates.has_same_token_context && !candidates.has_boundary_candidate {
+        return DocumentSummary::default();
+    }
+
+    let (english_words, korean_words) = count_script_words(tokens);
+    let is_english_majority = english_words >= korean_words.max(1);
+    let is_english_dominant =
+        english_words >= 10 && english_words >= korean_words.saturating_mul(5);
+    let has_english_context_for_korean = candidates.has_same_token_context
+        || (candidates.has_boundary_candidate && is_english_majority);
+
+    DocumentSummary {
+        has_english_context_for_korean,
+        is_english_majority,
+        is_english_dominant,
+    }
 }
 
 /// 한글 segment의 좌·우 컨텍스트가 영어인지 판정.
@@ -166,11 +289,12 @@ fn document_is_english_majority<'a>(tokens: &[Token<'a>]) -> bool {
 ///
 /// 두 케이스가 _혼합_된 경우(한쪽은 token boundary, 다른 쪽은 same-token letter)는
 /// 영어 어절 + 한국어 조사/어미 결합(예: "be는")일 가능성이 높으므로 wrap하지 않는다.
-fn segment_in_english_context<'a>(
+fn segment_in_english_context_with_majority<'a>(
     chars: &[char],
     seg: KoreanSegment,
     tokens: &[Token<'a>],
     token_index: usize,
+    is_english_majority: bool,
 ) -> bool {
     let left_slice = &chars[..seg.char_start];
     let right_slice = &chars[seg.char_end..];
@@ -182,7 +306,7 @@ fn segment_in_english_context<'a>(
         (true, true) => {
             let prev_eng = prev_word_token(tokens, token_index).is_some_and(word_is_english_only);
             let next_eng = next_word_token(tokens, token_index).is_some_and(word_is_english_only);
-            prev_eng && next_eng && document_is_english_majority(tokens)
+            prev_eng && next_eng && is_english_majority
         }
         (false, false) => {
             same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice)
@@ -191,55 +315,13 @@ fn segment_in_english_context<'a>(
     }
 }
 
-/// 문서 전체에서 어떤 한글 segment 하나라도 영어로 둘러싸였는지 확인.
-/// (영어 주도성 판정의 보조 신호로 사용.)
-fn document_has_english_context_for_korean<'a>(tokens: &[Token<'a>]) -> bool {
-    for (idx, token) in tokens.iter().enumerate() {
-        let Token::Word(word) = token else { continue };
-        if !word.meta.has_korean {
-            continue;
-        }
-        for seg in find_korean_segments(&word.chars) {
-            if segment_in_english_context(&word.chars, seg, tokens, idx) {
-                return true;
-            }
-        }
-    }
-    false
-}
-
-/// 문서가 _완전히 영어 주도_인지 판정. 즉 한글이 극히 소수만 등장.
-///
-/// 이 경우 wrap(⠸⠷⠸⠾)에 더해 영어 어절 사이의 영자표시(⠴), 단일 대문자
-/// 표시(⠠), 종료표(⠲)도 모두 생략한다 (PDF 제39항 영어 주도 문장).
-///
-/// 기준: 영어 어절 수가 한글 어절 수의 5배 이상 _그리고_ 영어 어절이 10개 이상.
-/// (단순 비율은 짧은 문장에서 과적용되고, 단순 절대 수는 한글 비중을 무시한다.)
-pub(crate) fn document_is_english_dominant<'a>(tokens: &[Token<'a>]) -> bool {
-    let mut english_words = 0usize;
-    let mut korean_words = 0usize;
-    for token in tokens.iter() {
-        let Token::Word(word) = token else { continue };
-        let first = word
-            .chars
-            .iter()
-            .copied()
-            .find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch));
-        match first {
-            Some(c) if c.is_ascii_alphabetic() => english_words += 1,
-            Some(c) if is_korean_char(c) => korean_words += 1,
-            _ => {}
-        }
-    }
-    english_words >= 10 && english_words >= korean_words.saturating_mul(5)
-}
-
 /// 토큰을 한글 segment 기준으로 분할하여 각각 wrap된 토큰 시퀀스를 만든다.
 /// segment의 좌우 컨텍스트가 영어가 아닌 경우엔 그대로 둔다.
 fn build_wrapped_replacement<'a>(
     word: &WordToken<'a>,
     tokens: &[Token<'a>],
     token_index: usize,
+    is_english_majority: bool,
 ) -> Option<Vec<Token<'a>>> {
     let segments = find_korean_segments(&word.chars);
     if segments.is_empty() {
@@ -250,7 +332,13 @@ fn build_wrapped_replacement<'a>(
 
     let mut wrap_segments = Vec::new();
     for seg in segments {
-        if segment_in_english_context(chars, seg, tokens, token_index) {
+        if segment_in_english_context_with_majority(
+            chars,
+            seg,
+            tokens,
+            token_index,
+            is_english_majority,
+        ) {
             wrap_segments.push(seg);
         }
     }
@@ -314,9 +402,7 @@ impl TokenRule for EnglishDominantKoreanWrapRule {
             return Ok(TokenAction::Noop);
         }
 
-        // 문서 전체에서 영어로 둘러싸인 한글 segment가 하나라도 있어야
-        // 제39항 wrap을 활성화한다. (영어 주도성 보조 신호)
-        if !document_has_english_context_for_korean(tokens) {
+        if !state.doc_summary.has_english_context_for_korean {
             return Ok(TokenAction::Noop);
         }
 
@@ -326,11 +412,12 @@ impl TokenRule for EnglishDominantKoreanWrapRule {
 
         // 추가: 문서가 영어 주도(영어 어절 ≫ 한글 어절)인 경우, 영자표시·
         // 단일 대문자 표시·종료표 모두 생략한다.
-        if document_is_english_dominant(tokens) {
+        if state.doc_summary.is_english_dominant {
             state.english_dominant_no_indicator = true;
         }
 
-        match build_wrapped_replacement(word, tokens, index) {
+        match build_wrapped_replacement(word, tokens, index, state.doc_summary.is_english_majority)
+        {
             Some(replacement) => Ok(TokenAction::ReplaceMany(replacement)),
             None => Ok(TokenAction::Noop),
         }

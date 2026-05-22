@@ -3,7 +3,11 @@
 //! Converts parsed math tokens into braille byte sequences
 //! following the 2024 Korean Math Braille Standard.
 
-use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
+use std::sync::LazyLock;
+
+use super::math_token_rule::{
+    MathContext, MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule,
+};
 use super::parser::{BracketKind, MathToken};
 use super::{
     rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7, rule_8, rule_9, rule_10, rule_11,
@@ -778,8 +782,41 @@ impl MathTokenRule for RawTokenRule {
     }
 }
 
-fn build_math_engine() -> MathTokenEngine {
-    let mut engine = MathTokenEngine::new();
+static DEFAULT_MATH_ENGINE: LazyLock<MathTokenEngine> =
+    LazyLock::new(|| build_math_engine(MathContext::default()));
+
+static MATRIX_MATH_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: true,
+        math_mode_active: false,
+    })
+});
+
+static MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: false,
+        math_mode_active: true,
+    })
+});
+
+static MATRIX_MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: true,
+        math_mode_active: true,
+    })
+});
+
+fn math_engine_for_context(context: MathContext) -> &'static MathTokenEngine {
+    match (context.matrix_context_active, context.math_mode_active) {
+        (false, false) => &DEFAULT_MATH_ENGINE,
+        (true, false) => &MATRIX_MATH_ENGINE,
+        (false, true) => &MATH_MODE_ENGINE,
+        (true, true) => &MATRIX_MATH_MODE_ENGINE,
+    }
+}
+
+fn build_math_engine(context: MathContext) -> MathTokenEngine {
+    let mut engine = MathTokenEngine::with_context(context);
 
     // Priority 10 — lookahead rules
     engine.register(Box::new(rule_7::ConditionalProbFractionRule));
@@ -820,9 +857,34 @@ pub fn encode_math_expression(input: &str) -> Result<Vec<u8>, String> {
     }
 
     let tokens = super::parser::parse_math_expression(input)?;
-    let engine = build_math_engine();
+    encode_math_tokens_with_context(&tokens, MathContext::default())
+}
+
+/// Encode a full math expression string with encoder-scoped context flags.
+pub fn encode_math_expression_with_context(
+    input: &str,
+    context: MathContext,
+) -> Result<Vec<u8>, String> {
+    if context == MathContext::default() {
+        return encode_math_expression(input);
+    }
+
+    if rule_14::is_roman_numeral_expression(input) {
+        return rule_14::encode_roman_numeral_expression(input);
+    }
+
+    let tokens =
+        super::parser::parse_math_expression_with_math_mode(input, context.math_mode_active)?;
+    encode_math_tokens_with_context(&tokens, context)
+}
+
+fn encode_math_tokens_with_context(
+    tokens: &[MathToken],
+    context: MathContext,
+) -> Result<Vec<u8>, String> {
+    let engine = math_engine_for_context(context);
     let mut result = Vec::new();
-    engine.encode_tokens(&tokens, &mut result)?;
+    engine.encode_tokens(tokens, &mut result)?;
     Ok(result)
 }
 

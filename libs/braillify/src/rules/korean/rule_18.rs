@@ -28,6 +28,38 @@ fn apply(text: &str) -> Option<(&'static str, &'static [u8], String)> {
     word_shortcut::split_word_shortcut(text)
 }
 
+/// Check whether `word_chars` starts with any entry in the word-shortcut table,
+/// returning the matching braille code slice without materializing a `String`.
+///
+/// Hot-path alternative to `word_shortcut::split_word_shortcut(&word)` when the
+/// caller only needs the matched codes (제18항 약어). PHF table has 7 short
+/// Korean keys, so the linear scan is trivial.
+fn match_word_shortcut(word_chars: &[char]) -> Option<&'static [u8]> {
+    for (key, codes) in word_shortcut::SHORTCUT_MAP.entries() {
+        let mut key_chars = key.chars();
+        let mut matched = true;
+        let mut consumed = 0usize;
+        loop {
+            match key_chars.next() {
+                None => break,
+                Some(kc) => match word_chars.get(consumed) {
+                    Some(wc) if *wc == kc => {
+                        consumed += 1;
+                    }
+                    _ => {
+                        matched = false;
+                        break;
+                    }
+                },
+            }
+        }
+        if matched {
+            return Some(*codes);
+        }
+    }
+    None
+}
+
 /// Plugin struct for the rule engine.
 ///
 /// Handles word-level abbreviations (제18항): 그래서, 그러나, 그러면, etc.
@@ -53,13 +85,11 @@ impl BrailleRule for Rule18 {
         if ctx.index != 0 {
             return false;
         }
-        let word: String = ctx.word_chars.iter().collect();
-        word_shortcut::split_word_shortcut(&word).is_some()
+        match_word_shortcut(ctx.word_chars).is_some()
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
-        let word: String = ctx.word_chars.iter().collect();
-        if let Some((_, codes, _rest)) = word_shortcut::split_word_shortcut(&word) {
+        if let Some(codes) = match_word_shortcut(ctx.word_chars) {
             ctx.emit_slice(codes);
             // TODO(Phase 3): handle `rest` by re-entering encoding pipeline
             // For now, the remaining characters are handled by the caller.
