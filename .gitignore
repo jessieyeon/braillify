@@ -36,3 +36,10 @@ dhat-heap.json
 # Playwright MCP output (screenshots, snapshots, console logs).
 .playwright-mcp/
 **/.playwright-mcp/
+
+# cargo-mutants output directories — generated per-run mutation reports.
+# `mutants.toml` (the config) IS tracked; only outputs are ignored.
+mutants.out/
+mutants.out.old/
+**/mutants.out/
+**/mutants.out.old/

@@ -1,0 +1,1 @@
+additional_cargo_test_args = ["--skip", "test_by_testcase"]
