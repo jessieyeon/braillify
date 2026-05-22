@@ -22,3 +22,13 @@ codecov.*
 .sisyphus/
 .audit
 trace_out.txt
+
+# Heap profiling output from `cargo bench --bench memory_dhat --features dhat-heap`.
+# Generated artifact, not source. Regenerate locally if needed.
+dhat-heap.json
+**/dhat-heap.json
+
+# wasm-pack post-optimize transient (W11 build pipeline writes pkg/index_bg_opt.wasm
+# then renames it over pkg/index_bg.wasm; if interrupted, the temp may linger).
+# pkg/ itself is already covered by packages/node/.gitignore.
+**/index_bg_opt.wasm
