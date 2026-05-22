@@ -5,7 +5,7 @@
     "expected": "5252",
     "unicode": "⠴⠴",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠴"
   },
   {
     "input": "제1 작업실",
@@ -21,6 +21,6 @@
     "expected": "402960305252",
     "unicode": "⠨⠝⠼⠃⠀⠴⠴",
     "world": "⠨⠝⠼⠃",
-    "jeomsarang": "⠨⠝⠼⠃⠀⠴⠴⠀⠀"
+    "jeomsarang": "⠨⠝⠼⠃⠀⠴⠴"
   }
 ]

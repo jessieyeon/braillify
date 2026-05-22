@@ -6,7 +6,7 @@
     "expected": "22",
     "unicode": "⠖",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠖"
   },
   {
     "input": "$\\in$",
@@ -24,7 +24,7 @@
     "expected": "1223213",
     "unicode": "⠁⠖⠠⠍",
     "world": "⠴⠁⠘⠑⠠⠍⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠖⠠⠍⠲"
   },
   {
     "input": "$a \\in M$",
@@ -42,7 +42,7 @@
     "expected": "50",
     "unicode": "⠲",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠲"
   },
   {
     "input": "$\\ni$",
@@ -60,7 +60,7 @@
     "expected": "3215045",
     "unicode": "⠠⠁⠲⠭",
     "world": "⠴⠠⠁⠈⠘⠑⠭⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠲⠭⠲"
   },
   {
     "input": "$A \\ni x$",
@@ -78,7 +78,7 @@
     "expected": "4022",
     "unicode": "⠨⠖",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠖"
   },
   {
     "input": "$\\notin$",
@@ -96,7 +96,7 @@
     "expected": "14022321",
     "unicode": "⠁⠨⠖⠠⠁",
     "world": "⠴⠁⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠨⠖⠠⠁⠲"
   },
   {
     "input": "$a \\notin A$",
@@ -114,7 +114,7 @@
     "expected": "4050",
     "unicode": "⠨⠲",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠲"
   },
   {
     "input": "$\\not\\ni$",
@@ -132,7 +132,7 @@
     "expected": "321340501",
     "unicode": "⠠⠍⠨⠲⠁",
     "world": "⠴⠠⠍⠈⠘⠑⠄⠳⠭⠴⠒⠒⠦⠄⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠰⠠⠍⠨⠲⠁⠲"
   },
   {
     "input": "$M \\not\\ni a$",
@@ -177,7 +177,7 @@
     "expected": "222",
     "unicode": "⠖⠂",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠖⠂"
   },
   {
     "input": "$\\subset$",
@@ -195,7 +195,7 @@
     "expected": "323222321",
     "unicode": "⠠⠃⠖⠂⠠⠁",
     "world": "⠴⠠⠃⠘⠣⠠⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠃⠥⠞⠖⠂⠠⠁⠲"
   },
   {
     "input": "$B \\subset A$",
@@ -213,7 +213,7 @@
     "expected": "1650",
     "unicode": "⠐⠲",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠲"
   },
   {
     "input": "$\\supset$",
@@ -231,7 +231,7 @@
     "expected": "3211650323",
     "unicode": "⠠⠁⠐⠲⠠⠃",
     "world": "⠴⠠⠁⠘⠜⠠⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠐⠲⠠⠃⠲"
   },
   {
     "input": "$A \\supset B$",
@@ -249,7 +249,7 @@
     "expected": "40222",
     "unicode": "⠨⠖⠂",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠖⠂"
   },
   {
     "input": "$\\not\\subset$",
@@ -267,7 +267,7 @@
     "expected": "321402223213",
     "unicode": "⠠⠁⠨⠖⠂⠠⠍",
     "world": "⠴⠠⠁⠘⠣⠄⠳⠭⠴⠒⠒⠦⠄⠰⠠⠍⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠨⠖⠂⠠⠍⠲"
   },
   {
     "input": "$A \\not\\subset M$",
@@ -285,7 +285,7 @@
     "expected": "401650",
     "unicode": "⠨⠐⠲",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠐⠲"
   },
   {
     "input": "$\\not\\supset$",
@@ -303,7 +303,7 @@
     "expected": "3213401650321",
     "unicode": "⠠⠍⠨⠐⠲⠠⠁",
     "world": "⠴⠠⠍⠘⠜⠄⠳⠭⠴⠒⠒⠦⠄⠠⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠰⠠⠍⠨⠐⠲⠠⠁⠲"
   },
   {
     "input": "$M \\not\\supset A$",
@@ -321,7 +321,7 @@
     "expected": "4011",
     "unicode": "⠨⠋",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠈⠋"
   },
   {
     "input": "$\\emptyset$",
@@ -339,7 +339,7 @@
     "expected": "321041032318184011",
     "unicode": "⠠⠁⠀⠩⠀⠠⠃⠒⠒⠨⠋",
     "world": "⠴⠠⠁⠨⠦⠠⠃⠒⠒",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠐⠶⠈⠋"
   },
   {
     "input": "$A \\cap B = \\emptyset$",
@@ -357,7 +357,7 @@
     "expected": "44",
     "unicode": "⠬",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠬"
   },
   {
     "input": "$\\cup$",
@@ -375,7 +375,7 @@
     "expected": "3210440323",
     "unicode": "⠠⠁⠀⠬⠀⠠⠃",
     "world": "⠴⠠⠁⠨⠖⠠⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠬⠠⠃⠲"
   },
   {
     "input": "$A \\cup B$",
@@ -393,7 +393,7 @@
     "expected": "41",
     "unicode": "⠩",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠩"
   },
   {
     "input": "$\\cap$",
@@ -411,7 +411,7 @@
     "expected": "3210410323",
     "unicode": "⠠⠁⠀⠩⠀⠠⠃",
     "world": "⠴⠠⠁⠨⠦⠠⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠩⠠⠃⠲"
   },
   {
     "input": "$A \\cap B$",
@@ -429,7 +429,7 @@
     "expected": "249",
     "unicode": "⠘⠉",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠀"
   },
   {
     "input": "Aᶜ=U-A",
@@ -438,7 +438,7 @@
     "expected": "3212491818323720321",
     "unicode": "⠠⠁⠘⠉⠒⠒⠠⠥⠔⠠⠁",
     "world": "⠴⠠⠁⠉⠐⠶⠠⠥⠤⠠⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠠⠁⠀⠐⠶⠠⠥⠤⠠⠁⠲"
   },
   {
     "input": "$A^c = U-A$",
@@ -456,7 +456,7 @@
     "expected": "5618",
     "unicode": "⠸⠒",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠒"
   },
   {
     "input": "$\\vdash$",
@@ -474,7 +474,7 @@
     "expected": "85618",
     "unicode": "⠈⠸⠒",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠒⠇"
   },
   {
     "input": "$\\dashv$",
@@ -492,7 +492,7 @@
     "expected": "245618",
     "unicode": "⠘⠸⠒",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠒⠒"
   },
   {
     "input": "$\\models$",
@@ -510,7 +510,7 @@
     "expected": "405618",
     "unicode": "⠨⠸⠒",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠒⠒⠇⠇"
   },
   {
     "input": "$\\Dashv$",
@@ -528,7 +528,7 @@
     "expected": "3214486011603214486031603214486091603232320321448290561803214",
     "unicode": "⠠⠎⠰⠼⠁⠐⠀⠠⠎⠰⠼⠃⠐⠀⠠⠎⠰⠼⠉⠐⠀⠠⠠⠠⠀⠠⠎⠰⠝⠀⠸⠒⠀⠠⠎",
     "world": "⠴⠈⠎⠴⠠⠠⠠⠎⠨⠤⠼⠁⠂ ⠎⠨⠤⠼⠃⠂ ⠎⠨⠤⠼⠉⠂⠠⠄ ⠸⠡⠉⠙⠕⠞⠎ ⠠⠎⠨⠤⠝ ⠸⠡⠧⠙⠁⠩ ⠰⠠⠎⠈⠎",
-    "jeomsarang": ""
+    "jeomsarang": "⠈⠎⠠⠎⠨⠤⠼⠁⠂⠀⠠⠎⠨⠤⠼⠃⠂⠀⠠⠎⠨⠤⠼⠉⠂⠀⠸⠡⠉⠙⠕⠞⠎⠀⠠⠎⠨⠤⠝⠀⠸⠡⠧⠙⠁⠩⠀⠠⠎⠈⠎"
   },
   {
     "input": "v⊨P",
@@ -537,7 +537,7 @@
     "expected": "39024561803215",
     "unicode": "⠧⠀⠘⠸⠒⠀⠠⠏",
     "world": "⠴⠧⠘⠸⠒⠠⠏⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠧⠸⠒⠒⠠⠏⠲"
   },
   {
     "input": "$v \\models P$",
@@ -555,7 +555,7 @@
     "expected": "2020820",
     "unicode": "⠔⠔⠈⠔",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠔⠔⠐⠤"
   },
   {
     "input": "$\\lesssim$",
@@ -573,7 +573,7 @@
     "expected": "116032232230102020820031620521509530523500355029021121050",
     "unicode": "⠁⠐⠀⠃⠖⠠⠗⠀⠁⠀⠔⠔⠈⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲",
     "world": "⠴⠁⠰⠂⠃⠘⠑⠠⠗ ⠁ ⠄⠳⠭⠆⠆⠶⠆⠄ ⠰⠃⠒ ⠁⠲⠉⠵ ⠴⠃⠲ ⠣⠲⠝ ⠕⠌⠊⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠂⠰⠃⠖⠠⠗⠀⠁⠀⠔⠔⠐⠤⠀⠰⠃⠒⠀⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲"
   },
   {
     "input": "$a, b \\in R\\ a \\lesssim b$: $a$는 $b$ 앞에 있다.",
@@ -591,7 +591,7 @@
     "expected": "2020",
     "unicode": "⠔⠔",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠔⠔⠐⠤"
   },
   {
     "input": "$\\prec$",
@@ -600,7 +600,7 @@
     "expected": "2020",
     "unicode": "⠔⠔",
     "world": "⠴⠈⠎⠸⠡⠴⠏⠗⠑⠉⠈⠎",
-    "jeomsarang": ""
+    "jeomsarang": "⠈⠎⠸⠡⠏⠗⠑⠉⠈⠎"
   },
   {
     "input": "a ≺ b: a는 b 앞에 있다. b는 a 뒤에 있다.",
@@ -609,7 +609,7 @@
     "expected": "102020031620521509530523500355029021121050052350953052150010132329021121050",
     "unicode": "⠁⠀⠔⠔⠀⠃⠐⠂⠀⠴⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲⠀⠴⠃⠲⠉⠵⠀⠴⠁⠲⠀⠊⠍⠗⠝⠀⠕⠌⠊⠲",
     "world": "⠴⠁ ⠄⠳⠭⠆⠆⠶⠁⠄ ⠰⠃⠒ ⠁⠲⠉⠵ ⠴⠃⠲ ⠣⠲⠝ ⠕⠌⠊⠲ ⠴⠃⠲⠉⠵ ⠴⠁⠲ ⠊⠍⠗⠝ ⠕⠌⠊⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠀⠔⠔⠐⠤⠀⠰⠃⠒⠀⠁⠲⠉⠵⠀⠴⠃⠲⠀⠣⠲⠝⠀⠕⠌⠊⠲⠀⠴⠃⠲⠉⠵⠀⠴⠁⠲⠀⠊⠍⠗⠝⠀⠕⠌⠊⠲"
   },
   {
     "input": "$a \\prec b$: $a$는 $b$ 앞에 있다. $b$는 $a$ 뒤에 있다.",

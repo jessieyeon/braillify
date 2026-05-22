@@ -6,7 +6,7 @@
     "expected": "89",
     "unicode": "⠈⠉",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠀"
   },
   {
     "input": "$\\overline{\\,}$",
@@ -24,7 +24,7 @@
     "expected": "89323213",
     "unicode": "⠈⠉⠠⠠⠁⠃",
     "world": "⠴⠰⠠⠠⠁⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠀⠠⠠⠁⠃⠲"
   },
   {
     "input": "$\\overline{AB}$",
@@ -42,7 +42,7 @@
     "expected": "893232136336",
     "unicode": "⠈⠉⠠⠠⠁⠤⠃⠤",
     "world": "⠴⠠⠁⠶⠠⠃⠴⠤",
-    "jeomsarang": ""
+    "jeomsarang": "⠀⠠⠁⠶⠠⠃⠲⠶"
   },
   {
     "input": "$\\overline{A'B'}$",

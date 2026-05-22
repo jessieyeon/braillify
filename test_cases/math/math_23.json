@@ -6,7 +6,7 @@
     "expected": "89",
     "unicode": "⠈⠉",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠒"
   },
   {
     "input": "(a+bi)̅",
@@ -15,7 +15,7 @@
     "expected": "551343106289",
     "unicode": "⠷⠁⠢⠃⠊⠾⠈⠉",
     "world": "⠦⠄⠴⠁⠐⠖⠃⠊⠠⠴",
-    "jeomsarang": "⠐⠣⠁⠢⠃⠊⠐⠜⠀"
+    "jeomsarang": "⠐⠣⠁⠐⠖⠃⠊⠐⠜⠀"
   },
   {
     "input": "$\\overline{a+bi}$",
@@ -33,7 +33,7 @@
     "expected": "89",
     "unicode": "⠈⠉",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠒"
   },
   {
     "input": "x̄",
@@ -61,7 +61,7 @@
     "expected": "3236",
     "unicode": "⠠⠤",
     "world": "⠸⠤",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠤"
   },
   {
     "input": "거리공간 X̲",
@@ -70,7 +70,7 @@
     "expected": "814162186343180032453236",
     "unicode": "⠈⠎⠐⠕⠈⠿⠫⠒⠀⠀⠠⠭⠠⠤",
     "world": "⠈⠎⠐⠕⠈⠿⠫⠒ ⠴⠠⠭",
-    "jeomsarang": ""
+    "jeomsarang": "⠈⠎⠐⠕⠈⠿⠫⠒⠀⠴⠠⠭⠀"
   },
   {
     "input": "거리공간 $\\underline{X}$",

@@ -78,7 +78,7 @@
     "expected": "2415",
     "unicode": "⠘⠏",
     "world": "⠘⠏",
-    "jeomsarang": "⠴⠘⠏⠲"
+    "jeomsarang": "⠴⠘⠏"
   },
   {
     "input": "©",
@@ -87,7 +87,7 @@
     "expected": "249",
     "unicode": "⠘⠉",
     "world": "⠘⠉",
-    "jeomsarang": "⠶⠴⠉⠶"
+    "jeomsarang": "⠴⠘⠉"
   },
   {
     "input": "®",
@@ -96,7 +96,7 @@
     "expected": "2423",
     "unicode": "⠘⠗",
     "world": "⠘⠗",
-    "jeomsarang": "⠴⠘⠗⠲"
+    "jeomsarang": "⠴⠘⠗"
   },
   {
     "input": "™",

@@ -6,7 +6,7 @@
     "expected": "631699",
     "unicode": "⠿⠐⠉⠉",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠉⠉"
   },
   {
     "input": "ㆀ",
@@ -15,7 +15,7 @@
     "expected": "63162727",
     "unicode": "⠿⠐⠛⠛",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠛⠛"
   },
   {
     "input": "ㆅ",
@@ -24,7 +24,7 @@
     "expected": "63162626",
     "unicode": "⠿⠐⠚⠚",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠚⠚"
   },
   {
     "input": "다니라",

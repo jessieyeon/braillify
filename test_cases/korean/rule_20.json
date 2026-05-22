@@ -6,7 +6,7 @@
     "expected": "63163454",
     "unicode": "⠿⠐⠢⠶",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠑⠶"
   },
   {
     "input": "ㅸ",
@@ -15,7 +15,7 @@
     "expected": "6316354",
     "unicode": "⠿⠐⠃⠶",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠿⠐⠃⠶"
   },
   {
     "input": "ㅹ",
@@ -24,7 +24,7 @@
     "expected": "6316242454",
     "unicode": "⠿⠐⠘⠘⠶",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠘⠘⠶"
   },
   {
     "input": "ㆄ",
@@ -33,7 +33,7 @@
     "expected": "63162554",
     "unicode": "⠿⠐⠙⠶",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠙⠶"
   },
   {
     "input": "ᄛ",
@@ -42,7 +42,7 @@
     "expected": "63161654",
     "unicode": "⠿⠐⠐⠶",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠐⠐⠶"
   },
   {
     "input": "斗ㅸ字",

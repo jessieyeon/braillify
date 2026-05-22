@@ -33,7 +33,7 @@
     "expected": "52323950",
     "unicode": "⠴⠠⠧⠲",
     "world": "⠴⠠⠧⠲",
-    "jeomsarang": "⠴⠠⠧⠲"
+    "jeomsarang": "⠴⠰⠠⠧⠲"
   },
   {
     "input": "IX",
@@ -51,7 +51,7 @@
     "expected": "52324550",
     "unicode": "⠴⠠⠭⠲",
     "world": "⠴⠠⠭⠲",
-    "jeomsarang": "⠴⠠⠭⠲"
+    "jeomsarang": "⠴⠰⠠⠭⠲"
   },
   {
     "input": "XV",

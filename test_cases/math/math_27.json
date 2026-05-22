@@ -7,7 +7,7 @@
     "expected": "51",
     "unicode": "⠳",
     "world": "⠸⠳",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠳"
   },
   {
     "input": "$|$",
@@ -25,7 +25,7 @@
     "expected": "6025516019",
     "unicode": "⠼⠙⠳⠼⠓",
     "world": "⠼⠙⠸⠳⠼⠓",
-    "jeomsarang": ""
+    "jeomsarang": "⠼⠙⠸⠳⠼⠓"
   },
   {
     "input": "$4 \\mid 8$",
@@ -43,7 +43,7 @@
     "expected": "2060175129",
     "unicode": "⠔⠼⠑⠳⠝",
     "world": "⠤⠼⠑⠸⠳⠴⠝⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠤⠼⠑⠈⠳⠝⠲"
   },
   {
     "input": "$-5 \\mid n$",
@@ -61,7 +61,7 @@
     "expected": "4051",
     "unicode": "⠨⠳",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠳"
   },
   {
     "input": "$\\nmid$",
@@ -79,7 +79,7 @@
     "expected": "6034051609",
     "unicode": "⠼⠃⠨⠳⠼⠉",
     "world": "⠼⠃⠼⠉",
-    "jeomsarang": ""
+    "jeomsarang": "⠼⠃⠨⠳⠼⠉"
   },
   {
     "input": "$2 \\nmid 3$",
@@ -97,7 +97,7 @@
     "expected": "15405129",
     "unicode": "⠏⠨⠳⠝",
     "world": "⠴⠏⠸⠳⠄⠳⠭⠴⠒⠒⠦⠄⠰⠝⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠏⠨⠳⠝⠲"
   },
   {
     "input": "$p \\nmid n$",

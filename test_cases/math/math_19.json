@@ -114,7 +114,7 @@
     "expected": "485529621",
     "unicode": "⠰⠷⠝⠾⠁",
     "world": "⠰⠴⠝⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠀⠁⠲"
   },
   {
     "input": "${}_n a$",
@@ -132,7 +132,7 @@
     "expected": "4855603621",
     "unicode": "⠰⠷⠼⠃⠾⠁",
     "world": "⠰⠼⠃⠴⠁⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠰⠢⠼⠃⠁⠲"
   },
   {
     "input": "${}_2 a$",

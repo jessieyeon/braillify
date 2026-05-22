@@ -7,7 +7,7 @@
     "expected": "16245502462",
     "unicode": "⠐⠘⠷⠀⠘⠾",
     "world": "⠦⠆ ⠰⠴",
-    "jeomsarang": ""
+    "jeomsarang": "⠦⠆⠀⠰⠴"
   },
   {
     "input": "/ /",
@@ -17,7 +17,7 @@
     "expected": "16241202412",
     "unicode": "⠐⠘⠌⠀⠘⠌",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠌⠀⠸⠌"
   },
   {
     "input": "모음과 모음 사이의 [ŋ]은 앞 음절의 받침 'ㅇ'으로 적는다.",

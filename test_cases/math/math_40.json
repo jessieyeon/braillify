@@ -78,7 +78,7 @@
     "expected": "56425",
     "unicode": "⠸⠪⠅",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠀"
   },
   {
     "input": "⎔",
@@ -87,7 +87,7 @@
     "expected": "564221",
     "unicode": "⠸⠪⠕",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠀"
   },
   {
     "input": "⏢",
@@ -96,7 +96,7 @@
     "expected": "561233",
     "unicode": "⠸⠌⠡",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠀"
   },
   {
     "input": "▱",
@@ -105,6 +105,6 @@
     "expected": "561212",
     "unicode": "⠸⠌⠌",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠌⠌"
   }
 ]

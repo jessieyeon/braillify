@@ -6,7 +6,7 @@
     "expected": "3223",
     "unicode": "⠠⠗",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠿⠠⠗⠸⠿"
   },
   {
     "input": "$\\mathcal{R}$",
@@ -24,7 +24,7 @@
     "expected": "132233",
     "unicode": "⠁⠠⠗⠃",
     "world": "⠴⠁⠠⠗⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠸⠿⠠⠗⠸⠿⠰⠃⠲"
   },
   {
     "input": "$a\\mathcal{R}b$",
@@ -42,7 +42,7 @@
     "expected": "820",
     "unicode": "⠈⠔",
     "world": "⠈⠔",
-    "jeomsarang": ""
+    "jeomsarang": "⠈⠔"
   },
   {
     "input": "$\\sim$",
@@ -60,7 +60,7 @@
     "expected": "18203",
     "unicode": "⠁⠈⠔⠃",
     "world": "⠴⠁⠈⠔⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠈⠔⠃⠲"
   },
   {
     "input": "$a \\sim b$",
@@ -78,7 +78,7 @@
     "expected": "403223",
     "unicode": "⠨⠠⠗",
     "world": "",
-    "jeomsarang": ""
+    "jeomsarang": "⠸⠿⠠⠗⠸⠿⠀"
   },
   {
     "input": "$\\not\\mathcal{R}$",
@@ -96,7 +96,7 @@
     "expected": "14032233",
     "unicode": "⠁⠨⠠⠗⠃",
     "world": "⠴⠁⠠⠗⠄⠳⠭⠴⠒⠒⠦⠄⠰⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠸⠿⠠⠗⠸⠿⠀⠰⠃⠲"
   },
   {
     "input": "$a \\not\\mathcal{R} b$",
@@ -114,7 +114,7 @@
     "expected": "40820",
     "unicode": "⠨⠈⠔",
     "world": "⠤⠤",
-    "jeomsarang": ""
+    "jeomsarang": "⠨⠐⠤"
   },
   {
     "input": "$\\nsim$",
@@ -132,7 +132,7 @@
     "expected": "1408203",
     "unicode": "⠁⠨⠈⠔⠃",
     "world": "⠴⠁⠈⠔⠄⠳⠭⠴⠒⠒⠦⠄⠰⠃⠲",
-    "jeomsarang": ""
+    "jeomsarang": "⠴⠁⠨⠐⠤⠰⠃⠲"
   },
   {
     "input": "$a \\nsim b$",
