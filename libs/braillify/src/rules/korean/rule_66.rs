@@ -3,7 +3,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "66", subsection: None, name: "literal_braille_cells", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.66", description: "Unicode braille input is emitted literally when used as braille cells" };
+pub static META: RuleMeta = RuleMeta {
+    section: "66",
+    subsection: None,
+    name: "literal_braille_cells",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.66",
+    description: "Unicode braille input is emitted literally when used as braille cells",
+};
 
 fn is_braille_cell(c: char) -> bool {
     (0x2800..=0x28ff).contains(&(c as u32))

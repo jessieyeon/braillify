@@ -29,5 +29,10 @@ pub trait TokenRule: Send + Sync {
     fn priority(&self) -> u16 {
         100
     }
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut EncoderState) -> Result<TokenAction<'a>, String>;
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        state: &mut EncoderState,
+    ) -> Result<TokenAction<'a>, String>;
 }

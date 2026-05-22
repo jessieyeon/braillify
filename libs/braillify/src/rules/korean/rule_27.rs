@@ -4,15 +4,29 @@ use crate::rules::context::EncodingMode;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "27", subsection: None, name: "middle_korean_tone_marks", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.27", description: "Middle Korean tone marks: 거성(·), 상성(：)" };
+pub static META: RuleMeta = RuleMeta {
+    section: "27",
+    subsection: None,
+    name: "middle_korean_tone_marks",
+    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.27",
+    description: "Middle Korean tone marks: 거성(·), 상성(：)",
+};
 
-const GEOSEONG: [u8; 2] = [crate::unicode::decode_unicode('⠸'), crate::unicode::decode_unicode('⠂')];
-const SANGSEONG: [u8; 2] = [crate::unicode::decode_unicode('⠸'), crate::unicode::decode_unicode('⠅')];
+const GEOSEONG: [u8; 2] = [
+    crate::unicode::decode_unicode('⠸'),
+    crate::unicode::decode_unicode('⠂'),
+];
+const SANGSEONG: [u8; 2] = [
+    crate::unicode::decode_unicode('⠸'),
+    crate::unicode::decode_unicode('⠅'),
+];
 
 fn is_historical_context_word(word: &str) -> bool {
     word.chars().any(|c| {
         let code = c as u32;
-        (0xE000..=0xF8FF).contains(&code) || (0x4E00..=0x9FFF).contains(&code) || matches!(c, '：' | '〔' | '〕')
+        (0xE000..=0xF8FF).contains(&code)
+            || (0x4E00..=0x9FFF).contains(&code)
+            || matches!(c, '：' | '〔' | '〕')
     })
 }
 
@@ -23,7 +37,10 @@ fn has_historical_context(ctx: &RuleContext) -> bool {
     if is_historical_context_word(ctx.prev_word) {
         return true;
     }
-    ctx.remaining_words.iter().take(2).any(|word| is_historical_context_word(word))
+    ctx.remaining_words
+        .iter()
+        .take(2)
+        .any(|word| is_historical_context_word(word))
 }
 
 fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
@@ -40,7 +57,9 @@ fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
         return ctx.state.current_mode() == EncodingMode::MiddleKorean;
     }
 
-    if ctx.prev_char().is_some_and(|prev| prev.is_ascii_digit()) && ctx.next_char().is_some_and(|next| next.is_ascii_digit()) {
+    if ctx.prev_char().is_some_and(|prev| prev.is_ascii_digit())
+        && ctx.next_char().is_some_and(|next| next.is_ascii_digit())
+    {
         return false;
     }
 
@@ -48,11 +67,16 @@ fn is_middle_korean_geoseong(ctx: &RuleContext) -> bool {
 }
 
 fn is_middle_korean_particle_geoseong(ctx: &RuleContext) -> bool {
-    matches!(ctx.char_type, CharType::Symbol('·')) && ctx.state.current_mode() == EncodingMode::MiddleKorean && ctx.next_char() == Some('에')
+    matches!(ctx.char_type, CharType::Symbol('·'))
+        && ctx.state.current_mode() == EncodingMode::MiddleKorean
+        && ctx.next_char() == Some('에')
 }
 
 fn is_inline_gloss_separator(ctx: &RuleContext) -> bool {
-    matches!(ctx.char_type, CharType::Symbol('·')) && ctx.state.current_mode() == EncodingMode::MiddleKorean && ctx.prev_char() == Some('字') && ctx.next_char() == Some('')
+    matches!(ctx.char_type, CharType::Symbol('·'))
+        && ctx.state.current_mode() == EncodingMode::MiddleKorean
+        && ctx.prev_char() == Some('字')
+        && ctx.next_char() == Some('')
 }
 
 fn is_middle_korean_sangseong(ctx: &RuleContext) -> bool {

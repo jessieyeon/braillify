@@ -13,7 +13,13 @@ use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::split;
 
-pub static META: RuleMeta = RuleMeta { section: "2", subsection: None, name: "double_choseong", standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.1 Art.2", description: "Double consonants (ㄲ,ㄸ,ㅃ,ㅆ,ㅉ) as choseong: 된소리표 ⠠ + base consonant" };
+pub static META: RuleMeta = RuleMeta {
+    section: "2",
+    subsection: None,
+    name: "double_choseong",
+    standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.1 Art.2",
+    description: "Double consonants (ㄲ,ㄸ,ㅃ,ㅆ,ㅉ) as choseong: 된소리표 ⠠ + base consonant",
+};
 
 const DOUBLE_CONSONANT_INDICATOR: u8 = 32; // ⠠ (된소리표)
 

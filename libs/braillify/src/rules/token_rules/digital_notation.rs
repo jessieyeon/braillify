@@ -16,7 +16,12 @@ impl TokenRule for DigitalNotationRule {
         1
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        _state: &mut EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -25,12 +30,18 @@ impl TokenRule for DigitalNotationRule {
             return Ok(TokenAction::Noop);
         }
 
-        Ok(TokenAction::Replace(Token::PreEncoded(encode_digital_word(word.text.as_ref())?)))
+        Ok(TokenAction::Replace(Token::PreEncoded(
+            encode_digital_word(word.text.as_ref())?,
+        )))
     }
 }
 
 fn has_digital_signature(text: &str) -> bool {
-    if !text.chars().next().is_some_and(|ch| ch.is_ascii_alphanumeric()) {
+    if !text
+        .chars()
+        .next()
+        .is_some_and(|ch| ch.is_ascii_alphanumeric())
+    {
         return false;
     }
     if text.contains("//") || text.contains('@') || text.contains('#') {
@@ -47,7 +58,12 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     let mut i = 0usize;
     let mut english_started = false;
 
-    let prefix_len = chars.iter().take_while(|ch| ch.is_ascii_alphanumeric() || matches!(**ch, '/' | '#' | '@' | '.' | ':' | '_')).count();
+    let prefix_len = chars
+        .iter()
+        .take_while(|ch| {
+            ch.is_ascii_alphanumeric() || matches!(**ch, '/' | '#' | '@' | '.' | ':' | '_')
+        })
+        .count();
 
     let digital_chars = &chars[..prefix_len];
 
@@ -109,7 +125,10 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     }
 
     if prefix_len < chars.len() {
-        if digital_chars.last().is_some_and(|ch| ch.is_ascii_alphabetic()) {
+        if digital_chars
+            .last()
+            .is_some_and(|ch| ch.is_ascii_alphabetic())
+        {
             result.push(decode_unicode('⠲'));
         }
         let remainder: String = chars[prefix_len..].iter().collect();
@@ -188,7 +207,11 @@ mod tests {
 
     fn word_token<'a>(text: &str) -> Token<'a> {
         let chars: Vec<char> = text.chars().collect();
-        Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
+        Token::Word(WordToken {
+            text: Cow::Owned(text.to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        })
     }
 
     #[test]
@@ -227,7 +250,10 @@ mod tests {
         let r = DigitalNotationRule;
         let tokens: Vec<Token> = vec![Token::Space(SpaceKind::Regular)];
         let mut state = EncoderState::new(false);
-        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+        assert!(matches!(
+            r.apply(&tokens, 0, &mut state).unwrap(),
+            TokenAction::Noop
+        ));
     }
 
     #[test]
@@ -235,7 +261,10 @@ mod tests {
         let r = DigitalNotationRule;
         let tokens = vec![word_token("hello")];
         let mut state = EncoderState::new(false);
-        assert!(matches!(r.apply(&tokens, 0, &mut state).unwrap(), TokenAction::Noop));
+        assert!(matches!(
+            r.apply(&tokens, 0, &mut state).unwrap(),
+            TokenAction::Noop
+        ));
     }
 
     #[test]
@@ -303,7 +332,10 @@ mod tests {
     #[test]
     fn encode_digital_english_segment_all_abbreviations() {
         // Exercise every digraph branch in encode_digital_english_segment
-        let cases = ["aliment", "playing", "constant", "easy", "energy", "argon", "verb", "outdoor", "owls", "thumb"];
+        let cases = [
+            "aliment", "playing", "constant", "easy", "energy", "argon", "verb", "outdoor", "owls",
+            "thumb",
+        ];
         for case in cases {
             let chars: Vec<char> = case.chars().collect();
             let mut buf = Vec::new();

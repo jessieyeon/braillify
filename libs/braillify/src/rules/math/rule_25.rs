@@ -9,7 +9,11 @@ pub fn is_sigma_symbol(c: char) -> bool {
     c == '\u{03A3}'
 }
 
-pub fn encode_sigma_with_bounds(lower_bound_encoded: &[u8], upper_bound_encoded: &[u8], result: &mut Vec<u8>) -> Result<(), String> {
+pub fn encode_sigma_with_bounds(
+    lower_bound_encoded: &[u8],
+    upper_bound_encoded: &[u8],
+    result: &mut Vec<u8>,
+) -> Result<(), String> {
     let sigma = math_symbol_shortcut::encode_char_math_symbol_shortcut('\u{03A3}')?;
     result.extend_from_slice(sigma);
 

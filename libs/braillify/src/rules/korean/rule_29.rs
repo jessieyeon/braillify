@@ -14,7 +14,13 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_69::encode_ascii_unit;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_29: RuleMeta = RuleMeta { section: "29", subsection: None, name: "roman_indicator", standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.29", description: "Roman letter indicator ⠴ (enter) and terminator ⠲ (exit)" };
+pub static META_29: RuleMeta = RuleMeta {
+    section: "29",
+    subsection: None,
+    name: "roman_indicator",
+    standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.29",
+    description: "Roman letter indicator ⠴ (enter) and terminator ⠲ (exit)",
+};
 
 /// Roman letter indicator (로마자표).
 pub const ROMAN_INDICATOR: u8 = 52; // ⠴
@@ -37,11 +43,16 @@ pub const ENGLISH_CONTINUATION: u8 = 48; // ⠰
 pub struct Rule29;
 
 fn prev_word_is_numeric(prev_word: &str) -> bool {
-    !prev_word.is_empty() && prev_word.chars().all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
+    !prev_word.is_empty()
+        && prev_word
+            .chars()
+            .all(|ch| ch.is_ascii_digit() || matches!(ch, ',' | '.'))
 }
 
 fn should_enter_as_roman_indicator(ctx: &RuleContext) -> bool {
-    encode_ascii_unit(ctx.word_chars, ctx.index).is_some() && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit()) || prev_word_is_numeric(ctx.prev_word))
+    encode_ascii_unit(ctx.word_chars, ctx.index).is_some()
+        && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit())
+            || prev_word_is_numeric(ctx.prev_word))
 }
 
 impl BrailleRule for Rule29 {
@@ -117,8 +128,28 @@ mod tests {
         assert!(!prev_word_is_numeric("hello"));
     }
 
-    fn make_ctx<'a>(word_chars: &'a [char], index: usize, char_type: &'a CharType, skip_count: &'a mut usize, state: &'a mut crate::rules::context::EncoderState, result: &'a mut Vec<u8>, prev_word: &'a str) -> RuleContext<'a> {
-        RuleContext { word_chars, index, char_type, prev_word, remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: true, skip_count, state, result }
+    fn make_ctx<'a>(
+        word_chars: &'a [char],
+        index: usize,
+        char_type: &'a CharType,
+        skip_count: &'a mut usize,
+        state: &'a mut crate::rules::context::EncoderState,
+        result: &'a mut Vec<u8>,
+        prev_word: &'a str,
+    ) -> RuleContext<'a> {
+        RuleContext {
+            word_chars,
+            index,
+            char_type,
+            prev_word,
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: true,
+            skip_count,
+            state,
+            result,
+        }
     }
 
     #[test]

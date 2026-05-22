@@ -12,7 +12,13 @@ use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::symbol_shortcut;
 
-pub static META: RuleMeta = RuleMeta { section: "60", subsection: None, name: "asterisk_spacing", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.60", description: "Asterisk (*) requires surrounding spaces" };
+pub static META: RuleMeta = RuleMeta {
+    section: "60",
+    subsection: None,
+    name: "asterisk_spacing",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.60",
+    description: "Asterisk (*) requires surrounding spaces",
+};
 
 /// Plugin struct for the rule engine.
 ///

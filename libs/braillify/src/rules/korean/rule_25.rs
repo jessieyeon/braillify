@@ -3,14 +3,48 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "25", subsection: None, name: "middle_korean_vowels", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.25", description: "Middle Korean standalone vowels such as ㆍ, ㆎ, ㆇ-ㆌ" };
+pub static META: RuleMeta = RuleMeta {
+    section: "25",
+    subsection: None,
+    name: "middle_korean_vowels",
+    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.25",
+    description: "Middle Korean standalone vowels such as ㆍ, ㆎ, ㆇ-ㆌ",
+};
 
-const MAPPINGS: &[(char, &str)] = &[('轉', "⠊"), ('榮', "⠐⠙"), ('ㆍ', "⠐⠼"), ('ㆎ', "⠐⠼⠗"), ('ㆇ', "⠸⠬⠜"), ('ㆈ', "⠸⠬⠜⠗"), ('ㆉ', "⠸⠬⠕"), ('ㆊ', "⠸⠩⠱"), ('ㆋ', "⠸⠩⠌"), ('ㆌ', "⠸⠩⠕"), ('', "⠈⠐⠼"), ('', "⠐⠨⠐⠼⠂"), ('', "⠐⠼⠗"), ('', "⠑⠐⠼⠗"), ('', "⠚⠐⠼⠒"), ('', "⠠⠸⠬⠕"), ('', "⠸⠩⠱⠒"), ('', "⠐⠙⠧⠐⠲"), ('', "⠸⠩⠱⠐⠲"), ('', "⠜⠐⠲"), ('', "⠰⠸⠩⠌"), ('', "⠸⠩⠕"), ('', "⠰⠸⠩⠕"), ('', "⠚⠐⠼")];
+const MAPPINGS: &[(char, &str)] = &[
+    ('轉', "⠊"),
+    ('榮', "⠐⠙"),
+    ('ㆍ', "⠐⠼"),
+    ('ㆎ', "⠐⠼⠗"),
+    ('ㆇ', "⠸⠬⠜"),
+    ('ㆈ', "⠸⠬⠜⠗"),
+    ('ㆉ', "⠸⠬⠕"),
+    ('ㆊ', "⠸⠩⠱"),
+    ('ㆋ', "⠸⠩⠌"),
+    ('ㆌ', "⠸⠩⠕"),
+    ('', "⠈⠐⠼"),
+    ('', "⠐⠨⠐⠼⠂"),
+    ('', "⠐⠼⠗"),
+    ('', "⠑⠐⠼⠗"),
+    ('', "⠚⠐⠼⠒"),
+    ('', "⠠⠸⠬⠕"),
+    ('', "⠸⠩⠱⠒"),
+    ('', "⠐⠙⠧⠐⠲"),
+    ('', "⠸⠩⠱⠐⠲"),
+    ('', "⠜⠐⠲"),
+    ('', "⠰⠸⠩⠌"),
+    ('', "⠸⠩⠕"),
+    ('', "⠰⠸⠩⠕"),
+    ('', "⠚⠐⠼"),
+];
 
 const SILENT_HANJA: &[char] = &['輪', '王', '養', '砌'];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode.chars().map(crate::unicode::decode_unicode).collect()
+    unicode
+        .chars()
+        .map(crate::unicode::decode_unicode)
+        .collect()
 }
 
 fn is_middle_korean_vowel(c: char) -> bool {
@@ -37,7 +71,8 @@ impl BrailleRule for Rule25 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::KoreanPart(c) if is_middle_korean_vowel(*c)) || matches!(ctx.char_type, CharType::Symbol(c) if is_middle_korean_vowel(*c))
+        matches!(ctx.char_type, CharType::KoreanPart(c) if is_middle_korean_vowel(*c))
+            || matches!(ctx.char_type, CharType::Symbol(c) if is_middle_korean_vowel(*c))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

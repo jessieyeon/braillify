@@ -6,7 +6,10 @@ use crate::math_symbol_shortcut;
 
 // Prepared for future direct encoder dispatch integration.
 pub fn is_arrow_symbol(c: char) -> bool {
-    matches!(c, '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21D2}' | '\u{21D4}' | '\u{2191}' | '\u{2193}')
+    matches!(
+        c,
+        '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21D2}' | '\u{21D4}' | '\u{2191}' | '\u{2193}'
+    )
 }
 
 // Prepared for future direct encoder dispatch integration.

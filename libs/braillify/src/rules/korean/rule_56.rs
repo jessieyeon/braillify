@@ -8,7 +8,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "56", subsection: None, name: "combining_emphasis_marks", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.56", description: "Treat combining emphasis marks as formatting annotations" };
+pub static META: RuleMeta = RuleMeta {
+    section: "56",
+    subsection: None,
+    name: "combining_emphasis_marks",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.56",
+    description: "Treat combining emphasis marks as formatting annotations",
+};
 
 pub struct Rule56;
 

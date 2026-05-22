@@ -13,7 +13,12 @@ impl TokenRule for LatexFractionRule {
         100
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        _state: &mut crate::rules::context::EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -23,10 +28,15 @@ impl TokenRule for LatexFractionRule {
             return Ok(TokenAction::Noop);
         }
 
-        let Some((whole, numerator, denominator)) = fraction::parse_latex_fraction(word_text) else {
+        let Some((whole, numerator, denominator)) = fraction::parse_latex_fraction(word_text)
+        else {
             return Ok(TokenAction::Noop);
         };
 
-        Ok(TokenAction::Replace(Token::Fraction(FractionToken { whole, numerator, denominator })))
+        Ok(TokenAction::Replace(Token::Fraction(FractionToken {
+            whole,
+            numerator,
+            denominator,
+        })))
     }
 }

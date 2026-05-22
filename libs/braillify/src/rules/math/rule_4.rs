@@ -6,7 +6,10 @@ use crate::math_symbol_shortcut;
 
 // Prepared for future direct encoder dispatch integration.
 pub fn is_comparison_symbol(c: char) -> bool {
-    matches!(c, '>' | '<' | '\u{2265}' | '\u{2264}' | '\u{226F}' | '\u{226E}')
+    matches!(
+        c,
+        '>' | '<' | '\u{2265}' | '\u{2264}' | '\u{226F}' | '\u{226E}'
+    )
 }
 
 // Prepared for future direct encoder dispatch integration.

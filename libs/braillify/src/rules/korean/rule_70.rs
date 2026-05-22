@@ -3,12 +3,27 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "70", subsection: None, name: "arrows", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.70", description: "Directional arrow symbols" };
+pub static META: RuleMeta = RuleMeta {
+    section: "70",
+    subsection: None,
+    name: "arrows",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.70",
+    description: "Directional arrow symbols",
+};
 
-const MAPPINGS: &[(char, &str)] = &[('→', "⠒⠕"), ('←', "⠪⠒"), ('↔', "⠪⠒⠕"), ('↓', "⠘⠒⠕"), ('↑', "⠰⠒⠕")];
+const MAPPINGS: &[(char, &str)] = &[
+    ('→', "⠒⠕"),
+    ('←', "⠪⠒"),
+    ('↔', "⠪⠒⠕"),
+    ('↓', "⠘⠒⠕"),
+    ('↑', "⠰⠒⠕"),
+];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode.chars().map(crate::unicode::decode_unicode).collect()
+    unicode
+        .chars()
+        .map(crate::unicode::decode_unicode)
+        .collect()
 }
 
 pub fn is_arrow_symbol(c: char) -> bool {
@@ -35,7 +50,10 @@ impl BrailleRule for Rule70 {
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
-        let Some((_, unicode)) = MAPPINGS.iter().find(|(candidate, _)| *candidate == ctx.current_char()) else {
+        let Some((_, unicode)) = MAPPINGS
+            .iter()
+            .find(|(candidate, _)| *candidate == ctx.current_char())
+        else {
             return Ok(RuleResult::Skip);
         };
         let encoded = encode_unicode_cells(unicode);

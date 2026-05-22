@@ -26,7 +26,11 @@ pub static JUNGSEONG_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     'ㅞ' => &[decode_unicode('⠏'), decode_unicode('⠗')],
 };
 pub fn encode_jungsong(text: char) -> Result<&'static [u8], String> {
-    if let Some(code) = JUNGSEONG_MAP.get(&text) { Ok(code) } else { Err("Invalid Korean jungseong character".to_string()) }
+    if let Some(code) = JUNGSEONG_MAP.get(&text) {
+        Ok(code)
+    } else {
+        Err("Invalid Korean jungseong character".to_string())
+    }
 }
 
 #[cfg(test)]

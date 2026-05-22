@@ -5,7 +5,10 @@
 use crate::math_symbol_shortcut;
 
 pub fn is_geometric_shape(c: char) -> bool {
-    matches!(c, '\u{25B3}' | '\u{25A1}' | '\u{25EF}' | '\u{2299}' | '\u{2606}' | '\u{25CB}' | '\u{25CF}')
+    matches!(
+        c,
+        '\u{25B3}' | '\u{25A1}' | '\u{25EF}' | '\u{2299}' | '\u{2606}' | '\u{25CB}' | '\u{25CF}'
+    )
 }
 
 pub fn encode_geometric_shape(c: char, result: &mut Vec<u8>) -> Result<(), String> {

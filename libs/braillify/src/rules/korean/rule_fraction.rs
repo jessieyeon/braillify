@@ -6,7 +6,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "fraction", subsection: None, name: "unicode_fraction_encoding", standard_ref: "2024 Korean Braille Standard (fractions)", description: "Unicode fraction characters (½, ⅓, ¼, etc.)" };
+pub static META: RuleMeta = RuleMeta {
+    section: "fraction",
+    subsection: None,
+    name: "unicode_fraction_encoding",
+    standard_ref: "2024 Korean Braille Standard (fractions)",
+    description: "Unicode fraction characters (½, ⅓, ¼, etc.)",
+};
 
 pub struct RuleFraction;
 

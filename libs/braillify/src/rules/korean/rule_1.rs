@@ -12,7 +12,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "1", subsection: None, name: "basic_choseong", standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.1 Art.1", description: "Encode 13 basic initial consonants (choseong) to braille" };
+pub static META: RuleMeta = RuleMeta {
+    section: "1",
+    subsection: None,
+    name: "basic_choseong",
+    standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.1 Art.1",
+    description: "Encode 13 basic initial consonants (choseong) to braille",
+};
 
 /// Encode a choseong character to its braille representation.
 /// Re-exports `jauem::choseong::encode_choseong`.
@@ -73,10 +79,29 @@ mod tests {
 
     #[test]
     fn encodes_all_13_basic_consonants() {
-        let cases = vec![('ㄱ', '⠈'), ('ㄴ', '⠉'), ('ㄷ', '⠊'), ('ㄹ', '⠐'), ('ㅁ', '⠑'), ('ㅂ', '⠘'), ('ㅅ', '⠠'), ('ㅈ', '⠨'), ('ㅊ', '⠰'), ('ㅋ', '⠋'), ('ㅌ', '⠓'), ('ㅍ', '⠙'), ('ㅎ', '⠚')];
+        let cases = vec![
+            ('ㄱ', '⠈'),
+            ('ㄴ', '⠉'),
+            ('ㄷ', '⠊'),
+            ('ㄹ', '⠐'),
+            ('ㅁ', '⠑'),
+            ('ㅂ', '⠘'),
+            ('ㅅ', '⠠'),
+            ('ㅈ', '⠨'),
+            ('ㅊ', '⠰'),
+            ('ㅋ', '⠋'),
+            ('ㅌ', '⠓'),
+            ('ㅍ', '⠙'),
+            ('ㅎ', '⠚'),
+        ];
         for (cho, expected_braille) in cases {
             let result = apply(cho).unwrap();
-            assert_eq!(result, decode_unicode(expected_braille), "Failed for choseong: {}", cho);
+            assert_eq!(
+                result,
+                decode_unicode(expected_braille),
+                "Failed for choseong: {}",
+                cho
+            );
         }
     }
 

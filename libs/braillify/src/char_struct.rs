@@ -1,4 +1,7 @@
-use crate::{fraction::is_unicode_fraction, math_symbol_shortcut::is_math_symbol_char, symbol_shortcut::is_symbol_char};
+use crate::{
+    fraction::is_unicode_fraction, math_symbol_shortcut::is_math_symbol_char,
+    symbol_shortcut::is_symbol_char,
+};
 
 /// Character in Korean
 #[derive(Debug)]
@@ -18,9 +21,18 @@ impl KoreanChar {
             return Err("Invalid Korean character".to_string());
         }
 
-        const CHOSEONG: [char; 19] = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-        const JUNGSEONG: [char; 21] = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
-        const JONGSEONG: [char; 28] = [' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+        const CHOSEONG: [char; 19] = [
+            'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ',
+            'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+        ];
+        const JUNGSEONG: [char; 21] = [
+            'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ',
+            'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ',
+        ];
+        const JONGSEONG: [char; 28] = [
+            ' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ',
+            'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+        ];
 
         let code = c as u32;
 
@@ -29,7 +41,15 @@ impl KoreanChar {
         let sn_idx = ((uni - (fn_idx as u32 * 588)) / 28) as usize;
         let tn_idx = (uni % 28) as usize;
 
-        Ok(Self { cho: CHOSEONG[fn_idx], jung: JUNGSEONG[sn_idx], jong: if JONGSEONG[tn_idx] != ' ' { Some(JONGSEONG[tn_idx]) } else { None } })
+        Ok(Self {
+            cho: CHOSEONG[fn_idx],
+            jung: JUNGSEONG[sn_idx],
+            jong: if JONGSEONG[tn_idx] != ' ' {
+                Some(JONGSEONG[tn_idx])
+            } else {
+                None
+            },
+        })
     }
 }
 
@@ -117,7 +137,10 @@ impl CharType {
         }
 
         // Old Hangul Jamo (initial consonants, medial vowels, final consonants)
-        if (0x1100..=0x115F).contains(&code) || (0x1160..=0x11A7).contains(&code) || (0x11A8..=0x11FF).contains(&code) {
+        if (0x1100..=0x115F).contains(&code)
+            || (0x1160..=0x11A7).contains(&code)
+            || (0x11A8..=0x11FF).contains(&code)
+        {
             return Ok(Self::KoreanPart(c));
         }
         // Hangul Jamo Extended-A (old initial consonants)
@@ -212,7 +235,10 @@ impl CharType {
             return Ok(Self::Symbol(c));
         }
         // Private Use Area (legacy Hangul glyphs in historical corpora)
-        if (0xE000..=0xF8FF).contains(&code) || (0xF0000..=0xFFFFD).contains(&code) || (0x100000..=0x10FFFD).contains(&code) {
+        if (0xE000..=0xF8FF).contains(&code)
+            || (0xF0000..=0xFFFFD).contains(&code)
+            || (0x100000..=0x10FFFD).contains(&code)
+        {
             return Ok(Self::Symbol(c));
         }
         Err("Invalid character".to_string())
@@ -227,12 +253,21 @@ mod test {
 
     #[test]
     pub fn test_char_type() {
-        assert!(matches!(CharType::new('A').unwrap(), CharType::English('A')));
+        assert!(matches!(
+            CharType::new('A').unwrap(),
+            CharType::English('A')
+        ));
         assert!(matches!(CharType::new('1').unwrap(), CharType::Number('1')));
         assert!(matches!(CharType::new('!').unwrap(), CharType::Symbol('!')));
-        assert!(matches!(CharType::new('ㄱ').unwrap(), CharType::KoreanPart('ㄱ')));
+        assert!(matches!(
+            CharType::new('ㄱ').unwrap(),
+            CharType::KoreanPart('ㄱ')
+        ));
         assert!(matches!(CharType::new(' ').unwrap(), CharType::Space(' ')));
-        assert!(matches!(CharType::new('½').unwrap(), CharType::Fraction('½')));
+        assert!(matches!(
+            CharType::new('½').unwrap(),
+            CharType::Fraction('½')
+        ));
         assert!(matches!(CharType::new('□').unwrap(), CharType::Symbol('□')));
     }
 
@@ -244,36 +279,56 @@ mod test {
     fn test_char_type_every_branch() {
         // Known-good explicit variant checks
         assert!(matches!(CharType::new('가').unwrap(), CharType::Korean(_)));
-        assert!(matches!(CharType::new('ㅏ').unwrap(), CharType::KoreanPart('ㅏ')));
+        assert!(matches!(
+            CharType::new('ㅏ').unwrap(),
+            CharType::KoreanPart('ㅏ')
+        ));
         assert!(matches!(CharType::new('$').unwrap(), CharType::Symbol('$')));
-        assert!(matches!(CharType::new('\\').unwrap(), CharType::Symbol('\\')));
-        assert!(matches!(CharType::new('字').unwrap(), CharType::Symbol('字')));
+        assert!(matches!(
+            CharType::new('\\').unwrap(),
+            CharType::Symbol('\\')
+        ));
+        assert!(matches!(
+            CharType::new('字').unwrap(),
+            CharType::Symbol('字')
+        ));
         assert!(matches!(CharType::new('·').unwrap(), CharType::Symbol('·')));
-        assert!(matches!(CharType::new('：').unwrap(), CharType::Symbol('：')));
+        assert!(matches!(
+            CharType::new('：').unwrap(),
+            CharType::Symbol('：')
+        ));
         assert!(matches!(CharType::new('—').unwrap(), CharType::Symbol('—')));
-        assert!(matches!(CharType::new('\t').unwrap(), CharType::Space('\t')));
+        assert!(matches!(
+            CharType::new('\t').unwrap(),
+            CharType::Space('\t')
+        ));
 
         // Drive every Unicode range arm. We don't assert a specific variant
         // because earlier predicates (is_symbol_char etc.) may catch some of
         // these first; we only require that `CharType::new` succeeds.
         let codepoints: &[u32] = &[
             0x0307, 0x0305, 0x0308, 0x0309, 0x030A, 0x0332, 0x0301, // combining
-            0x20DE,                                                  // enclosing square
-            0x1100, 0x1160, 0x11A8,                                 // old jamo
-            0xA960,                                                  // jamo ext-A
-            0xD7B0, 0xD7CB,                                          // jamo ext-B
-            0x318F,                                                  // extended compat jamo
-            0x3400,                                                  // CJK Ext A
-            0x0250, 0x02B0, 0x1E00, 0x0100, 0x0370,                // IPA / Latin / Greek
-            0x2100, 0x3200, 0x3300, 0x2E00, 0x3000,                // letterlike / enclosed
-            0x25A0, 0x2600,                                          // shapes / misc
-            0xF900, 0x20000, 0x2F800,                                // CJK supplement
-            0xE000, 0xF0000, 0x100000,                               // PUA
+            0x20DE, // enclosing square
+            0x1100, 0x1160, 0x11A8, // old jamo
+            0xA960, // jamo ext-A
+            0xD7B0, 0xD7CB, // jamo ext-B
+            0x318F, // extended compat jamo
+            0x3400, // CJK Ext A
+            0x0250, 0x02B0, 0x1E00, 0x0100, 0x0370, // IPA / Latin / Greek
+            0x2100, 0x3200, 0x3300, 0x2E00, 0x3000, // letterlike / enclosed
+            0x25A0, 0x2600, // shapes / misc
+            0xF900, 0x20000, 0x2F800, // CJK supplement
+            0xE000, 0xF0000, 0x100000, // PUA
         ];
         for &code in codepoints {
             let c = char::from_u32(code).unwrap();
             let result = CharType::new(c);
-            assert!(result.is_ok(), "CharType::new(U+{:04X}) failed: {:?}", code, result);
+            assert!(
+                result.is_ok(),
+                "CharType::new(U+{:04X}) failed: {:?}",
+                code,
+                result
+            );
         }
 
         // KoreanChar::new direct error path

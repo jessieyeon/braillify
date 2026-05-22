@@ -1,12 +1,23 @@
 use crate::split;
 
 pub fn build_char(choseong: char, jungseong: char, jongseong: Option<char>) -> char {
-    let choseong_list = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
-    let jongseong_list = ['\0', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+    let choseong_list = [
+        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
+        'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+    ];
+    let jongseong_list = [
+        '\0', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ',
+        'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+    ];
     let choseong_index = choseong_list.iter().position(|&c| c == choseong).unwrap();
     let jungseong_index = jungseong as usize - 0x314F;
-    let jongseong_index = if let Some(jongseong) = jongseong { jongseong_list.iter().position(|&c| c == jongseong).unwrap() } else { 0 };
-    let hangul_code = 0xAC00 + (choseong_index * 21 * 28) + (jungseong_index * 28) + jongseong_index;
+    let jongseong_index = if let Some(jongseong) = jongseong {
+        jongseong_list.iter().position(|&c| c == jongseong).unwrap()
+    } else {
+        0
+    };
+    let hangul_code =
+        0xAC00 + (choseong_index * 21 * 28) + (jungseong_index * 28) + jongseong_index;
     char::from_u32(hangul_code as u32).unwrap()
 }
 

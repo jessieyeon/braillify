@@ -9,7 +9,19 @@ use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, 
 use super::rule_7;
 
 pub fn is_algebraic_neighbor(token: Option<&MathToken>) -> bool {
-    matches!(token, Some(MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_) | MathToken::Subscript(_) | MathToken::Superscript(_) | MathToken::OpenParen(_) | MathToken::CloseParen(_) | MathToken::MathSymbol('\u{221E}')))
+    matches!(
+        token,
+        Some(
+            MathToken::Variable(_)
+                | MathToken::UpperVariable(_)
+                | MathToken::Number(_)
+                | MathToken::Subscript(_)
+                | MathToken::Superscript(_)
+                | MathToken::OpenParen(_)
+                | MathToken::CloseParen(_)
+                | MathToken::MathSymbol('\u{221E}')
+        )
+    )
 }
 
 pub fn needs_binary_spacing(c: char) -> bool {
@@ -57,13 +69,28 @@ pub fn needs_binary_spacing(c: char) -> bool {
     )
 }
 
-pub fn encode_operator(token: char, tokens: &[MathToken], i: usize, result: &mut Vec<u8>) -> Result<(), String> {
+pub fn encode_operator(
+    token: char,
+    tokens: &[MathToken],
+    i: usize,
+    result: &mut Vec<u8>,
+) -> Result<(), String> {
     if token == '+' {
-        let prev = tokens[..i].iter().rev().find(|t| !matches!(t, MathToken::Space));
-        let next = tokens[i + 1..].iter().find(|t| !matches!(t, MathToken::Space));
-        let has_set_triangle = tokens.iter().any(|t| matches!(t, MathToken::MathSymbol('\u{2206}')));
+        let prev = tokens[..i]
+            .iter()
+            .rev()
+            .find(|t| !matches!(t, MathToken::Space));
+        let next = tokens[i + 1..]
+            .iter()
+            .find(|t| !matches!(t, MathToken::Space));
+        let has_set_triangle = tokens
+            .iter()
+            .any(|t| matches!(t, MathToken::MathSymbol('\u{2206}')));
 
-        if has_set_triangle && matches!(prev, Some(MathToken::CloseParen(_))) && matches!(next, Some(MathToken::OpenParen(_))) {
+        if has_set_triangle
+            && matches!(prev, Some(MathToken::CloseParen(_)))
+            && matches!(next, Some(MathToken::OpenParen(_)))
+        {
             result.push(0);
             result.push(44);
             result.push(0);
@@ -77,7 +104,13 @@ pub fn encode_operator(token: char, tokens: &[MathToken], i: usize, result: &mut
     }
 
     if token == ',' {
-        let divisibility_context = matches!((tokens.get(i.saturating_sub(1)), tokens.get(i.saturating_sub(2))), (Some(MathToken::Number(_)), Some(MathToken::MathSymbol('|'))));
+        let divisibility_context = matches!(
+            (
+                tokens.get(i.saturating_sub(1)),
+                tokens.get(i.saturating_sub(2))
+            ),
+            (Some(MathToken::Number(_)), Some(MathToken::MathSymbol('|')))
+        );
 
         if tokens.get(i + 1).is_none() && divisibility_context {
             return Ok(());
@@ -88,7 +121,17 @@ pub fn encode_operator(token: char, tokens: &[MathToken], i: usize, result: &mut
         }
 
         result.push(16);
-        if matches!(tokens.get(i + 1), Some(MathToken::UpperVariable(_) | MathToken::Variable(_) | MathToken::Number(_) | MathToken::Subscript(_) | MathToken::Superscript(_) | MathToken::MathSymbol(_))) {
+        if matches!(
+            tokens.get(i + 1),
+            Some(
+                MathToken::UpperVariable(_)
+                    | MathToken::Variable(_)
+                    | MathToken::Number(_)
+                    | MathToken::Subscript(_)
+                    | MathToken::Superscript(_)
+                    | MathToken::MathSymbol(_)
+            )
+        ) {
             result.push(0);
         }
         return Ok(());
@@ -124,12 +167,24 @@ impl MathTokenRule for OperatorRule {
         matches!(tokens.get(index), Some(MathToken::Operator(_)))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         let Some(MathToken::Operator(c)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
 
-        let korean_group_operator = matches!(*c, '+' | '×') && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_))) && matches!(tokens.get(index + 1), Some(MathToken::KoreanWord(_)));
+        let korean_group_operator = matches!(*c, '+' | '×')
+            && matches!(
+                tokens.get(index.saturating_sub(1)),
+                Some(MathToken::KoreanWord(_))
+            )
+            && matches!(tokens.get(index + 1), Some(MathToken::KoreanWord(_)));
         if korean_group_operator {
             result.push(0);
             encode_operator(*c, tokens, index, result)?;
@@ -138,7 +193,15 @@ impl MathTokenRule for OperatorRule {
             return Ok(MathTokenResult::Consumed(1));
         }
 
-        let label_equation = *c == '=' && matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::KoreanWord(_))) && matches!(tokens.get(index + 1), Some(MathToken::MathSymbol('\u{221A}')));
+        let label_equation = *c == '='
+            && matches!(
+                tokens.get(index.saturating_sub(1)),
+                Some(MathToken::KoreanWord(_))
+            )
+            && matches!(
+                tokens.get(index + 1),
+                Some(MathToken::MathSymbol('\u{221A}'))
+            );
         if label_equation {
             result.push(0);
             encode_operator(*c, tokens, index, result)?;
@@ -146,7 +209,10 @@ impl MathTokenRule for OperatorRule {
             return Ok(MathTokenResult::Consumed(1));
         }
 
-        let should_pad = needs_binary_spacing(*c) && index > 0 && is_algebraic_neighbor(tokens.get(index - 1)) && is_algebraic_neighbor(tokens.get(index + 1));
+        let should_pad = needs_binary_spacing(*c)
+            && index > 0
+            && is_algebraic_neighbor(tokens.get(index - 1))
+            && is_algebraic_neighbor(tokens.get(index + 1));
         if should_pad && !matches!(tokens.get(index - 1), Some(MathToken::Space)) {
             result.push(0);
         }

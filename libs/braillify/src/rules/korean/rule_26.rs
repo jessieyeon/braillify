@@ -3,16 +3,40 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "26", subsection: None, name: "middle_korean_after_hanja", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.26", description: "Middle Korean legacy syllables used after Hanja readings" };
+pub static META: RuleMeta = RuleMeta {
+    section: "26",
+    subsection: None,
+    name: "middle_korean_after_hanja",
+    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.26",
+    description: "Middle Korean legacy syllables used after Hanja readings",
+};
 
-const MAPPINGS: &[(char, &str)] = &[('烽', "⠘⠿"), ('火', "⠚⠧"), ('孟', "⠑"), ('子', "⠨"), ('', "⠐⠐⠼⠂"), ('', "⠐⠨⠝"), ('', "⠐⠼⠗⠐⠲"), ('', "⠐⠼"), ('', "⠊⠐⠼⠗"), ('', "⠊⠐⠼"), ('', "⠐⠐⠼")];
+const MAPPINGS: &[(char, &str)] = &[
+    ('烽', "⠘⠿"),
+    ('火', "⠚⠧"),
+    ('孟', "⠑"),
+    ('子', "⠨"),
+    ('', "⠐⠐⠼⠂"),
+    ('', "⠐⠨⠝"),
+    ('', "⠐⠼⠗⠐⠲"),
+    ('', "⠐⠼"),
+    ('', "⠊⠐⠼⠗"),
+    ('', "⠊⠐⠼"),
+    ('', "⠐⠐⠼"),
+];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode.chars().map(crate::unicode::decode_unicode).collect()
+    unicode
+        .chars()
+        .map(crate::unicode::decode_unicode)
+        .collect()
 }
 
 fn encode_legacy(c: char) -> Option<Vec<u8>> {
-    MAPPINGS.iter().find(|(candidate, _)| *candidate == c).map(|(_, unicode)| encode_unicode_cells(unicode))
+    MAPPINGS
+        .iter()
+        .find(|(candidate, _)| *candidate == c)
+        .map(|(_, unicode)| encode_unicode_cells(unicode))
 }
 
 fn is_standalone_i_after_hanja(ctx: &RuleContext) -> bool {
@@ -35,7 +59,8 @@ impl BrailleRule for Rule26 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        matches!(ctx.char_type, CharType::Symbol(c) | CharType::KoreanPart(c) if encode_legacy(*c).is_some()) || is_standalone_i_after_hanja(ctx)
+        matches!(ctx.char_type, CharType::Symbol(c) | CharType::KoreanPart(c) if encode_legacy(*c).is_some())
+            || is_standalone_i_after_hanja(ctx)
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

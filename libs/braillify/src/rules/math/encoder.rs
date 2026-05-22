@@ -5,14 +5,27 @@
 
 use std::sync::LazyLock;
 
-use super::math_token_rule::{MathContext, MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
+use super::math_token_rule::{
+    MathContext, MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule,
+};
 use super::parser::{BracketKind, MathToken};
-use super::{rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7, rule_8, rule_9, rule_10, rule_11, rule_12, rule_13, rule_14, rule_15, rule_16, rule_17, rule_18, rule_19, rule_20, rule_21, rule_22, rule_23, rule_24, rule_25, rule_26, rule_27, rule_28, rule_29, rule_30, rule_31, rule_32, rule_33, rule_36, rule_37, rule_38, rule_39, rule_40, rule_41, rule_42, rule_43, rule_44, rule_47, rule_50, rule_52, rule_53, rule_54, rule_55, rule_56, rule_57, rule_58, rule_59, rule_60, rule_61, rule_65};
+use super::{
+    rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_7, rule_8, rule_9, rule_10, rule_11,
+    rule_12, rule_13, rule_14, rule_15, rule_16, rule_17, rule_18, rule_19, rule_20, rule_21,
+    rule_22, rule_23, rule_24, rule_25, rule_26, rule_27, rule_28, rule_29, rule_30, rule_31,
+    rule_32, rule_33, rule_36, rule_37, rule_38, rule_39, rule_40, rule_41, rule_42, rule_43,
+    rule_44, rule_47, rule_50, rule_52, rule_53, rule_54, rule_55, rule_56, rule_57, rule_58,
+    rule_59, rule_60, rule_61, rule_65,
+};
 use crate::math_symbol_shortcut;
 
 struct DigitSeparatorRule;
 
-fn encode_generic_math_symbol(c: char, _is_direct_shortcut_symbol: bool, result: &mut Vec<u8>) -> Result<(), String> {
+fn encode_generic_math_symbol(
+    c: char,
+    _is_direct_shortcut_symbol: bool,
+    result: &mut Vec<u8>,
+) -> Result<(), String> {
     let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(c)?;
     result.extend_from_slice(encoded);
     Ok(())
@@ -31,7 +44,14 @@ impl MathTokenRule for DigitSeparatorRule {
         matches!(tokens.get(index), Some(MathToken::DigitSeparator))
     }
 
-    fn apply(&self, _tokens: &[MathToken], _index: usize, result: &mut Vec<u8>, _state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        _tokens: &[MathToken],
+        _index: usize,
+        result: &mut Vec<u8>,
+        _state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         result.push(2);
         Ok(MathTokenResult::Consumed(1))
     }
@@ -40,15 +60,22 @@ impl MathTokenRule for DigitSeparatorRule {
 struct SpaceRule;
 
 fn prev_non_space(tokens: &[MathToken], index: usize) -> Option<&MathToken> {
-    tokens[..index].iter().rev().find(|token| !matches!(token, MathToken::Space))
+    tokens[..index]
+        .iter()
+        .rev()
+        .find(|token| !matches!(token, MathToken::Space))
 }
 
 fn next_non_space(tokens: &[MathToken], index: usize) -> Option<&MathToken> {
-    tokens[index + 1..].iter().find(|token| !matches!(token, MathToken::Space))
+    tokens[index + 1..]
+        .iter()
+        .find(|token| !matches!(token, MathToken::Space))
 }
 
 fn prev_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
-    (0..index).rev().find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
+    (0..index)
+        .rev()
+        .find(|&i| !matches!(tokens.get(i), Some(MathToken::Space)))
 }
 
 fn next_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
@@ -56,14 +83,19 @@ fn next_non_space_index(tokens: &[MathToken], index: usize) -> Option<usize> {
 }
 
 fn is_glue_operator(token: Option<&MathToken>) -> bool {
-    matches!(token, Some(MathToken::Operator('+' | '-' | '×' | '=' | '/')))
+    matches!(
+        token,
+        Some(MathToken::Operator('+' | '-' | '×' | '=' | '/'))
+    )
 }
 
 fn should_suppress_space(tokens: &[MathToken], index: usize) -> bool {
     let prev_idx = prev_non_space_index(tokens, index);
     let next_idx = next_non_space_index(tokens, index);
 
-    if prev_idx.is_some_and(|i| should_suppress_after_operator(tokens, i)) || next_idx.is_some_and(|i| should_suppress_before_operator(tokens, i)) {
+    if prev_idx.is_some_and(|i| should_suppress_after_operator(tokens, i))
+        || next_idx.is_some_and(|i| should_suppress_before_operator(tokens, i))
+    {
         return true;
     }
 
@@ -74,11 +106,14 @@ fn should_suppress_space(tokens: &[MathToken], index: usize) -> bool {
         if !is_glue_operator(tokens.get(op_idx)) {
             return false;
         }
-        let lhs_grouped = prev_non_space_index(tokens, op_idx).is_some_and(|i| token_is_grouped_operand(tokens, i));
-        let rhs_grouped = next_non_space_index(tokens, op_idx).is_some_and(|i| token_is_grouped_operand(tokens, i));
+        let lhs_grouped = prev_non_space_index(tokens, op_idx)
+            .is_some_and(|i| token_is_grouped_operand(tokens, i));
+        let rhs_grouped = next_non_space_index(tokens, op_idx)
+            .is_some_and(|i| token_is_grouped_operand(tokens, i));
         lhs_grouped || rhs_grouped
     };
-    prev_idx.is_some_and(operator_with_grouped_neighbor) || next_idx.is_some_and(operator_with_grouped_neighbor)
+    prev_idx.is_some_and(operator_with_grouped_neighbor)
+        || next_idx.is_some_and(operator_with_grouped_neighbor)
 }
 
 impl MathTokenRule for SpaceRule {
@@ -94,7 +129,14 @@ impl MathTokenRule for SpaceRule {
         matches!(tokens.get(index), Some(MathToken::Space))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         if !should_suppress_space(tokens, index) {
             result.push(0);
         }
@@ -127,13 +169,17 @@ impl KoreanWordRule {
             return None;
         };
 
-        if matches!(prev, Some(MathToken::OpenParen(BracketKind::Hangul))) || matches!(next, Some(MathToken::CloseParen(BracketKind::Hangul))) {
+        if matches!(prev, Some(MathToken::OpenParen(BracketKind::Hangul)))
+            || matches!(next, Some(MathToken::CloseParen(BracketKind::Hangul)))
+        {
             return None;
         }
 
         // PDF — 이미 괄호 토큰으로 둘러싸여 있으면 추가 wrap 불필요.
         // 예: `(원의 둘레)` → BracketRule이 `⠦...⠴`를 그리므로 KoreanWordRule은 본문만 emit.
-        if matches!(prev, Some(MathToken::OpenParen(_))) && matches!(next, Some(MathToken::CloseParen(_))) {
+        if matches!(prev, Some(MathToken::OpenParen(_)))
+            && matches!(next, Some(MathToken::CloseParen(_)))
+        {
             return None;
         }
 
@@ -147,7 +193,10 @@ impl KoreanWordRule {
             return Some(BracketKind::Hangul);
         }
 
-        if text.contains(' ') || matches!(prev, Some(MathToken::Operator('×'))) || matches!(next, Some(MathToken::Operator('×'))) {
+        if text.contains(' ')
+            || matches!(prev, Some(MathToken::Operator('×')))
+            || matches!(next, Some(MathToken::Operator('×')))
+        {
             return Some(BracketKind::MathParen);
         }
 
@@ -168,7 +217,8 @@ fn token_is_grouped_operand(tokens: &[MathToken], index: usize) -> bool {
 }
 
 fn is_plain_unwrapped_korean(tokens: &[MathToken], index: usize) -> bool {
-    matches!(tokens.get(index), Some(MathToken::KoreanWord(_))) && KoreanWordRule::wrap_kind(tokens, index).is_none()
+    matches!(tokens.get(index), Some(MathToken::KoreanWord(_)))
+        && KoreanWordRule::wrap_kind(tokens, index).is_none()
 }
 
 fn is_mixed_times_context(tokens: &[MathToken], index: usize) -> bool {
@@ -178,13 +228,16 @@ fn is_mixed_times_context(tokens: &[MathToken], index: usize) -> bool {
 
     let prev_idx = prev_non_space_index(tokens, index);
     let next_idx = next_non_space_index(tokens, index);
-    let plain_korean_both_sides = prev_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i)) && next_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i));
+    let plain_korean_both_sides = prev_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i))
+        && next_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i));
 
     if plain_korean_both_sides {
         return false;
     }
 
-    tokens.iter().enumerate().any(|(i, token)| matches!(token, MathToken::KoreanWord(_)) && KoreanWordRule::wrap_kind(tokens, i).is_some())
+    tokens.iter().enumerate().any(|(i, token)| {
+        matches!(token, MathToken::KoreanWord(_)) && KoreanWordRule::wrap_kind(tokens, i).is_some()
+    })
 }
 
 fn should_suppress_before_operator(tokens: &[MathToken], index: usize) -> bool {
@@ -232,7 +285,14 @@ impl MathTokenRule for KoreanWordRule {
         matches!(tokens.get(index), Some(MathToken::KoreanWord(_)))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         let Some(MathToken::KoreanWord(text)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -277,7 +337,14 @@ impl MathTokenRule for MathSymbolRule {
         matches!(tokens.get(index), Some(MathToken::MathSymbol(_)))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         let Some(MathToken::MathSymbol(c)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -285,13 +352,28 @@ impl MathTokenRule for MathSymbolRule {
         let _ = rule_26::is_reserved_rule_26();
         let _ = rule_22::NTH_ROOT_INDEX_MARKER;
 
-        if *c == '\u{00AC}' && index > 0 && matches!(rule_12::prev_non_space(tokens, index), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) && matches!(Self::next_non_space(tokens, index + 1), Some(MathToken::UpperVariable(_))) {
+        if *c == '\u{00AC}'
+            && index > 0
+            && matches!(
+                rule_12::prev_non_space(tokens, index),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            )
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::UpperVariable(_))
+            )
+        {
             result.push(40);
             state.prev_was_number = false;
             return Ok(MathTokenResult::Consumed(1));
         }
 
-        if *c == '\u{FF03}' && matches!(Self::next_non_space(tokens, index + 1), Some(MathToken::UpperVariable(_))) {
+        if *c == '\u{FF03}'
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::UpperVariable(_))
+            )
+        {
             let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
             result.extend_from_slice(encoded);
             result.push(38);
@@ -311,7 +393,12 @@ impl MathTokenRule for MathSymbolRule {
 
         // PDF 수학 제65항 1 — `＃(UpperVar)` 패턴: 기수 표기.
         // `＃` + `(` + UpperVariable + `)` 형태를 `⠸⠹⠦⠠letter⠴`로 emit.
-        if *c == '\u{FF03}' && matches!(Self::next_non_space(tokens, index + 1), Some(MathToken::OpenParen(_))) {
+        if *c == '\u{FF03}'
+            && matches!(
+                Self::next_non_space(tokens, index + 1),
+                Some(MathToken::OpenParen(_))
+            )
+        {
             // ＃ 다음 ( 다음 UpperVariable 다음 ) 패턴 확인
             let mut i = index + 1;
             while matches!(tokens.get(i), Some(MathToken::Space)) {
@@ -338,7 +425,9 @@ impl MathTokenRule for MathSymbolRule {
                         result.extend_from_slice(encoded);
                         result.push(38); // ⠦ (MathParen open)
                         result.push(32); // ⠠ (capital marker)
-                        result.push(crate::english::encode_english(upper_char.to_ascii_lowercase())?);
+                        result.push(crate::english::encode_english(
+                            upper_char.to_ascii_lowercase(),
+                        )?);
                         result.push(52); // ⠴ (MathParen close)
                         state.prev_was_number = false;
                         let consumed = i + 1 - index;
@@ -352,9 +441,24 @@ impl MathTokenRule for MathSymbolRule {
         // PDF 수학 제61항 — 한정자(∀/∃) + 변수 형태의 식에서, 한정자-변수 다음
         // 또 다른 식(변수/괄호/함수)이 이어지면 한 칸을 띄어 쓴다.
         // 예: `∀x p(x)` → ⠨⠄⠭⠀⠏⠦⠭⠴
-        if matches!(*c, '\u{2200}' | '\u{2203}') && matches!(tokens.get(index + 1), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) {
+        if matches!(*c, '\u{2200}' | '\u{2203}')
+            && matches!(
+                tokens.get(index + 1),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            )
+        {
             let after_var = index + 2;
-            let needs_space = matches!(tokens.get(after_var), Some(MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_) | MathToken::OpenParen(_) | MathToken::FunctionName(_) | MathToken::MathSymbol(_)));
+            let needs_space = matches!(
+                tokens.get(after_var),
+                Some(
+                    MathToken::Variable(_)
+                        | MathToken::UpperVariable(_)
+                        | MathToken::Number(_)
+                        | MathToken::OpenParen(_)
+                        | MathToken::FunctionName(_)
+                        | MathToken::MathSymbol(_)
+                )
+            );
             if needs_space {
                 let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
                 result.extend_from_slice(encoded);
@@ -370,16 +474,29 @@ impl MathTokenRule for MathSymbolRule {
             }
         }
 
-        if rule_25::is_sigma_symbol(*c) && matches!(tokens.get(index + 1), Some(MathToken::OpenParen(_))) {
+        if rule_25::is_sigma_symbol(*c)
+            && matches!(tokens.get(index + 1), Some(MathToken::OpenParen(_)))
+        {
             let Some(close_idx) = rule_6::find_matching_paren(tokens, index + 1) else {
                 return Err("Unmatched parenthesis in sigma bounds".to_string());
             };
             rule_25::encode_sigma_with_bounds(&[], &[], result)?;
             result.push(48);
 
-            let normalized_inner: Vec<MathToken> = tokens[index + 2..close_idx].iter().map(|token| if matches!(token, MathToken::Operator(',')) { MathToken::Space } else { token.clone() }).collect();
+            let normalized_inner: Vec<MathToken> = tokens[index + 2..close_idx]
+                .iter()
+                .map(|token| {
+                    if matches!(token, MathToken::Operator(',')) {
+                        MathToken::Space
+                    } else {
+                        token.clone()
+                    }
+                })
+                .collect();
 
-            let has_bound_separators = tokens[index + 2..close_idx].iter().any(|token| matches!(token, MathToken::Operator('=' | ',')));
+            let has_bound_separators = tokens[index + 2..close_idx]
+                .iter()
+                .any(|token| matches!(token, MathToken::Operator('=' | ',')));
 
             if has_bound_separators {
                 engine.encode_tokens(&normalized_inner, result)?;
@@ -398,7 +515,19 @@ impl MathTokenRule for MathSymbolRule {
             return Ok(MathTokenResult::Consumed(close_idx + 1 - index));
         }
 
-        if *c == '\u{03A0}' && matches!(tokens.get(index + 1), Some(MathToken::OpenParen(BracketKind::MathParen))) && matches!(tokens.get(index + 2), Some(MathToken::Number(_))) && matches!(tokens.get(index + 3), Some(MathToken::Operator(','))) && matches!(tokens.get(index + 4), Some(MathToken::Number(_))) && matches!(tokens.get(index + 5), Some(MathToken::CloseParen(BracketKind::MathParen))) {
+        if *c == '\u{03A0}'
+            && matches!(
+                tokens.get(index + 1),
+                Some(MathToken::OpenParen(BracketKind::MathParen))
+            )
+            && matches!(tokens.get(index + 2), Some(MathToken::Number(_)))
+            && matches!(tokens.get(index + 3), Some(MathToken::Operator(',')))
+            && matches!(tokens.get(index + 4), Some(MathToken::Number(_)))
+            && matches!(
+                tokens.get(index + 5),
+                Some(MathToken::CloseParen(BracketKind::MathParen))
+            )
+        {
             let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
             result.extend_from_slice(encoded);
             result.push(55);
@@ -417,20 +546,35 @@ impl MathTokenRule for MathSymbolRule {
         // In derivative/product formulas (제53항), middle dot is used as
         // multiplication sign when the same expression also contains
         // arithmetic composition (= or +).
-        if *c == '\u{00B7}' && tokens.iter().any(|t| matches!(t, MathToken::Operator('=' | '+'))) {
+        if *c == '\u{00B7}'
+            && tokens
+                .iter()
+                .any(|t| matches!(t, MathToken::Operator('=' | '+')))
+        {
             rule_2::encode_operator('\u{00D7}', tokens, index, result)?;
             state.prev_was_number = false;
             return Ok(MathTokenResult::Consumed(1));
         }
 
-        let should_pad = rule_2::needs_binary_spacing(*c) && index > 0 && rule_2::is_algebraic_neighbor(rule_12::prev_non_space(tokens, index)) && (rule_2::is_algebraic_neighbor(Self::next_non_space(tokens, index + 1)) || matches!(Self::next_non_space(tokens, index + 1), Some(MathToken::MathSymbol('\u{00AC}'))));
+        let should_pad = rule_2::needs_binary_spacing(*c)
+            && index > 0
+            && rule_2::is_algebraic_neighbor(rule_12::prev_non_space(tokens, index))
+            && (rule_2::is_algebraic_neighbor(Self::next_non_space(tokens, index + 1))
+                || matches!(
+                    Self::next_non_space(tokens, index + 1),
+                    Some(MathToken::MathSymbol('\u{00AC}'))
+                ));
 
         // PDF 수학 제65항 2~3 — ∴/∵는 앞뒤 두 칸씩 띄어 쓴다.
         // 입력에 Space 토큰이 있으면 +1, 없으면 +2 출력해 합계 2를 맞춘다.
         if matches!(*c, '\u{2234}' | '\u{2235}') {
-            let prev_is_space = matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::Space));
+            let prev_is_space =
+                matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::Space));
             // Avoid duplicate padding when previous token has already emitted spacing.
-            let prev_emits_trailing_space = matches!(tokens.get(index.saturating_sub(1)), Some(MathToken::Operator(_)));
+            let prev_emits_trailing_space = matches!(
+                tokens.get(index.saturating_sub(1)),
+                Some(MathToken::Operator(_))
+            );
             if !prev_emits_trailing_space {
                 if prev_is_space {
                     result.push(0);
@@ -444,8 +588,15 @@ impl MathTokenRule for MathSymbolRule {
             // 라벨 컨텍스트 조건: 화살표이고, 직전이 Variable/UpperVariable이며,
             // 그 직전이 Space (즉, V가 라벨 단독 위치). 일반 `X→Y`는 V 직전이 Space가
             // 아니므로 padding이 유지된다.
-            let is_horizontal_arrow = matches!(*c, '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21C4}' | '\u{21CC}');
-            let prev_is_label = matches!(tokens.get(index - 1), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) && (index >= 2 && matches!(tokens.get(index - 2), Some(MathToken::Space)));
+            let is_horizontal_arrow = matches!(
+                *c,
+                '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21C4}' | '\u{21CC}'
+            );
+            let prev_is_label = matches!(
+                tokens.get(index - 1),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            ) && (index >= 2
+                && matches!(tokens.get(index - 2), Some(MathToken::Space)));
             if !(is_horizontal_arrow && prev_is_label) {
                 result.push(0);
             }
@@ -472,7 +623,11 @@ impl MathTokenRule for MathSymbolRule {
         } else if rule_20::is_approximation_symbol(*c) {
             rule_20::encode_approximation_symbol(*c, result)?;
         } else if rule_21::is_absolute_value_bar(*c) {
-            if matches!(rule_12::prev_non_space(tokens, index), Some(MathToken::Operator(_))) || index == 0 {
+            if matches!(
+                rule_12::prev_non_space(tokens, index),
+                Some(MathToken::Operator(_))
+            ) || index == 0
+            {
                 rule_21::encode_absolute_value_open(result)?;
             } else {
                 rule_21::encode_absolute_value_close(result)?;
@@ -536,18 +691,29 @@ impl MathTokenRule for MathSymbolRule {
             rule_59::encode_contour_integral(*c, result)?;
         } else if rule_65::is_therefore_because(*c) {
             rule_65::encode_therefore_because(*c, result)?;
-        } else if *c == '\u{0307}' && matches!(rule_12::prev_non_space(tokens, index), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) {
+        } else if *c == '\u{0307}'
+            && matches!(
+                rule_12::prev_non_space(tokens, index),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            )
+        {
             // PDF 수학 제65항 5 — 문자 뒤 결합 윗 한 점 (ȧ 등). 숫자 뒤 순환소수와 구분.
             result.push(crate::unicode::decode_unicode('⠈'));
             result.push(crate::unicode::decode_unicode('⠲'));
         } else {
-            let is_direct_shortcut_symbol = rule_11::is_math_sentence_delimiter(*c) || rule_16::is_base_notation_subscript(*c) || rule_22::is_root_symbol(*c) || rule_60::is_set_symbol(*c) || rule_61::is_logic_symbol(*c) || super::rule_64::is_hat_notation(*c);
+            let is_direct_shortcut_symbol = rule_11::is_math_sentence_delimiter(*c)
+                || rule_16::is_base_notation_subscript(*c)
+                || rule_22::is_root_symbol(*c)
+                || rule_60::is_set_symbol(*c)
+                || rule_61::is_logic_symbol(*c)
+                || super::rule_64::is_hat_notation(*c);
             encode_generic_math_symbol(*c, is_direct_shortcut_symbol, result)?;
         }
 
         if matches!(*c, '\u{2234}' | '\u{2235}') {
             let next_is_space = matches!(tokens.get(index + 1), Some(MathToken::Space));
-            let next_emits_leading_space = matches!(tokens.get(index + 1), Some(MathToken::Operator(_)));
+            let next_emits_leading_space =
+                matches!(tokens.get(index + 1), Some(MathToken::Operator(_)));
             if !next_emits_leading_space {
                 if next_is_space {
                     result.push(0);
@@ -560,8 +726,14 @@ impl MathTokenRule for MathSymbolRule {
             // PDF — `\xrightleftharpoons[g]{f}` 같이 화살표 뒤 below 라벨도 공백 없이 인접.
             // 라벨 컨텍스트 조건: 화살표이고, 직후가 Variable/UpperVariable이며,
             // 그 직후가 Space (즉, V가 below 라벨 단독 위치).
-            let is_horizontal_arrow = matches!(*c, '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21C4}' | '\u{21CC}');
-            let next_is_label = matches!(tokens.get(index + 1), Some(MathToken::Variable(_) | MathToken::UpperVariable(_))) && matches!(tokens.get(index + 2), Some(MathToken::Space));
+            let is_horizontal_arrow = matches!(
+                *c,
+                '\u{2192}' | '\u{2190}' | '\u{2194}' | '\u{21C4}' | '\u{21CC}'
+            );
+            let next_is_label = matches!(
+                tokens.get(index + 1),
+                Some(MathToken::Variable(_) | MathToken::UpperVariable(_))
+            ) && matches!(tokens.get(index + 2), Some(MathToken::Space));
             if !(is_horizontal_arrow && next_is_label) {
                 result.push(0);
             }
@@ -587,7 +759,14 @@ impl MathTokenRule for RawTokenRule {
         matches!(tokens.get(index), Some(MathToken::Raw(_)))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, _state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        _state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         let Some(MathToken::Raw(c)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -603,13 +782,29 @@ impl MathTokenRule for RawTokenRule {
     }
 }
 
-static DEFAULT_MATH_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| build_math_engine(MathContext::default()));
+static DEFAULT_MATH_ENGINE: LazyLock<MathTokenEngine> =
+    LazyLock::new(|| build_math_engine(MathContext::default()));
 
-static MATRIX_MATH_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| build_math_engine(MathContext { matrix_context_active: true, math_mode_active: false }));
+static MATRIX_MATH_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: true,
+        math_mode_active: false,
+    })
+});
 
-static MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| build_math_engine(MathContext { matrix_context_active: false, math_mode_active: true }));
+static MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: false,
+        math_mode_active: true,
+    })
+});
 
-static MATRIX_MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| build_math_engine(MathContext { matrix_context_active: true, math_mode_active: true }));
+static MATRIX_MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
+    build_math_engine(MathContext {
+        matrix_context_active: true,
+        math_mode_active: true,
+    })
+});
 
 fn math_engine_for_context(context: MathContext) -> &'static MathTokenEngine {
     match (context.matrix_context_active, context.math_mode_active) {
@@ -666,7 +861,10 @@ pub fn encode_math_expression(input: &str) -> Result<Vec<u8>, String> {
 }
 
 /// Encode a full math expression string with encoder-scoped context flags.
-pub fn encode_math_expression_with_context(input: &str, context: MathContext) -> Result<Vec<u8>, String> {
+pub fn encode_math_expression_with_context(
+    input: &str,
+    context: MathContext,
+) -> Result<Vec<u8>, String> {
     if context == MathContext::default() {
         return encode_math_expression(input);
     }
@@ -675,11 +873,15 @@ pub fn encode_math_expression_with_context(input: &str, context: MathContext) ->
         return rule_14::encode_roman_numeral_expression(input);
     }
 
-    let tokens = super::parser::parse_math_expression_with_math_mode(input, context.math_mode_active)?;
+    let tokens =
+        super::parser::parse_math_expression_with_math_mode(input, context.math_mode_active)?;
     encode_math_tokens_with_context(&tokens, context)
 }
 
-fn encode_math_tokens_with_context(tokens: &[MathToken], context: MathContext) -> Result<Vec<u8>, String> {
+fn encode_math_tokens_with_context(
+    tokens: &[MathToken],
+    context: MathContext,
+) -> Result<Vec<u8>, String> {
     let engine = math_engine_for_context(context);
     let mut result = Vec::new();
     engine.encode_tokens(tokens, &mut result)?;
@@ -716,30 +918,65 @@ mod tests {
     fn math_symbol_dispatch_sweep() {
         let inputs: &[&str] = &[
             // Equality / inequalities
-            "x=y", "x≠y", "x≥y", "x≤y", "x>y", "x<y",
+            "x=y",
+            "x≠y",
+            "x≥y",
+            "x≤y",
+            "x>y",
+            "x<y",
             // Set theory
-            "A∪B", "A∩B", "A⊂B", "A⊆B", "A⊃B", "A⊇B",
-            "A∈B", "A∉B", "A∋B", "A=∅",
+            "A∪B",
+            "A∩B",
+            "A⊂B",
+            "A⊆B",
+            "A⊃B",
+            "A⊇B",
+            "A∈B",
+            "A∉B",
+            "A∋B",
+            "A=∅",
             // Logical
-            "A∧B", "A∨B", "¬A", "A→B", "A↔B", "A⇒B", "A⇔B",
-            "∀x", "∃y",
+            "A∧B",
+            "A∨B",
+            "¬A",
+            "A→B",
+            "A↔B",
+            "A⇒B",
+            "A⇔B",
+            "∀x",
+            "∃y",
             // Number theory
-            "a∣b", "a∤b", "a≡b",
+            "a∣b",
+            "a∤b",
+            "a≡b",
             // Functions / mappings
-            "f:A→B", "f∘g",
+            "f:A→B",
+            "f∘g",
             // Calculus
-            "∫f", "∮g", "∂f/∂x",
+            "∫f",
+            "∮g",
+            "∂f/∂x",
             // Vectors / arrows
-            "→", "←", "↑", "↓",
+            "→",
+            "←",
+            "↑",
+            "↓",
             // Constants
-            "π", "e", "∞", "ℵ",
+            "π",
+            "e",
+            "∞",
+            "ℵ",
             // Brackets variations
-            "⟨x⟩", "|x|", "‖v‖",
+            "⟨x⟩",
+            "|x|",
+            "‖v‖",
             // Prime
-            "f'", "f''", "f'''",
+            "f'",
+            "f''",
+            "f'''",
             // Negation patterns
-            "¬AB", // ¬ before variable
-            "#X", // FF03 hash
+            "¬AB",  // ¬ before variable
+            "#X",   // FF03 hash
             "#(X)", // hash with parens
         ];
         for input in inputs {

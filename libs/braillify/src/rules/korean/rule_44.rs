@@ -11,7 +11,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "44", subsection: Some("b1"), name: "number_korean_spacing", standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.44 [다만]", description: "Insert space between number and confusable Korean choseong" };
+pub static META: RuleMeta = RuleMeta {
+    section: "44",
+    subsection: Some("b1"),
+    name: "number_korean_spacing",
+    standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.44 [다만]",
+    description: "Insert space between number and confusable Korean choseong",
+};
 
 /// Choseong characters that could be confused with digit braille patterns.
 const CONFUSABLE_CHOSEONG: [char; 7] = ['ㄴ', 'ㄷ', 'ㅁ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -69,7 +75,11 @@ mod tests {
     #[test]
     fn identifies_confusable_choseong() {
         for &cho in &CONFUSABLE_CHOSEONG {
-            assert!(CONFUSABLE_CHOSEONG.contains(&cho), "Missing confusable: {}", cho);
+            assert!(
+                CONFUSABLE_CHOSEONG.contains(&cho),
+                "Missing confusable: {}",
+                cho
+            );
         }
     }
 

@@ -9,7 +9,13 @@ pub fn is_trig_function(name: &str) -> bool {
     matches!(name, "sin" | "cos" | "tan" | "csc" | "sec" | "cot")
 }
 
-pub fn encode_trig_function(name: &str, tokens: &[MathToken], i: &mut usize, result: &mut Vec<u8>, find_matching_paren: fn(&[MathToken], usize) -> Option<usize>) -> Result<bool, String> {
+pub fn encode_trig_function(
+    name: &str,
+    tokens: &[MathToken],
+    i: &mut usize,
+    result: &mut Vec<u8>,
+    find_matching_paren: fn(&[MathToken], usize) -> Option<usize>,
+) -> Result<bool, String> {
     if !is_trig_function(name) {
         return Ok(false);
     }
@@ -18,7 +24,9 @@ pub fn encode_trig_function(name: &str, tokens: &[MathToken], i: &mut usize, res
     };
     result.extend_from_slice(encoded);
 
-    if let (Some(MathToken::Number(n)), Some(MathToken::Variable(v))) = (tokens.get(*i + 1), tokens.get(*i + 2)) {
+    if let (Some(MathToken::Number(n)), Some(MathToken::Variable(v))) =
+        (tokens.get(*i + 1), tokens.get(*i + 2))
+    {
         result.push(55);
         result.push(60);
         for ch in n.chars() {
@@ -32,7 +40,11 @@ pub fn encode_trig_function(name: &str, tokens: &[MathToken], i: &mut usize, res
 
     if let Some(MathToken::OpenParen(_)) = tokens.get(*i + 1)
         && let Some(close_idx) = find_matching_paren(tokens, *i + 1)
-        && let [MathToken::Variable(v), MathToken::Operator('/'), MathToken::Number(n)] = &tokens[*i + 2..close_idx]
+        && let [
+            MathToken::Variable(v),
+            MathToken::Operator('/'),
+            MathToken::Number(n),
+        ] = &tokens[*i + 2..close_idx]
     {
         result.push(55);
         result.push(60);
@@ -51,16 +63,39 @@ pub fn encode_trig_function(name: &str, tokens: &[MathToken], i: &mut usize, res
     let next_idx = *i + 1;
     if next_idx < tokens.len() {
         // Two consecutive variables: sinxy -> sin(xy)
-        if matches!(tokens.get(next_idx), Some(MathToken::Variable(_))) && matches!(tokens.get(next_idx + 1), Some(MathToken::Variable(_))) {
+        if matches!(tokens.get(next_idx), Some(MathToken::Variable(_)))
+            && matches!(tokens.get(next_idx + 1), Some(MathToken::Variable(_)))
+        {
             result.push(55); // Grouping open
-            result.push(crate::english::encode_english(if let Some(MathToken::Variable(v)) = tokens.get(next_idx) { *v } else { 'x' })?);
-            result.push(crate::english::encode_english(if let Some(MathToken::Variable(v)) = tokens.get(next_idx + 1) { *v } else { 'y' })?);
+            result.push(crate::english::encode_english(
+                if let Some(MathToken::Variable(v)) = tokens.get(next_idx) {
+                    *v
+                } else {
+                    'x'
+                },
+            )?);
+            result.push(crate::english::encode_english(
+                if let Some(MathToken::Variable(v)) = tokens.get(next_idx + 1) {
+                    *v
+                } else {
+                    'y'
+                },
+            )?);
             result.push(62); // Grouping close
             *i += 3;
             return Ok(true);
         }
         // Fraction without parens: sin(6/x) or sin(x/6). U+2044 (LaTeX \frac slash)도 매칭.
-        if matches!(tokens.get(next_idx), Some(MathToken::Number(_) | MathToken::Variable(_))) && matches!(tokens.get(next_idx + 1), Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))) && matches!(tokens.get(next_idx + 2), Some(MathToken::Number(_) | MathToken::Variable(_))) {
+        if matches!(
+            tokens.get(next_idx),
+            Some(MathToken::Number(_) | MathToken::Variable(_))
+        ) && matches!(
+            tokens.get(next_idx + 1),
+            Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
+        ) && matches!(
+            tokens.get(next_idx + 2),
+            Some(MathToken::Number(_) | MathToken::Variable(_))
+        ) {
             result.push(55); // Grouping open
             // Encode the fraction tokens
             // We need to use the engine but we don't have it here

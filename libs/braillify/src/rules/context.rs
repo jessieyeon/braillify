@@ -114,12 +114,32 @@ pub struct EncoderState {
 
 impl EncoderState {
     pub fn new(english_indicator: bool) -> Self {
-        Self { mode_stack: vec![EncodingMode::Korean], english_indicator, is_english: false, triple_big_english: false, has_processed_word: false, needs_english_continuation: false, roman_number_chain: false, parenthesis_stack: Vec::new(), is_number: false, is_big_english: false, english_dominant_wrap_active: false, english_dominant_no_indicator: false, doc_summary: DocumentSummary::default(), matrix_context_active: false, math_mode_active: false, unmatched_open_single_quotes: 0 }
+        Self {
+            mode_stack: vec![EncodingMode::Korean],
+            english_indicator,
+            is_english: false,
+            triple_big_english: false,
+            has_processed_word: false,
+            needs_english_continuation: false,
+            roman_number_chain: false,
+            parenthesis_stack: Vec::new(),
+            is_number: false,
+            is_big_english: false,
+            english_dominant_wrap_active: false,
+            english_dominant_no_indicator: false,
+            doc_summary: DocumentSummary::default(),
+            matrix_context_active: false,
+            math_mode_active: false,
+            unmatched_open_single_quotes: 0,
+        }
     }
 
     /// Get the current encoding mode (top of stack, default Korean).
     pub fn current_mode(&self) -> EncodingMode {
-        self.mode_stack.last().copied().unwrap_or(EncodingMode::Korean)
+        self.mode_stack
+            .last()
+            .copied()
+            .unwrap_or(EncodingMode::Korean)
     }
 
     /// Push a new encoding mode onto the stack.
@@ -129,7 +149,11 @@ impl EncoderState {
 
     /// Pop the current encoding mode, returning to the previous one.
     pub fn pop_mode(&mut self) -> Option<EncodingMode> {
-        if self.mode_stack.len() > 1 { self.mode_stack.pop() } else { None }
+        if self.mode_stack.len() > 1 {
+            self.mode_stack.pop()
+        } else {
+            None
+        }
     }
 }
 
@@ -175,7 +199,11 @@ impl<'a> RuleContext<'a> {
 
     /// Previous character in the word, if any.
     pub fn prev_char(&self) -> Option<char> {
-        if self.index > 0 { Some(self.word_chars[self.index - 1]) } else { None }
+        if self.index > 0 {
+            Some(self.word_chars[self.index - 1])
+        } else {
+            None
+        }
     }
 
     /// Word length.
@@ -185,7 +213,11 @@ impl<'a> RuleContext<'a> {
 
     /// Get the current KoreanChar if the char_type is Korean.
     pub fn as_korean(&self) -> Option<&KoreanChar> {
-        if let CharType::Korean(k) = self.char_type { Some(k) } else { None }
+        if let CharType::Korean(k) = self.char_type {
+            Some(k)
+        } else {
+            None
+        }
     }
 
     /// Emit braille cell(s) to the output buffer.
@@ -210,8 +242,14 @@ mod tests {
         assert_eq!(EncodingMode::from_str("english"), Ok(EncodingMode::English));
         assert_eq!(EncodingMode::from_str("math"), Ok(EncodingMode::Math));
         assert_eq!(EncodingMode::from_str("number"), Ok(EncodingMode::Number));
-        assert_eq!(EncodingMode::from_str("middle_korean"), Ok(EncodingMode::MiddleKorean));
-        assert_eq!(EncodingMode::from_str("object_symbol"), Ok(EncodingMode::ObjectSymbol));
+        assert_eq!(
+            EncodingMode::from_str("middle_korean"),
+            Ok(EncodingMode::MiddleKorean)
+        );
+        assert_eq!(
+            EncodingMode::from_str("object_symbol"),
+            Ok(EncodingMode::ObjectSymbol)
+        );
         assert_eq!(EncodingMode::from_str("ipa"), Ok(EncodingMode::Ipa));
     }
 

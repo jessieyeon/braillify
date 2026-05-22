@@ -17,7 +17,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "61", subsection: None, name: "apostrophe_before_number", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.61", description: "Apostrophe before digit: skip here, emit after 수표 in number rule" };
+pub static META: RuleMeta = RuleMeta {
+    section: "61",
+    subsection: None,
+    name: "apostrophe_before_number",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.61",
+    description: "Apostrophe before digit: skip here, emit after 수표 in number rule",
+};
 
 /// Plugin struct for the rule engine.
 ///

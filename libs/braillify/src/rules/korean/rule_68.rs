@@ -5,11 +5,27 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_29::ROMAN_INDICATOR;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "68", subsection: None, name: "superscript_subscript_symbols", standard_ref: "2024 Korean Braille Standard, Ch.6 Art.68", description: "Superscripts, subscripts, and selected compact unit symbols" };
+pub static META: RuleMeta = RuleMeta {
+    section: "68",
+    subsection: None,
+    name: "superscript_subscript_symbols",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Art.68",
+    description: "Superscripts, subscripts, and selected compact unit symbols",
+};
 
-const MAPPINGS: &[(char, &str)] = &[('㎡', "⠴⠍⠘⠼⠃"), ('㏊', "⠴⠓⠁⠲"), ('⁺', "⠘⠢"), ('⁻', "⠘⠔"), ('₆', "⠰⠼⠋"), ('₉', "⠰⠼⠊")];
+const MAPPINGS: &[(char, &str)] = &[
+    ('㎡', "⠴⠍⠘⠼⠃"),
+    ('㏊', "⠴⠓⠁⠲"),
+    ('⁺', "⠘⠢"),
+    ('⁻', "⠘⠔"),
+    ('₆', "⠰⠼⠋"),
+    ('₉', "⠰⠼⠊"),
+];
 
-const GRADE_MINUS: [u8; 2] = [crate::unicode::decode_unicode('⠘'), crate::unicode::decode_unicode('⠔')];
+const GRADE_MINUS: [u8; 2] = [
+    crate::unicode::decode_unicode('⠘'),
+    crate::unicode::decode_unicode('⠔'),
+];
 const SUPERSCRIPT_PREFIX: u8 = crate::unicode::decode_unicode('⠘');
 const SUBSCRIPT_PREFIX: u8 = crate::unicode::decode_unicode('⠰');
 const NUMBER_PREFIX: u8 = crate::unicode::decode_unicode('⠼');
@@ -17,7 +33,10 @@ const ENGLISH_PREFIX: u8 = crate::unicode::decode_unicode('⠴');
 const UPPERCASE_PREFIX: u8 = crate::unicode::decode_unicode('⠠');
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode.chars().map(crate::unicode::decode_unicode).collect()
+    unicode
+        .chars()
+        .map(crate::unicode::decode_unicode)
+        .collect()
 }
 
 fn should_insert_separator_after_symbol(ctx: &RuleContext) -> bool {
@@ -37,14 +56,23 @@ fn is_subscript_digit(c: char) -> bool {
 }
 
 fn is_grade_notation(word: &[char], index: usize) -> bool {
-    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase()) && matches!(word.get(index + 1), Some('-')) && word.len() == index + 2
+    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase())
+        && matches!(word.get(index + 1), Some('-'))
+        && word.len() == index + 2
 }
 
 fn is_compact_ascii_notation(word: &[char], index: usize) -> bool {
-    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase()) && word.get(index + 1).is_some_and(|next| is_superscript_symbol(*next) || is_subscript_digit(*next))
+    matches!(word.get(index), Some(ch) if ch.is_ascii_uppercase())
+        && word
+            .get(index + 1)
+            .is_some_and(|next| is_superscript_symbol(*next) || is_subscript_digit(*next))
 }
 
-fn encode_compact_ascii_notation(word: &[char], index: usize, needs_roman_indicator: bool) -> Result<Option<(Vec<u8>, usize)>, String> {
+fn encode_compact_ascii_notation(
+    word: &[char],
+    index: usize,
+    needs_roman_indicator: bool,
+) -> Result<Option<(Vec<u8>, usize)>, String> {
     let Some(base) = word.get(index).copied() else {
         return Ok(None);
     };
@@ -68,7 +96,10 @@ fn encode_compact_ascii_notation(word: &[char], index: usize, needs_roman_indica
         return Ok(Some((encoded, consumed)));
     }
 
-    if word.get(cursor).is_some_and(|ch| is_superscript_symbol(*ch)) {
+    if word
+        .get(cursor)
+        .is_some_and(|ch| is_superscript_symbol(*ch))
+    {
         encoded.push(SUPERSCRIPT_PREFIX);
         while let Some(ch) = word.get(cursor).copied() {
             let cell = match ch {
@@ -130,12 +161,19 @@ impl BrailleRule for Rule68 {
             || matches!(ctx.char_type, CharType::English(_)
                 if is_compact_ascii_notation(ctx.word_chars, ctx.index)
                     || is_grade_notation(ctx.word_chars, ctx.index))
-            || (matches!(ctx.char_type, CharType::MathSymbol('+') | CharType::Symbol('+')) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index))
+            || (matches!(
+                ctx.char_type,
+                CharType::MathSymbol('+') | CharType::Symbol('+')
+            ) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index))
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         if matches!(ctx.char_type, CharType::English(_))
-            && let Some((encoded, consumed)) = encode_compact_ascii_notation(ctx.word_chars, ctx.index, !ctx.state.is_english && ctx.result.last().copied() != Some(ROMAN_INDICATOR))?
+            && let Some((encoded, consumed)) = encode_compact_ascii_notation(
+                ctx.word_chars,
+                ctx.index,
+                !ctx.state.is_english && ctx.result.last().copied() != Some(ROMAN_INDICATOR),
+            )?
         {
             ctx.emit_slice(&encoded);
             ctx.state.is_english = false;
@@ -146,7 +184,11 @@ impl BrailleRule for Rule68 {
 
         // PDF — `1++` 같이 digit 뒤 연속 `+`(또는 `-`)는 grade 표기.
         // `⠘`(super marker) + plus chars 연쇄로 점역한다.
-        if matches!(ctx.char_type, CharType::MathSymbol('+') | CharType::Symbol('+')) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index) {
+        if matches!(
+            ctx.char_type,
+            CharType::MathSymbol('+') | CharType::Symbol('+')
+        ) && is_digit_grade_plus_notation(ctx.word_chars, ctx.index)
+        {
             ctx.emit(SUPERSCRIPT_PREFIX);
             let mut cursor = ctx.index;
             let mut consumed = 0usize;
@@ -161,14 +203,21 @@ impl BrailleRule for Rule68 {
                 cursor += 1;
             }
             // 등급 표기 뒤에 한글이 오면 분리 공백 추가
-            if ctx.word_chars.get(cursor).is_some_and(|c| crate::utils::is_korean_char(*c)) {
+            if ctx
+                .word_chars
+                .get(cursor)
+                .is_some_and(|c| crate::utils::is_korean_char(*c))
+            {
                 ctx.emit(0);
             }
             *ctx.skip_count = consumed.saturating_sub(1);
             return Ok(RuleResult::Consumed);
         }
 
-        let Some((_, unicode)) = MAPPINGS.iter().find(|(candidate, _)| *candidate == ctx.current_char()) else {
+        let Some((_, unicode)) = MAPPINGS
+            .iter()
+            .find(|(candidate, _)| *candidate == ctx.current_char())
+        else {
             return Ok(RuleResult::Skip);
         };
         let encoded = encode_unicode_cells(unicode);
@@ -199,7 +248,8 @@ fn is_digit_grade_plus_notation(word: &[char], index: usize) -> bool {
         }
     }
     // 직후에 한글이 와야 grade context로 본다 (`1++등급` 등).
-    word.get(cursor).is_some_and(|c| crate::utils::is_korean_char(*c))
+    word.get(cursor)
+        .is_some_and(|c| crate::utils::is_korean_char(*c))
 }
 
 #[cfg(test)]
@@ -224,7 +274,7 @@ mod tests {
 
     #[test]
     fn is_subscript_digit_recognises_each() {
-        for c in ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'] {
+        for c in ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'] {
             assert!(is_subscript_digit(c), "should recognise {c}");
         }
         assert!(!is_subscript_digit('0'));
@@ -349,7 +399,19 @@ mod tests {
         let mut skip = 0usize;
         let mut state = crate::rules::context::EncoderState::new(false);
         let mut out = Vec::new();
-        let mut ctx = RuleContext { word_chars: &word, index: 0, char_type: &ct, prev_word: "", remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: false, skip_count: &mut skip, state: &mut state, result: &mut out };
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 0,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
         let res = Rule68.apply(&mut ctx).unwrap();
         assert!(matches!(res, RuleResult::Consumed));
         assert!(!out.is_empty());
@@ -364,7 +426,19 @@ mod tests {
         let mut skip = 0usize;
         let mut state = crate::rules::context::EncoderState::new(false);
         let mut out = Vec::new();
-        let ctx = RuleContext { word_chars: &word, index: 0, char_type: &ct, prev_word: "", remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: false, skip_count: &mut skip, state: &mut state, result: &mut out };
+        let ctx = RuleContext {
+            word_chars: &word,
+            index: 0,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
         assert!(should_insert_separator_after_symbol(&ctx));
     }
 }

@@ -14,7 +14,13 @@ use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 use crate::symbol_shortcut;
 use crate::unicode::decode_unicode;
 
-pub static META: RuleMeta = RuleMeta { section: "49", subsection: None, name: "punctuation_encoding", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.49", description: "Punctuation marks encoded to braille dot patterns" };
+pub static META: RuleMeta = RuleMeta {
+    section: "49",
+    subsection: None,
+    name: "punctuation_encoding",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.49",
+    description: "Punctuation marks encoded to braille dot patterns",
+};
 
 /// Encode a punctuation/symbol character to braille (Korean context).
 #[cfg(test)]
@@ -67,7 +73,10 @@ impl BrailleRule for Rule49 {
         // 물음표는 기호표(⠸) + 해당 기호 + 점역자 주표(⠠⠄ ... ⠠⠄)를 사용한다.
         if *c == '?' && ctx.index == 0 {
             let prev_word_is_korean = ctx.prev_word.chars().any(crate::utils::is_korean_char);
-            let next_word_is_korean = ctx.remaining_words.first().is_some_and(|w| w.chars().any(crate::utils::is_korean_char));
+            let next_word_is_korean = ctx
+                .remaining_words
+                .first()
+                .is_some_and(|w| w.chars().any(crate::utils::is_korean_char));
 
             if !ctx.has_korean_char && !prev_word_is_korean && !next_word_is_korean {
                 let encoded = symbol_shortcut::encode_char_symbol_shortcut(*c)?;
@@ -84,7 +93,14 @@ impl BrailleRule for Rule49 {
                 ctx.emit(decode_unicode('⠠'));
                 ctx.emit(decode_unicode('⠄'));
                 // "물음표"
-                ctx.emit_slice(&[decode_unicode('⠑'), decode_unicode('⠯'), decode_unicode('⠪'), decode_unicode('⠢'), decode_unicode('⠙'), decode_unicode('⠬')]);
+                ctx.emit_slice(&[
+                    decode_unicode('⠑'),
+                    decode_unicode('⠯'),
+                    decode_unicode('⠪'),
+                    decode_unicode('⠢'),
+                    decode_unicode('⠙'),
+                    decode_unicode('⠬'),
+                ]);
                 ctx.emit(decode_unicode('⠠'));
                 ctx.emit(decode_unicode('⠄'));
                 return Ok(RuleResult::Consumed);
@@ -122,14 +138,25 @@ impl BrailleRule for Rule49 {
             *ctx.skip_count = 2; // skip ˙,
             return Ok(RuleResult::Consumed);
         }
-        if *c == '_' && ctx.next_char() == Some('_') && ctx.word_chars.get(ctx.index + 2) == Some(&'"') {
+        if *c == '_'
+            && ctx.next_char() == Some('_')
+            && ctx.word_chars.get(ctx.index + 2) == Some(&'"')
+        {
             ctx.emit_slice(&[decode_unicode('⠤'), decode_unicode('⠄')]);
             *ctx.skip_count = 2; // skip _"
             return Ok(RuleResult::Consumed);
         }
 
-        if *c == '×' && ctx.word_len() == 1 && ctx.prev_word.is_empty() && ctx.remaining_words.is_empty() {
-            ctx.emit_slice(&[decode_unicode('⠸'), decode_unicode('⠭'), decode_unicode('⠇')]);
+        if *c == '×'
+            && ctx.word_len() == 1
+            && ctx.prev_word.is_empty()
+            && ctx.remaining_words.is_empty()
+        {
+            ctx.emit_slice(&[
+                decode_unicode('⠸'),
+                decode_unicode('⠭'),
+                decode_unicode('⠇'),
+            ]);
             return Ok(RuleResult::Consumed);
         }
 
@@ -155,8 +182,14 @@ mod tests {
 
     #[test]
     fn encodes_brackets() {
-        assert_eq!(apply('(').unwrap(), &[decode_unicode('⠦'), decode_unicode('⠄')]);
-        assert_eq!(apply(')').unwrap(), &[decode_unicode('⠠'), decode_unicode('⠴')]);
+        assert_eq!(
+            apply('(').unwrap(),
+            &[decode_unicode('⠦'), decode_unicode('⠄')]
+        );
+        assert_eq!(
+            apply(')').unwrap(),
+            &[decode_unicode('⠠'), decode_unicode('⠴')]
+        );
     }
 
     #[test]

@@ -48,7 +48,9 @@ fn is_left_superscript_position(tokens: &[MathToken], index: usize) -> bool {
     }
     // PDF — 알파벳적 수학 기호(∂ ∇ ℏ 등)는 피첨자로 동작한다.
     // `∂²z`의 `²`는 ∂의 위첨자이지 z의 좌상첨자가 아니다.
-    if let Some(MathToken::MathSymbol('\u{2202}' | '\u{2207}' | '\u{210F}' | '\u{2135}')) = prev_non_space(tokens, index) {
+    if let Some(MathToken::MathSymbol('\u{2202}' | '\u{2207}' | '\u{210F}' | '\u{2135}')) =
+        prev_non_space(tokens, index)
+    {
         return false;
     }
     // 한정자(∫/∑/Π 등) 토큰을 좌측 두번째에서 발견하면 좌상첨자가 아님.
@@ -57,14 +59,20 @@ fn is_left_superscript_position(tokens: &[MathToken], index: usize) -> bool {
         i -= 1;
         match tokens.get(i) {
             Some(MathToken::Space | MathToken::Subscript(_)) => continue,
-            Some(MathToken::MathSymbol('\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}' | '\u{2200}' | '\u{2203}')) => {
+            Some(MathToken::MathSymbol(
+                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
+                | '\u{2200}' | '\u{2203}',
+            )) => {
                 return false;
             }
             Some(MathToken::FunctionName(_)) => return false,
             _ => break,
         }
     }
-    matches!(next_non_space(tokens, index), Some(MathToken::Variable(_)) | Some(MathToken::UpperVariable(_)))
+    matches!(
+        next_non_space(tokens, index),
+        Some(MathToken::Variable(_)) | Some(MathToken::UpperVariable(_))
+    )
 }
 
 fn is_simple_signed_number(content: &[MathToken]) -> bool {
@@ -72,7 +80,10 @@ fn is_simple_signed_number(content: &[MathToken]) -> bool {
         return false;
     }
     // 부호: ASCII `-` 또는 수학 마이너스 `\u{2212}`. 둘 다 첨자에서 단순 부호로 본다.
-    let is_minus = matches!(content[0], MathToken::Operator('\u{2212}') | MathToken::Operator('-'));
+    let is_minus = matches!(
+        content[0],
+        MathToken::Operator('\u{2212}') | MathToken::Operator('-')
+    );
     // 부호 뒤 단일 숫자 또는 단일 변수. 예: `e^{-x}`, `x^{-1}`.
     let is_simple_term = matches!(content[1], MathToken::Number(_) | MathToken::Variable(_));
     is_minus && is_simple_term
@@ -87,11 +98,35 @@ pub fn should_group_superscript(content: &[MathToken]) -> bool {
     }
     // PDF — 위첨자 본문이 여러 토큰을 포함(연산자/괄호/공백/첨자 등)하면 그룹으로 묶는다.
     // `^{ℵ_0}` 같이 MathSymbol+Subscript 조합도 그룹 대상이다.
-    content.iter().any(|token| matches!(token, MathToken::Operator(_) | MathToken::OpenParen(_) | MathToken::CloseParen(_) | MathToken::Space | MathToken::Subscript(_) | MathToken::Superscript(_))) || content.len() >= 3
+    content.iter().any(|token| {
+        matches!(
+            token,
+            MathToken::Operator(_)
+                | MathToken::OpenParen(_)
+                | MathToken::CloseParen(_)
+                | MathToken::Space
+                | MathToken::Subscript(_)
+                | MathToken::Superscript(_)
+        )
+    }) || content.len() >= 3
 }
 
-pub fn encode_superscript(tokens: &[MathToken], i: &mut usize, content: &[MathToken], result: &mut Vec<u8>, engine: &MathTokenEngine) -> Result<bool, String> {
-    if *i >= 2 && matches!(tokens.get(*i - 1), Some(MathToken::Subscript(_))) && matches!(tokens.get(*i - 2), Some(MathToken::MathSymbol('\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'))) {
+pub fn encode_superscript(
+    tokens: &[MathToken],
+    i: &mut usize,
+    content: &[MathToken],
+    result: &mut Vec<u8>,
+    engine: &MathTokenEngine,
+) -> Result<bool, String> {
+    if *i >= 2
+        && matches!(tokens.get(*i - 1), Some(MathToken::Subscript(_)))
+        && matches!(
+            tokens.get(*i - 2),
+            Some(MathToken::MathSymbol(
+                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
+            ))
+        )
+    {
         result.push(0);
         engine.encode_tokens(content, result)?;
         // 다음 토큰이 Space면 이미 한 칸 띄움이 보장되므로 중복 출력하지 않는다.
@@ -102,7 +137,13 @@ pub fn encode_superscript(tokens: &[MathToken], i: &mut usize, content: &[MathTo
         return Ok(true);
     }
 
-    if *i >= 2 && matches!(tokens.get(*i - 1), Some(MathToken::Subscript(_))) && matches!(tokens.get(*i - 2), Some(MathToken::CloseParen(BracketKind::Square))) {
+    if *i >= 2
+        && matches!(tokens.get(*i - 1), Some(MathToken::Subscript(_)))
+        && matches!(
+            tokens.get(*i - 2),
+            Some(MathToken::CloseParen(BracketKind::Square))
+        )
+    {
         result.push(0);
         engine.encode_tokens(content, result)?;
         if !matches!(tokens.get(*i + 1), Some(MathToken::Space) | None) {
@@ -161,9 +202,29 @@ pub fn encode_superscript(tokens: &[MathToken], i: &mut usize, content: &[MathTo
     // PDF 수학 — 위첨자가 (단순한 단일 항목)을 괄호로 감싼 형태일 때는 도함수 차수 등
     // 인덱스 표기로 보고 MathParen(⠦⠴)을 그대로 보존한다(예: y⁽⁴⁾, y⁽ⁿ⁾).
     // 복합 식이 괄호 안에 있으면 PDF 위첨자 그룹 규칙대로 ⠷⠾로 묶고 외곽 괄호는 떼낸다.
-    let wrapped_simple_index = content.len() == 3 && matches!((content.first(), content.get(1), content.last()), (Some(MathToken::OpenParen(BracketKind::MathParen)), Some(MathToken::Number(_) | MathToken::Variable(_) | MathToken::UpperVariable(_)), Some(MathToken::CloseParen(BracketKind::MathParen))));
+    let wrapped_simple_index = content.len() == 3
+        && matches!(
+            (content.first(), content.get(1), content.last()),
+            (
+                Some(MathToken::OpenParen(BracketKind::MathParen)),
+                Some(MathToken::Number(_) | MathToken::Variable(_) | MathToken::UpperVariable(_)),
+                Some(MathToken::CloseParen(BracketKind::MathParen))
+            )
+        );
 
-    let (sup_content, force_group) = if !wrapped_simple_index && content.len() >= 2 && matches!((content.first(), content.last()), (Some(MathToken::OpenParen(BracketKind::MathParen)), Some(MathToken::CloseParen(BracketKind::MathParen)))) { (&content[1..content.len() - 1], true) } else { (content, false) };
+    let (sup_content, force_group) = if !wrapped_simple_index
+        && content.len() >= 2
+        && matches!(
+            (content.first(), content.last()),
+            (
+                Some(MathToken::OpenParen(BracketKind::MathParen)),
+                Some(MathToken::CloseParen(BracketKind::MathParen))
+            )
+        ) {
+        (&content[1..content.len() - 1], true)
+    } else {
+        (content, false)
+    };
 
     // PDF 수학 제18항 2 — 좌상첨자(left superscript): 변수 앞에 위치한 위첨자.
     // 좌상첨자는 단일 토큰이라도 그룹 괄호로 묶는다.
@@ -199,7 +260,14 @@ impl MathTokenRule for SuperscriptRule {
         matches!(tokens.get(index), Some(MathToken::Superscript(_)))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         let Some(MathToken::Superscript(content)) = tokens.get(index) else {
             return Ok(MathTokenResult::Skip);
         };
@@ -244,13 +312,25 @@ mod tests {
         let signed = vec![MathToken::Operator('-'), MathToken::Number("1".into())];
         assert!(!should_group_superscript(&signed));
         // Has operator → group
-        let with_op = vec![MathToken::Number("1".into()), MathToken::Operator('+'), MathToken::Number("2".into())];
+        let with_op = vec![
+            MathToken::Number("1".into()),
+            MathToken::Operator('+'),
+            MathToken::Number("2".into()),
+        ];
         assert!(should_group_superscript(&with_op));
         // Has paren → group
-        let with_paren = vec![MathToken::OpenParen(BracketKind::MathParen), MathToken::Variable('x'), MathToken::CloseParen(BracketKind::MathParen)];
+        let with_paren = vec![
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('x'),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
         assert!(should_group_superscript(&with_paren));
         // Length >= 3 with simple tokens → group
-        let len3 = vec![MathToken::Number("1".into()), MathToken::Number("2".into()), MathToken::Number("3".into())];
+        let len3 = vec![
+            MathToken::Number("1".into()),
+            MathToken::Number("2".into()),
+            MathToken::Number("3".into()),
+        ];
         assert!(should_group_superscript(&len3));
     }
 

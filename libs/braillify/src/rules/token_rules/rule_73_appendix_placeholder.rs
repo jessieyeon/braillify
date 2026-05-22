@@ -20,7 +20,12 @@ impl TokenRule for Rule73AppendixPlaceholderRule {
         5 // 매우 일찍 — 다른 규칙들이 토큰을 분리하기 전에
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, _state: &mut EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        _state: &mut EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         // 현재 토큰이 U+F000 단독 Word 또는 시작 문자가 U+F000인지 확인
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
@@ -46,7 +51,17 @@ impl TokenRule for Rule73AppendixPlaceholderRule {
         // - `⠸⠦⠦⠄` = U+F000 빈칸 marker
         // - `⠫⠠⠴` = 가 + closing paren (선택지 (가))
         // - `⠴⠇` = Rule73 blank-filler suffix (PDF 제73항 표준 추가표시)
-        let prefix_bytes = vec![decode_unicode('⠸'), decode_unicode('⠦'), decode_unicode('⠦'), decode_unicode('⠄'), decode_unicode('⠫'), decode_unicode('⠠'), decode_unicode('⠴'), decode_unicode('⠴'), decode_unicode('⠇')];
+        let prefix_bytes = vec![
+            decode_unicode('⠸'),
+            decode_unicode('⠦'),
+            decode_unicode('⠦'),
+            decode_unicode('⠄'),
+            decode_unicode('⠫'),
+            decode_unicode('⠠'),
+            decode_unicode('⠴'),
+            decode_unicode('⠴'),
+            decode_unicode('⠇'),
+        ];
 
         // index..=j 범위(현재 Word + Space들 + 다음 Word)를 prefix + next Word로 교체.
         // U+F000을 제외한 첫 Word의 나머지가 있으면 다음 Word 앞에 붙인다.
@@ -56,7 +71,11 @@ impl TokenRule for Rule73AppendixPlaceholderRule {
         if !rest_after_f000.is_empty() {
             let rest_chars: Vec<char> = rest_after_f000.chars().collect();
             let rest_meta = crate::rules::token::WordMeta::from_chars(&rest_chars);
-            replacement.push(Token::Word(crate::rules::token::WordToken { text: std::borrow::Cow::Owned(rest_after_f000), chars: rest_chars, meta: rest_meta }));
+            replacement.push(Token::Word(crate::rules::token::WordToken {
+                text: std::borrow::Cow::Owned(rest_after_f000),
+                chars: rest_chars,
+                meta: rest_meta,
+            }));
         }
         // 다음 Word는 그대로 보존 (Korean encoder가 은/는을 인코딩)
         replacement.push(Token::Word(next_word.clone()));

@@ -56,7 +56,12 @@ impl WordMeta {
         let starts_with_ascii = chars.first().is_some_and(char::is_ascii_alphabetic);
         let is_all_uppercase = ascii_letter_count >= 2 && ascii_letter_count == uppercase_count;
 
-        WordMeta { has_korean, is_all_uppercase, starts_with_ascii, has_ascii_alphabetic }
+        WordMeta {
+            has_korean,
+            is_all_uppercase,
+            starts_with_ascii,
+            has_ascii_alphabetic,
+        }
     }
 }
 
@@ -124,7 +129,11 @@ impl<'a> DocumentIR<'a> {
 
             let chars: Vec<char> = text_cow.chars().collect();
             let meta = WordMeta::from_chars(&chars);
-            tokens.push(Token::Word(WordToken { text: text_cow, chars, meta }));
+            tokens.push(Token::Word(WordToken {
+                text: text_cow,
+                chars,
+                meta,
+            }));
 
             i += consumed;
             if i < raw_words.len() {
@@ -132,7 +141,10 @@ impl<'a> DocumentIR<'a> {
             }
         }
 
-        DocumentIR { tokens, state: EncoderState::new(english_indicator) }
+        DocumentIR {
+            tokens,
+            state: EncoderState::new(english_indicator),
+        }
     }
 }
 
@@ -142,11 +154,42 @@ fn is_korean_char(c: char) -> bool {
 }
 
 fn is_math_span_char(c: char) -> bool {
-    is_korean_char(c) || c.is_ascii_alphanumeric() || matches!(c, '=' | '+' | '-' | '\u{2212}' | '×' | '÷' | '/' | '√' | '(' | ')' | '[' | ']' | '{' | '}' | ',' | '.' | '!' | '<' | '>' | ':' | ';' | '\'' | '"')
+    is_korean_char(c)
+        || c.is_ascii_alphanumeric()
+        || matches!(
+            c,
+            '=' | '+'
+                | '-'
+                | '\u{2212}'
+                | '×'
+                | '÷'
+                | '/'
+                | '√'
+                | '('
+                | ')'
+                | '['
+                | ']'
+                | '{'
+                | '}'
+                | ','
+                | '.'
+                | '!'
+                | '<'
+                | '>'
+                | ':'
+                | ';'
+                | '\''
+                | '"'
+        )
 }
 
 fn has_math_trigger(text: &str) -> bool {
-    text.chars().any(|c| matches!(c, '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')')) || text.contains("...")
+    text.chars().any(|c| {
+        matches!(
+            c,
+            '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')'
+        )
+    }) || text.contains("...")
 }
 
 fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> {
@@ -172,7 +215,10 @@ fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> 
 
         for ch in word.chars() {
             saw_korean |= is_korean_char(ch);
-            saw_trigger |= matches!(ch, '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')');
+            saw_trigger |= matches!(
+                ch,
+                '=' | '×' | '÷' | '/' | '√' | '{' | '}' | '[' | ']' | '(' | ')'
+            );
             match ch {
                 '(' => paren_balance += 1,
                 ')' => paren_balance -= 1,
@@ -190,7 +236,10 @@ fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> 
         let is_brace_math = merged.contains('=') && merged.contains('{') && merged.contains('}');
         // BMI 같은 영문자 + 한글 mixed (`BMI(체질량 지수) = ...`)는 일반 한국어 path가
         // 더 잘 처리. mixed_korean_math 분기는 순수 한글 명사구 + 수식 입력만 대상으로.
-        let is_mixed_korean_math = saw_korean && merged.contains('=') && (merged.contains('×') || merged.contains('√')) && !merged.chars().any(|c| c.is_ascii_alphabetic());
+        let is_mixed_korean_math = saw_korean
+            && merged.contains('=')
+            && (merged.contains('×') || merged.contains('√'))
+            && !merged.chars().any(|c| c.is_ascii_alphabetic());
 
         if multi_word && balanced && looks_like_span && (is_brace_math || is_mixed_korean_math) {
             best = Some((merged.clone(), end + 1 - start));
@@ -238,7 +287,11 @@ mod tests {
 
     #[test]
     fn token_debug_clone_works() {
-        let token = Token::Word(WordToken { text: Cow::Borrowed("hello"), chars: vec!['h', 'e', 'l', 'l', 'o'], meta: WordMeta::from_chars(&['h', 'e', 'l', 'l', 'o']) });
+        let token = Token::Word(WordToken {
+            text: Cow::Borrowed("hello"),
+            chars: vec!['h', 'e', 'l', 'l', 'o'],
+            meta: WordMeta::from_chars(&['h', 'e', 'l', 'l', 'o']),
+        });
         let cloned = token.clone();
         assert!(format!("{cloned:?}").contains("Word"));
     }

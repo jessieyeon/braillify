@@ -20,7 +20,12 @@ fn translate_to_braille_font(text: &str) -> PyResult<String> {
 
 #[pyfunction]
 fn cli(py: Python) -> PyResult<()> {
-    run_cli(py.import("sys")?.getattr("argv")?.extract::<Vec<String>>()?).map_err(|e| PyValueError::new_err(e.to_string()))
+    run_cli(
+        py.import("sys")?
+            .getattr("argv")?
+            .extract::<Vec<String>>()?,
+    )
+    .map_err(|e| PyValueError::new_err(e.to_string()))
 }
 
 /// A Python module implemented in Rust.

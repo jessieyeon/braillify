@@ -6,7 +6,10 @@ use crate::math_symbol_shortcut;
 
 // Prepared for future direct encoder dispatch integration.
 pub fn is_greek_symbol(c: char) -> bool {
-    matches!(c, 'Δ' | 'α' | 'β' | 'γ' | 'π' | 'Π' | 'Σ' | 'θ' | 'λ' | 'μ' | 'Ω')
+    matches!(
+        c,
+        'Δ' | 'α' | 'β' | 'γ' | 'π' | 'Π' | 'Σ' | 'θ' | 'λ' | 'μ' | 'Ω'
+    )
 }
 
 // Prepared for future direct encoder dispatch integration.

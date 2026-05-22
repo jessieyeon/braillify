@@ -283,18 +283,28 @@ pub fn parse_math_expression(input: &str) -> Result<Vec<MathToken>, String> {
 }
 
 /// Parse a math expression string into tokens with an explicit math-mode flag.
-pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool) -> Result<Vec<MathToken>, String> {
+pub fn parse_math_expression_with_math_mode(
+    input: &str,
+    math_mode_active: bool,
+) -> Result<Vec<MathToken>, String> {
     // PDF 규정: Mathematical Alphanumeric 변형은 ASCII 라틴 문자와 동일하게 처리.
     let input_owned: String = input.chars().map(normalize_math_alphanumeric).collect();
     let input: &str = &input_owned;
     if let Some((left, right)) = input.split_once('/')
-        && let (Some(left_fact), Some(right_fact)) = (left.strip_suffix('!'), right.strip_suffix('!'))
+        && let (Some(left_fact), Some(right_fact)) =
+            (left.strip_suffix('!'), right.strip_suffix('!'))
         && !left_fact.is_empty()
         && !right_fact.is_empty()
         && left_fact.chars().all(|c| c.is_ascii_digit())
         && right_fact.chars().all(|c| c.is_ascii_digit())
     {
-        return Ok(vec![MathToken::Number(right_fact.to_string()), MathToken::Operator('!'), MathToken::Operator('/'), MathToken::Number(left_fact.to_string()), MathToken::Operator('!')]);
+        return Ok(vec![
+            MathToken::Number(right_fact.to_string()),
+            MathToken::Operator('!'),
+            MathToken::Operator('/'),
+            MathToken::Number(left_fact.to_string()),
+            MathToken::Operator('!'),
+        ]);
     }
 
     if input.contains('\u{0332}') {
@@ -313,7 +323,10 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                 let inner = &body[1..body.len() - 1];
                 let mut tokens = Vec::new();
                 tokens.push(MathToken::OpenParen(BracketKind::Grouping));
-                tokens.extend(parse_math_expression_with_math_mode(inner, math_mode_active)?);
+                tokens.extend(parse_math_expression_with_math_mode(
+                    inner,
+                    math_mode_active,
+                )?);
                 tokens.push(MathToken::CloseParen(BracketKind::Grouping));
                 tokens.push(MathToken::Operator('/'));
                 tokens.push(MathToken::Number("1".to_string()));
@@ -325,7 +338,10 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
             let mut tokens = parse_math_expression_with_math_mode(right, math_mode_active)?;
             tokens.push(MathToken::Operator('/'));
             tokens.push(MathToken::OpenParen(BracketKind::Grouping));
-            tokens.extend(parse_math_expression_with_math_mode(left, math_mode_active)?);
+            tokens.extend(parse_math_expression_with_math_mode(
+                left,
+                math_mode_active,
+            )?);
             tokens.push(MathToken::CloseParen(BracketKind::Grouping));
             return Ok(tokens);
         }
@@ -337,11 +353,24 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
     let mut i = 0;
 
     // Some notations (e.g., segment AB with overline) use expression-level overline prefix.
-    let should_prefix_overline = if chars.first().is_some_and(|c| matches!(*c, '\u{0305}' | '\u{0304}')) {
+    let should_prefix_overline = if chars
+        .first()
+        .is_some_and(|c| matches!(*c, '\u{0305}' | '\u{0304}'))
+    {
         true
-    } else if chars.last().is_some_and(|c| matches!(*c, '\u{0305}' | '\u{0304}')) {
-        let core: Vec<char> = chars.iter().copied().filter(|c| !matches!(*c, '\u{0305}' | '\u{0304}')).collect();
-        core.len() >= 2 && core.iter().all(|c| c.is_ascii_uppercase() || matches!(*c, '\u{2032}' | '\''))
+    } else if chars
+        .last()
+        .is_some_and(|c| matches!(*c, '\u{0305}' | '\u{0304}'))
+    {
+        let core: Vec<char> = chars
+            .iter()
+            .copied()
+            .filter(|c| !matches!(*c, '\u{0305}' | '\u{0304}'))
+            .collect();
+        core.len() >= 2
+            && core
+                .iter()
+                .all(|c| c.is_ascii_uppercase() || matches!(*c, '\u{2032}' | '\''))
     } else {
         false
     };
@@ -436,7 +465,9 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                         content.push(tok);
                     }
                     i += 1;
-                } else if matches!(chars[i], '.' | '/') && chars.get(i + 1).is_some_and(|c| is_subscript_char(*c)) {
+                } else if matches!(chars[i], '.' | '/')
+                    && chars.get(i + 1).is_some_and(|c| is_subscript_char(*c))
+                {
                     match chars[i] {
                         '.' => content.push(MathToken::DecimalPoint),
                         '/' => content.push(MathToken::Operator('/')),
@@ -513,7 +544,10 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                     let inner: String = chars[i + 2..j].iter().collect();
                     let mut content = Vec::new();
                     content.push(MathToken::OpenParen(BracketKind::MathParen));
-                    content.extend(parse_math_expression_with_math_mode(&inner, math_mode_active)?);
+                    content.extend(parse_math_expression_with_math_mode(
+                        &inner,
+                        math_mode_active,
+                    )?);
                     content.push(MathToken::CloseParen(BracketKind::MathParen));
                     tokens.push(MathToken::Subscript(content));
                     i = j + 1;
@@ -601,7 +635,10 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                     let inner: String = chars[i + 2..j].iter().collect();
                     let mut content = Vec::new();
                     content.push(MathToken::OpenParen(BracketKind::MathParen));
-                    content.extend(parse_math_expression_with_math_mode(&inner, math_mode_active)?);
+                    content.extend(parse_math_expression_with_math_mode(
+                        &inner,
+                        math_mode_active,
+                    )?);
                     content.push(MathToken::CloseParen(BracketKind::MathParen));
                     tokens.push(MathToken::Superscript(content));
                     i = j + 1;
@@ -710,15 +747,31 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                 let kind = match tokens.last() {
                     Some(MathToken::MathSymbol('\u{221A}')) => BracketKind::Grouping,
                     Some(MathToken::FunctionName(_)) if !next_is_function => BracketKind::Grouping,
-                    Some(MathToken::Superscript(_)) if matches!(tokens.iter().rev().nth(1), Some(MathToken::FunctionName(_))) => BracketKind::Grouping,
-                    Some(MathToken::Operator('/')) | Some(MathToken::MathSymbol('\u{2044}')) => BracketKind::Grouping,
+                    Some(MathToken::Superscript(_))
+                        if matches!(
+                            tokens.iter().rev().nth(1),
+                            Some(MathToken::FunctionName(_))
+                        ) =>
+                    {
+                        BracketKind::Grouping
+                    }
+                    Some(MathToken::Operator('/')) | Some(MathToken::MathSymbol('\u{2044}')) => {
+                        BracketKind::Grouping
+                    }
                     // ∑/∏ 한정자 뒤의 괄호는 본문 묶음(Grouping)이다.
                     // (∫ 적분은 피적분 함수의 괄호로 MathParen 유지.)
                     Some(MathToken::MathSymbol('\u{2211}' | '\u{220F}')) => BracketKind::Grouping,
                     _ => BracketKind::MathParen,
                 };
                 let promote_grouping = matches!(tokens.last(), Some(MathToken::Operator('=')));
-                bracket_stack.push(GroupState { kind, token_index: tokens.len(), contains_korean: false, contains_arithmetic: false, contains_comma: false, promote_grouping });
+                bracket_stack.push(GroupState {
+                    kind,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    contains_comma: false,
+                    promote_grouping,
+                });
                 tokens.push(MathToken::OpenParen(kind));
                 i += 1;
                 continue;
@@ -726,9 +779,16 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
             ')' => {
                 let kind = if let Some(group) = bracket_stack.pop() {
                     // PDF — math mode 컨텍스트면 Korean 내용 있어도 Hangul wrap 우회.
-                    let resolved_kind = if !math_mode_active && group.contains_korean && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping) {
+                    let resolved_kind = if !math_mode_active
+                        && group.contains_korean
+                        && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping)
+                    {
                         BracketKind::Hangul
-                    } else if group.promote_grouping && group.contains_arithmetic && !group.contains_comma && matches!(group.kind, BracketKind::MathParen) {
+                    } else if group.promote_grouping
+                        && group.contains_arithmetic
+                        && !group.contains_comma
+                        && matches!(group.kind, BracketKind::MathParen)
+                    {
                         // 콤마로 구분된 튜플(예: (f/x₁, f/x₂, ...))은 MathParen으로 유지.
                         // 산술 식 그룹(예: (a+b)/c)만 Grouping으로 승격한다.
                         BracketKind::Grouping
@@ -736,7 +796,8 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                         group.kind
                     };
 
-                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index) {
+                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index)
+                    {
                         *open_kind = resolved_kind;
                     }
                     resolved_kind
@@ -748,19 +809,35 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                 continue;
             }
             '[' => {
-                bracket_stack.push(GroupState { kind: BracketKind::Square, token_index: tokens.len(), contains_korean: false, contains_arithmetic: false, contains_comma: false, promote_grouping: false });
+                bracket_stack.push(GroupState {
+                    kind: BracketKind::Square,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    contains_comma: false,
+                    promote_grouping: false,
+                });
                 tokens.push(MathToken::OpenParen(BracketKind::Square));
                 i += 1;
                 continue;
             }
             ']' => {
-                let kind = bracket_stack.pop().map_or(BracketKind::Square, |group| group.kind);
+                let kind = bracket_stack
+                    .pop()
+                    .map_or(BracketKind::Square, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
             }
             '{' => {
-                bracket_stack.push(GroupState { kind: BracketKind::Curly, token_index: tokens.len(), contains_korean: false, contains_arithmetic: false, contains_comma: false, promote_grouping: false });
+                bracket_stack.push(GroupState {
+                    kind: BracketKind::Curly,
+                    token_index: tokens.len(),
+                    contains_korean: false,
+                    contains_arithmetic: false,
+                    contains_comma: false,
+                    promote_grouping: false,
+                });
                 tokens.push(MathToken::OpenParen(BracketKind::Curly));
                 i += 1;
                 continue;
@@ -802,7 +879,9 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
                 continue;
             }
             '}' => {
-                let kind = bracket_stack.pop().map_or(BracketKind::Curly, |group| group.kind);
+                let kind = bracket_stack
+                    .pop()
+                    .map_or(BracketKind::Curly, |group| group.kind);
                 tokens.push(MathToken::CloseParen(kind));
                 i += 1;
                 continue;
@@ -819,9 +898,17 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
             continue;
         }
         // Math operators (basic)
-        if matches!(c, '+' | '=' | '>' | '<' | '/' | '-' | '!' | '×' | '÷' | '\u{2212}') {
+        if matches!(
+            c,
+            '+' | '=' | '>' | '<' | '/' | '-' | '!' | '×' | '÷' | '\u{2212}'
+        ) {
             // In chained inequalities like -5 < x < -2, the second minus is omitted.
-            if c == '-' && i > 0 && chars[i - 1] == '<' && i + 1 < chars.len() && chars[i + 1].is_ascii_digit() {
+            if c == '-'
+                && i > 0
+                && chars[i - 1] == '<'
+                && i + 1 < chars.len()
+                && chars[i + 1].is_ascii_digit()
+            {
                 i += 1;
                 continue;
             }
@@ -922,7 +1009,19 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
     }
 
     // (expr)̅ / (expr)̄ should use grouping parentheses around the overlined group.
-    if matches!(tokens.last(), Some(MathToken::MathSymbol('\u{0305}' | '\u{0304}'))) && tokens.len() >= 3 && matches!(tokens.first(), Some(MathToken::OpenParen(BracketKind::MathParen))) && matches!(tokens.get(tokens.len() - 2), Some(MathToken::CloseParen(BracketKind::MathParen))) {
+    if matches!(
+        tokens.last(),
+        Some(MathToken::MathSymbol('\u{0305}' | '\u{0304}'))
+    ) && tokens.len() >= 3
+        && matches!(
+            tokens.first(),
+            Some(MathToken::OpenParen(BracketKind::MathParen))
+        )
+        && matches!(
+            tokens.get(tokens.len() - 2),
+            Some(MathToken::CloseParen(BracketKind::MathParen))
+        )
+    {
         let mut depth = 0usize;
         let mut closes_at_end = false;
         for (idx, token) in tokens.iter().enumerate() {
@@ -950,7 +1049,15 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
     // 의미가 없으므로 제거한다(계수는 permutation 본체에 직접 인접).
     let mut i = 0;
     while i + 4 < tokens.len() {
-        if matches!(tokens.get(i), Some(MathToken::Number(_))) && matches!(tokens.get(i + 1), Some(MathToken::Space)) && matches!(tokens.get(i + 2), Some(MathToken::Subscript(_))) && matches!(tokens.get(i + 3), Some(MathToken::UpperVariable('P' | 'C' | 'H'))) && matches!(tokens.get(i + 4), Some(MathToken::Subscript(_))) {
+        if matches!(tokens.get(i), Some(MathToken::Number(_)))
+            && matches!(tokens.get(i + 1), Some(MathToken::Space))
+            && matches!(tokens.get(i + 2), Some(MathToken::Subscript(_)))
+            && matches!(
+                tokens.get(i + 3),
+                Some(MathToken::UpperVariable('P' | 'C' | 'H'))
+            )
+            && matches!(tokens.get(i + 4), Some(MathToken::Subscript(_)))
+        {
             tokens.remove(i + 1);
         }
         i += 1;
@@ -976,8 +1083,22 @@ pub fn parse_math_expression_with_math_mode(input: &str, math_mode_active: bool)
             // base count로 세지 않고 함께 묶는다.
             let start = j;
             let mut base_count = 0;
-            while matches!(tokens.get(j), Some(MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_) | MathToken::Subscript(_) | MathToken::Superscript(_))) {
-                if matches!(tokens.get(j), Some(MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_))) {
+            while matches!(
+                tokens.get(j),
+                Some(
+                    MathToken::Variable(_)
+                        | MathToken::UpperVariable(_)
+                        | MathToken::Number(_)
+                        | MathToken::Subscript(_)
+                        | MathToken::Superscript(_)
+                )
+            ) {
+                if matches!(
+                    tokens.get(j),
+                    Some(
+                        MathToken::Variable(_) | MathToken::UpperVariable(_) | MathToken::Number(_)
+                    )
+                ) {
                     base_count += 1;
                 }
                 j += 1;
@@ -1050,8 +1171,14 @@ mod tests {
     #[test]
     fn test_grouping_paren_after_function() {
         let tokens = parse_math_expression("sin(x)").unwrap();
-        assert!(matches!(tokens[1], MathToken::OpenParen(BracketKind::Grouping)));
-        assert!(matches!(tokens[3], MathToken::CloseParen(BracketKind::Grouping)));
+        assert!(matches!(
+            tokens[1],
+            MathToken::OpenParen(BracketKind::Grouping)
+        ));
+        assert!(matches!(
+            tokens[3],
+            MathToken::CloseParen(BracketKind::Grouping)
+        ));
     }
 
     /// Exercise every Unicode superscript character recognized by
@@ -1060,13 +1187,11 @@ mod tests {
     #[test]
     fn unicode_superscripts_parsed() {
         let superscripts: &[char] = &[
-            '\u{2070}', '\u{00B9}', '\u{00B2}', '\u{00B3}',
-            '\u{2074}', '\u{2075}', '\u{2076}', '\u{2077}', '\u{2078}', '\u{2079}',
-            '\u{207A}', '\u{207B}', '\u{207D}', '\u{207E}', '\u{207F}',
-            '\u{1D43}', '\u{1D47}', '\u{1D9C}', '\u{1D48}', '\u{1D49}',
-            '\u{1DA0}', '\u{1D4D}', '\u{02B0}', '\u{2071}', '\u{02B2}',
-            '\u{1D4F}', '\u{02E1}', '\u{1D50}', '\u{1D52}', '\u{1D56}',
-            '\u{02B3}', '\u{02E2}', '\u{1D57}', '\u{1D58}', '\u{1D5B}',
+            '\u{2070}', '\u{00B9}', '\u{00B2}', '\u{00B3}', '\u{2074}', '\u{2075}', '\u{2076}',
+            '\u{2077}', '\u{2078}', '\u{2079}', '\u{207A}', '\u{207B}', '\u{207D}', '\u{207E}',
+            '\u{207F}', '\u{1D43}', '\u{1D47}', '\u{1D9C}', '\u{1D48}', '\u{1D49}', '\u{1DA0}',
+            '\u{1D4D}', '\u{02B0}', '\u{2071}', '\u{02B2}', '\u{1D4F}', '\u{02E1}', '\u{1D50}',
+            '\u{1D52}', '\u{1D56}', '\u{02B3}', '\u{02E2}', '\u{1D57}', '\u{1D58}', '\u{1D5B}',
             '\u{02B7}', '\u{02E3}', '\u{02B8}', '\u{1DBB}',
         ];
         for &c in superscripts {
@@ -1082,13 +1207,11 @@ mod tests {
     #[test]
     fn unicode_subscripts_parsed() {
         let subscripts: &[char] = &[
-            '\u{2080}', '\u{2081}', '\u{2082}', '\u{2083}', '\u{2084}',
-            '\u{2085}', '\u{2086}', '\u{2087}', '\u{2088}', '\u{2089}',
-            '\u{208A}', '\u{208B}', '\u{208D}', '\u{208E}',
-            '\u{2090}', '\u{2091}', '\u{2092}', '\u{2093}', '\u{2095}',
-            '\u{2096}', '\u{2097}', '\u{2098}', '\u{2099}', '\u{209A}',
-            '\u{209B}', '\u{209C}',
-            '\u{1D62}', '\u{1D63}', '\u{1D64}', '\u{1D65}',
+            '\u{2080}', '\u{2081}', '\u{2082}', '\u{2083}', '\u{2084}', '\u{2085}', '\u{2086}',
+            '\u{2087}', '\u{2088}', '\u{2089}', '\u{208A}', '\u{208B}', '\u{208D}', '\u{208E}',
+            '\u{2090}', '\u{2091}', '\u{2092}', '\u{2093}', '\u{2095}', '\u{2096}', '\u{2097}',
+            '\u{2098}', '\u{2099}', '\u{209A}', '\u{209B}', '\u{209C}', '\u{1D62}', '\u{1D63}',
+            '\u{1D64}', '\u{1D65}',
         ];
         for &c in subscripts {
             let input = format!("x{}", c);

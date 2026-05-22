@@ -10,7 +10,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "53", subsection: None, name: "ellipsis_normalization", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.53", description: "Normalize ellipsis: 6 dots→3, double middle dot→single" };
+pub static META: RuleMeta = RuleMeta {
+    section: "53",
+    subsection: None,
+    name: "ellipsis_normalization",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.53",
+    description: "Normalize ellipsis: 6 dots→3, double middle dot→single",
+};
 
 /// Normalize ellipsis patterns in a word.
 ///
@@ -116,8 +122,27 @@ mod tests {
         assert_eq!(normalize(""), "");
     }
 
-    fn make_ctx<'a>(word_chars: &'a [char], index: usize, char_type: &'a crate::char_struct::CharType, skip_count: &'a mut usize, state: &'a mut crate::rules::context::EncoderState, result: &'a mut Vec<u8>) -> RuleContext<'a> {
-        RuleContext { word_chars, index, char_type, prev_word: "", remaining_words: &[], has_korean_char: false, is_all_uppercase: false, ascii_starts_at_beginning: false, skip_count, state, result }
+    fn make_ctx<'a>(
+        word_chars: &'a [char],
+        index: usize,
+        char_type: &'a crate::char_struct::CharType,
+        skip_count: &'a mut usize,
+        state: &'a mut crate::rules::context::EncoderState,
+        result: &'a mut Vec<u8>,
+    ) -> RuleContext<'a> {
+        RuleContext {
+            word_chars,
+            index,
+            char_type,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count,
+            state,
+            result,
+        }
     }
 
     #[test]

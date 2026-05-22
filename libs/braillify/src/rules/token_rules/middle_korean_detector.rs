@@ -81,7 +81,12 @@ impl TokenRule for MiddleKoreanDetectorRule {
         5
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        state: &mut crate::rules::context::EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -89,17 +94,24 @@ impl TokenRule for MiddleKoreanDetectorRule {
         let has_strong_context = has_strong_middle_korean_context(&word.chars);
         let has_tone_punctuation = has_middle_korean_tone_punctuation(&word.chars);
 
-        let prev_has_context = nearest_prev_word(tokens, index).is_some_and(has_strong_middle_korean_context);
-        let next_has_context = nearest_next_word(tokens, index).is_some_and(has_strong_middle_korean_context);
+        let prev_has_context =
+            nearest_prev_word(tokens, index).is_some_and(has_strong_middle_korean_context);
+        let next_has_context =
+            nearest_next_word(tokens, index).is_some_and(has_strong_middle_korean_context);
 
-        let has_middle_korean = has_strong_context || (has_tone_punctuation && (prev_has_context || next_has_context));
-        let preserve_explicit_middle_korean_mode = has_tone_punctuation && word.chars.len() == 1 && state.current_mode() == EncodingMode::MiddleKorean;
+        let has_middle_korean =
+            has_strong_context || (has_tone_punctuation && (prev_has_context || next_has_context));
+        let preserve_explicit_middle_korean_mode = has_tone_punctuation
+            && word.chars.len() == 1
+            && state.current_mode() == EncodingMode::MiddleKorean;
 
         if has_middle_korean {
             if state.current_mode() != EncodingMode::MiddleKorean {
                 state.push_mode(EncodingMode::MiddleKorean);
             }
-        } else if state.current_mode() == EncodingMode::MiddleKorean && !preserve_explicit_middle_korean_mode {
+        } else if state.current_mode() == EncodingMode::MiddleKorean
+            && !preserve_explicit_middle_korean_mode
+        {
             state.pop_mode();
         }
 

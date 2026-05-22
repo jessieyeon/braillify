@@ -14,7 +14,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_13: RuleMeta = RuleMeta { section: "13", subsection: None, name: "syllable_abbreviation", standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.13", description: "Common syllable abbreviations (가,나,다,...,하)" };
+pub static META_13: RuleMeta = RuleMeta {
+    section: "13",
+    subsection: None,
+    name: "syllable_abbreviation",
+    standard_ref: "2024 Korean Braille Standard, Ch.2 Sec.6 Art.13",
+    description: "Common syllable abbreviations (가,나,다,...,하)",
+};
 
 /// Try to encode a character using the abbreviation shortcut table.
 /// Returns the abbreviated braille encoding, or Err if no abbreviation exists.
@@ -49,7 +55,11 @@ impl BrailleRule for Rule13 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        if let CharType::Korean(_) = ctx.char_type { has_abbreviation(ctx.current_char()) } else { false }
+        if let CharType::Korean(_) = ctx.char_type {
+            has_abbreviation(ctx.current_char())
+        } else {
+            false
+        }
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
@@ -77,7 +87,10 @@ mod tests {
     #[test]
     fn encodes_extended_abbreviations() {
         // 제15항: 것, 억, 언, 영, etc.
-        assert_eq!(apply('것').unwrap(), &[decode_unicode('⠸'), decode_unicode('⠎')]);
+        assert_eq!(
+            apply('것').unwrap(),
+            &[decode_unicode('⠸'), decode_unicode('⠎')]
+        );
         assert_eq!(apply('영').unwrap(), &[decode_unicode('⠻')]);
         assert_eq!(apply('은').unwrap(), &[decode_unicode('⠵')]);
         assert_eq!(apply('인').unwrap(), &[decode_unicode('⠟')]);
@@ -107,7 +120,11 @@ mod tests {
         let cases = vec![("가지", "⠫⠨⠕"), ("나비", "⠉⠘⠕"), ("것이다", "⠸⠎⠕⠊")];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 13 golden test failed for: {}", input);
+            assert_eq!(
+                result, expected,
+                "Rule 13 golden test failed for: {}",
+                input
+            );
         }
     }
 }

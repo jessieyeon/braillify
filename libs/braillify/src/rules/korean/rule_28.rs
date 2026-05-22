@@ -14,7 +14,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "28", subsection: None, name: "english_encoding", standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.28", description: "English letters encoded per UEB (Unified English Braille)" };
+pub static META: RuleMeta = RuleMeta {
+    section: "28",
+    subsection: None,
+    name: "english_encoding",
+    standard_ref: "2024 Korean Braille Standard, Ch.4 Sec.10 Art.28",
+    description: "English letters encoded per UEB (Unified English Braille)",
+};
 
 /// Single uppercase indicator (대문자 기호표).
 pub const UPPERCASE_SINGLE: u8 = 32; // ⠠
@@ -27,7 +33,11 @@ fn apply(ch: char) -> Result<u8, String> {
 
 /// Returns a slice of indicator bytes to prepend.
 #[cfg(test)]
-fn uppercase_indicators(is_single_uppercase: bool, is_word_all_uppercase: bool, consecutive_uppercase_words: u8) -> &'static [u8] {
+fn uppercase_indicators(
+    is_single_uppercase: bool,
+    is_word_all_uppercase: bool,
+    consecutive_uppercase_words: u8,
+) -> &'static [u8] {
     if consecutive_uppercase_words >= 3 {
         &[32, 32, 32] // passage: ⠠⠠⠠
     } else if is_word_all_uppercase {
@@ -66,7 +76,10 @@ impl BrailleRule for Rule28 {
 
         // Enter English mode (로마자표 / 연속표)
         // 제39항 영어 주도 문서에서는 영자표시/연속표를 emit하지 않는다.
-        if ctx.state.english_indicator && !ctx.state.is_english && !ctx.state.english_dominant_no_indicator {
+        if ctx.state.english_indicator
+            && !ctx.state.is_english
+            && !ctx.state.english_dominant_no_indicator
+        {
             if ctx.state.needs_english_continuation {
                 ctx.emit(48);
             } else {
@@ -75,7 +88,10 @@ impl BrailleRule for Rule28 {
         }
 
         // Uppercase indicators (single/consecutive uppercase run)
-        if (!ctx.is_all_uppercase || ctx.word_len() < 2 || !ctx.ascii_starts_at_beginning) && !ctx.state.is_big_english && c.is_uppercase() {
+        if (!ctx.is_all_uppercase || ctx.word_len() < 2 || !ctx.ascii_starts_at_beginning)
+            && !ctx.state.is_big_english
+            && c.is_uppercase()
+        {
             ctx.state.is_big_english = true;
             for idx in 0..std::cmp::min(ctx.word_len() - ctx.index, 2) {
                 if ctx.word_chars[ctx.index + idx].is_uppercase() {
@@ -94,14 +110,31 @@ impl BrailleRule for Rule28 {
         // so `to_ascii_lowercase` per char is equivalent to the previous
         // `.collect::<String>().to_lowercase()` for any input that reaches the
         // lookup matchers — and avoids the second allocation + Unicode tables.
-        let remaining: String = ctx.word_chars[ctx.index..].iter().map(|c| c.to_ascii_lowercase()).collect();
-        let is_whole_lowercase_word = ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
-        let be_boundary_non_alpha = remaining.starts_with("be") && remaining.chars().nth(2).is_none_or(|ch| !ch.is_ascii_alphabetic());
-        let in_boundary_non_alpha = remaining.starts_with("in") && remaining.chars().nth(2).is_none_or(|ch| !ch.is_ascii_alphabetic());
-        let prev_is_ascii_word = !ctx.prev_word.is_empty() && ctx.prev_word.chars().all(|ch| ch.is_ascii_alphabetic());
-        let next_is_ascii_word = ctx.remaining_words.first().is_some_and(|w| !w.is_empty() && w.chars().all(|ch| ch.is_ascii_alphabetic()));
+        let remaining: String = ctx.word_chars[ctx.index..]
+            .iter()
+            .map(|c| c.to_ascii_lowercase())
+            .collect();
+        let is_whole_lowercase_word =
+            ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
+        let be_boundary_non_alpha = remaining.starts_with("be")
+            && remaining
+                .chars()
+                .nth(2)
+                .is_none_or(|ch| !ch.is_ascii_alphabetic());
+        let in_boundary_non_alpha = remaining.starts_with("in")
+            && remaining
+                .chars()
+                .nth(2)
+                .is_none_or(|ch| !ch.is_ascii_alphabetic());
+        let prev_is_ascii_word =
+            !ctx.prev_word.is_empty() && ctx.prev_word.chars().all(|ch| ch.is_ascii_alphabetic());
+        let next_is_ascii_word = ctx
+            .remaining_words
+            .first()
+            .is_some_and(|w| !w.is_empty() && w.chars().all(|ch| ch.is_ascii_alphabetic()));
 
-        if is_whole_lowercase_word && remaining == "you" && prev_is_ascii_word && next_is_ascii_word {
+        if is_whole_lowercase_word && remaining == "you" && prev_is_ascii_word && next_is_ascii_word
+        {
             ctx.emit(english::encode_english('y')?);
             *ctx.skip_count = ctx.word_len().saturating_sub(1);
             ctx.state.is_english = true;
@@ -111,7 +144,18 @@ impl BrailleRule for Rule28 {
         // Title case word ("Part", "Every") 도 whole-word contraction을 적용한다.
         // 모두 소문자 → contraction만 emit; 첫 대문자 + 나머지 소문자 → ⠠(대문자 표시) + contraction.
         // 모두 대문자(CD, KBS 등)는 약자 자체이므로 contraction 적용 안 함.
-        let is_title_case_word = ctx.index == 0 && !ctx.is_all_uppercase && ctx.word_chars.first().is_some_and(|ch| ch.is_ascii_uppercase()) && ctx.word_chars.iter().skip(1).all(|ch| ch.is_ascii_lowercase()) && ctx.word_chars.len() >= 2;
+        let is_title_case_word = ctx.index == 0
+            && !ctx.is_all_uppercase
+            && ctx
+                .word_chars
+                .first()
+                .is_some_and(|ch| ch.is_ascii_uppercase())
+            && ctx
+                .word_chars
+                .iter()
+                .skip(1)
+                .all(|ch| ch.is_ascii_lowercase())
+            && ctx.word_chars.len() >= 2;
         if ctx.index == 0
             && !ctx.is_all_uppercase
             && (is_whole_lowercase_word || is_title_case_word)
@@ -127,9 +171,17 @@ impl BrailleRule for Rule28 {
         // 제39항 영-한 wrap 활성 컨텍스트에서는 단독 단어 "in", "be"도
         // UEB 약자를 적용한다 (예: "What is 김치 in English?"의 "in" → ⠔).
         let wrap_active = ctx.state.english_dominant_wrap_active;
-        let allow_10_6 = !(ctx.is_all_uppercase || (!wrap_active && be_boundary_non_alpha) || (!wrap_active && in_boundary_non_alpha) || (!wrap_active && is_whole_lowercase_word && matches!(remaining.as_str(), "be" | "in")));
-        let allow_10_4_entry = !(ctx.is_all_uppercase || (!wrap_active && in_boundary_non_alpha) || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
-        let allow_10_4_cont = !((!wrap_active && in_boundary_non_alpha) || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
+        let allow_10_6 = !(ctx.is_all_uppercase
+            || (!wrap_active && be_boundary_non_alpha)
+            || (!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active
+                && is_whole_lowercase_word
+                && matches!(remaining.as_str(), "be" | "in")));
+        let allow_10_4_entry = !(ctx.is_all_uppercase
+            || (!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
+        let allow_10_4_cont = !((!wrap_active && in_boundary_non_alpha)
+            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
 
         if !ctx.state.is_english || ctx.index == 0 {
             if allow_10_6 && let Some((code, len)) = rule_en_10_6(&remaining) {

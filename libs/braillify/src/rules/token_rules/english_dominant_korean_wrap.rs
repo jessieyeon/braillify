@@ -31,7 +31,11 @@ pub struct EnglishDominantKoreanWrapRule;
 fn build_word_token<'a>(text: &str) -> Token<'a> {
     let chars: Vec<char> = text.chars().collect();
 
-    Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
+    Token::Word(WordToken {
+        text: Cow::Owned(text.to_string()),
+        chars: chars.clone(),
+        meta: WordMeta::from_chars(&chars),
+    })
 }
 
 /// 직전 Word 토큰을 거슬러 찾는다. Space/PreEncoded는 투명.
@@ -65,7 +69,9 @@ fn word_is_english_only(word: &WordToken<'_>) -> bool {
 
 /// 슬라이스가 영문/한글 없이 문장부호로만 구성되는지.
 fn is_punct_only(chars: &[char]) -> bool {
-    chars.iter().all(|c| !c.is_ascii_alphabetic() && !is_korean_char(*c) && !c.is_ascii_digit())
+    chars
+        .iter()
+        .all(|c| !c.is_ascii_alphabetic() && !is_korean_char(*c) && !c.is_ascii_digit())
 }
 
 /// 같은 토큰 내에서 좌측을 거슬러 처음 만나는 letter가 ASCII 영문인지.
@@ -123,11 +129,17 @@ fn find_korean_segments(chars: &[char]) -> Vec<KoreanSegment> {
                 current_start = Some(idx);
             }
         } else if let Some(start) = current_start.take() {
-            segments.push(KoreanSegment { char_start: start, char_end: idx });
+            segments.push(KoreanSegment {
+                char_start: start,
+                char_end: idx,
+            });
         }
     }
     if let Some(start) = current_start {
-        segments.push(KoreanSegment { char_start: start, char_end: chars.len() });
+        segments.push(KoreanSegment {
+            char_start: start,
+            char_end: chars.len(),
+        });
     }
     segments
 }
@@ -141,10 +153,18 @@ fn first_script_char(word: &WordToken<'_>) -> Option<char> {
         return word.chars.first().copied();
     }
 
-    word.chars.iter().copied().find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch))
+    word.chars
+        .iter()
+        .copied()
+        .find(|ch| ch.is_ascii_alphabetic() || is_korean_char(*ch))
 }
 
-fn update_korean_context_scan(chars: &[char], char_start: usize, char_end: usize, scan: &mut KoreanContextScan) {
+fn update_korean_context_scan(
+    chars: &[char],
+    char_start: usize,
+    char_end: usize,
+    scan: &mut KoreanContextScan,
+) {
     let left_slice = &chars[..char_start];
     let right_slice = &chars[char_end..];
 
@@ -154,7 +174,8 @@ fn update_korean_context_scan(chars: &[char], char_start: usize, char_end: usize
     match (left_at_boundary, right_at_boundary) {
         (true, true) => scan.has_boundary_segment = true,
         (false, false) => {
-            scan.has_same_token_context |= same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice);
+            scan.has_same_token_context |=
+                same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice);
         }
         _ => {}
     }
@@ -244,10 +265,16 @@ pub fn compute_document_summary(tokens: &[Token<'_>]) -> DocumentSummary {
 
     let (english_words, korean_words) = count_script_words(tokens);
     let is_english_majority = english_words >= korean_words.max(1);
-    let is_english_dominant = english_words >= 10 && english_words >= korean_words.saturating_mul(5);
-    let has_english_context_for_korean = candidates.has_same_token_context || (candidates.has_boundary_candidate && is_english_majority);
+    let is_english_dominant =
+        english_words >= 10 && english_words >= korean_words.saturating_mul(5);
+    let has_english_context_for_korean = candidates.has_same_token_context
+        || (candidates.has_boundary_candidate && is_english_majority);
 
-    DocumentSummary { has_english_context_for_korean, is_english_majority, is_english_dominant }
+    DocumentSummary {
+        has_english_context_for_korean,
+        is_english_majority,
+        is_english_dominant,
+    }
 }
 
 /// 한글 segment의 좌·우 컨텍스트가 영어인지 판정.
@@ -262,7 +289,13 @@ pub fn compute_document_summary(tokens: &[Token<'_>]) -> DocumentSummary {
 ///
 /// 두 케이스가 _혼합_된 경우(한쪽은 token boundary, 다른 쪽은 same-token letter)는
 /// 영어 어절 + 한국어 조사/어미 결합(예: "be는")일 가능성이 높으므로 wrap하지 않는다.
-fn segment_in_english_context_with_majority<'a>(chars: &[char], seg: KoreanSegment, tokens: &[Token<'a>], token_index: usize, is_english_majority: bool) -> bool {
+fn segment_in_english_context_with_majority<'a>(
+    chars: &[char],
+    seg: KoreanSegment,
+    tokens: &[Token<'a>],
+    token_index: usize,
+    is_english_majority: bool,
+) -> bool {
     let left_slice = &chars[..seg.char_start];
     let right_slice = &chars[seg.char_end..];
 
@@ -275,14 +308,21 @@ fn segment_in_english_context_with_majority<'a>(chars: &[char], seg: KoreanSegme
             let next_eng = next_word_token(tokens, token_index).is_some_and(word_is_english_only);
             prev_eng && next_eng && is_english_majority
         }
-        (false, false) => same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice),
+        (false, false) => {
+            same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice)
+        }
         _ => false,
     }
 }
 
 /// 토큰을 한글 segment 기준으로 분할하여 각각 wrap된 토큰 시퀀스를 만든다.
 /// segment의 좌우 컨텍스트가 영어가 아닌 경우엔 그대로 둔다.
-fn build_wrapped_replacement<'a>(word: &WordToken<'a>, tokens: &[Token<'a>], token_index: usize, is_english_majority: bool) -> Option<Vec<Token<'a>>> {
+fn build_wrapped_replacement<'a>(
+    word: &WordToken<'a>,
+    tokens: &[Token<'a>],
+    token_index: usize,
+    is_english_majority: bool,
+) -> Option<Vec<Token<'a>>> {
     let segments = find_korean_segments(&word.chars);
     if segments.is_empty() {
         return None;
@@ -292,7 +332,13 @@ fn build_wrapped_replacement<'a>(word: &WordToken<'a>, tokens: &[Token<'a>], tok
 
     let mut wrap_segments = Vec::new();
     for seg in segments {
-        if segment_in_english_context_with_majority(chars, seg, tokens, token_index, is_english_majority) {
+        if segment_in_english_context_with_majority(
+            chars,
+            seg,
+            tokens,
+            token_index,
+            is_english_majority,
+        ) {
             wrap_segments.push(seg);
         }
     }
@@ -342,7 +388,12 @@ impl TokenRule for EnglishDominantKoreanWrapRule {
         50
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        state: &mut crate::rules::context::EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -365,7 +416,8 @@ impl TokenRule for EnglishDominantKoreanWrapRule {
             state.english_dominant_no_indicator = true;
         }
 
-        match build_wrapped_replacement(word, tokens, index, state.doc_summary.is_english_majority) {
+        match build_wrapped_replacement(word, tokens, index, state.doc_summary.is_english_majority)
+        {
             Some(replacement) => Ok(TokenAction::ReplaceMany(replacement)),
             None => Ok(TokenAction::Noop),
         }

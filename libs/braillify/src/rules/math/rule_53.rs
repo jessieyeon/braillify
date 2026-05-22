@@ -24,7 +24,14 @@ impl MathTokenRule for PrimeRule {
         matches!(tokens.get(index), Some(MathToken::Prime))
     }
 
-    fn apply(&self, tokens: &[MathToken], index: usize, result: &mut Vec<u8>, state: &mut MathEncodeState, _engine: &MathTokenEngine) -> Result<MathTokenResult, String> {
+    fn apply(
+        &self,
+        tokens: &[MathToken],
+        index: usize,
+        result: &mut Vec<u8>,
+        state: &mut MathEncodeState,
+        _engine: &MathTokenEngine,
+    ) -> Result<MathTokenResult, String> {
         if !matches!(tokens.get(index), Some(MathToken::Prime)) {
             return Ok(MathTokenResult::Skip);
         }

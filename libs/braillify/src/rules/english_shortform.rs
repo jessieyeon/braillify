@@ -23,7 +23,8 @@ use std::sync::OnceLock;
 /// These cause collision with all-uppercase acronyms of the same letters.
 const PURE_LETTER_SHORTFORMS: &[&str] = &[
     // a-series (10.9: about, above, according, ...)
-    "ab", "abv", "ac", "acr", "af", "afn", "afw", "ag", "al", "alm", "alr", "alt", "alw", // b-series (10.9: because, before, behind, below, ...)
+    "ab", "abv", "ac", "acr", "af", "afn", "afw", "ag", "al", "alm", "alr", "alt",
+    "alw", // b-series (10.9: because, before, behind, below, ...)
     "bc", "bf", "bh", "bl", "bn", "brl", "bs", "bt", "by", // c-series
     "cd", // could
     // d-series

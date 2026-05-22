@@ -14,7 +14,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_3: RuleMeta = RuleMeta { section: "3", subsection: None, name: "basic_jongseong", standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.2 Art.3", description: "Encode 14 basic final consonants (jongseong) to braille" };
+pub static META_3: RuleMeta = RuleMeta {
+    section: "3",
+    subsection: None,
+    name: "basic_jongseong",
+    standard_ref: "2024 Korean Braille Standard, Ch.1 Sec.2 Art.3",
+    description: "Encode 14 basic final consonants (jongseong) to braille",
+};
 
 /// Encode a jongseong character to its braille representation.
 /// Re-exports `jauem::jongseong::encode_jongseong`.
@@ -68,7 +74,22 @@ mod tests {
 
     #[test]
     fn encodes_basic_jongseong() {
-        let cases = vec![('ㄱ', vec![decode_unicode('⠁')]), ('ㄴ', vec![decode_unicode('⠒')]), ('ㄷ', vec![decode_unicode('⠔')]), ('ㄹ', vec![decode_unicode('⠂')]), ('ㅁ', vec![decode_unicode('⠢')]), ('ㅂ', vec![decode_unicode('⠃')]), ('ㅅ', vec![decode_unicode('⠄')]), ('ㅇ', vec![decode_unicode('⠶')]), ('ㅈ', vec![decode_unicode('⠅')]), ('ㅊ', vec![decode_unicode('⠆')]), ('ㅋ', vec![decode_unicode('⠖')]), ('ㅌ', vec![decode_unicode('⠦')]), ('ㅍ', vec![decode_unicode('⠲')]), ('ㅎ', vec![decode_unicode('⠴')])];
+        let cases = vec![
+            ('ㄱ', vec![decode_unicode('⠁')]),
+            ('ㄴ', vec![decode_unicode('⠒')]),
+            ('ㄷ', vec![decode_unicode('⠔')]),
+            ('ㄹ', vec![decode_unicode('⠂')]),
+            ('ㅁ', vec![decode_unicode('⠢')]),
+            ('ㅂ', vec![decode_unicode('⠃')]),
+            ('ㅅ', vec![decode_unicode('⠄')]),
+            ('ㅇ', vec![decode_unicode('⠶')]),
+            ('ㅈ', vec![decode_unicode('⠅')]),
+            ('ㅊ', vec![decode_unicode('⠆')]),
+            ('ㅋ', vec![decode_unicode('⠖')]),
+            ('ㅌ', vec![decode_unicode('⠦')]),
+            ('ㅍ', vec![decode_unicode('⠲')]),
+            ('ㅎ', vec![decode_unicode('⠴')]),
+        ];
         for (jong, expected) in cases {
             let result = apply(jong).unwrap();
             assert_eq!(result, &expected[..], "Failed for jongseong: {}", jong);
@@ -94,10 +115,21 @@ mod tests {
 
     #[test]
     fn encodes_compound_jongseong() {
-        let cases = vec![('ㄳ', vec![decode_unicode('⠁'), decode_unicode('⠄')]), ('ㄵ', vec![decode_unicode('⠒'), decode_unicode('⠅')]), ('ㄶ', vec![decode_unicode('⠒'), decode_unicode('⠴')]), ('ㄺ', vec![decode_unicode('⠂'), decode_unicode('⠁')]), ('ㅄ', vec![decode_unicode('⠃'), decode_unicode('⠄')])];
+        let cases = vec![
+            ('ㄳ', vec![decode_unicode('⠁'), decode_unicode('⠄')]),
+            ('ㄵ', vec![decode_unicode('⠒'), decode_unicode('⠅')]),
+            ('ㄶ', vec![decode_unicode('⠒'), decode_unicode('⠴')]),
+            ('ㄺ', vec![decode_unicode('⠂'), decode_unicode('⠁')]),
+            ('ㅄ', vec![decode_unicode('⠃'), decode_unicode('⠄')]),
+        ];
         for (jong, expected) in cases {
             let result = apply(jong).unwrap();
-            assert_eq!(result, &expected[..], "Failed for compound jongseong: {}", jong);
+            assert_eq!(
+                result,
+                &expected[..],
+                "Failed for compound jongseong: {}",
+                jong
+            );
         }
     }
 

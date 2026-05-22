@@ -3,16 +3,51 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "24", subsection: None, name: "middle_korean_legacy_syllables", standard_ref: "2024 Korean Braille Standard, Ch.3 Art.24", description: "Middle Korean legacy syllable glyph mappings" };
+pub static META: RuleMeta = RuleMeta {
+    section: "24",
+    subsection: None,
+    name: "middle_korean_legacy_syllables",
+    standard_ref: "2024 Korean Braille Standard, Ch.3 Art.24",
+    description: "Middle Korean legacy syllable glyph mappings",
+};
 
-const MAPPINGS: &[(char, &str)] = &[('', "⠐⠨⠣⠢"), ('', "⠊⠐⠼"), ('', "⠐⠲"), ('', "⠐⠘⠶⠕"), ('', "⠉⠣⠐⠅"), ('', "⠣⠐⠅"), ('', "⠐⠲"), ('', "⠐⠲"), ('', "⠫⠐⠲⠄"), ('', "⠐⠘⠶⠣"), ('', "⠐⠘⠶⠣⠔"), ('', "⠐⠘⠠⠣⠶"), ('', "⠠⠐⠼⠗⠶"), ('', "⠫⠢⠄"), ('', "⠉⠐⠼⠂"), ('', "⠐⠘⠶"), ('', "⠐⠼⠐⠨⠣"), ('', "⠠⠐⠼"), ('', "⠑⠐⠼⠄"), ('', "⠠⠠⠐⠼"), ('', "⠠⠠⠐⠼⠗"), ('', "⠚⠐⠼")];
+const MAPPINGS: &[(char, &str)] = &[
+    ('', "⠐⠨⠣⠢"),
+    ('', "⠊⠐⠼"),
+    ('', "⠐⠲"),
+    ('', "⠐⠘⠶⠕"),
+    ('', "⠉⠣⠐⠅"),
+    ('', "⠣⠐⠅"),
+    ('', "⠐⠲"),
+    ('', "⠐⠲"),
+    ('', "⠫⠐⠲⠄"),
+    ('', "⠐⠘⠶⠣"),
+    ('', "⠐⠘⠶⠣⠔"),
+    ('', "⠐⠘⠠⠣⠶"),
+    ('', "⠠⠐⠼⠗⠶"),
+    ('', "⠫⠢⠄"),
+    ('', "⠉⠐⠼⠂"),
+    ('', "⠐⠘⠶"),
+    ('', "⠐⠼⠐⠨⠣"),
+    ('', "⠠⠐⠼"),
+    ('', "⠑⠐⠼⠄"),
+    ('', "⠠⠠⠐⠼"),
+    ('', "⠠⠠⠐⠼⠗"),
+    ('', "⠚⠐⠼"),
+];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
-    unicode.chars().map(crate::unicode::decode_unicode).collect()
+    unicode
+        .chars()
+        .map(crate::unicode::decode_unicode)
+        .collect()
 }
 
 fn encode_legacy(c: char) -> Option<Vec<u8>> {
-    MAPPINGS.iter().find(|(candidate, _)| *candidate == c).map(|(_, unicode)| encode_unicode_cells(unicode))
+    MAPPINGS
+        .iter()
+        .find(|(candidate, _)| *candidate == c)
+        .map(|(_, unicode)| encode_unicode_cells(unicode))
 }
 
 pub struct Rule24;

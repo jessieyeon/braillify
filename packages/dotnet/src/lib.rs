@@ -24,7 +24,9 @@ fn clear_last_error() {
 #[unsafe(no_mangle)]
 pub extern "C" fn braillify_get_last_error() -> *mut c_char {
     LAST_ERROR.with(|e| match e.borrow().as_ref() {
-        Some(msg) => CString::new(msg.clone()).map(|s| s.into_raw()).unwrap_or(ptr::null_mut()),
+        Some(msg) => CString::new(msg.clone())
+            .map(|s| s.into_raw())
+            .unwrap_or(ptr::null_mut()),
         None => ptr::null_mut(),
     })
 }

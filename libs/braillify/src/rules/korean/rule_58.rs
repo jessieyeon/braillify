@@ -11,7 +11,13 @@ use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META: RuleMeta = RuleMeta { section: "58", subsection: None, name: "blank_marks", standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.58", description: "Blank marks □: prefix ⠸ + count × ⠶ + suffix ⠇" };
+pub static META: RuleMeta = RuleMeta {
+    section: "58",
+    subsection: None,
+    name: "blank_marks",
+    standard_ref: "2024 Korean Braille Standard, Ch.6 Sec.13 Art.58",
+    description: "Blank marks □: prefix ⠸ + count × ⠶ + suffix ⠇",
+};
 
 const BLANK_MARK: char = '□';
 const PREFIX: u8 = 56; // ⠸
@@ -43,19 +49,26 @@ impl BrailleRule for Rule58 {
         }
 
         // 단독 □ (앞뒤에 다른 단어 없음, word 자체도 1글자)는 rule_72/rule_15에 위임.
-        let is_lone = ctx.word_len() == 1 && ctx.prev_word.is_empty() && ctx.remaining_words.is_empty();
+        let is_lone =
+            ctx.word_len() == 1 && ctx.prev_word.is_empty() && ctx.remaining_words.is_empty();
         if is_lone {
             return false;
         }
 
         // 단어 안에서는 □가 2개 이상 연속될 때 (rule_58 본문) 적용.
-        let count = ctx.word_chars[ctx.index..].iter().take_while(|&&c| c == BLANK_MARK).count();
+        let count = ctx.word_chars[ctx.index..]
+            .iter()
+            .take_while(|&&c| c == BLANK_MARK)
+            .count();
         count >= 2
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {
         // Count consecutive □ characters
-        let count = ctx.word_chars[ctx.index..].iter().take_while(|&&c| c == BLANK_MARK).count();
+        let count = ctx.word_chars[ctx.index..]
+            .iter()
+            .take_while(|&&c| c == BLANK_MARK)
+            .count();
 
         ctx.emit(PREFIX);
         for _ in 0..count {

@@ -49,7 +49,10 @@ fn is_valid_roman_1_to_39(text: &str) -> bool {
     }
 
     let rest: String = chars.collect();
-    let ones_ok = matches!(rest.as_str(), "" | "I" | "II" | "III" | "IV" | "V" | "VI" | "VII" | "VIII" | "IX");
+    let ones_ok = matches!(
+        rest.as_str(),
+        "" | "I" | "II" | "III" | "IV" | "V" | "VI" | "VII" | "VIII" | "IX"
+    );
 
     (x_count > 0 || !rest.is_empty()) && ones_ok
 }
@@ -90,7 +93,11 @@ fn has_prev_ascii_word<'a>(tokens: &[Token<'a>], index: usize) -> bool {
 
 fn build_word_token<'a>(text: &str) -> Token<'a> {
     let chars: Vec<char> = text.chars().collect();
-    Token::Word(WordToken { text: Cow::Owned(text.to_string()), chars: chars.clone(), meta: WordMeta::from_chars(&chars) })
+    Token::Word(WordToken {
+        text: Cow::Owned(text.to_string()),
+        chars: chars.clone(),
+        meta: WordMeta::from_chars(&chars),
+    })
 }
 
 fn encode_roman_segment(text: &str, entry: u8, with_terminator: bool) -> Result<Vec<u8>, String> {
@@ -128,7 +135,12 @@ impl TokenRule for RomanNumeralRule {
         5
     }
 
-    fn apply<'a>(&self, tokens: &[Token<'a>], index: usize, state: &mut crate::rules::context::EncoderState) -> Result<TokenAction<'a>, String> {
+    fn apply<'a>(
+        &self,
+        tokens: &[Token<'a>],
+        index: usize,
+        state: &mut crate::rules::context::EncoderState,
+    ) -> Result<TokenAction<'a>, String> {
         let Some(Token::Word(word)) = tokens.get(index) else {
             return Ok(TokenAction::Noop);
         };
@@ -154,7 +166,11 @@ impl TokenRule for RomanNumeralRule {
             && is_valid_roman_1_to_39(second)
             && !starts_with_ascii_alpha(suffix)
         {
-            let first_entry = if has_prev_ascii_word(tokens, index) { ROMAN_CONTINUATION } else { ROMAN_INDICATOR };
+            let first_entry = if has_prev_ascii_word(tokens, index) {
+                ROMAN_CONTINUATION
+            } else {
+                ROMAN_INDICATOR
+            };
             let mut bytes = encode_roman_segment(first, first_entry, false)?;
             bytes.push(HYPHEN);
             bytes.extend(encode_roman_segment(second, ROMAN_CONTINUATION, true)?);
@@ -163,21 +179,31 @@ impl TokenRule for RomanNumeralRule {
                 return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
             }
 
-            return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes), build_word_token(suffix)]));
+            return Ok(TokenAction::ReplaceMany(vec![
+                Token::PreEncoded(bytes),
+                build_word_token(suffix),
+            ]));
         }
 
         if starts_with_ascii_alpha(rest) {
             return Ok(TokenAction::Noop);
         }
 
-        let entry = if has_prev_ascii_word(tokens, index) { ROMAN_CONTINUATION } else { ROMAN_INDICATOR };
+        let entry = if has_prev_ascii_word(tokens, index) {
+            ROMAN_CONTINUATION
+        } else {
+            ROMAN_INDICATOR
+        };
 
         let bytes = encode_roman_segment(first, entry, true)?;
         if rest.is_empty() {
             return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
         }
 
-        Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes), build_word_token(rest)]))
+        Ok(TokenAction::ReplaceMany(vec![
+            Token::PreEncoded(bytes),
+            build_word_token(rest),
+        ]))
     }
 }
 
@@ -377,7 +403,11 @@ mod tests {
     #[test]
     fn apply_prev_ascii_word_uses_continuation() {
         let rule = RomanNumeralRule;
-        let tokens = vec![make_word_token("hello"), Token::Space(SpaceKind::Regular), make_word_token("II")];
+        let tokens = vec![
+            make_word_token("hello"),
+            Token::Space(SpaceKind::Regular),
+            make_word_token("II"),
+        ];
         let mut state = EncoderState::new(true);
         // Apply at index 2 (the "II") — but allow_standalone is true (count=2)
         // so the first branch fires with ROMAN_INDICATOR, not continuation.
@@ -389,7 +419,11 @@ mod tests {
     fn apply_continuation_path_with_suffix() {
         let rule = RomanNumeralRule;
         // "II한국" — "II" is valid Roman, "한국" is non-ASCII suffix
-        let tokens = vec![make_word_token("hello"), Token::Space(SpaceKind::Regular), make_word_token("II한국")];
+        let tokens = vec![
+            make_word_token("hello"),
+            Token::Space(SpaceKind::Regular),
+            make_word_token("II한국"),
+        ];
         let mut state = EncoderState::new(true);
         let action = rule.apply(&tokens, 2, &mut state).unwrap();
         // First branch fails (whole text not valid Roman). Falls to split path.

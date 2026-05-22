@@ -16,7 +16,13 @@ use crate::rules::context::RuleContext;
 use crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
-pub static META_40: RuleMeta = RuleMeta { section: "40", subsection: None, name: "number_prefix", standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.40", description: "Number indicator ⠼ (60) before first digit in number sequence" };
+pub static META_40: RuleMeta = RuleMeta {
+    section: "40",
+    subsection: None,
+    name: "number_prefix",
+    standard_ref: "2024 Korean Braille Standard, Ch.5 Sec.11 Art.40",
+    description: "Number indicator ⠼ (60) before first digit in number sequence",
+};
 
 /// Number indicator (수표).
 pub const NUMBER_INDICATOR: u8 = 60; // ⠼
@@ -66,11 +72,16 @@ impl BrailleRule for Rule40 {
 
         if !ctx.state.is_number {
             // 제43항: skip prefix after continuation characters (. or ,)
-            let needs_prefix = ctx.prev_char().is_none_or(|prev| !is_number_continuation(prev));
+            let needs_prefix = ctx
+                .prev_char()
+                .is_none_or(|prev| !is_number_continuation(prev));
             if needs_prefix {
                 ctx.emit(NUMBER_INDICATOR);
                 // 제61항: apostrophe/right single quote before number emits ⠄ after 수표
-                if ctx.prev_char().is_some_and(|prev| prev == '\'' || prev == '\u{2019}') {
+                if ctx
+                    .prev_char()
+                    .is_some_and(|prev| prev == '\'' || prev == '\u{2019}')
+                {
                     ctx.emit(4);
                 }
             }
@@ -118,7 +129,11 @@ mod tests {
         let cases = vec![("1", "⠼⠁"), ("10", "⠼⠁⠚"), ("0.48", "⠼⠚⠲⠙⠓")];
         for (input, expected) in cases {
             let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 40 golden test failed for: {}", input);
+            assert_eq!(
+                result, expected,
+                "Rule 40 golden test failed for: {}",
+                input
+            );
         }
     }
 }
