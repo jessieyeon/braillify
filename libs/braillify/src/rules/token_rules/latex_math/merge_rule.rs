@@ -129,94 +129,10 @@ impl TokenRule for LatexMergeRule {
             return Ok(TokenAction::Noop);
         }
 
-        // Scan forward to find the closing $
-        let mut merged = text.to_string();
-        let mut j = index + 1;
-        let mut found_end = false;
-
-        while j < tokens.len() {
-            match &tokens[j] {
-                Token::Word(w) => {
-                    let wt = w.text.as_ref();
-                    merged.push(' ');
-                    merged.push_str(wt);
-                    if wt.ends_with('$') {
-                        found_end = true;
-                        j += 1;
-                        break;
-                    }
-                }
-                Token::Space(_) => {
-                    // Space tokens are just separators — already handled by push(' ')
-                }
-                _ => break,
-            }
-            j += 1;
-        }
-
-        if !found_end {
-            return Ok(TokenAction::Noop);
-        }
-        let merged_chars: Vec<char> = merged.chars().collect();
-        let meta = crate::rules::token::WordMeta::from_chars(&merged_chars);
-
-        // Replace current token with merged Word, and consume remaining tokens
-        // by replacing current..j range. ReplaceMany replaces tokens[i..=i], so we need
-        // to manually handle the span. Instead, replace this token and mark others for removal.
-        //
-        // The token engine's ReplaceMany replaces tokens[i..=i] with the vec.
-        // We can't remove subsequent tokens directly, but we can replace this one
-        // with the merged word and then subsequent Space/Word tokens will still be there.
-        //
-        // Better approach: just replace the current token with the merged word.
-        // The subsequent tokens (Space, Word) that were part of the $...$ will
-        // then go through normal encoding and produce wrong output, but at least
-        // the merge will happen for the first token.
-        //
-        // Actually, the cleanest approach: splice out the entire range.
-        // ReplaceMany splices tokens[i..=i], but we need tokens[i..j].
-        // Let's build a replacement that covers all consumed positions.
-
-        let replacement = [Token::Word(crate::rules::token::WordToken {
-            text: std::borrow::Cow::Owned(merged),
-            chars: merged_chars,
-            meta,
-        })];
-
-        // For each additional token consumed (after index), add an empty PreEncoded
-        // so ReplaceMany covers the right count. But ReplaceMany only replaces
-        // tokens[i..=i], not tokens[i..j]. We need a different strategy.
-        //
-        // Since we can't splice a range, let's use the merged token and hope
-        // the next tokens get skipped. Actually, ReplaceMany replaces tokens.splice(i..=i, ...)
-        // which only replaces ONE token at position i.
-        //
-        // WORKAROUND: Replace current token with merged Word, and for each subsequent
-        // consumed token, we mark them as empty PreEncoded by using our replacement vec size.
-        // The splice is tokens[i..=i] not i..j, so subsequent tokens remain.
-        //
-        // REAL FIX: We need to store the "tokens to skip" elsewhere or use a multi-token splice.
-        // For now, just output the PreEncoded bytes directly and skip the merge approach.
-
-        // Direct encoding approach: encode the merged LaTeX and output PreEncoded
-        let inner = &replacement[0];
-        if let Token::Word(w) = inner {
-            let full = w.text.as_ref();
-            if full.starts_with('$') && full.ends_with('$') && full.len() >= 3 {
-                let latex_inner = &full[1..full.len() - 1];
-                let math_context = math_context_from_state(state);
-                if let Ok(bytes) = encode_latex_math_bytes_with_context(latex_inner, math_context) {
-                    // Replace current token + consumed tokens
-                    let mut final_replacement = vec![Token::PreEncoded(bytes)];
-                    let consumed_count = j - index - 1; // tokens after index consumed
-                    for _ in 0..consumed_count {
-                        final_replacement.push(Token::PreEncoded(vec![]));
-                    }
-                    return Ok(TokenAction::ReplaceMany(final_replacement));
-                }
-            }
-        }
-
+        // PDF — `$...$` 토큰 분리 케이스: 이미 `DocumentIR::parse()`
+        // (token.rs:106-119)가 dollar-count가 odd면 끝까지 merge하므로 이 함수가
+        // 받는 시점에는 항상 단일 Word 토큰이다. 후속 다중 토큰 스캔 분기는
+        // 도달 불가하므로 단순 Noop으로 종결한다.
         Ok(TokenAction::Noop)
     }
 }

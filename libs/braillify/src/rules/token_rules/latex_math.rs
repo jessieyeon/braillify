@@ -9,10 +9,6 @@
 use crate::rules::context::EncoderState;
 use crate::rules::math;
 use crate::rules::math::math_token_rule::MathContext;
-use crate::rules::token::Token;
-use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
-
-pub struct LatexMathRule;
 
 fn math_context_from_state(state: &EncoderState) -> MathContext {
     MathContext {
@@ -92,80 +88,6 @@ pub(crate) use strip::strip_latex_to_math;
 /// see the complete LaTeX expression as one token.
 mod merge_rule;
 pub use merge_rule::LatexMergeRule;
-
-impl TokenRule for LatexMathRule {
-    fn phase(&self) -> TokenPhase {
-        TokenPhase::FractionDetection
-    }
-
-    fn priority(&self) -> u16 {
-        110 // After LatexFractionRule (100) but before InlineFractionRule (120)
-    }
-
-    fn apply<'a>(
-        &self,
-        tokens: &[Token<'a>],
-        index: usize,
-        state: &mut EncoderState,
-    ) -> Result<TokenAction<'a>, String> {
-        let Some(Token::Word(word)) = tokens.get(index) else {
-            return Ok(TokenAction::Noop);
-        };
-
-        let text = word.text.as_ref();
-
-        // PDF — `$X$는`처럼 LaTeX math 블록 + Korean particle 결합 형태도 처리한다.
-        // 이 경우 math 블록은 prose 컨텍스트로 인식되어 ⠴...⠲로 quoted된다.
-        if text.starts_with('$') && !text.ends_with('$') && text.len() >= 3 {
-            // 첫번째 매칭하는 `$` 위치 찾기
-            if let Some(close_idx) = text[1..].find('$').map(|i| i + 1) {
-                let inner = &text[1..close_idx];
-                let suffix = &text[close_idx + 1..];
-                // suffix가 Korean 글자로 시작하는지 확인
-                let has_korean_suffix = suffix
-                    .chars()
-                    .next()
-                    .is_some_and(crate::utils::is_korean_char);
-                let math_context = math_context_from_state(state);
-                if has_korean_suffix
-                    && !inner.is_empty()
-                    && inner.chars().count() <= 2
-                    && inner.chars().all(|c| c.is_ascii_alphabetic())
-                    && let Ok(inner_bytes) =
-                        encode_latex_math_bytes_with_context(inner, math_context)
-                {
-                    // ⠴ + inner + ⠲ 로 감싸고 suffix는 Korean으로 encode
-                    let mut bytes = Vec::with_capacity(inner_bytes.len() + 2);
-                    bytes.push(52);
-                    bytes.extend(inner_bytes);
-                    bytes.push(50);
-                    if let Ok(suffix_bytes) = crate::encode(suffix) {
-                        bytes.extend(suffix_bytes);
-                    }
-                    return Ok(TokenAction::ReplaceMany(vec![Token::PreEncoded(bytes)]));
-                }
-            }
-            return Ok(TokenAction::Noop);
-        }
-
-        // Only handle $...$ wrapped expressions (already merged by LatexMergeRule)
-        if !(text.starts_with('$') && text.ends_with('$') && text.len() >= 3) {
-            return Ok(TokenAction::Noop);
-        }
-
-        // Extract inner content (strip $ delimiters)
-        let inner = &text[1..text.len() - 1];
-        let math_context = math_context_from_state(state);
-
-        // Try to encode via math engine
-        match encode_latex_math_bytes_with_context(inner, math_context) {
-            Ok(bytes) => Ok(TokenAction::ReplaceMany(wrap_latex_math_tokens_with_inner(
-                tokens, index, bytes, inner,
-            ))),
-            Err(_) => Ok(TokenAction::Noop),
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {

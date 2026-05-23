@@ -358,4 +358,58 @@ mod tests {
         // annotation (제56항 path) — encoding it alone must not error.
         assert_eq!(encode_to_unicode("\u{20DE}"), "");
     }
+
+    /// 제64항 — encode_enclosed_symbol returns Err for unsupported character
+    /// (line 190). Exercise the error path.
+    #[test]
+    fn encode_enclosed_symbol_returns_err_for_unknown() {
+        assert!(encode_enclosed_symbol('가').is_err());
+        assert!(encode_enclosed_symbol('A').is_err());
+    }
+
+    /// 제64항 — Rule64.apply emits an error when the underlying
+    /// encode_enclosed_digit fails. Exercise the apply Skip path for non-symbol.
+    #[test]
+    fn rule64_apply_skips_non_symbol() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule64.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
+
+    /// 제64항 — encode_enclosed_digit returns Err for non-digit (line 109).
+    #[test]
+    fn encode_enclosed_digit_returns_err_for_non_digit() {
+        assert!(encode_enclosed_digit('a').is_err());
+        assert!(encode_enclosed_digit('가').is_err());
+    }
+
+    /// 제64항 — encode_square_anchor for English letter path (line 146).
+    #[test]
+    fn encode_square_anchor_english_letter() {
+        let bytes = encode_square_anchor('a').unwrap();
+        assert!(!bytes.is_empty());
+    }
+
+    /// 제64항 — encode_square_anchor for Number path (line 147).
+    #[test]
+    fn encode_square_anchor_number() {
+        let bytes = encode_square_anchor('1').unwrap();
+        assert!(!bytes.is_empty());
+    }
+
+    /// 제64항 — encode_square_anchor for KoreanPart path (line 148-152).
+    #[test]
+    fn encode_square_anchor_korean_part() {
+        let bytes = encode_square_anchor('ㄱ').unwrap();
+        assert!(!bytes.is_empty());
+    }
+
+    /// 제64항 — encode_square_anchor falls back to full encoder for
+    /// syllables/symbols (line 153-159).
+    #[test]
+    fn encode_square_anchor_korean_syllable_fallback() {
+        let bytes = encode_square_anchor('가').unwrap();
+        assert!(!bytes.is_empty());
+    }
 }

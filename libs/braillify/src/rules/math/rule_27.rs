@@ -32,4 +32,19 @@ mod tests {
         assert_eq!(result, vec![24, 51]);
         Ok(())
     }
+
+    #[test]
+    fn encodes_divides_symbol() -> Result<(), String> {
+        let mut result = Vec::new();
+        encode_divisibility('|', &mut result)?;
+        assert_eq!(result, vec![51]);
+        Ok(())
+    }
+
+    #[test]
+    fn rejects_unsupported_symbol() {
+        let mut result = Vec::new();
+        assert!(encode_divisibility('@', &mut result).is_err());
+        assert!(!is_divisibility_symbol('a'));
+    }
 }

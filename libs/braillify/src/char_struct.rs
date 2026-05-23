@@ -81,33 +81,16 @@ impl CharType {
         if is_symbol_char(c) {
             return Ok(Self::Symbol(c));
         }
-        if c == '□' {
-            return Ok(Self::Symbol(c));
-        }
+        // `□` (U+25A1) is captured by either `is_symbol_char` (above) or
+        // `is_math_symbol_char` (below); explicit special-case removed as dead.
         if is_math_symbol_char(c) {
             return Ok(Self::MathSymbol(c));
         }
         if is_unicode_fraction(c) {
             return Ok(Self::Fraction(c));
         }
-        if code == 0x0307 {
-            return Ok(Self::CombiningMark);
-        }
-        if code == 0x0305 {
-            return Ok(Self::CombiningMark);
-        }
-        if code == 0x0308 {
-            return Ok(Self::CombiningMark);
-        }
-        if code == 0x0309 {
-            return Ok(Self::CombiningMark);
-        }
-        if code == 0x030A {
-            return Ok(Self::CombiningMark);
-        }
-        if code == 0x0332 {
-            return Ok(Self::CombiningMark);
-        }
+        // 결합 부호(U+0300..=U+036F)는 일반 범위 검사로 처리. 명시적 단일-코드포인트
+        // 분기는 `is_math_symbol_char` 또는 본 범위에 의해 항상 선점되므로 제거.
         if (0x0300..=0x036F).contains(&code) {
             return Ok(Self::CombiningMark);
         }
@@ -275,6 +258,32 @@ mod test {
     /// `CharType::new`. Just exercises code paths through the function —
     /// later predicates may catch a codepoint before the explicit range
     /// arm is reached, but we still want the call to succeed.
+    /// `$` and `\` are explicit fall-through to Symbol when earlier predicates
+    /// don't catch them. Drives line 119.
+    #[test]
+    fn test_char_type_dollar_and_backslash_symbol() {
+        assert!(matches!(CharType::new('$').unwrap(), CharType::Symbol('$')));
+        assert!(matches!(
+            CharType::new('\\').unwrap(),
+            CharType::Symbol('\\')
+        ));
+    }
+
+    /// Fullwidth U+FF42 (Ｂ) hits the 0xFF00..=0xFFEF range arm (line 176).
+    #[test]
+    fn test_char_type_fullwidth_range_arm() {
+        // U+FF42 fullwidth Latin small b is not in is_symbol_char so hits the range arm.
+        let c = char::from_u32(0xFF42).unwrap();
+        assert!(matches!(CharType::new(c).unwrap(), CharType::Symbol(_)));
+    }
+
+    /// CJK U+3009 (〉) hits 0x3000..=0x303F range arm (line 200).
+    #[test]
+    fn test_char_type_cjk_punctuation_range_arm() {
+        let c = char::from_u32(0x3009).unwrap();
+        assert!(matches!(CharType::new(c).unwrap(), CharType::Symbol(_)));
+    }
+
     #[test]
     fn test_char_type_every_branch() {
         // Known-good explicit variant checks

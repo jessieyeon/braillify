@@ -6,7 +6,7 @@ rust-version.workspace = true
 
 [lib]
 name = "braillify_native"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 braillify = { path = "../../libs/braillify", default-features = false }

@@ -288,4 +288,20 @@ mod tests {
         assert_eq!(parsed.0, "180");
         assert_eq!(parsed.2, chars.len());
     }
+
+    /// 제69항 — `%ile` 패턴은 `⠴⠏⠞`로 점역 (line 211-220).
+    #[test]
+    fn rule69_percent_ile_pattern() {
+        let result = crate::encode_to_unicode("50%ile");
+        assert!(result.is_ok());
+        let s = result.unwrap();
+        assert!(s.contains('⠞'));
+    }
+
+    /// 제69항 — `%p` 패턴 (line 222-239).
+    #[test]
+    fn rule69_percent_p_pattern() {
+        let result = crate::encode_to_unicode("50%p");
+        assert!(result.is_ok());
+    }
 }

@@ -9,6 +9,28 @@ pub fn is_trig_function(name: &str) -> bool {
     matches!(name, "sin" | "cos" | "tan" | "csc" | "sec" | "cot")
 }
 
+/// Emits the braille bytes for a single Number or Variable token used inside
+/// a trig-function inline fraction (e.g. `sin(x/2)`). Returns Err for any
+/// other token type so the caller's failure path is observable.
+fn emit_trig_fraction_term(tok: Option<&MathToken>, result: &mut Vec<u8>) -> Result<(), String> {
+    match tok {
+        Some(MathToken::Number(n)) => {
+            result.push(60);
+            for ch in n.chars() {
+                result.extend(crate::number::encode_number(ch));
+            }
+            Ok(())
+        }
+        Some(MathToken::Variable(v)) => {
+            result.push(crate::english::encode_english(*v)?);
+            Ok(())
+        }
+        other => Err(format!(
+            "trig fraction term must be Number or Variable, got {other:?}"
+        )),
+    }
+}
+
 pub fn encode_trig_function(
     name: &str,
     tokens: &[MathToken],
@@ -63,24 +85,12 @@ pub fn encode_trig_function(
     let next_idx = *i + 1;
     if next_idx < tokens.len() {
         // Two consecutive variables: sinxy -> sin(xy)
-        if matches!(tokens.get(next_idx), Some(MathToken::Variable(_)))
-            && matches!(tokens.get(next_idx + 1), Some(MathToken::Variable(_)))
+        if let (Some(MathToken::Variable(v1)), Some(MathToken::Variable(v2))) =
+            (tokens.get(next_idx), tokens.get(next_idx + 1))
         {
             result.push(55); // Grouping open
-            result.push(crate::english::encode_english(
-                if let Some(MathToken::Variable(v)) = tokens.get(next_idx) {
-                    *v
-                } else {
-                    'x'
-                },
-            )?);
-            result.push(crate::english::encode_english(
-                if let Some(MathToken::Variable(v)) = tokens.get(next_idx + 1) {
-                    *v
-                } else {
-                    'y'
-                },
-            )?);
+            result.push(crate::english::encode_english(*v1)?);
+            result.push(crate::english::encode_english(*v2)?);
             result.push(62); // Grouping close
             *i += 3;
             return Ok(true);
@@ -97,34 +107,12 @@ pub fn encode_trig_function(
             Some(MathToken::Number(_) | MathToken::Variable(_))
         ) {
             result.push(55); // Grouping open
-            // Encode the fraction tokens
-            // We need to use the engine but we don't have it here
-            // For now, just encode the 3 tokens directly
-            match tokens.get(next_idx) {
-                Some(MathToken::Number(n)) => {
-                    result.push(60);
-                    for ch in n.chars() {
-                        result.extend(crate::number::encode_number(ch));
-                    }
-                }
-                Some(MathToken::Variable(v)) => {
-                    result.push(crate::english::encode_english(*v)?);
-                }
-                _ => {}
-            }
+            // Both sides are guaranteed Number|Variable by the outer matches!()
+            // check above; we destructure with let-bindings to keep the code
+            // surface single-branch (no defensive `_ => {}` dead arms).
+            emit_trig_fraction_term(tokens.get(next_idx), result)?;
             result.push(12); // fraction slash
-            match tokens.get(next_idx + 2) {
-                Some(MathToken::Number(n)) => {
-                    result.push(60);
-                    for ch in n.chars() {
-                        result.extend(crate::number::encode_number(ch));
-                    }
-                }
-                Some(MathToken::Variable(v)) => {
-                    result.push(crate::english::encode_english(*v)?);
-                }
-                _ => {}
-            }
+            emit_trig_fraction_term(tokens.get(next_idx + 2), result)?;
             result.push(62); // Grouping close
             *i += 4;
             return Ok(true);
@@ -137,6 +125,7 @@ pub fn encode_trig_function(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rules::math::parser::BracketKind;
 
     fn enc(input: &str) -> Vec<u8> {
         crate::encode(input).unwrap_or_default()
@@ -200,5 +189,134 @@ mod tests {
             let bytes = enc(&format!("$\\{f}x$"));
             assert!(!bytes.is_empty(), "{f}");
         }
+    }
+
+    /// 제46항 — encode_trig_function returns Ok(false) for non-trig name (line 19-21).
+    #[test]
+    fn encode_trig_returns_false_for_non_trig() {
+        let toks = vec![MathToken::Variable('x')];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        let handled =
+            encode_trig_function("log", &toks, &mut i, &mut result, |_, _| None).expect("ok");
+        assert!(!handled);
+        assert!(result.is_empty());
+    }
+
+    /// 제46항 — encode_trig_function when function::encode_function returns None
+    /// (unsupported trig name). Drives line 22-24 (Some(encoded) = ...).
+    /// Trig names are all defined so we use a stub find_matching_paren that doesn't matter.
+    /// This path is implicitly hard to hit because all trig names exist, so we ensure
+    /// the early-return path on non-trig is the only escape (already covered above).
+    #[test]
+    fn encode_trig_function_basic_path() {
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::Variable('x'),
+        ];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        let handled =
+            encode_trig_function("sin", &toks, &mut i, &mut result, |_, _| None).expect("ok");
+        assert!(handled);
+        assert!(!result.is_empty());
+        // `i` must advance past the function token (exact final position depends
+        // on the inner trig dispatch — we just verify it did move).
+        assert!(i >= 1);
+    }
+
+    /// 제46항 — encode_trig_function with paren V/N pattern drives lines 41-58.
+    #[test]
+    fn encode_trig_function_paren_v_n_fraction() {
+        // sin(x/2) — paren wraps variable/number
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('x'),
+            MathToken::Operator('/'),
+            MathToken::Number("2".into()),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        let handled = encode_trig_function("sin", &toks, &mut i, &mut result, |t, idx| {
+            if let Some(MathToken::OpenParen(_)) = t.get(idx) {
+                t[idx + 1..]
+                    .iter()
+                    .position(|x| matches!(x, MathToken::CloseParen(_)))
+                    .map(|p| p + idx + 1)
+            } else {
+                None
+            }
+        })
+        .expect("ok");
+        assert!(handled);
+        assert!(!result.is_empty());
+    }
+
+    /// 제46항 — two consecutive variables (sinxy → group) drives lines 64-87.
+    /// The fallback variable bindings inside the closures at lines 71-83 are
+    /// dead-code defensive defaults; the primary path always supplies Variable.
+    #[test]
+    fn encode_trig_function_two_consecutive_vars_path() {
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::Variable('x'),
+            MathToken::Variable('y'),
+        ];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        encode_trig_function("sin", &toks, &mut i, &mut result, |_, _| None).expect("ok");
+        // i advanced past sin + x + y
+        assert_eq!(i, 3);
+    }
+
+    /// 제46항 — N/N fraction-without-parens (sin6/3) drives lines 89-130.
+    #[test]
+    fn encode_trig_function_inline_n_slash_n_fraction() {
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::Number("6".into()),
+            MathToken::Operator('/'),
+            MathToken::Number("3".into()),
+        ];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        encode_trig_function("sin", &toks, &mut i, &mut result, |_, _| None).expect("ok");
+        assert_eq!(i, 4);
+    }
+
+    /// 제46항 — V/V fraction-without-parens (sin a/b) drives lines 103-126.
+    #[test]
+    fn encode_trig_function_inline_v_slash_v_fraction() {
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::Variable('a'),
+            MathToken::Operator('/'),
+            MathToken::Variable('b'),
+        ];
+        let mut i = 0usize;
+        let mut result = Vec::new();
+        encode_trig_function("sin", &toks, &mut i, &mut result, |_, _| None).expect("ok");
+        assert_eq!(i, 4);
+    }
+
+    /// `emit_trig_fraction_term` happy path for Number and Variable, and the
+    /// defensive Err arm for any other token (None or non-Number-non-Variable).
+    #[test]
+    fn emit_trig_fraction_term_branches() {
+        let mut r = Vec::new();
+        emit_trig_fraction_term(Some(&MathToken::Number("7".into())), &mut r).unwrap();
+        assert!(!r.is_empty());
+
+        let mut r = Vec::new();
+        emit_trig_fraction_term(Some(&MathToken::Variable('z')), &mut r).unwrap();
+        assert!(!r.is_empty());
+
+        let mut r = Vec::new();
+        assert!(emit_trig_fraction_term(None, &mut r).is_err());
+
+        let mut r = Vec::new();
+        assert!(emit_trig_fraction_term(Some(&MathToken::Operator('+')), &mut r).is_err());
     }
 }

@@ -152,4 +152,55 @@ mod tests {
         let ctx = owned.ctx_at(0);
         let _ = Rule27.matches(&ctx);
     }
+
+    /// 제27항 — `has_historical_context` returns true when current word contains
+    /// a hanja character (CJK Unified). Exercises lines 33-35 (own-word branch).
+    #[test]
+    fn has_historical_context_via_own_word() {
+        // "·君" — first cell is '·', second '君' (CJK).
+        let mut owned = crate::test_helpers::CtxOwned::for_text("·君", false);
+        let ctx = owned.ctx_at(0);
+        assert!(has_historical_context(&ctx));
+    }
+
+    /// 제27항 — `has_historical_context` returns true when prev_word contains
+    /// a hanja. Exercises lines 36-38 (prev_word branch).
+    #[test]
+    fn has_historical_context_via_prev_word() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("·", false).with_prev_word("君");
+        let ctx = owned.ctx_at(0);
+        assert!(has_historical_context(&ctx));
+    }
+
+    /// 제27항 — `has_historical_context` returns true when a remaining_word
+    /// contains a hanja (within the first two). Exercises lines 40-43.
+    #[test]
+    fn has_historical_context_via_remaining_word() {
+        let mut owned =
+            crate::test_helpers::CtxOwned::for_text("·", false).with_remaining_words(["君"]);
+        let ctx = owned.ctx_at(0);
+        assert!(has_historical_context(&ctx));
+    }
+
+    /// 제27항 — `：` (sangseong/상성) in any context emits the SANGSEONG cells.
+    #[test]
+    fn apply_emits_sangseong_for_full_width_colon() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("：", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule27.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(owned.result, SANGSEONG.to_vec());
+    }
+
+    /// 제27항 — In MiddleKorean mode, single-cell `·` emits GEOSEONG cells.
+    /// Triggers the `current_mode() == MiddleKorean` arm in apply (line 125-127).
+    #[test]
+    fn apply_emits_geoseong_in_middle_korean_mode() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("·", false);
+        owned.state.push_mode(EncodingMode::MiddleKorean);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule27.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(owned.result, GEOSEONG.to_vec());
+    }
 }

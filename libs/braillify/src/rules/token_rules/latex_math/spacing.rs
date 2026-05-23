@@ -2,6 +2,32 @@
 
 use crate::rules::token::Token;
 
+/// Whether the immediate neighbour (direct or via single Space) is a Korean Word.
+fn neighbor_is_korean(tokens: &[Token<'_>], index: usize, dir: NeighborDir) -> bool {
+    let direct = match dir {
+        NeighborDir::Prev => index.checked_sub(1).and_then(|i| tokens.get(i)),
+        NeighborDir::Next => tokens.get(index + 1),
+    };
+    let Some(tok) = direct else { return false };
+    if let Token::Word(w) = tok {
+        return w.meta.has_korean;
+    }
+    if matches!(tok, Token::Space(_)) {
+        let beyond = match dir {
+            NeighborDir::Prev => index.checked_sub(2).and_then(|i| tokens.get(i)),
+            NeighborDir::Next => tokens.get(index + 2),
+        };
+        return beyond.is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean));
+    }
+    false
+}
+
+#[derive(Clone, Copy)]
+enum NeighborDir {
+    Prev,
+    Next,
+}
+
 pub(super) fn previous_content_needs_math_spacing(tokens: &[Token<'_>], index: usize) -> usize {
     let Some(previous_index) = index.checked_sub(1) else {
         return 0;
@@ -69,28 +95,8 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
                 && part.chars().all(|c| c.is_ascii_alphabetic())
         });
     let in_korean_prose = if is_short_prose_letter || comma_separated_letter_list {
-        let prev_is_korean = index
-            .checked_sub(1)
-            .and_then(|prev_idx| tokens.get(prev_idx))
-            .map(|tok| match tok {
-                Token::Word(word) => word.meta.has_korean,
-                Token::Space(_) => index
-                    .checked_sub(2)
-                    .and_then(|left_idx| tokens.get(left_idx))
-                    .is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean)),
-                _ => false,
-            })
-            .unwrap_or(false);
-        let next_is_korean = tokens
-            .get(index + 1)
-            .map(|tok| match tok {
-                Token::Word(word) => word.meta.has_korean,
-                Token::Space(_) => tokens
-                    .get(index + 2)
-                    .is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean)),
-                _ => false,
-            })
-            .unwrap_or(false);
+        let prev_is_korean = neighbor_is_korean(tokens, index, NeighborDir::Prev);
+        let next_is_korean = neighbor_is_korean(tokens, index, NeighborDir::Next);
         prev_is_korean || next_is_korean
     } else {
         false

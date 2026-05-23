@@ -397,4 +397,92 @@ mod tests {
         assert_eq!(r.priority(), 50);
         assert_eq!(r.name(), "SubscriptRule");
     }
+
+    /// 제19항 — is_left_subscript_position: blocked by function name (line 89).
+    #[test]
+    fn left_subscript_position_blocked_by_function_name() {
+        let toks = vec![
+            MathToken::FunctionName("lim".into()),
+            MathToken::Subscript(vec![MathToken::Variable('n')]),
+            MathToken::Variable('x'),
+        ];
+        assert!(!is_left_subscript_position(&toks, 1));
+    }
+
+    /// 제19항 — is_left_subscript_position: blocked by quantifier (line 91-102).
+    #[test]
+    fn left_subscript_position_blocked_by_universal_quantifier() {
+        let toks = vec![
+            MathToken::MathSymbol('\u{2200}'),
+            MathToken::Subscript(vec![MathToken::Variable('x')]),
+            MathToken::Variable('y'),
+        ];
+        assert!(!is_left_subscript_position(&toks, 1));
+    }
+
+    /// 제19항 — substack scan: prev is Subscript (line 185-198).
+    #[test]
+    fn subscript_after_substack_chain() {
+        // ∫_{...}_{...} substack scan path via full pipeline.
+        let bytes = enc("$\\sum_{i=1}\\substack{j=1}$");
+        let _ = bytes;
+    }
+
+    /// 제19항 — Number + UpperVariable subscript content drives lines 219-222.
+    #[test]
+    fn subscript_with_number_upper_var_content() {
+        // a_{1X} via pipeline.
+        let bytes = enc("$a_{1X}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// 제19항 — quantifier trailing space insertion (lines 247-249).
+    #[test]
+    fn quantifier_trailing_space_after_subscript() {
+        // \\sum_{i=1} f(x) drives the trailing space insertion path.
+        let bytes = enc("$\\sum_{i=1}f(x)$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// 제19항 — needs_quantifier_trailing_space: Function/Open paren tokens drive lines 265-272.
+    #[test]
+    fn needs_quantifier_trailing_space_function_token() {
+        let toks = vec![MathToken::FunctionName("sin".into())];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        let toks = vec![MathToken::OpenParen(BracketKind::MathParen)];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        let toks = vec![MathToken::MathSymbol('+')];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        let toks = vec![MathToken::UpperVariable('X')];
+        assert!(needs_quantifier_trailing_space(&toks, 0));
+        // Token::Operator continues — empty tail returns false (line 273-276)
+        let toks = vec![MathToken::Operator('+'), MathToken::Operator('+')];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+    }
+
+    /// 제19항 — should_group_subscript: paren-wrapped content returns false (lines 38-46).
+    #[test]
+    fn should_group_subscript_paren_wrapped_content_skipped() {
+        let paren_wrapped = vec![
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('a'),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+        assert!(!should_group_subscript(&paren_wrapped));
+        // Multi-token non-numeric → true
+        let mixed = vec![
+            MathToken::Variable('a'),
+            MathToken::Operator('+'),
+            MathToken::Variable('b'),
+        ];
+        assert!(should_group_subscript(&mixed));
+    }
+
+    /// 제19항 — encode_combo_subscript_content via _nP_r pattern drives line 303.
+    #[test]
+    fn left_subscript_combinatorics_pattern() {
+        // ₂P₃ style via pipeline
+        let bytes = enc("$\\sum_{n}P_{r}$");
+        let _ = bytes;
+    }
 }

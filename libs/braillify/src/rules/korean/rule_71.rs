@@ -133,4 +133,31 @@ mod tests {
         let ctx = owned.ctx_at(0);
         let _ = Rule71.matches(&ctx);
     }
+
+    /// 제71항 — § 정보 기호가 직후 숫자를 만나면 종료표(⠲) 생략 (line 84-86).
+    #[test]
+    fn rule71_section_sign_before_digit_omits_terminator() {
+        let word: Vec<char> = "§1".chars().collect();
+        let ct = CharType::Symbol('§');
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 0,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule71.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        // No ⠲ terminator because next char is a digit
+        assert!(!out.contains(&crate::unicode::decode_unicode('⠲')));
+    }
 }

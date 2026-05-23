@@ -131,3 +131,122 @@ impl TokenRule for EmphasisRingRule {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::context::EncoderState;
+    use crate::rules::token::{SpaceKind, WordMeta};
+
+    fn word(text: &str) -> Token<'_> {
+        let chars: Vec<char> = text.chars().collect();
+        let meta = WordMeta::from_chars(&chars);
+        Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars,
+            meta,
+        })
+    }
+
+    /// `is_emphasis_word` requires both a combining mark AND a Korean char in
+    /// the same word. Non-Korean inputs with marks pass through.
+    #[test]
+    fn is_emphasis_word_table() {
+        // Combining mark + Korean → emphasis.
+        assert!(is_emphasis_word("훈민정음\u{030A}"));
+        // Combining mark + Latin only → NOT emphasis.
+        assert!(!is_emphasis_word("Å"));
+        // Korean only → no marks → NOT emphasis.
+        assert!(!is_emphasis_word("훈민정음"));
+        // Empty → NOT emphasis.
+        assert!(!is_emphasis_word(""));
+    }
+
+    /// `is_ring_mark_only` recognises strings made up of ring marks only.
+    #[test]
+    fn is_ring_mark_only_table() {
+        assert!(is_ring_mark_only("\u{030A}"));
+        assert!(is_ring_mark_only("\u{0307}"));
+        assert!(is_ring_mark_only("\u{030A}\u{0307}"));
+        assert!(!is_ring_mark_only(""));
+        assert!(!is_ring_mark_only("a"));
+        assert!(!is_ring_mark_only("\u{030A}a"));
+    }
+
+    /// `apply` Word arm with a Korean+ring-mark word emits open/word/close
+    /// PreEncoded triple (lines 60-79).
+    #[test]
+    fn apply_word_emphasis_emits_triple() {
+        let tokens = vec![word("훈민정음\u{030A}")];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 0, &mut state).unwrap();
+        match action {
+            TokenAction::ReplaceMany(replacement) => {
+                assert_eq!(replacement.len(), 3);
+            }
+            _ => panic!("expected ReplaceMany(3 tokens)"),
+        }
+    }
+
+    /// `apply` Word arm with a pure ring-mark-only word → `trimmed.is_empty()`
+    /// → `ReplaceMany(vec![])` (line 67).
+    #[test]
+    fn apply_word_pure_ring_marks_returns_empty_replace() {
+        // Need both: contains ring mark AND contains Korean (is_emphasis_word).
+        // Use one Korean char + many marks then trim leaves the Korean char,
+        // so for line 67 we need a word where trim leaves empty — that means
+        // marks-only. But is_emphasis_word requires Korean. So this specific
+        // arm requires the predicates to be inconsistent. Drive via direct call:
+        // a hypothetical "marks-only" word that is_emphasis_word still admits
+        // is impossible by the predicates' construction.
+        //
+        // The arm therefore is reachable only by a future predicate-relaxation;
+        // synthesise it by calling the helper with a string that satisfies both
+        // (impossible via real inputs but valid to test the trim branch).
+        //
+        // Drive the trim_ring_marks contract directly instead:
+        assert_eq!(trim_ring_marks("\u{030A}\u{0307}"), "");
+        assert_eq!(trim_ring_marks("a\u{030A}b"), "ab");
+    }
+
+    /// Space token between two emphasis-context Words → close-emphasis arm
+    /// (lines 119-126).
+    #[test]
+    fn apply_space_between_emphasis_and_real_word_closes() {
+        let tokens = vec![
+            word("훈민정음\u{030A}"),
+            Token::Space(SpaceKind::Regular),
+            word("이다"),
+        ];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 1, &mut state).unwrap();
+        match action {
+            TokenAction::Replace(Token::PreEncoded(bytes)) => {
+                assert_eq!(bytes.len(), 2);
+            }
+            _ => panic!("expected close-emphasis PreEncoded"),
+        }
+    }
+
+    /// Space adjacent to a ring-mark-only word → spacing-removal arm.
+    #[test]
+    fn apply_space_adjacent_ring_mark_only_removes_spacing() {
+        let tokens = vec![
+            word("훈민정음"),
+            Token::Space(SpaceKind::Regular),
+            word("\u{030A}"),
+        ];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 1, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::ReplaceMany(_)));
+    }
+
+    /// Non-Word non-Space token → trailing default arm.
+    #[test]
+    fn apply_non_word_non_space_falls_through() {
+        let tokens = vec![Token::PreEncoded(vec![1])];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Noop));
+    }
+}

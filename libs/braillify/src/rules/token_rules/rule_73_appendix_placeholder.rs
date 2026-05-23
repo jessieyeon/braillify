@@ -84,3 +84,93 @@ impl TokenRule for Rule73AppendixPlaceholderRule {
         Ok(TokenAction::ReplaceRange(consume_count, replacement))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::{SpaceKind, WordMeta, WordToken};
+    use std::borrow::Cow;
+
+    fn word_tok(text: &str) -> Token<'_> {
+        let chars: Vec<char> = text.chars().collect();
+        let meta = WordMeta::from_chars(&chars);
+        Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars,
+            meta,
+        })
+    }
+
+    /// U+F000 placeholder Word followed by Space + non-Word (end of input)
+    /// → Noop. Drives line 43.
+    #[test]
+    fn placeholder_followed_by_end_returns_noop() {
+        let placeholder = word_tok("\u{F000}");
+        let tokens = vec![placeholder, Token::Space(SpaceKind::Regular)];
+        let mut state = EncoderState::new(false);
+        let action = Rule73AppendixPlaceholderRule
+            .apply(&tokens, 0, &mut state)
+            .expect("ok");
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// U+F000 placeholder Word with extra chars (U+F000 + 'A') followed by Space
+    /// + Word("은/는...") — drives lines 71-78 (rest_after_f000 push).
+    #[test]
+    fn placeholder_with_extra_chars_pushes_rest() {
+        let placeholder = word_tok("\u{F000}A");
+        let euntneun = word_tok("은/는");
+        let tokens = vec![placeholder, Token::Space(SpaceKind::Regular), euntneun];
+        let mut state = EncoderState::new(false);
+        let action = Rule73AppendixPlaceholderRule
+            .apply(&tokens, 0, &mut state)
+            .expect("ok");
+        let TokenAction::ReplaceRange(_, replacement) = action else {
+            panic!("expected ReplaceRange");
+        };
+        // replacement must contain: PreEncoded(prefix), Word(rest="A"), Word("은/는")
+        assert!(replacement.len() >= 3);
+        // The middle Word should carry the leftover characters from the placeholder Word.
+        assert!(
+            replacement
+                .iter()
+                .any(|t| matches!(t, Token::Word(w) if w.text == "A"))
+        );
+    }
+
+    /// Plain Word (no U+F000 prefix) → Noop. Drives line 34.
+    #[test]
+    fn non_placeholder_word_returns_noop() {
+        let tokens = vec![word_tok("hello")];
+        let mut state = EncoderState::new(false);
+        let action = Rule73AppendixPlaceholderRule
+            .apply(&tokens, 0, &mut state)
+            .expect("ok");
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// Non-Word token at index → Noop. Drives line 31.
+    #[test]
+    fn non_word_token_returns_noop() {
+        let tokens = vec![Token::PreEncoded(vec![1, 2, 3])];
+        let mut state = EncoderState::new(false);
+        let action = Rule73AppendixPlaceholderRule
+            .apply(&tokens, 0, &mut state)
+            .expect("ok");
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// U+F000 placeholder + Space + Word that does NOT start with "은/는" → Noop.
+    /// Drives line 47.
+    #[test]
+    fn placeholder_next_word_not_eunneun_returns_noop() {
+        let placeholder = word_tok("\u{F000}");
+        let other = word_tok("xyz");
+        let tokens = vec![placeholder, Token::Space(SpaceKind::Regular), other];
+        let mut state = EncoderState::new(false);
+        let action = Rule73AppendixPlaceholderRule
+            .apply(&tokens, 0, &mut state)
+            .expect("ok");
+        assert!(matches!(action, TokenAction::Noop));
+    }
+}

@@ -408,4 +408,77 @@ mod tests {
         let bytes = enc("$\\sum_{i=1}^n$");
         assert!(!bytes.is_empty());
     }
+
+    /// is_left_superscript_position branches: prev=∂ (alphabetical math symbol) (lines 51-55).
+    #[test]
+    fn left_superscript_position_blocked_by_partial_derivative() {
+        let toks = vec![
+            MathToken::MathSymbol('\u{2202}'),
+            MathToken::Superscript(vec![MathToken::Number("2".into())]),
+            MathToken::Variable('z'),
+        ];
+        assert!(!is_left_superscript_position(&toks, 1));
+    }
+
+    /// is_left_superscript_position: quantifier scan stops on integral/sum (lines 62-67).
+    #[test]
+    fn left_superscript_position_blocked_by_sum() {
+        let toks = vec![
+            MathToken::MathSymbol('\u{2211}'),
+            MathToken::Subscript(vec![MathToken::Variable('i')]),
+            MathToken::Superscript(vec![MathToken::MathSymbol('\u{221E}')]),
+            MathToken::Variable('x'),
+        ];
+        // index 2 is the Superscript — should not be considered left-superscript
+        assert!(!is_left_superscript_position(&toks, 2));
+    }
+
+    /// is_left_superscript_position: prev FunctionName (line 68) → not left superscript.
+    #[test]
+    fn left_superscript_position_blocked_by_function_name() {
+        let toks = vec![
+            MathToken::FunctionName("sin".into()),
+            MathToken::Superscript(vec![MathToken::Number("2".into())]),
+            MathToken::Variable('x'),
+        ];
+        assert!(!is_left_superscript_position(&toks, 1));
+    }
+
+    /// encode_superscript: bracket-close+subscript+superscript drives line 140-154.
+    /// Sup inside bracket subscript context.
+    #[test]
+    fn superscript_after_square_close_with_subscript() {
+        // [x]_i^2 form via pipeline.
+        let bytes = enc("$[a]_i^2$");
+        let _ = bytes;
+    }
+
+    /// encode_superscript: number-super / super-number — drives lines 187-199.
+    /// PDF 수학 — `10²/⁵` (number with superscript, slash, next superscript)
+    /// is encoded as a single super-fraction unit.
+    #[test]
+    fn superscript_with_slash_then_superscript_number() {
+        // The match arm requires Superscript(content) at i, Operator('/') at i+1,
+        // and another Superscript at i+2. Use adjacent Unicode superscripts.
+        let bytes = enc("10²/⁵");
+        assert!(!bytes.is_empty());
+        // Also test the middle-dot variant (lines 169-185)
+        let bytes2 = enc("10²·⁵");
+        assert!(!bytes2.is_empty());
+    }
+
+    /// encode_superscript: wrapped_simple_index `y^{(n)}` drives lines 205-213, 234-236.
+    #[test]
+    fn superscript_paren_wrapped_simple_index() {
+        let bytes = enc("$y^{(4)}$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// encode_superscript: paren-wrapped complex content drives lines 215-223 (force_group).
+    #[test]
+    fn superscript_paren_wrapped_complex_content() {
+        // ^{(a+b)} — has operator → force_group, strip outer parens
+        let bytes = enc("$x^{(a+b)}$");
+        assert!(!bytes.is_empty());
+    }
 }

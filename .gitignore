@@ -43,3 +43,13 @@ mutants.out/
 mutants.out.old/
 **/mutants.out/
 **/mutants.out.old/
+
+# cargo-tarpaulin coverage outputs — `cargo tarpaulin --out Lcov` writes lcov.info
+# to the workspace root; HTML/JSON reports drop tarpaulin-report.{html,json}.
+# `cobertura.xml` is already ignored above.
+lcov.info
+**/lcov.info
+tarpaulin-report.html
+tarpaulin-report.json
+**/tarpaulin-report.html
+**/tarpaulin-report.json

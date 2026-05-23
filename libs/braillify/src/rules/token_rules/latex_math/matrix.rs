@@ -24,8 +24,13 @@ impl MatrixDelimiter {
             MatrixDelimiter::VerticalBars => vec![decode_unicode('⠳')],
             // PDF 제6항 1 — 연립식(`\begin{cases}`)은 `⠶⠄`로 시작한다.
             MatrixDelimiter::Cases => vec![decode_unicode('⠶'), decode_unicode('⠄')],
-            // Array는 별도 인코더에서 테두리(상/하)로 처리하므로 단순 open/close는 미사용.
-            MatrixDelimiter::Array => Vec::new(),
+            // PDF 제10항 — Array는 `encode_latex_array`로 분기되므로 호출자는
+            // 이 함수에 Array variant를 절대 전달하지 않는다 (encode_latex_matrix:221
+            // 의 early return 참조). 따라서 이 arm은 호출 컨트랙트상 도달 불가능.
+            MatrixDelimiter::Array => unreachable!(
+                "MatrixDelimiter::Array is dispatched to encode_latex_array; \
+                 open_bytes must never be called for the Array variant"
+            ),
         }
     }
 
@@ -35,7 +40,12 @@ impl MatrixDelimiter {
             MatrixDelimiter::VerticalBars => vec![decode_unicode('⠳')],
             // PDF 제6항 1 — 연립식 종결은 `⠠⠶`.
             MatrixDelimiter::Cases => vec![decode_unicode('⠠'), decode_unicode('⠶')],
-            MatrixDelimiter::Array => Vec::new(),
+            // See `open_bytes` — Array variant is dispatched to `encode_latex_array`
+            // and never reaches this match.
+            MatrixDelimiter::Array => unreachable!(
+                "MatrixDelimiter::Array is dispatched to encode_latex_array; \
+                 close_bytes must never be called for the Array variant"
+            ),
         }
     }
 }

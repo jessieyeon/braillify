@@ -417,6 +417,63 @@ mod tests {
         assert!(!out.is_empty());
     }
 
+    /// 제68항 — `1+등급`: digit + plus + 한글 → SUPERSCRIPT prefix + plus cell
+    /// + 분리 공백(line 192-212).
+    #[test]
+    fn rule68_apply_digit_grade_plus_followed_by_korean() {
+        let word: Vec<char> = "1+등급".chars().collect();
+        let ct = CharType::MathSymbol('+');
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 1,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: true,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule68.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        // First emitted cell is SUPERSCRIPT_PREFIX (⠘)
+        assert_eq!(out[0], SUPERSCRIPT_PREFIX);
+        // Last emitted cell is space 0 because next is 한글
+        assert_eq!(*out.last().unwrap(), 0);
+    }
+
+    /// 제68항 — apply path for compact ASCII notation (uppercase + superscript)
+    /// triggers `encode_compact_ascii_notation` consumed branch (line 171-183).
+    #[test]
+    fn rule68_apply_compact_ascii_uppercase_superscript() {
+        let word: Vec<char> = "A⁺".chars().collect();
+        let ct = CharType::English('A');
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 0,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: true,
+            ascii_starts_at_beginning: true,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule68.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!out.is_empty());
+    }
+
     #[test]
     fn should_insert_separator_after_symbol_only_for_specific_pattern() {
         use crate::char_struct::CharType;

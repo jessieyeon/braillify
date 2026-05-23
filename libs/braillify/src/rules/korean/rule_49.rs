@@ -274,4 +274,67 @@ mod tests {
         let outcome = Rule49.apply(&mut ctx).unwrap();
         assert!(matches!(outcome, RuleResult::Skip));
     }
+
+    /// 제49항 [붙임] — 물음표(?)가 어절 처음에 한국어 컨텍스트로 나오면
+    /// 기호 설명 점역 ⠸⠦…⠠⠄물음표⠠⠄ 형태를 emit (lines 87-107).
+    /// `next_is_korean_or_end` 분기.
+    #[test]
+    fn rule49_question_mark_in_korean_context_descriptive() {
+        let word_chars = ['?'];
+        let char_type = CharType::Symbol('?');
+        let mut skip_count = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut result = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word_chars,
+            index: 0,
+            char_type: &char_type,
+            prev_word: "가",
+            remaining_words: &["가"],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip_count,
+            state: &mut state,
+            result: &mut result,
+        };
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        // Descriptive output is multi-cell ⠸⠦ ... 물음표 ... ⠠⠄
+        assert!(result.len() > 5);
+    }
+
+    /// 제49항 — 단독 `×` (한 글자 단어, 인접 단어 없음)는 ⠸⠭⠇로 점역
+    /// (lines 150-161).
+    #[test]
+    fn rule49_standalone_times_emits_object_symbol_form() {
+        let word_chars = ['×'];
+        let char_type = CharType::Symbol('×');
+        let mut skip_count = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut result = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word_chars,
+            index: 0,
+            char_type: &char_type,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip_count,
+            state: &mut state,
+            result: &mut result,
+        };
+        let outcome = Rule49.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert_eq!(
+            result,
+            vec![
+                decode_unicode('⠸'),
+                decode_unicode('⠭'),
+                decode_unicode('⠇'),
+            ]
+        );
+    }
 }

@@ -218,4 +218,24 @@ mod tests {
         let outcome = Rule8.apply(&mut ctx).unwrap();
         assert!(matches!(outcome, RuleResult::Skip));
     }
+
+    /// 제8항 — multi-char jamo sequence without any Korean syllable in the word
+    /// must use 온표 (제8항 standalone context) since `has_korean_char=false`.
+    #[test]
+    fn multi_char_without_korean_falls_back_to_ontab() {
+        let chars = ['ㄱ', 'ㄴ', 'ㄷ'];
+        // has_korean_char=false → !has_korean_char branch should pick ONTAB
+        assert_eq!(determine_prefix(3, 1, &chars, false, not_symbol), ONTAB);
+    }
+
+    /// 제9항 — jamo numbering (ㄱ.) inside the apply path emits ONTAB + jongseong.
+    #[test]
+    fn rule8_apply_jamo_numbering_emits_ontab_and_jongseong() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("ㄱ.", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule8.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!owned.result.is_empty());
+        assert_eq!(owned.result[0], ONTAB);
+    }
 }

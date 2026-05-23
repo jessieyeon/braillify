@@ -95,4 +95,33 @@ mod tests {
         assert_eq!(META.section, "44");
         assert_eq!(META.name, "number_korean_spacing");
     }
+
+    /// 제44항 [다만] — 가운뎃점(·) 바로 뒤에 confusable 한글이 오면 부착 분리자
+    /// ⠈(8)을 emit한다 (line 62-63). 가운뎃점 열거 컨텍스트.
+    #[test]
+    fn rule44_apply_emits_attached_separator_after_middle_dot() {
+        // "·" + "ㅎ어" pattern — confusable choseong ㅎ after middle dot
+        let word: Vec<char> = "·하".chars().collect();
+        let ct = CharType::new(word[1]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        state.is_number = true;
+        let mut out = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 1,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: true,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule44.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Continue));
+        assert_eq!(out, vec![8]); // attached separator
+    }
 }

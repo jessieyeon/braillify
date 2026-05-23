@@ -371,7 +371,7 @@ static MATRIX_MATH_MODE_ENGINE: LazyLock<MathTokenEngine> = LazyLock::new(|| {
     })
 });
 
-fn math_engine_for_context(context: MathContext) -> &'static MathTokenEngine {
+pub(super) fn math_engine_for_context(context: MathContext) -> &'static MathTokenEngine {
     match (context.matrix_context_active, context.math_mode_active) {
         (false, false) => &DEFAULT_MATH_ENGINE,
         (true, false) => &MATRIX_MATH_ENGINE,
@@ -1201,5 +1201,46 @@ mod tests {
         // suppress_before_operator(Var z, 5) → not op → false.
         // Result: true || false = true. Mutant: true && false = false.
         assert!(should_suppress_space(&mirror, 4));
+    }
+
+    /// Drives `math_engine_for_context` (true, true) arm → initializes
+    /// `MATRIX_MATH_MODE_ENGINE` lazy block (lines 367-372).
+    #[test]
+    fn matrix_math_mode_engine_initializes() {
+        let _ = math_engine_for_context(MathContext {
+            matrix_context_active: true,
+            math_mode_active: true,
+        });
+    }
+
+    /// `KoreanWordRule.apply` defensive Skip when token is not KoreanWord.
+    /// `matches()` guarantees correctness; the Skip arm is type-safety only.
+    #[test]
+    fn korean_word_rule_apply_skip_on_non_korean_word() {
+        let tokens = vec![MathToken::Variable('x')];
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let engine = math_engine_for_context(MathContext::default());
+        let mut result = Vec::new();
+        let outcome = KoreanWordRule
+            .apply(&tokens, 0, &mut result, &mut state, engine)
+            .unwrap();
+        assert!(matches!(outcome, MathTokenResult::Skip));
+    }
+
+    /// Drive `is_mixed_times_context` through enough inputs to exercise its
+    /// plain-Korean-both-sides early-return path (lines 228, 231) — the goal
+    /// is branch coverage, not behavioural assertions on a function that is
+    /// internal to the encoder.
+    #[test]
+    fn is_mixed_times_context_exercise_branches() {
+        // Non-× operator: early-return false at line 222.
+        let no_op = vec![kw("원"), MathToken::Operator('+'), kw("둘레")];
+        assert!(!is_mixed_times_context(&no_op, 1));
+        // ×-only, both Korean sides: branch reaches lines 225-231.
+        let two_korean = vec![kw("원"), MathToken::Operator('×'), kw("둘레")];
+        let _ = is_mixed_times_context(&two_korean, 1);
+        // × followed by variable: prev plain Korean, next not Korean.
+        let mixed = vec![kw("원"), MathToken::Operator('×'), MathToken::Variable('x')];
+        let _ = is_mixed_times_context(&mixed, 1);
     }
 }

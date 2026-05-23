@@ -35,6 +35,22 @@ fn run_one_shot(text: &str) -> Result<()> {
     Ok(())
 }
 
+/// Format a single REPL input line for printing.
+///
+/// Pure function so unit tests can exercise the encode-success vs encode-error
+/// branches without spinning up rustyline. The outer `run_repl` loop is just
+/// `read line → format → write` glue; all logic lives here.
+pub(crate) fn process_repl_line(line: &str) -> String {
+    match encode_to_unicode(line) {
+        Ok(out) => out,
+        Err(e) => format!("오류: {}", e),
+    }
+}
+
+// Interactive rustyline loop is unreachable in cargo-tarpaulin runs (stdin is
+// never a terminal in CI/test harness). The pure encoding logic was extracted
+// to `process_repl_line` which is unit-tested directly above.
+#[cfg(not(tarpaulin_include))]
 fn run_repl() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
     let mut stdout = io::stdout();
@@ -48,10 +64,7 @@ fn run_repl() -> Result<()> {
         match rl.readline("> ") {
             Ok(line) => {
                 rl.add_history_entry(&line).ok();
-                match encode_to_unicode(&line) {
-                    Ok(out) => writeln!(stdout, "{}", out)?,
-                    Err(e) => writeln!(stdout, "오류: {}", e)?,
-                }
+                writeln!(stdout, "{}", process_repl_line(&line))?;
                 stdout.flush()?;
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
@@ -143,5 +156,32 @@ mod tests {
         let args = vec!["braillify".to_string(), "😀".to_string()];
         let result = run_cli(args);
         assert!(result.is_err());
+    }
+
+    /// `process_repl_line` returns the encoded braille string on success.
+    #[test]
+    fn process_repl_line_encodes_valid_input() {
+        let out = process_repl_line("안녕");
+        assert!(!out.is_empty());
+        assert!(!out.starts_with("오류"));
+        // Must be Braille Unicode codepoints
+        for ch in out.chars() {
+            let cp = ch as u32;
+            assert!((0x2800..=0x28FF).contains(&cp), "non-braille char {ch:?}");
+        }
+    }
+
+    /// `process_repl_line` returns a human-readable error string on encoder failure.
+    #[test]
+    fn process_repl_line_reports_encoder_error() {
+        let out = process_repl_line("😀");
+        assert!(out.starts_with("오류"));
+    }
+
+    /// Empty input is a valid encode → empty result string.
+    #[test]
+    fn process_repl_line_empty_input() {
+        let out = process_repl_line("");
+        assert_eq!(out, "");
     }
 }

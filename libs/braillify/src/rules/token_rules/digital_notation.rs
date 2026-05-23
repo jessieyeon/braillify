@@ -352,4 +352,63 @@ mod tests {
         encode_digital_english_segment(&chars, &mut buf).unwrap();
         assert!(!buf.is_empty());
     }
+
+    /// `apply` Replace path: `has_digital_signature` true → returns a
+    /// `Token::PreEncoded`. Exercises line 33-35.
+    #[test]
+    fn apply_replaces_digital_word_token() {
+        use crate::rules::context::EncoderState;
+        use crate::rules::token::{Token, WordMeta, WordToken};
+        use crate::rules::token_rule::{TokenAction, TokenRule};
+        use std::borrow::Cow;
+
+        let text = "http://example.com";
+        let chars: Vec<char> = text.chars().collect();
+        let meta = WordMeta::from_chars(&chars);
+        let tokens = vec![Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars,
+            meta,
+        })];
+        let mut state = EncoderState::new(false);
+        let action = DigitalNotationRule.apply(&tokens, 0, &mut state).unwrap();
+        match action {
+            TokenAction::Replace(Token::PreEncoded(bytes)) => assert!(!bytes.is_empty()),
+            _ => panic!("expected Replace(PreEncoded)"),
+        }
+    }
+
+    /// `apply` Noop path: non-Word token short-circuits.
+    #[test]
+    fn apply_noop_on_non_word_token() {
+        use crate::rules::context::EncoderState;
+        use crate::rules::token::Token;
+        use crate::rules::token_rule::{TokenAction, TokenRule};
+
+        let tokens = vec![Token::PreEncoded(vec![1, 2, 3])];
+        let mut state = EncoderState::new(false);
+        let action = DigitalNotationRule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// `apply` Noop path: Word without digital signature.
+    #[test]
+    fn apply_noop_on_plain_word() {
+        use crate::rules::context::EncoderState;
+        use crate::rules::token::{Token, WordMeta, WordToken};
+        use crate::rules::token_rule::{TokenAction, TokenRule};
+        use std::borrow::Cow;
+
+        let text = "hello";
+        let chars: Vec<char> = text.chars().collect();
+        let meta = WordMeta::from_chars(&chars);
+        let tokens = vec![Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars,
+            meta,
+        })];
+        let mut state = EncoderState::new(false);
+        let action = DigitalNotationRule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Noop));
+    }
 }

@@ -152,6 +152,206 @@ pub fn encode_operator(
     Ok(())
 }
 
+#[cfg(test)]
+#[allow(clippy::items_after_test_module)]
+mod tests {
+    use super::*;
+    use crate::rules::math::math_token_rule::{MathContext, MathEncodeState, MathTokenEngine};
+
+    fn enc(input: &str) -> Vec<u8> {
+        crate::encode(input).unwrap_or_default()
+    }
+
+    fn dummy_engine() -> MathTokenEngine {
+        MathTokenEngine::with_context(MathContext::default())
+    }
+
+    /// 제2항 — divisibility context: `n|a, ` (trailing) returns early without emit.
+    /// Drives line 116: `tokens.get(i + 1).is_none() && divisibility_context`.
+    #[test]
+    fn comma_in_divisibility_context_at_end() {
+        let tokens = vec![
+            MathToken::MathSymbol('|'),
+            MathToken::Number("3".into()),
+            MathToken::Operator(','),
+        ];
+        let mut result = Vec::new();
+        encode_operator(',', &tokens, 2, &mut result).expect("encode_operator should succeed");
+        assert!(
+            result.is_empty(),
+            "trailing , in divisibility context emits nothing"
+        );
+    }
+
+    /// 제2항 — divisibility context with trailing Space pushes a single space.
+    /// Drives lines 119-120.
+    #[test]
+    fn comma_in_divisibility_context_before_space() {
+        let tokens = vec![
+            MathToken::MathSymbol('|'),
+            MathToken::Number("3".into()),
+            MathToken::Operator(','),
+            MathToken::Space,
+        ];
+        let mut result = Vec::new();
+        encode_operator(',', &tokens, 2, &mut result).expect("encode_operator should succeed");
+        assert_eq!(result, vec![0]);
+    }
+
+    /// 제2항 — operator rule basic dispatch metadata.
+    #[test]
+    fn operator_rule_metadata() {
+        let rule = OperatorRule;
+        assert_eq!(rule.priority(), 50);
+        assert_eq!(rule.name(), "OperatorRule");
+    }
+
+    /// 제2항 — Korean group operator (KoreanWord + × + KoreanWord) drives lines 188-194.
+    #[test]
+    fn korean_group_operator_inserts_padding() {
+        // PDF 제2항: 한글 단어 사이의 산술 연산자는 양옆 한 칸 띄움.
+        let rule = OperatorRule;
+        let tokens = vec![
+            MathToken::KoreanWord("가".into()),
+            MathToken::Operator('+'),
+            MathToken::KoreanWord("나".into()),
+        ];
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        rule.apply(&tokens, 1, &mut result, &mut state, &engine)
+            .expect("apply should succeed");
+        // pad + operator + pad
+        assert_eq!(result.first(), Some(&0));
+        assert_eq!(result.last(), Some(&0));
+    }
+
+    /// 제2항 — label equation: `한국어 = √...` drives line 201-209.
+    #[test]
+    fn label_equation_after_korean_word_with_sqrt() {
+        // PDF — 「둘레=√...」 형태는 = 앞에 한 칸 띄움.
+        let rule = OperatorRule;
+        let tokens = vec![
+            MathToken::KoreanWord("둘레".into()),
+            MathToken::Operator('='),
+            MathToken::MathSymbol('\u{221A}'),
+            MathToken::Number("2".into()),
+        ];
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        rule.apply(&tokens, 1, &mut result, &mut state, &engine)
+            .expect("apply should succeed");
+        assert_eq!(result.first(), Some(&0));
+    }
+
+    /// 제2항 — `should_pad` path with binary spacing operator between algebraic operands.
+    /// Drives lines 212-215, 217, 221.
+    #[test]
+    fn binary_spacing_operator_pads_both_sides() {
+        // PDF 제60항 6 — 추론 기호 ⊢ 양옆 띄움.
+        let rule = OperatorRule;
+        let tokens = vec![
+            MathToken::Variable('p'),
+            MathToken::Operator('\u{22A2}'),
+            MathToken::Variable('q'),
+        ];
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        rule.apply(&tokens, 1, &mut result, &mut state, &engine)
+            .expect("apply should succeed");
+        // first byte == padding before
+        assert_eq!(result.first(), Some(&0));
+        // last byte == padding after
+        assert_eq!(result.last(), Some(&0));
+    }
+
+    /// 제2항 — set-triangle plus pattern: `(...)Δ+(...)` drives lines 90-98.
+    #[test]
+    fn set_triangle_plus_special_form() {
+        // PDF 수학 제2항 set-triangle 표기.
+        // `(a)Δ+(b)` 형태 — has_set_triangle && prev=CloseParen && next=OpenParen
+        let tokens = vec![
+            MathToken::MathSymbol('\u{2206}'),
+            MathToken::OpenParen(crate::rules::math::parser::BracketKind::MathParen),
+            MathToken::Number("1".into()),
+            MathToken::CloseParen(crate::rules::math::parser::BracketKind::MathParen),
+            MathToken::Operator('+'),
+            MathToken::OpenParen(crate::rules::math::parser::BracketKind::MathParen),
+            MathToken::Number("2".into()),
+            MathToken::CloseParen(crate::rules::math::parser::BracketKind::MathParen),
+        ];
+        let mut result = Vec::new();
+        encode_operator('+', &tokens, 4, &mut result).expect("encode_operator");
+        // emits [0, 44, 0]
+        assert_eq!(result, vec![0, 44, 0]);
+    }
+
+    /// 제2항 — `!` (factorial) drives lines 101-104.
+    #[test]
+    fn factorial_emits_22() {
+        let tokens = vec![MathToken::Number("5".into()), MathToken::Operator('!')];
+        let mut result = Vec::new();
+        encode_operator('!', &tokens, 1, &mut result).expect("encode_operator");
+        assert_eq!(result, vec![22]);
+    }
+
+    /// 제2항 — `,` followed by Variable triggers padding insertion (line 124-136).
+    #[test]
+    fn comma_followed_by_variable_emits_space() {
+        let tokens = vec![MathToken::Operator(','), MathToken::Variable('x')];
+        let mut result = Vec::new();
+        encode_operator(',', &tokens, 0, &mut result).expect("encode_operator");
+        // ⠠ (16) then ⠀ (0)
+        assert_eq!(result, vec![16, 0]);
+    }
+
+    /// 제2항 — `/` slash as fraction symbol vs plain division (line 140-148).
+    #[test]
+    fn slash_as_fraction_uses_shortcut_otherwise_12() {
+        // Plain V/V context — not a fraction.
+        let tokens = vec![
+            MathToken::Variable('a'),
+            MathToken::Operator('/'),
+            MathToken::Variable('b'),
+        ];
+        let mut result = Vec::new();
+        encode_operator('/', &tokens, 1, &mut result).expect("encode_operator");
+        assert_eq!(result, vec![12]);
+    }
+
+    /// is_algebraic_neighbor returns true for various token kinds and false otherwise.
+    #[test]
+    fn is_algebraic_neighbor_paths() {
+        assert!(is_algebraic_neighbor(Some(&MathToken::Variable('x'))));
+        assert!(is_algebraic_neighbor(Some(&MathToken::Number("1".into()))));
+        assert!(is_algebraic_neighbor(Some(&MathToken::MathSymbol(
+            '\u{221E}'
+        ))));
+        assert!(!is_algebraic_neighbor(Some(&MathToken::Operator('+'))));
+        assert!(!is_algebraic_neighbor(None));
+    }
+
+    /// needs_binary_spacing covers each relation/inference operator.
+    #[test]
+    fn needs_binary_spacing_table() {
+        for c in [
+            '\u{2192}', '\u{21D2}', '\u{2227}', '\u{2228}', '\u{22A2}', '\u{2272}',
+        ] {
+            assert!(needs_binary_spacing(c), "{c}");
+        }
+        assert!(!needs_binary_spacing('+'));
+    }
+
+    /// Smoke test for full math encoding pipeline covering these rules.
+    #[test]
+    fn full_pipeline_sanity() {
+        let _ = enc("$a+b$");
+        let _ = enc("$5!$");
+    }
+}
+
 pub struct OperatorRule;
 
 impl MathTokenRule for OperatorRule {

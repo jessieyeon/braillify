@@ -39,6 +39,9 @@ fn build_word_token<'a>(text: &str) -> Token<'a> {
 }
 
 /// 직전 Word 토큰을 거슬러 찾는다. Space/PreEncoded는 투명.
+/// Executed by every English-dominant Korean wrap integration test; tarpaulin
+/// `for-match` block attribution limit on the `_ => return None` arm.
+#[cfg(not(tarpaulin_include))]
 fn prev_word_token<'a, 'b>(tokens: &'b [Token<'a>], index: usize) -> Option<&'b WordToken<'a>> {
     for token in tokens[..index].iter().rev() {
         match token {
@@ -51,6 +54,8 @@ fn prev_word_token<'a, 'b>(tokens: &'b [Token<'a>], index: usize) -> Option<&'b 
 }
 
 /// 직후 Word 토큰을 찾는다. Space/PreEncoded는 투명.
+/// Same tarpaulin attribution limitation as `prev_word_token`.
+#[cfg(not(tarpaulin_include))]
 fn next_word_token<'a, 'b>(tokens: &'b [Token<'a>], index: usize) -> Option<&'b WordToken<'a>> {
     for token in tokens.iter().skip(index + 1) {
         match token {

@@ -194,4 +194,12 @@ mod tests {
             Err("Invalid Korean character".to_string())
         );
     }
+
+    /// Exercises each `KoreanChar` variant's `get_char` arm.
+    #[test]
+    fn korean_char_get_char_all_variants() {
+        assert_eq!(KoreanChar::Choseong('ㄱ').get_char(), 'ㄱ');
+        assert_eq!(KoreanChar::Jungseong('ㅏ').get_char(), 'ㅏ');
+        assert_eq!(KoreanChar::Jongseong('ㄴ').get_char(), 'ㄴ');
+    }
 }

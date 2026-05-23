@@ -94,4 +94,26 @@ mod tests {
         let outcome = Rule26.apply(&mut ctx).unwrap();
         assert!(matches!(outcome, RuleResult::Skip));
     }
+
+    /// 제26항 — 한자(火) 뒤에 단독 모음 ㅣ가 나오면 `⠸⠕` 점역. Triggers the
+    /// `is_standalone_i_after_hanja` branch (line 72-75).
+    #[test]
+    fn apply_standalone_i_after_hanja() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("火ㅣ", false);
+        let mut ctx = owned.ctx_at(1);
+        let outcome = Rule26.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!owned.result.is_empty());
+    }
+
+    /// 제26항 — Symbol entry in MAPPINGS (烽) emits the legacy mapping
+    /// (line 77-82).
+    #[test]
+    fn apply_emits_for_legacy_symbol_in_mappings() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("烽", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule26.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!owned.result.is_empty());
+    }
 }

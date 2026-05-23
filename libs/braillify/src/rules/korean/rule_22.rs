@@ -157,4 +157,27 @@ mod tests {
         let outcome = Rule22.apply(&mut ctx).unwrap();
         assert!(matches!(outcome, RuleResult::Skip));
     }
+
+    /// PDF 제22항 — `apply` reaches the `encode_legacy` fallthrough and returns
+    /// `Skip` when the Symbol char is recognised by neither
+    /// `old_consonant_body_rule22` nor `encode_legacy` (line 140-142).
+    /// Exercised by a plain symbol like `.`.
+    #[test]
+    fn apply_returns_skip_for_unknown_symbol() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(".", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule22.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
+
+    /// PDF 제22항 — 옛 합용 병서 ㅺ (시옷기역) standalone input.
+    /// Triggers the `old_consonant_body_rule22` consumed branch.
+    #[test]
+    fn apply_emits_for_old_consonant_body() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("ㅺ", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule22.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Consumed));
+        assert!(!owned.result.is_empty());
+    }
 }

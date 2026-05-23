@@ -165,3 +165,94 @@ pub(super) fn needs_grouping_in_fraction(expr: &str) -> bool {
     }
     false
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `to_superscript_sequence` must map every documented char and pass others
+    /// through unchanged. Exercises every `match` arm including the `/` case.
+    #[test]
+    fn superscript_table_full_coverage() {
+        let cases = [
+            ("0", "\u{2070}"),
+            ("1", "\u{00B9}"),
+            ("2", "\u{00B2}"),
+            ("3", "\u{00B3}"),
+            ("4", "\u{2074}"),
+            ("5", "\u{2075}"),
+            ("6", "\u{2076}"),
+            ("7", "\u{2077}"),
+            ("8", "\u{2078}"),
+            ("9", "\u{2079}"),
+            ("+", "\u{207A}"),
+            ("-", "\u{207B}"),
+            ("n", "\u{207F}"),
+            ("k", "\u{1D4F}"),
+            ("m", "\u{1D50}"),
+            ("x", "\u{02E3}"),
+            ("(", "\u{207D}"),
+            (")", "\u{207E}"),
+            ("/", "\u{2044}"),
+            (".", "\u{00B7}"),
+            ("z", "z"), // fall-through
+        ];
+        for (input, expected) in cases {
+            assert_eq!(to_superscript_sequence(input), expected, "input={input}");
+        }
+    }
+
+    /// `to_subscript_sequence` returns `Some` for every documented char and
+    /// `None` for anything else.
+    #[test]
+    fn subscript_table_full_coverage() {
+        let mapped = [
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'e', 'o', 'x', 'h', 'k', 'l',
+            'm', 'n', 'p', 's', 't', 'i', 'r', 'u', 'v', '+', '-', '(', ')',
+        ];
+        for c in mapped {
+            assert!(
+                to_subscript_sequence(&c.to_string()).is_some(),
+                "char {c:?}"
+            );
+        }
+        // Multi-char input with all mapped chars
+        assert!(to_subscript_sequence("aeo").is_some());
+        // Unmapped chars short-circuit to None
+        assert!(to_subscript_sequence("z").is_none());
+        assert!(to_subscript_sequence("a1z").is_none());
+    }
+
+    /// `needs_grouping_in_fraction` decision matrix.
+    #[test]
+    fn fraction_grouping_decision_matrix() {
+        // Empty body → false
+        assert!(!needs_grouping_in_fraction(""));
+        // Single outer paren pair → false (single-pair check at line 81-101)
+        assert!(!needs_grouping_in_fraction("(x+1)"));
+        // Adjacent paren pairs → true (depth returns to 0 before end)
+        assert!(needs_grouping_in_fraction("(a)(b)"));
+        // Arithmetic operator → true
+        assert!(needs_grouping_in_fraction("a+b"));
+        assert!(needs_grouping_in_fraction("a-b"));
+        assert!(needs_grouping_in_fraction("a\u{00D7}b"));
+        assert!(needs_grouping_in_fraction("a\u{00F7}b"));
+        assert!(needs_grouping_in_fraction("a\u{2212}b"));
+        // Space at top level → true
+        assert!(needs_grouping_in_fraction("a b"));
+        // Partial-derivative `∂` → true (multi-token form)
+        assert!(needs_grouping_in_fraction("\u{2202}f"));
+        // Differential `dx` etc. → false
+        assert!(!needs_grouping_in_fraction("dx"));
+        assert!(!needs_grouping_in_fraction("dxy"));
+        // 2+ adjacent paren groups → true
+        assert!(needs_grouping_in_fraction("(x)(y)(z)"));
+        // Single alpha char only → false (single letter denominator)
+        assert!(!needs_grouping_in_fraction("a"));
+        // Pure digits → false (no alpha, no operator)
+        assert!(!needs_grouping_in_fraction("123"));
+        // Multiple alpha chars (non-differential prefix) → true
+        // (e.g., variable product like "ab" treated as multi-token)
+        assert!(needs_grouping_in_fraction("ab"));
+    }
+}

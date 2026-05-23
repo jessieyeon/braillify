@@ -137,4 +137,17 @@ mod tests {
         assert!(matches!(Rule74.phase(), Phase::CoreEncoding));
         assert_eq!(Rule74.priority(), 176);
     }
+
+    /// 제74항 — apply error path when current_char is not a digital symbol
+    /// (line 68-70). Trigger by calling apply with a non-supported char.
+    #[test]
+    fn rule74_apply_errors_for_unsupported_symbol() {
+        // '!' is not in encode_digital_symbol. Construct a context where
+        // current char is '!'.
+        let mut owned = crate::test_helpers::CtxOwned::for_text("a!@", false);
+        let mut ctx = owned.ctx_at(1); // '!' at index 1
+        // apply should return Err since encode_digital_symbol('!') is None
+        let result = Rule74.apply(&mut ctx);
+        assert!(result.is_err());
+    }
 }

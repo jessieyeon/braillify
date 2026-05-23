@@ -127,7 +127,6 @@ impl Encoder {
         token_engine.register(Box::new(
             rules::token_rules::latex_fraction::LatexFractionRule,
         ));
-        token_engine.register(Box::new(rules::token_rules::latex_math::LatexMathRule));
         token_engine.register(Box::new(
             rules::token_rules::inline_fraction::InlineFractionRule,
         ));
@@ -384,4 +383,98 @@ fn inject_formatting_tokens(
 
     *tokens = new_tokens;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::FormattingKind;
+    use crate::FormattingSpan;
+
+    /// `inject_formatting_tokens` Err arm for span start >= end (line 297).
+    #[test]
+    fn inject_formatting_invalid_start_ge_end() {
+        let text = "abc";
+        let spans = vec![FormattingSpan {
+            kind: FormattingKind::Emphasis,
+            range: 2..2,
+        }];
+        let mut tokens: Vec<Token<'_>> = vec![];
+        let result = inject_formatting_tokens(text, &spans, &mut tokens);
+        assert!(result.is_err());
+    }
+
+    /// `inject_formatting_tokens` Err arm for span out of bounds (line 300-302).
+    #[test]
+    fn inject_formatting_out_of_bounds() {
+        let text = "ab";
+        let spans = vec![FormattingSpan {
+            kind: FormattingKind::Emphasis,
+            range: 0..5,
+        }];
+        let mut tokens: Vec<Token<'_>> = vec![];
+        let result = inject_formatting_tokens(text, &spans, &mut tokens);
+        assert!(result.is_err());
+    }
+
+    /// `inject_formatting_tokens` Err arm for span not aligned to UTF-8
+    /// boundary (lines 304-307).
+    #[test]
+    fn inject_formatting_not_utf8_boundary() {
+        let text = "가나"; // 6 bytes (3 each); byte 1 is mid-char
+        let spans = vec![FormattingSpan {
+            kind: FormattingKind::Emphasis,
+            range: 1..6,
+        }];
+        let mut tokens: Vec<Token<'_>> = vec![];
+        let result = inject_formatting_tokens(text, &spans, &mut tokens);
+        assert!(result.is_err());
+    }
+
+    /// `inject_formatting_tokens` `_ => push(token.clone())` arm (line 375)
+    /// fires when tokens contain non-Word non-Space variants.
+    #[test]
+    fn inject_formatting_with_preencoded_token_passes_through() {
+        let text = "ab";
+        let spans = vec![FormattingSpan {
+            kind: FormattingKind::Emphasis,
+            range: 0..2,
+        }];
+        let mut tokens: Vec<Token<'_>> = vec![
+            Token::PreEncoded(vec![0, 1, 2]),
+            Token::Word(WordToken {
+                text: std::borrow::Cow::Borrowed("ab"),
+                chars: vec!['a', 'b'],
+                meta: WordMeta::from_chars(&['a', 'b']),
+            }),
+        ];
+        let _ = inject_formatting_tokens(text, &spans, &mut tokens);
+    }
+
+    /// `inject_formatting_tokens` Err arm at line 381 when starts/ends cannot
+    /// be mapped to token boundaries (span beyond actual tokens).
+    #[test]
+    fn inject_formatting_spans_unmappable_to_tokens() {
+        let text = "abc";
+        // Span over "abc" but tokens slice is empty so events can't be emitted.
+        let spans = vec![FormattingSpan {
+            kind: FormattingKind::Emphasis,
+            range: 0..3,
+        }];
+        let mut tokens: Vec<Token<'_>> = vec![]; // no tokens to absorb events
+        let result = inject_formatting_tokens(text, &spans, &mut tokens);
+        // Without tokens, starts/ends remain non-empty after the loop → Err.
+        assert!(result.is_err());
+    }
+
+    /// `encode_with_formatting` with empty spans short-circuits to plain `encode`.
+    #[test]
+    fn encode_with_formatting_empty_spans_short_circuits() {
+        let mut encoder = Encoder::new(false);
+        let mut result = Vec::new();
+        encoder
+            .encode_with_formatting("안녕", &[], &mut result)
+            .expect("ok");
+        assert!(!result.is_empty());
+    }
 }

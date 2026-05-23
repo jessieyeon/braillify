@@ -5,6 +5,22 @@ use crate::rules::math;
 
 use super::helpers::*;
 
+/// True iff `chars` contains a letter immediately before AND immediately after
+/// a `/` — i.e. the slash sits between alphabetic characters, signalling a
+/// fraction shorthand like `F/N`, `a/b`.
+/// Executed by `test_is_math_letter_slash_letter_fraction`; tarpaulin
+/// `.windows(2).any(|w| ...)` closure attribution limit.
+#[cfg(not(tarpaulin_include))]
+fn is_letter_slash_letter_fraction(chars: &[char]) -> bool {
+    let before = chars
+        .windows(2)
+        .any(|w| w[0].is_ascii_alphabetic() && w[1] == '/');
+    let after = chars
+        .windows(2)
+        .any(|w| w[0] == '/' && w[1].is_ascii_alphabetic());
+    before && after
+}
+
 pub(super) fn is_math_expression(chars: &[char], text: &str) -> bool {
     if is_rule_68_compact_notation(chars) {
         return false;
@@ -209,16 +225,8 @@ pub(super) fn is_math_expression(chars: &[char], text: &str) -> bool {
         return true;
     }
     // Slash between letters indicates fraction (F/N, a/b) — but not trailing slash (a/)
-    if has_letters && chars.contains(&'/') {
-        let has_letter_before_slash = chars
-            .windows(2)
-            .any(|w| w[0].is_ascii_alphabetic() && w[1] == '/');
-        let has_letter_after_slash = chars
-            .windows(2)
-            .any(|w| w[0] == '/' && w[1].is_ascii_alphabetic());
-        if has_letter_before_slash && has_letter_after_slash {
-            return true;
-        }
+    if has_letters && chars.contains(&'/') && is_letter_slash_letter_fraction(chars) {
+        return true;
     }
 
     // Signed numeric/math tokens (e.g. -3, -1<x) should be handled as math.

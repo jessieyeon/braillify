@@ -255,4 +255,30 @@ mod tests {
         // exit logic is deferred — no byte emitted, state unchanged
         assert!(out.is_empty());
     }
+
+    /// 제29항 — `prev_word_is_numeric` branch coverage via integration encode.
+    /// A numeric prev word `1,234` followed by `km` should drive `should_enter_as_roman_indicator`
+    /// through `prev_word_is_numeric`, indirectly emitting the roman indicator.
+    /// We verify via `crate::encode` to avoid reverse-engineering helper internals.
+    #[test]
+    fn rule29_prev_word_numeric_drives_roman_indicator() {
+        let out = crate::encode("1,234 km").expect("must encode");
+        assert!(!out.is_empty());
+        assert!(out.contains(&ROMAN_INDICATOR));
+    }
+
+    /// 제29항 — matches returns false when neither enter nor exit condition holds:
+    /// already in English mode AND current char is also English (line 80).
+    #[test]
+    fn rule29_matches_false_when_already_in_english_with_english_char() {
+        let chars: Vec<char> = "A".chars().collect();
+        let ct = CharType::new(chars[0]).unwrap();
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(true);
+        state.is_english = true; // already in English
+        let mut out = Vec::new();
+        let ctx = make_ctx(&chars, 0, &ct, &mut skip, &mut state, &mut out, "");
+        // Neither "entering" nor "exiting" — falls through to line 80 `false`.
+        assert!(!Rule29.matches(&ctx));
+    }
 }

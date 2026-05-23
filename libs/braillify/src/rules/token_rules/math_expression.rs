@@ -127,6 +127,36 @@ mod tests {
         assert!(is_math_expression(&chars, "aRb"));
     }
 
+    /// detect.rs line 127 — `arc<trig>` recognised as math.
+    #[test]
+    fn test_is_math_arctrig_prefix() {
+        for input in ["arcsinx", "arccosy", "arctanz"] {
+            let chars: Vec<char> = input.chars().collect();
+            assert!(is_math_expression(&chars, input), "input={input}");
+        }
+    }
+
+    /// detect.rs lines 213-220 — letter-slash-letter fraction pattern.
+    #[test]
+    fn test_is_math_letter_slash_letter_fraction() {
+        for input in ["F/N", "a/b", "x/y", "P/Q"] {
+            let chars: Vec<char> = input.chars().collect();
+            assert!(is_math_expression(&chars, input), "input={input}");
+        }
+        // Trailing slash should NOT be math (a/)
+        let chars: Vec<char> = "a/".chars().collect();
+        assert!(!is_math_expression(&chars, "a/"));
+    }
+
+    /// detect.rs line 226 — signed (− / -) numeric → math.
+    #[test]
+    fn test_is_math_signed_numeric() {
+        for input in ["-3", "-1.5", "−7", "-3x", "−5y"] {
+            let chars: Vec<char> = input.chars().collect();
+            assert!(is_math_expression(&chars, input), "input={input}");
+        }
+    }
+
     #[test]
     fn test_is_math_negative_infinity() {
         let chars: Vec<char> = "-∞".chars().collect();
