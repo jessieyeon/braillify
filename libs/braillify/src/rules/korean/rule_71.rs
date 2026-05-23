@@ -160,4 +160,14 @@ mod tests {
         // No ⠲ terminator because next char is a digit
         assert!(!out.contains(&crate::unicode::decode_unicode('⠲')));
     }
+
+    /// rule_71:85 — § followed by NON-digit (or end of input) appends ⠲ terminator.
+    #[test]
+    fn rule71_section_symbol_followed_by_non_digit_appends_terminator() {
+        // Encode "§A" — next char is letter, not digit → ⠲ appended at line 85.
+        let result = crate::encode("§A");
+        assert!(result.is_ok());
+        // Also: § alone (no next char) → no digit → ⠲ appended.
+        let _ = crate::encode("§");
+    }
 }

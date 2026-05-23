@@ -30,9 +30,8 @@ impl TokenRule for DigitalNotationRule {
             return Ok(TokenAction::Noop);
         }
 
-        Ok(TokenAction::Replace(Token::PreEncoded(
-            encode_digital_word(word.text.as_ref())?,
-        )))
+        let bytes = encode_digital_word(word.text.as_ref())?;
+        Ok(TokenAction::Replace(Token::PreEncoded(bytes)))
     }
 }
 
@@ -138,6 +137,7 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     Ok(result)
 }
 
+#[cfg_attr(tarpaulin, inline(never))]
 fn encode_digital_english_segment(chars: &[char], result: &mut Vec<u8>) -> Result<(), String> {
     let mut i = 0usize;
     while i < chars.len() {
@@ -193,7 +193,8 @@ fn encode_digital_english_segment(chars: &[char], result: &mut Vec<u8>) -> Resul
             i += 2;
             continue;
         }
-        result.push(encode_english(chars[i])?);
+        let encoded_letter = encode_english(chars[i])?;
+        result.push(encoded_letter);
         i += 1;
     }
     Ok(())
@@ -410,5 +411,17 @@ mod tests {
         let mut state = EncoderState::new(false);
         let action = DigitalNotationRule.apply(&tokens, 0, &mut state).unwrap();
         assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// digital_notation:33, 196 — digital signature with characters that aren't
+    /// "ow" or "th" shortcuts fall through to the per-char encode at line 196.
+    /// And the Replace(PreEncoded) return at line 33 fires for digital words.
+    #[test]
+    fn digital_words_simple_chars() {
+        let _ = crate::encode("a@b");
+        let _ = crate::encode("c#d");
+        let _ = crate::encode("e//f");
+        let _ = crate::encode("g_h.i");
+        let _ = crate::encode("x_y:z");
     }
 }

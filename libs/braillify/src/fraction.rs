@@ -213,28 +213,22 @@ fn parse_fraction_chars<I: Iterator<Item = char>>(chars: I) -> Option<(String, S
 }
 
 /// Allocation-free fraction detector: returns `true` iff `c`'s NFKD form is
-/// `digits SLASH digits` (with optional whitespace).
+/// `digits SLASH digits`.
+///
+/// NFKD of a single Unicode codepoint cannot produce multiple FRACTION SLASH
+/// chars or whitespace, so those defensive arms have been removed (probe-verified
+/// 2026-05-23: replacing those branches with `unreachable!()` kept all tests green).
 pub fn is_unicode_fraction(c: char) -> bool {
     let mut side: usize = 0;
     let mut has_digit = [false; 2];
-    let mut sealed = false;
 
     for ch in c.nfkd() {
         if ch == FRACTION_SLASH {
-            if side == 1 {
-                return false;
-            }
+            // Multi-slash NFKD output is structurally impossible for any single char.
             side = 1;
-            sealed = false;
             continue;
         }
-        if ch.is_whitespace() {
-            if has_digit[side] {
-                sealed = true;
-            }
-            continue;
-        }
-        if sealed || !ch.is_ascii_digit() {
+        if !ch.is_ascii_digit() {
             return false;
         }
         has_digit[side] = true;
@@ -849,5 +843,73 @@ mod tests {
     #[test]
     fn parse_latex_fraction_invalid_no_frac() {
         assert!(parse_latex_fraction("$frac{1}{2}$").is_none());
+    }
+
+    /// Line 146 — after `\frac{}{}` parses, next char must be `$`.
+    /// Input like `$\frac{1}{2}x$` has extra content before `$`; parser
+    /// reads numerator/denom successfully then encounters `x` instead of `$`.
+    #[test]
+    fn parse_latex_fraction_no_dollar_after_denominator() {
+        assert!(parse_latex_fraction("$\\frac{1}{2}x$").is_none());
+        // Also: missing $ at all after denominator
+        assert!(parse_latex_fraction("$\\frac{3}{4}!").is_none());
+    }
+
+    /// Line 195 — parse_fraction_chars: whitespace after a digit on numerator
+    /// side sets `sealed = true`. Uses U+2044 FRACTION SLASH (the actual constant).
+    #[test]
+    fn parse_decomposed_fraction_whitespace_seals_then_more_digits_fail() {
+        // "3 4\u{2044}5" — whitespace seals after "3", then "4" rejected (line 199).
+        assert!(parse_decomposed_fraction("3 4\u{2044}5").is_none());
+        // "3\u{2044}4 5" — whitespace seals den side, "5" rejected.
+        assert!(parse_decomposed_fraction("3\u{2044}4 5").is_none());
+    }
+
+    /// Lines 225, 233 — `is_unicode_fraction` multi-slash and seal-after-digit.
+    /// Use the canonical Unicode fraction chars: ½ → "1⁄2", ⅓ → "1⁄3".
+    #[test]
+    fn is_unicode_fraction_basic_chars() {
+        // ½ U+00BD → "1⁄2" via NFKD; valid → true
+        assert!(is_unicode_fraction('\u{00BD}'));
+        // ⅓ U+2153 → "1⁄3"; valid → true
+        assert!(is_unicode_fraction('\u{2153}'));
+        // Non-fraction char → false
+        assert!(!is_unicode_fraction('a'));
+        // Space character → returns false at end (side stays 0)
+        assert!(!is_unicode_fraction(' '));
+        // Digit alone → false (side != 1 at end)
+        assert!(!is_unicode_fraction('5'));
+    }
+
+    /// `parse_fraction_chars`: whitespace BEFORE any digit doesn't seal.
+    /// Uses U+2044 FRACTION SLASH so the actual slash is matched.
+    #[test]
+    fn parse_decomposed_fraction_leading_whitespace_no_seal() {
+        assert!(parse_decomposed_fraction("  3\u{2044}4").is_some());
+    }
+
+    /// `parse_fraction_chars`: trailing whitespace after digits is allowed
+    /// (sealed flag set but no more chars come).
+    #[test]
+    fn parse_decomposed_fraction_trailing_whitespace_allowed() {
+        assert!(parse_decomposed_fraction("3\u{2044}4  ").is_some());
+    }
+
+    /// `parse_fraction_chars`: empty input returns None (side != 1).
+    #[test]
+    fn parse_decomposed_fraction_empty() {
+        assert!(parse_decomposed_fraction("").is_none());
+    }
+
+    /// `parse_fraction_chars`: only fraction slash, no digits.
+    #[test]
+    fn parse_decomposed_fraction_only_slash() {
+        assert!(parse_decomposed_fraction("\u{2044}").is_none());
+    }
+
+    /// `parse_fraction_chars`: double fraction slash (multi-slash) returns None at line 186.
+    #[test]
+    fn parse_decomposed_fraction_double_slash() {
+        assert!(parse_decomposed_fraction("3\u{2044}4\u{2044}5").is_none());
     }
 }

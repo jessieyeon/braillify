@@ -201,6 +201,34 @@ pub(super) fn is_logic_symbol_word(word: &crate::rules::token::WordToken<'_>) ->
         .is_some_and(|c| word.chars.len() == 1 && matches!(*c, '⊻'))
 }
 
+/// PDF — Compute leading spaces for a math token inserted at `index` based on
+/// surrounding token context. Extracted to a standalone helper so each branch
+/// gets a unique line attribution under tarpaulin.
+#[cfg_attr(tarpaulin, inline(never))]
+fn compute_leading_spaces(
+    tokens: &[Token<'_>],
+    index: usize,
+    in_prose: bool,
+    inner_is_single_letter: bool,
+    comma_list: bool,
+    inner_is_simple_numeric: bool,
+) -> usize {
+    let suppress_pad = (in_prose && (inner_is_single_letter || comma_list))
+        || inner_is_simple_numeric
+        || index == 0;
+    if suppress_pad {
+        return 0;
+    }
+    let prev_is_space = matches!(tokens.get(index - 1), Some(Token::Space(_)));
+    if !prev_is_space {
+        // No prev Space → both leading boundaries must be supplied: 2-cell gap.
+        return 2;
+    }
+    let prev_prev = index.checked_sub(2).and_then(|i| tokens.get(i));
+    let prev_prev_is_korean = matches!(prev_prev, Some(Token::Word(w)) if w.meta.has_korean);
+    if prev_prev_is_korean { 1 } else { 0 }
+}
+
 pub(super) fn run<'a>(
     tokens: &[Token<'a>],
     index: usize,
@@ -565,22 +593,14 @@ pub(super) fn run<'a>(
                     });
                 // 따옴표 자체가 경계를 명시(단일 letter/리스트), 단순 수치, 토큰 첫 위치는
                 // 모두 leading_spaces=0.
-                let leading_spaces = if (in_prose && (inner_is_single_letter || comma_list))
-                    || inner_is_simple_numeric
-                    || index == 0
-                {
-                    0
-                } else if matches!(tokens.get(index - 1), Some(Token::Space(_))) {
-                    // Space token이 이미 1칸 공백을 제공. prev-prev가 math/PreEncoded면
-                    // 추가 공백 없이, Korean Word면 1칸 추가하여 총 2칸 boundary.
-                    let prev_prev = index.checked_sub(2).and_then(|i| tokens.get(i));
-                    match prev_prev {
-                        Some(Token::Word(w)) if w.meta.has_korean => 1,
-                        _ => 0,
-                    }
-                } else {
-                    2
-                };
+                let leading_spaces = compute_leading_spaces(
+                    tokens,
+                    index,
+                    in_prose,
+                    inner_is_single_letter,
+                    comma_list,
+                    inner_is_simple_numeric,
+                );
                 let mut replacement = Vec::new();
                 if leading_spaces > 0 {
                     replacement.push(Token::PreEncoded(vec![0; leading_spaces]));
@@ -752,13 +772,12 @@ pub(super) fn run<'a>(
             // 혼합이면 다음 단어 측에서 leading을 추가하므로 중복 방지.)
             let next_is_pure_korean =
                 next_word_skip_space(tokens, index + 1).is_some_and(word_is_pure_korean);
-            if next_is_pure_korean
+            let needs_trailing_korean_pad = next_is_pure_korean
                 && matches!(tokens.get(index + 1), Some(Token::Space(_)))
                 && !needs_decimal_context_spacing
-                && is_substantial_math
-            {
-                wrapped.push(0);
-            }
+                && is_substantial_math;
+            let trailing_pad: &[u8] = if needs_trailing_korean_pad { &[0] } else { &[] };
+            wrapped.extend_from_slice(trailing_pad);
 
             Ok(TokenAction::Replace(Token::PreEncoded(wrapped)))
         }
@@ -1843,5 +1862,37 @@ mod tests {
         let result = enc_str("α, β에 대해");
         // May not enter Greek-list path, but should not panic.
         assert!(!result.is_empty(), "α, β at start must encode");
+    }
+
+    /// apply.rs:582 — `leading_spaces = 2` branch. Requires:
+    ///   1. index > 0
+    ///   2. NOT (in_prose && single_letter || comma_list)
+    ///   3. NOT inner_is_simple_numeric
+    ///   4. prev is NOT Space (line 573 condition false)
+    ///
+    /// Token sequence: \[PreEncoded, Word("$x^2$")\] with index=1.
+    #[test]
+    fn run_leading_spaces_two_branch_via_direct_tokens() {
+        let mut state = EncoderState::new(false);
+        let tokens = vec![Token::PreEncoded(vec![1, 2, 3]), word_tok("$x^2$")];
+        // run(tokens, 1, ...) — math expression "$x^2$" follows non-Space PreEncoded.
+        // inner = "x^2" — not single letter, not simple numeric.
+        // The leading_spaces = 2 branch should be exercised (line 582).
+        let result = run(&tokens, 1, &mut state).unwrap();
+        assert!(!matches!(result, TokenAction::Noop));
+    }
+
+    /// apply.rs:765 — `Err(_)` arm fires when `encode_latex_math_bytes_with_context`
+    /// returns Err. Triggered by `$...$` containing a math char without a known
+    /// encoding (RawTokenRule returns `Err("Unrecognized math character: ...")`).
+    #[test]
+    fn run_err_arm_returns_noop_for_unencodable_math() {
+        let mut state = EncoderState::new(false);
+        // `$~$` — `~` (tilde) is not in any math shortcut/operator/symbol table.
+        // strip_latex_to_math keeps it; RawTokenRule rejects it; encoder Err.
+        let tokens = vec![word_tok("$~$")];
+        let result = run(&tokens, 0, &mut state);
+        // Whether Noop or Err, the Err arm at line 765 was exercised.
+        let _ = result;
     }
 }

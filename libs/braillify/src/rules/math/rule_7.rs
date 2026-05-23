@@ -2,7 +2,9 @@
 //!
 //! 일반 나눗셈 슬래시와 분수 기호형 슬래시를 문맥으로 구분한다.
 
-use crate::rules::math::parser::{BracketKind, MathToken};
+#[cfg(test)]
+use crate::rules::math::parser::BracketKind;
+use crate::rules::math::parser::MathToken;
 
 use super::math_token_rule::{MathEncodeState, MathTokenEngine, MathTokenResult, MathTokenRule};
 use super::{rule_1, rule_6, rule_12};
@@ -85,9 +87,12 @@ impl MathTokenRule for GroupedFractionReversalRule {
         // 분수선 후 오른쪽(분자)을 출력한다.
 
         // 분모 측 OpenParen의 BracketKind를 보존한다 (Grouping/Hangul 구분).
-        let left_kind = match tokens.get(index) {
-            Some(MathToken::OpenParen(k)) => *k,
-            _ => BracketKind::Grouping,
+        // `find_matching_paren` returning Some at the line above guarantees
+        // `tokens[index]` is OpenParen, so the defensive `_ =>` arm is unreachable.
+        let left_kind = if let Some(MathToken::OpenParen(k)) = tokens.get(index) {
+            *k
+        } else {
+            unreachable!("matches() guarantees OpenParen at index")
         };
 
         // 오른쪽(분자)이 괄호로 감싸진 경우: (분모)/(분자) 패턴
@@ -525,5 +530,101 @@ mod tests {
         let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
         // No matching paren: returns Skip
         assert!(matches!(res, Ok(MathTokenResult::Skip) | Ok(_)));
+    }
+
+    /// 제7항 — Paren-right-side branch where right paren has no matching close (line 96 let-else).
+    /// Construct (a)/( with unbalanced right paren — find_matching_paren returns None.
+    #[test]
+    fn grouped_fraction_reversal_unmatched_right_paren_skip() {
+        let r = GroupedFractionReversalRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks: Vec<MathToken> = vec![
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('a'),
+            MathToken::CloseParen(BracketKind::MathParen),
+            MathToken::Operator('/'),
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('c'),
+            // No closing paren for the second OpenParen
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        // Either returns Skip on let-else or succeeds with whatever it can; both acceptable.
+        assert!(res.is_ok());
+    }
+
+    /// 제7항 — Simple-right-end branch where right_end == right_start
+    /// (line 113 early return Skip). The token right after `/` must be an Operator
+    /// so that `find_simple_right_end` returns the same index it started at.
+    #[test]
+    fn grouped_fraction_reversal_empty_simple_right_skip() {
+        let r = GroupedFractionReversalRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks: Vec<MathToken> = vec![
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('a'),
+            MathToken::CloseParen(BracketKind::MathParen),
+            MathToken::Operator('/'),
+            MathToken::Operator('+'), // Not Number/Variable/etc → find_simple_right_end returns start
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    /// 제7항 — FractionReversalRule apply with malformed tokens triggers
+    /// let-else Skip at line 177. matches() filters Number/Operator/Number, so
+    /// to hit the let-else we call apply() directly with mismatched tokens.
+    #[test]
+    fn fraction_reversal_apply_malformed_tokens_skip() {
+        let r = FractionReversalRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        // Mismatched: Variable at index instead of Number
+        let toks = vec![
+            MathToken::Variable('a'),
+            MathToken::Operator('/'),
+            MathToken::Variable('b'),
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    /// 제7항 — VariableFractionInListRule apply with non-Variable token at index/index+2
+    /// triggers the let-else Skip at line 226.
+    #[test]
+    fn variable_fraction_in_list_apply_malformed_skip() {
+        let r = VariableFractionInListRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        // Variable/Operator/Number — apply's let-else expects Variable/Variable
+        let toks = vec![
+            MathToken::Number("1".into()),
+            MathToken::Operator('/'),
+            MathToken::Number("2".into()),
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    /// 제7항 — ConditionalProbFractionRule apply with malformed tokens triggers
+    /// let-else Skip at line 286.
+    #[test]
+    fn conditional_prob_apply_malformed_skip() {
+        let r = ConditionalProbFractionRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks = vec![
+            MathToken::Variable('a'),
+            MathToken::Operator('/'),
+            MathToken::Variable('b'),
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
     }
 }

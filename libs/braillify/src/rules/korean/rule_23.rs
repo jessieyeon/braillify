@@ -40,12 +40,11 @@ const MAPPINGS: &[(char, &str)] = &[
     ('', "⠘⠐⠼⠗"),
 ];
 
-const BRACKET_GLOSS_MAPPINGS: &[(char, &str)] = &[
-    ('刀', "⠋⠂⠀⠊⠥"),
-    ('舟', "⠘⠗⠀⠨⠍"),
-    ('石', "⠊⠥⠂⠀⠠⠹"),
-    ('雪', "⠉⠛⠀⠠⠞"),
-];
+// `BRACKET_GLOSS_MAPPINGS` constant + `encode_bracket_gloss_symbol` helper +
+// `is_historical_gloss_bracket_context` were removed: all 4 chars (刀, 舟, 石, 雪)
+// are also in `HISTORICAL_GLOSS_ENTRIES`, so `gloss_entry` always handles them
+// via the `is_historical_gloss_context` branch in `Rule23::apply` (lines 112-119).
+// Probe-verified: replacing the shortcut with `unreachable!()` kept all tests green.
 
 pub fn is_historical_letter_symbol(c: char) -> bool {
     MAPPINGS.iter().any(|(candidate, _)| *candidate == c) || gloss_entry(c).is_some()
@@ -56,21 +55,6 @@ fn encode_historical_letter_symbol(c: char) -> Option<Vec<u8>> {
         .iter()
         .find(|(candidate, _)| *candidate == c)
         .map(|(_, unicode)| encode_unicode_cells(unicode))
-}
-
-fn encode_bracket_gloss_symbol(c: char) -> Option<Vec<u8>> {
-    BRACKET_GLOSS_MAPPINGS
-        .iter()
-        .find(|(candidate, _)| *candidate == c)
-        .map(|(_, unicode)| encode_unicode_cells(unicode))
-}
-
-fn is_historical_gloss_bracket_context(ctx: &RuleContext) -> bool {
-    ctx.prev_word == "〔"
-        && ctx
-            .remaining_words
-            .first()
-            .is_some_and(|word| *word == "〕")
 }
 
 fn should_skip_hanja_in_context(ctx: &RuleContext) -> bool {
@@ -159,12 +143,12 @@ impl BrailleRule for Rule23 {
             return Ok(RuleResult::Consumed);
         }
 
-        if is_historical_gloss_bracket_context(ctx)
-            && let Some(encoded) = encode_bracket_gloss_symbol(ctx.current_char())
-        {
-            ctx.emit_slice(&encoded);
-            return Ok(RuleResult::Consumed);
-        }
+        // PDF 제23항 — `〔char〕` bracket gloss handling is FULLY captured by the
+        // `is_historical_gloss_context` + `gloss_entry` branch above (lines 112-119).
+        // The 4 chars in `BRACKET_GLOSS_MAPPINGS` (刀, 舟, 石, 雪) are all also in
+        // `HISTORICAL_GLOSS_ENTRIES`, so that path always wins. The previous
+        // bracket-gloss-symbol shortcut here was dead code.
+        // Probe-verified 2026-05-23: replacing with `unreachable!()` kept all tests green.
 
         let Some(encoded) = encode_historical_letter_symbol(ctx.current_char()) else {
             return Ok(RuleResult::Skip);
@@ -228,35 +212,6 @@ mod tests {
     }
 
     #[test]
-    fn bracket_gloss_symbol_returns_none_for_unknown() {
-        assert!(encode_bracket_gloss_symbol('가').is_none());
-        assert!(encode_bracket_gloss_symbol('A').is_none());
-    }
-
-    #[test]
-    fn is_historical_gloss_bracket_context_false_when_no_brackets() {
-        let word_chars = ['A'];
-        let char_type = CharType::English('A');
-        let mut skip_count = 0usize;
-        let mut state = EncoderState::new(false);
-        let mut result = Vec::new();
-        let ctx = RuleContext {
-            word_chars: &word_chars,
-            index: 0,
-            char_type: &char_type,
-            prev_word: "",
-            remaining_words: &[],
-            has_korean_char: false,
-            is_all_uppercase: false,
-            ascii_starts_at_beginning: false,
-            skip_count: &mut skip_count,
-            state: &mut state,
-            result: &mut result,
-        };
-        assert!(!is_historical_gloss_bracket_context(&ctx));
-    }
-
-    #[test]
     fn should_skip_hanja_in_context_paths() {
         let word_chars = ['君', '군'];
         let char_type = CharType::Symbol('君');
@@ -287,15 +242,15 @@ mod tests {
         assert!(matches!(outcome, RuleResult::Skip));
     }
 
-    /// 제23항 — `is_historical_gloss_bracket_context` returns true when prev_word is "〔"
+    /// 제23항 — `is_historical_gloss_context` returns true when prev_word is "〔"
     /// and the next remaining_word is "〕".
     #[test]
-    fn is_historical_gloss_bracket_context_true_for_bracketed_word() {
+    fn is_historical_gloss_context_true_for_bracketed_word() {
         let mut owned = crate::test_helpers::CtxOwned::for_text("刀", false)
             .with_prev_word("〔")
             .with_remaining_words(["〕"]);
         let ctx = owned.ctx_at(0);
-        assert!(is_historical_gloss_bracket_context(&ctx));
+        assert!(is_historical_gloss_context(&ctx));
     }
 
     /// 제23항 — Rule23 has meta and phase getters; exercise both.

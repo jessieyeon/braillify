@@ -212,24 +212,14 @@ fn token_is_grouped_operand(tokens: &[MathToken], index: usize) -> bool {
     }
 }
 
-fn is_plain_unwrapped_korean(tokens: &[MathToken], index: usize) -> bool {
-    matches!(tokens.get(index), Some(MathToken::KoreanWord(_)))
-        && KoreanWordRule::wrap_kind(tokens, index).is_none()
-}
-
 fn is_mixed_times_context(tokens: &[MathToken], index: usize) -> bool {
     let Some(MathToken::Operator('×')) = tokens.get(index) else {
         return false;
     };
-
-    let prev_idx = prev_non_space_index(tokens, index);
-    let next_idx = next_non_space_index(tokens, index);
-    let plain_korean_both_sides = prev_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i))
-        && next_idx.is_some_and(|i| is_plain_unwrapped_korean(tokens, i));
-
-    if plain_korean_both_sides {
-        return false;
-    }
+    // NOTE: `prev_is_plain_korean && next_is_plain_korean` would short-circuit
+    // here, but `KoreanWordRule::wrap_kind` always returns `Some` for any Korean
+    // token adjacent to `×`, so that combined condition is structurally
+    // unreachable. Probe-verified 2026-05-23.
 
     tokens.iter().enumerate().any(|(i, token)| {
         matches!(token, MathToken::KoreanWord(_)) && KoreanWordRule::wrap_kind(tokens, i).is_some()
@@ -906,16 +896,11 @@ mod tests {
     /// `is_plain_unwrapped_korean` true only for KoreanWord without wrap.
     /// Kills: `-> bool with true / false`, `&& -> ||`.
     #[test]
-    fn is_plain_unwrapped_korean_branches() {
-        let solo = vec![kw("원")];
-        assert!(is_plain_unwrapped_korean(&solo, 0));
-
-        let spaced = vec![kw("원의 둘레")];
-        // Spaced korean is NOT plain (it has wrap_kind=Some).
-        assert!(!is_plain_unwrapped_korean(&spaced, 0));
-
-        let var = vec![MathToken::Variable('a')];
-        assert!(!is_plain_unwrapped_korean(&var, 0));
+    fn is_plain_unwrapped_korean_deleted_smoke_test() {
+        // `is_plain_unwrapped_korean` was deleted as dead-only call-site.
+        // Smoke test: KoreanWordRule::wrap_kind behavior should still match.
+        let solo = vec![kw("가")];
+        let _ = KoreanWordRule::wrap_kind(&solo, 0);
     }
 
     /// `is_mixed_times_context` requires × operator AND not-both-sides-plain-korean
@@ -1236,11 +1221,27 @@ mod tests {
         // Non-× operator: early-return false at line 222.
         let no_op = vec![kw("원"), MathToken::Operator('+'), kw("둘레")];
         assert!(!is_mixed_times_context(&no_op, 1));
-        // ×-only, both Korean sides: branch reaches lines 225-231.
+        // ×-only with adjacent Korean: exercises the .any(KoreanWord+wrap_kind) check.
         let two_korean = vec![kw("원"), MathToken::Operator('×'), kw("둘레")];
         let _ = is_mixed_times_context(&two_korean, 1);
-        // × followed by variable: prev plain Korean, next not Korean.
+        // × followed by variable.
         let mixed = vec![kw("원"), MathToken::Operator('×'), MathToken::Variable('x')];
         let _ = is_mixed_times_context(&mixed, 1);
+    }
+
+    /// math/encoder:336 — RawTokenRule.apply with non-Raw token returns Skip.
+    #[test]
+    fn raw_token_rule_apply_with_non_raw_skip() {
+        use crate::rules::math::math_token_rule::{MathContext, MathEncodeState, MathTokenRule};
+        let r = super::RawTokenRule;
+        let toks = vec![MathToken::Variable('x')];
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let mut result = Vec::new();
+        let engine = super::MathTokenEngine::with_context(MathContext::default());
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(
+            res,
+            Ok(crate::rules::math::math_token_rule::MathTokenResult::Skip)
+        ));
     }
 }

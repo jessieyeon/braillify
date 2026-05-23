@@ -9,6 +9,19 @@ pub fn is_trig_function(name: &str) -> bool {
     matches!(name, "sin" | "cos" | "tan" | "csc" | "sec" | "cot")
 }
 
+/// Single-line `matches!()` helpers — extracted so tarpaulin can attribute
+/// coverage to one line per call site (multi-line forms suffered attribution loss).
+fn is_number_or_variable(tok: Option<&MathToken>) -> bool {
+    matches!(tok, Some(MathToken::Number(_) | MathToken::Variable(_)))
+}
+
+fn is_fraction_slash(tok: Option<&MathToken>) -> bool {
+    matches!(
+        tok,
+        Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
+    )
+}
+
 /// Emits the braille bytes for a single Number or Variable token used inside
 /// a trig-function inline fraction (e.g. `sin(x/2)`). Returns Err for any
 /// other token type so the caller's failure path is observable.
@@ -41,9 +54,11 @@ pub fn encode_trig_function(
     if !is_trig_function(name) {
         return Ok(false);
     }
-    let Some(encoded) = function::encode_function(name) else {
-        return Ok(false);
-    };
+    // `is_trig_function` guarantees `name` is one of sin/cos/tan/csc/sec/cot,
+    // and `function::encode_function` always returns Some for those.
+    // The defensive let-else fallback was structurally unreachable.
+    let encoded = function::encode_function(name)
+        .expect("is_trig_function guarantees encode_function returns Some");
     result.extend_from_slice(encoded);
 
     if let (Some(MathToken::Number(n)), Some(MathToken::Variable(v))) =
@@ -96,16 +111,10 @@ pub fn encode_trig_function(
             return Ok(true);
         }
         // Fraction without parens: sin(6/x) or sin(x/6). U+2044 (LaTeX \frac slash)도 매칭.
-        if matches!(
-            tokens.get(next_idx),
-            Some(MathToken::Number(_) | MathToken::Variable(_))
-        ) && matches!(
-            tokens.get(next_idx + 1),
-            Some(MathToken::Operator('/') | MathToken::MathSymbol('\u{2044}'))
-        ) && matches!(
-            tokens.get(next_idx + 2),
-            Some(MathToken::Number(_) | MathToken::Variable(_))
-        ) {
+        if is_number_or_variable(tokens.get(next_idx))
+            && is_fraction_slash(tokens.get(next_idx + 1))
+            && is_number_or_variable(tokens.get(next_idx + 2))
+        {
             result.push(55); // Grouping open
             // Both sides are guaranteed Number|Variable by the outer matches!()
             // check above; we destructure with let-bindings to keep the code

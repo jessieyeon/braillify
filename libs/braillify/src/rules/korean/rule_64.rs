@@ -412,4 +412,12 @@ mod tests {
         let bytes = encode_square_anchor('가').unwrap();
         assert!(!bytes.is_empty());
     }
+
+    /// Rule64Square::priority — exercise the trait method directly for coverage.
+    #[test]
+    fn rule64_priorities() {
+        assert_eq!(Rule64Square.priority(), 49);
+        // Rule64::priority is the default 350.
+        assert_eq!(Rule64.priority(), 350);
+    }
 }

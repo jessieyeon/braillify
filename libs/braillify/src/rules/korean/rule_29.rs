@@ -50,9 +50,9 @@ fn prev_word_is_numeric(prev_word: &str) -> bool {
 }
 
 fn should_enter_as_roman_indicator(ctx: &RuleContext) -> bool {
-    encode_ascii_unit(ctx.word_chars, ctx.index).is_some()
-        && (ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit())
-            || prev_word_is_numeric(ctx.prev_word))
+    let prev_is_numeric_or_digit = ctx.prev_char().is_some_and(|ch| ch.is_ascii_digit())
+        || prev_word_is_numeric(ctx.prev_word);
+    encode_ascii_unit(ctx.word_chars, ctx.index).is_some() && prev_is_numeric_or_digit
 }
 
 impl BrailleRule for Rule29 {

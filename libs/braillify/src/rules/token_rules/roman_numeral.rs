@@ -195,11 +195,9 @@ impl TokenRule for RomanNumeralRule {
             ROMAN_INDICATOR
         };
 
+        // `rest` cannot be empty here: if it were, `text == first` and the
+        // line 151 standalone path would have already returned. Probe-verified.
         let bytes = encode_roman_segment(first, entry, true)?;
-        if rest.is_empty() {
-            return Ok(TokenAction::Replace(Token::PreEncoded(bytes)));
-        }
-
         Ok(TokenAction::ReplaceMany(vec![
             Token::PreEncoded(bytes),
             build_word_token(rest),
@@ -438,5 +436,47 @@ mod tests {
         let rule = RomanNumeralRule;
         assert!(matches!(rule.phase(), TokenPhase::ModeEntry));
         assert_eq!(rule.priority(), 5);
+    }
+
+    /// roman_numeral:170 — roman hyphen-second variant preceded by an ASCII word
+    /// triggers ROMAN_CONTINUATION (vs ROMAN_INDICATOR when no prev ASCII).
+    /// Hand-build token slice with prev ASCII Word and english_indicator=true.
+    #[test]
+    fn roman_hyphen_continuation_with_direct_tokens() {
+        let r = RomanNumeralRule;
+        let mut state = EncoderState::new(false);
+        state.english_indicator = true;
+        let tokens = vec![
+            build_word_token("abc"),
+            Token::Space(SpaceKind::Regular),
+            build_word_token("I-V"),
+        ];
+        let action = r.apply(&tokens, 2, &mut state).unwrap();
+        match action {
+            TokenAction::Replace(Token::PreEncoded(bytes)) => {
+                // ROMAN_CONTINUATION marker should appear (vs ROMAN_INDICATOR for fresh start).
+                assert!(
+                    bytes.contains(&ROMAN_CONTINUATION),
+                    "expected ROMAN_CONTINUATION in {bytes:?}"
+                );
+            }
+            _ => panic!("expected Replace(PreEncoded)"),
+        }
+    }
+
+    /// roman_numeral:170 negative path — no prev ASCII → ROMAN_INDICATOR (line 172).
+    #[test]
+    fn roman_hyphen_indicator_when_no_prev_ascii() {
+        let r = RomanNumeralRule;
+        let mut state = EncoderState::new(false);
+        state.english_indicator = true;
+        let tokens = vec![build_word_token("I-V")];
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        match action {
+            TokenAction::Replace(Token::PreEncoded(bytes)) => {
+                assert!(bytes.contains(&ROMAN_INDICATOR), "{bytes:?}");
+            }
+            _ => panic!("expected Replace(PreEncoded)"),
+        }
     }
 }

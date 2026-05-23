@@ -51,12 +51,14 @@ impl TokenRuleEngine {
                         continue;
                     }
 
-                    match rule.apply(tokens, i, state)? {
-                        TokenAction::Noop => {
-                            if matches!(phase, TokenPhase::Normalization | TokenPhase::PostWord) {
-                                continue;
-                            }
-                        }
+                    let action = rule.apply(tokens, i, state)?;
+                    let is_noop_fallthrough = matches!(action, TokenAction::Noop)
+                        && matches!(phase, TokenPhase::Normalization | TokenPhase::PostWord);
+                    if is_noop_fallthrough {
+                        continue;
+                    }
+                    match action {
+                        TokenAction::Noop => {}
                         TokenAction::Replace(t) => {
                             tokens[i] = t;
                         }
@@ -257,5 +259,77 @@ mod tests {
         assert!(matches!(tokens[1], Token::PreEncoded(ref b) if b == &vec![1]));
         assert!(matches!(tokens[2], Token::PreEncoded(ref b) if b == &vec![2]));
         assert!(matches!(&tokens[3], Token::Word(w) if w.text == "c"));
+    }
+
+    /// token_engine:87 — `ReplaceRange(_, vec![])` triggers `continue 'outer`
+    /// because new_count == 0. Use a dummy rule that returns ReplaceRange with
+    /// empty replacement.
+    struct ReplaceRangeEmpty;
+    impl TokenRule for ReplaceRangeEmpty {
+        fn phase(&self) -> TokenPhase {
+            TokenPhase::Normalization
+        }
+        fn apply<'a>(
+            &self,
+            tokens: &[Token<'a>],
+            index: usize,
+            _state: &mut EncoderState,
+        ) -> Result<TokenAction<'a>, String> {
+            if let Some(Token::Word(w)) = tokens.get(index)
+                && w.text == "b"
+            {
+                // Consume 1 token, replace with empty vec → new_count == 0.
+                return Ok(TokenAction::ReplaceRange(1, Vec::new()));
+            }
+            Ok(TokenAction::Noop)
+        }
+    }
+
+    #[test]
+    fn token_engine_replace_range_empty_triggers_continue_outer() {
+        let mut engine = TokenRuleEngine::new();
+        engine.register(Box::new(ReplaceRangeEmpty));
+
+        let mut tokens = vec![word_token("a"), word_token("b"), word_token("c")];
+        let mut state = EncoderState::new(false);
+        engine.apply_all(&mut tokens, &mut state).unwrap();
+
+        // "b" removed; "c" now at index 1.
+        assert_eq!(tokens.len(), 2);
+        assert!(matches!(&tokens[0], Token::Word(w) if w.text == "a"));
+        assert!(matches!(&tokens[1], Token::Word(w) if w.text == "c"));
+    }
+
+    /// token_engine:55 — `TokenAction::Noop` arm coverage (re-attribution via
+    /// direct dispatch test). A rule returning Noop in Normalization phase
+    /// allows fall-through to next rule.
+    #[test]
+    fn token_engine_noop_normalization_continues_to_next_rule() {
+        struct AlwaysNoop;
+        impl TokenRule for AlwaysNoop {
+            fn phase(&self) -> TokenPhase {
+                TokenPhase::Normalization
+            }
+            fn priority(&self) -> u16 {
+                10 // run before ReplaceWordAt0
+            }
+            fn apply<'a>(
+                &self,
+                _tokens: &[Token<'a>],
+                _index: usize,
+                _state: &mut EncoderState,
+            ) -> Result<TokenAction<'a>, String> {
+                Ok(TokenAction::Noop)
+            }
+        }
+        let mut engine = TokenRuleEngine::new();
+        engine.register(Box::new(AlwaysNoop));
+        engine.register(Box::new(ReplaceWordAt0));
+
+        let mut tokens = vec![word_token("a")];
+        let mut state = EncoderState::new(false);
+        engine.apply_all(&mut tokens, &mut state).unwrap();
+        // AlwaysNoop returns Noop → fall through to ReplaceWordAt0 which fires at index 0.
+        assert!(matches!(tokens[0], Token::PreEncoded(ref b) if b == &vec![9]));
     }
 }

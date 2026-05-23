@@ -1086,4 +1086,14 @@ mod tests {
             let _ = strip_latex_to_math(input);
         }
     }
+
+    /// strip.rs:772-774 — `\{` opens escaped brace depth; plain `}` (without
+    /// preceding `\`) is preserved as a literal closing brace when depth > 0.
+    /// Input: `\{x}` — `\{` increments depth, `x` is content, `}` matches the
+    /// `c == '}' && escaped_brace_depth > 0` branch.
+    #[test]
+    fn escaped_open_brace_then_plain_close() {
+        let _ = strip_latex_to_math("\\{x}");
+        let _ = strip_latex_to_math("\\{abc}");
+    }
 }

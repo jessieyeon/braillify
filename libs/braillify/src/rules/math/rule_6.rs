@@ -86,10 +86,13 @@ impl MathTokenRule for BracketRule {
         state: &mut MathEncodeState,
         _engine: &MathTokenEngine,
     ) -> Result<MathTokenResult, String> {
-        match tokens.get(index) {
-            Some(MathToken::OpenParen(kind)) => encode_open_paren(*kind, result),
-            Some(MathToken::CloseParen(kind)) => encode_close_paren(*kind, result),
-            _ => return Ok(MathTokenResult::Skip),
+        let tok = tokens.get(index);
+        if let Some(MathToken::OpenParen(kind)) = tok {
+            encode_open_paren(*kind, result);
+        } else if let Some(MathToken::CloseParen(kind)) = tok {
+            encode_close_paren(*kind, result);
+        } else {
+            return Ok(MathTokenResult::Skip);
         }
 
         state.prev_was_number = false;

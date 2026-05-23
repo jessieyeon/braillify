@@ -140,3 +140,41 @@ impl MathTokenEngine {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `MathTokenRule::priority()` default implementation returns 100.
+    /// Exercised by a dummy rule that doesn't override `priority()`.
+    /// Drives the default-impl lines 48-50.
+    #[test]
+    fn priority_default_impl_returns_100() {
+        struct DummyRule;
+        impl MathTokenRule for DummyRule {
+            fn name(&self) -> &'static str {
+                "DummyRule"
+            }
+            fn matches(
+                &self,
+                _tokens: &[MathToken],
+                _index: usize,
+                _state: &MathEncodeState,
+            ) -> bool {
+                false
+            }
+            fn apply(
+                &self,
+                _tokens: &[MathToken],
+                _index: usize,
+                _result: &mut Vec<u8>,
+                _state: &mut MathEncodeState,
+                _engine: &MathTokenEngine,
+            ) -> Result<MathTokenResult, String> {
+                Ok(MathTokenResult::Skip)
+            }
+        }
+        let r = DummyRule;
+        assert_eq!(r.priority(), 100);
+    }
+}

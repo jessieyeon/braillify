@@ -115,7 +115,8 @@ impl CharType {
         }
         // LaTeX delimiters — treat as symbols so partial LaTeX tokens
         // don't cause "Invalid character" errors
-        if c == '$' || c == '\\' {
+        let is_latex_delim = matches!(c, '$' | '\\');
+        if is_latex_delim {
             return Ok(Self::Symbol(c));
         }
 
@@ -444,6 +445,30 @@ mod test {
                 }
                 CharType::CombiningMark => {}
             }
+        }
+    }
+
+    /// char_struct:119 — `$` and `\\` are classified as Symbol so partial
+    /// LaTeX tokens don't cause "Invalid character" errors.
+    #[test]
+    fn dollar_and_backslash_classified_as_symbol() {
+        assert!(matches!(CharType::new('$').unwrap(), CharType::Symbol('$')));
+        assert!(matches!(
+            CharType::new('\\').unwrap(),
+            CharType::Symbol('\\')
+        ));
+    }
+
+    /// char_struct:200 — CJK Symbols and Punctuation block (U+3000-U+303F).
+    /// Examples: 、 (U+3001) IDEOGRAPHIC COMMA, 。 (U+3002), 〔 (U+3014), 〈 (U+3008).
+    #[test]
+    fn cjk_symbols_and_punctuation_classified_as_symbol() {
+        for ch in ['\u{3001}', '\u{3002}', '\u{3014}', '\u{3008}', '\u{300A}'] {
+            assert!(
+                matches!(CharType::new(ch).unwrap(), CharType::Symbol(_)),
+                "U+{:04X} should be Symbol",
+                ch as u32
+            );
         }
     }
 }

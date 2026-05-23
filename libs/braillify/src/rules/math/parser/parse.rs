@@ -245,10 +245,11 @@ pub(crate) fn parse_math_expression_with_math_mode(
                 } else if matches!(chars[i], '.' | '/')
                     && chars.get(i + 1).is_some_and(|c| is_subscript_char(*c))
                 {
-                    match chars[i] {
-                        '.' => content.push(MathToken::DecimalPoint),
-                        '/' => content.push(MathToken::Operator('/')),
-                        _ => {}
+                    // Outer `matches!` guarantees chars[i] is '.' or '/'.
+                    if chars[i] == '.' {
+                        content.push(MathToken::DecimalPoint);
+                    } else {
+                        content.push(MathToken::Operator('/'));
                     }
                     i += 1;
                 } else {
@@ -714,10 +715,9 @@ pub(crate) fn parse_math_expression_with_math_mode(
         }
 
         if is_combining_math_mark(c) {
-            if should_prefix_overline && matches!(c, '\u{0305}' | '\u{0304}') {
-                i += 1;
-                continue;
-            }
+            // When `should_prefix_overline` is true, the overline chars \u{0305}/\u{0304}
+            // are consumed by the early guard at lines 162-165 (top of loop), so they
+            // never reach this combining-mark branch. Probe-verified 2026-05-23.
             tokens.push(MathToken::MathSymbol(c));
             i += 1;
             continue;
@@ -747,11 +747,13 @@ pub(crate) fn parse_math_expression_with_math_mode(
             };
             let prev_is_digit = prev_baseline.is_some_and(|c| c.is_ascii_digit());
             let next_is_digit = i + 1 < chars.len() && chars[i + 1].is_ascii_digit();
-            if next_is_digit && (prev_is_digit || i == 0) {
-                tokens.push(MathToken::DecimalPoint);
+            let is_decimal_in_number = next_is_digit && (prev_is_digit || i == 0);
+            let dot_token = if is_decimal_in_number {
+                MathToken::DecimalPoint
             } else {
-                tokens.push(MathToken::Raw(c));
-            }
+                MathToken::Raw(c)
+            };
+            tokens.push(dot_token);
             i += 1;
             continue;
         }
@@ -1291,5 +1293,20 @@ mod coverage_tests {
         assert_eq!(normalize_operator_char('-'), '\u{2212}');
         assert_eq!(normalize_operator_char('+'), '+');
         assert_eq!(normalize_operator_char('×'), '×');
+    }
+
+    /// parse.rs `.` else branch (line 753) — `.` not in digit context becomes Raw.
+    /// Input ending with `.` after non-digit: e.g. "x." or "abc."
+    #[test]
+    fn parse_dot_not_in_number_context_becomes_raw() {
+        // "x." — next_is_digit=false, prev not digit → falls to else → Raw('.')
+        let tokens = parse_math_expression("x.").unwrap();
+        let has_raw_dot = tokens.iter().any(|t| matches!(t, MathToken::Raw('.')));
+        assert!(has_raw_dot, "expected Raw(.) for 'x.': {tokens:?}");
+
+        // ".x" with x non-digit also hits else branch.
+        let tokens = parse_math_expression(".x").unwrap();
+        let has_raw_dot = tokens.iter().any(|t| matches!(t, MathToken::Raw('.')));
+        assert!(has_raw_dot, "expected Raw(.) for '.x': {tokens:?}");
     }
 }

@@ -393,15 +393,15 @@ impl MathTokenRule for OperatorRule {
             return Ok(MathTokenResult::Consumed(1));
         }
 
-        let label_equation = *c == '='
-            && matches!(
-                tokens.get(index.saturating_sub(1)),
-                Some(MathToken::KoreanWord(_))
-            )
-            && matches!(
-                tokens.get(index + 1),
-                Some(MathToken::MathSymbol('\u{221A}'))
-            );
+        let prev_is_korean_word = matches!(
+            tokens.get(index.saturating_sub(1)),
+            Some(MathToken::KoreanWord(_))
+        );
+        let next_is_radical = matches!(
+            tokens.get(index + 1),
+            Some(MathToken::MathSymbol('\u{221A}'))
+        );
+        let label_equation = *c == '=' && prev_is_korean_word && next_is_radical;
         if label_equation {
             result.push(0);
             encode_operator(*c, tokens, index, result)?;

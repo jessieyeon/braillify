@@ -103,10 +103,10 @@ impl BrailleRule for Rule31 {
             ctx.emit(crate::unicode::decode_unicode('⠠'));
         }
 
+        // `run` only contains chars where `is_greek_letter` (= `greek_braille.is_some()`)
+        // is true, so `greek_braille` always returns Some here.
         for ch in &run {
-            let Some(unicode) = greek_braille(*ch) else {
-                continue;
-            };
+            let unicode = greek_braille(*ch).expect("run filtered by is_greek_letter");
             ctx.emit_slice(&encode_unicode_cells(unicode));
         }
         if korean_context {

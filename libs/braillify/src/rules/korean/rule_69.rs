@@ -262,12 +262,13 @@ impl BrailleRule for Rule69 {
             return Ok(RuleResult::Consumed);
         }
 
-        let Some((_, unicode)) = SINGLE_MAPPINGS
+        // `matches()` guard `is_rule_69_symbol(c)` is a `SINGLE_MAPPINGS` lookup,
+        // so reaching here without the prior μ/ASCII-unit/`%`-shortcut paths
+        // means the char is guaranteed to be in `SINGLE_MAPPINGS`.
+        let (_, unicode) = SINGLE_MAPPINGS
             .iter()
             .find(|(candidate, _)| *candidate == ctx.current_char())
-        else {
-            return Ok(RuleResult::Skip);
-        };
+            .expect("matches() guarantees the char is in SINGLE_MAPPINGS");
         let encoded = encode_unicode_cells(unicode);
         ctx.emit_slice(&encoded);
         if should_insert_separator_after_symbol(ctx.current_char(), ctx.next_char()) {
@@ -302,6 +303,19 @@ mod tests {
     #[test]
     fn rule69_percent_p_pattern() {
         let result = crate::encode_to_unicode("50%p");
+        assert!(result.is_ok());
+    }
+
+    /// rule_69:255 — `μ` (mu) alone or followed by non-unit chars triggers the
+    /// else branch where `encode_unicode_cells("⠍")` is appended.
+    #[test]
+    fn rule69_mu_alone_without_unit() {
+        // μ followed by Korean (no ASCII unit) → encode_ascii_unit returns None →
+        // else branch at line 255 fires.
+        let result = crate::encode_to_unicode("3μ가");
+        assert!(result.is_ok());
+        // μ at end with no following text.
+        let result = crate::encode_to_unicode("3μ");
         assert!(result.is_ok());
     }
 }

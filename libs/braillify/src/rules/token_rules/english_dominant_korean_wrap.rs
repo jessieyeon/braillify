@@ -307,17 +307,27 @@ fn segment_in_english_context_with_majority<'a>(
     let left_at_boundary = is_punct_only(left_slice);
     let right_at_boundary = is_punct_only(right_slice);
 
-    match (left_at_boundary, right_at_boundary) {
-        (true, true) => {
-            let prev_eng = prev_word_token(tokens, token_index).is_some_and(word_is_english_only);
-            let next_eng = next_word_token(tokens, token_index).is_some_and(word_is_english_only);
-            prev_eng && next_eng && is_english_majority
-        }
-        (false, false) => {
-            same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice)
-        }
-        _ => false,
+    if left_at_boundary && right_at_boundary {
+        return boundary_segment_wrap(tokens, token_index, is_english_majority);
     }
+    if !left_at_boundary && !right_at_boundary {
+        return same_token_left_is_english(left_slice) && same_token_right_is_english(right_slice);
+    }
+    false
+}
+
+/// PDF 제39항 — Korean segment with both sides at token boundary (case 1).
+/// Wrap only when prev and next Word tokens are pure English AND the document
+/// is English-majority.
+#[cfg_attr(tarpaulin, inline(never))]
+fn boundary_segment_wrap<'a>(
+    tokens: &[Token<'a>],
+    token_index: usize,
+    is_english_majority: bool,
+) -> bool {
+    let prev_eng = prev_word_token(tokens, token_index).is_some_and(word_is_english_only);
+    let next_eng = next_word_token(tokens, token_index).is_some_and(word_is_english_only);
+    prev_eng && next_eng && is_english_majority
 }
 
 /// 토큰을 한글 segment 기준으로 분할하여 각각 wrap된 토큰 시퀀스를 만든다.
@@ -426,5 +436,123 @@ impl TokenRule for EnglishDominantKoreanWrapRule {
             Some(replacement) => Ok(TokenAction::ReplaceMany(replacement)),
             None => Ok(TokenAction::Noop),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::SpaceKind;
+
+    fn word(text: &str) -> Token<'static> {
+        let chars: Vec<char> = text.chars().collect();
+        Token::Word(WordToken {
+            text: Cow::Owned(text.to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        })
+    }
+
+    fn unwrap_word<'a, 'b>(tok: &'b Token<'a>) -> &'b WordToken<'a> {
+        match tok {
+            Token::Word(w) => w,
+            _ => panic!("expected Word"),
+        }
+    }
+
+    /// english_dominant_korean_wrap:106 — `same_token_right_is_english` final
+    /// `false` return: scan completes without finding ASCII alphabetic OR Korean.
+    /// Direct unit test on the private helper.
+    #[test]
+    fn same_token_right_is_english_no_alpha_no_korean() {
+        // Only digits/punct → both checks fail in the loop → fall through to `false`.
+        assert!(!same_token_right_is_english(&['1', '2', '3']));
+        assert!(!same_token_right_is_english(&['.', ',', '!']));
+        assert!(!same_token_right_is_english(&[]));
+    }
+
+    /// english_dominant_korean_wrap:257 — `count_script_words` `_ => {}` arm:
+    /// `first_script_char` returns Some non-alpha non-Korean OR None.
+    /// Build a token slice that exercises this arm directly via the function.
+    #[test]
+    fn count_script_words_non_alpha_non_korean_first_char() {
+        // First-script-char for a pure-digit/symbol word → not Korean, not alpha.
+        // WordMeta marks it as starts_with_ascii=true for ascii digits,
+        // so first_script_char returns Some('1') which is not alpha and not Korean.
+        let tokens = vec![word("english"), word("한국"), word("123"), word("more")];
+        let (eng, kor) = count_script_words(&tokens);
+        assert_eq!(eng, 2);
+        assert_eq!(kor, 1);
+        // The "123" word's first_script_char Some('1') hits `_ => {}` (not counted).
+    }
+
+    /// english_dominant_korean_wrap:311 — `(true, true) =>` arm of the boundary
+    /// match. Korean segment fills the whole word (both slices empty/punct-only),
+    /// AND prev/next tokens are English-only words. is_english_majority required true.
+    #[test]
+    fn segment_both_boundaries_prev_next_english_with_majority() {
+        // Construct: [eng, Space, korean, Space, eng] — middle word is purely Korean.
+        let tokens = vec![
+            word("hello"),
+            Token::Space(SpaceKind::Regular),
+            word("한국"),
+            Token::Space(SpaceKind::Regular),
+            word("world"),
+        ];
+        // The Korean-only token at index 2: chars=['한','국'], find_korean_segments
+        // returns one segment covering full chars. left_slice/right_slice = empty.
+        // is_punct_only(empty) = true → (true, true) arm.
+        let kor_word = unwrap_word(&tokens[2]);
+        let result = build_wrapped_replacement(kor_word, &tokens, 2, true);
+        assert!(
+            result.is_some(),
+            "Korean word between two English words with majority should be wrapped"
+        );
+    }
+
+    /// english_dominant_korean_wrap:316 — `(false, false) =>` arm of the boundary
+    /// match. Korean segment is sandwiched within same-token English letters.
+    /// Both `left_at_boundary` and `right_at_boundary` are false because the
+    /// surrounding chars include English letters.
+    #[test]
+    fn segment_within_same_token_english_letters() {
+        // "www.대통령.kr" — Korean chars '대통령' surrounded by 'w'/'k' letters
+        // (separated by '.'). same_token_*_is_english returns true on both sides.
+        let token = word("www.대통령.kr");
+        let tokens = vec![token.clone()];
+        let kor_word = unwrap_word(&tokens[0]);
+        let result = build_wrapped_replacement(kor_word, &tokens, 0, false);
+        // Inner same-token English context should wrap regardless of majority.
+        assert!(
+            result.is_some(),
+            "Korean segment within same-token English letters should wrap"
+        );
+    }
+
+    /// english_dominant_korean_wrap:333 — `find_korean_segments` returns empty when
+    /// the word has no Korean chars → `build_wrapped_replacement` returns None.
+    #[test]
+    fn build_wrapped_replacement_no_korean_returns_none() {
+        let token = word("hello");
+        let tokens = vec![token.clone()];
+        let eng_word = unwrap_word(&tokens[0]);
+        assert!(build_wrapped_replacement(eng_word, &tokens, 0, true).is_none());
+    }
+
+    /// Negative case for line 311: prev not English → no wrap.
+    #[test]
+    fn segment_both_boundaries_prev_not_english_no_wrap() {
+        // [korean_word, Space, korean_only, Space, english] — prev is Korean.
+        let tokens = vec![
+            word("안녕하세요"),
+            Token::Space(SpaceKind::Regular),
+            word("한국"),
+            Token::Space(SpaceKind::Regular),
+            word("world"),
+        ];
+        let kor_word = unwrap_word(&tokens[2]);
+        let result = build_wrapped_replacement(kor_word, &tokens, 2, true);
+        // prev_eng is false → wrap predicate false → result is None.
+        assert!(result.is_none());
     }
 }

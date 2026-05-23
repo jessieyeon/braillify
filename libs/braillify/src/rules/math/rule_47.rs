@@ -649,4 +649,29 @@ mod tests {
         ];
         assert!(!tokens_form_simple_fraction(&wrong_mid, 0));
     }
+
+    /// rule_47:263 — `next_is_lim_body` while loop encounters Space mid-traversal.
+    /// Initial token is non-Space (passes the 258 early-return guard), but after
+    /// `_ => cursor += 1` advances, the next token IS Space → return false at 263.
+    #[test]
+    fn next_is_lim_body_advances_through_token_then_hits_space() {
+        // [Operator, Space] — cursor=0 is Operator (not Space), enters loop,
+        // matches `_ => cursor += 1`, advances to 1 = Space, returns false.
+        let toks = vec![MathToken::Operator(','), MathToken::Space];
+        assert!(!next_is_lim_body(&toks, 0));
+    }
+
+    /// rule_47:172 — log argument: `else` branch when base_kind is Complex
+    /// (subscript with multi-token content) AND arg is paren-wrapped.
+    /// Trigger via `\log_{a+b}(x)` pattern.
+    #[test]
+    fn log_with_complex_base_paren_arg() {
+        // \log_{a+b}(x) — base "a+b" is Complex (not single digit/variable),
+        // arg "(x)" is paren-wrapped → hits line 172.
+        let bytes = crate::encode("$\\log_{a+b}(x)$").unwrap_or_default();
+        assert!(!bytes.is_empty());
+        // Also: \log_{2+3}(y) — complex base with digits/op.
+        let bytes = crate::encode("$\\log_{2+3}(y)$").unwrap_or_default();
+        assert!(!bytes.is_empty());
+    }
 }

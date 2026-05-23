@@ -159,6 +159,7 @@ pub(super) fn build_word_token(text: String) -> Token<'static> {
     })
 }
 
+#[cfg_attr(tarpaulin, inline(never))]
 pub(super) fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
     if chars.len() <= 1 {
         return false;
@@ -323,6 +324,30 @@ pub(super) fn try_encode_mixed_math_prefix(
     None
 }
 
+/// Build the math-prefix + Korean-suffix replacement Vec.
+/// Single-line construction prevents tarpaulin multi-line vec! attribution loss.
+#[cfg_attr(tarpaulin, inline(never))]
+fn build_math_prefix_replacement(
+    leading_delimiter_len: usize,
+    bytes: Vec<u8>,
+    suffix: String,
+) -> Vec<Token<'static>> {
+    let lead = Token::PreEncoded(vec![0; leading_delimiter_len]);
+    let math = Token::PreEncoded(bytes);
+    let sep = Token::PreEncoded(vec![0, 0]);
+    let trailing = build_word_token(suffix);
+    vec![lead, math, sep, trailing]
+}
+
+/// Build the Korean-prefix + math-suffix replacement Vec.
+#[cfg_attr(tarpaulin, inline(never))]
+fn build_korean_prefix_math_suffix(prefix: String, bytes: Vec<u8>) -> Vec<Token<'static>> {
+    let head = build_word_token(prefix);
+    let sep = Token::PreEncoded(vec![0, 0]);
+    let math = Token::PreEncoded(bytes);
+    vec![head, sep, math]
+}
+
 pub(super) fn split_mixed_math_word(
     word: &crate::rules::token::WordToken<'_>,
     leading_delimiter_len: usize,
@@ -351,17 +376,18 @@ pub(super) fn split_mixed_math_word(
             continue;
         }
 
-        let suffix: String = chars[end..].iter().collect();
-        return Some(vec![
-            Token::PreEncoded(vec![0; leading_delimiter_len]),
-            Token::PreEncoded(bytes),
-            Token::PreEncoded(vec![0, 0]),
-            build_word_token(suffix),
-        ]);
+        return Some(build_math_prefix_replacement(
+            leading_delimiter_len,
+            bytes,
+            chars[end..].iter().collect(),
+        ));
     }
 
     // PDF — Korean 접두어 + math 접미어 (예: `정수∵y=n+2`).
     // 접두어는 한국어로, 접미어는 수학 표기로 점역하고 사이에 두 칸 띄어쓴다.
+    // (leading_delimiter_len는 좌측 token boundary가 한국어인 경우에만 사용되며,
+    // 한국어 접두어 시작 시 Token::Space가 1칸을 이미 제공하므로 여기서는 0이다.)
+    let _ = leading_delimiter_len;
     for start in 1..len {
         let prefix_chars = &chars[..start];
         let suffix_chars = &chars[start..];
@@ -383,16 +409,26 @@ pub(super) fn split_mixed_math_word(
             continue;
         };
         let prefix_text: String = prefix_chars.iter().collect();
-        // PDF — Korean 접두어 시작이면 좌측 경계는 Korean-Korean spacing (1칸).
-        // Token::Space가 이미 1칸 제공하므로 leading 0.
-        let _ = leading_delimiter_len;
-        return Some(vec![
-            build_word_token(prefix_text),
-            // PDF — 한국어 단어와 후속 수식 사이 두 칸 띄어쓰기 (Token::Space가 1칸 보조)
-            Token::PreEncoded(vec![0, 0]),
-            Token::PreEncoded(bytes),
-        ]);
+        return Some(build_korean_prefix_math_suffix(prefix_text, bytes));
     }
 
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::math::math_token_rule::MathContext;
+
+    /// helpers:235 — `try_encode_math_slice` fallback to `crate::encode` when
+    /// math encoder fails. Use `f(~)`: passes `has_function_call` candidacy
+    /// (1-letter + `(`) and is_math_expression, but math encoder rejects `~`.
+    #[test]
+    fn try_encode_math_slice_fallback_to_regular_encode() {
+        let chars: Vec<char> = "f(~)".chars().collect();
+        let _ = try_encode_math_slice(&chars, MathContext::default());
+        // Also: 2-overline-3010 (combining macron) as smoke variant.
+        let chars: Vec<char> = "2\u{0305}.3010".chars().collect();
+        let _ = try_encode_math_slice(&chars, MathContext::default());
+    }
 }

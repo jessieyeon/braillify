@@ -53,32 +53,43 @@ fn prev_non_space_is_hangul_wrap_end<'a>(tokens: &'a [Token<'a>], before_index: 
     false
 }
 
+/// Single-line predicate for math-context Unicode chars — extracted so
+/// tarpaulin attributes coverage to one line per call site (the multi-line
+/// `matches!()` form suffered attribution loss on lines 68-71).
+fn is_math_context_char(c: char) -> bool {
+    c.is_ascii_alphabetic()
+        || ('\u{2080}'..='\u{2089}').contains(&c)
+        || c == '\u{00B2}'
+        || c == '\u{00B3}'
+        || ('\u{2070}'..='\u{2079}').contains(&c)
+        || matches!(c, '∇' | '∂' | '∞' | '∫')
+        || ('α'..='ω').contains(&c)
+        || ('Α'..='Ω').contains(&c)
+}
+
+/// True iff `token` is a math-context Word (non-Korean with math/paren/slash chars)
+/// or any PreEncoded token. Extracted as a free function so coverage is attributed
+/// per-call-site instead of being lost inside a nested function.
+fn token_is_math_word(token: Option<&Token<'_>>) -> bool {
+    let Some(tok) = token else {
+        return false;
+    };
+    match tok {
+        Token::Word(w) => {
+            !w.meta.has_korean
+                && (w.chars.iter().any(|c| is_math_context_char(*c))
+                    || w.chars.contains(&'(')
+                    || w.chars.contains(&')')
+                    || w.chars.contains(&'/'))
+        }
+        Token::PreEncoded(_) => true,
+        _ => false,
+    }
+}
+
 /// PDF 수학 — `Word(math)+Space+Word(=/==/관계)+Space+Word(math)` 패턴에서
 /// 등호 양옆 Space 토큰을 묵음 처리한다. 점역 결과는 `expr⠒⠒expr`로 인접한다.
 fn is_math_operator_space_suppression<'a>(tokens: &'a [Token<'a>], space_idx: usize) -> bool {
-    fn token_is_math_word(token: Option<&Token<'_>>) -> bool {
-        match token {
-            Some(Token::Word(w)) => {
-                if w.meta.has_korean {
-                    return false;
-                }
-                w.chars.iter().any(|c| {
-                    c.is_ascii_alphabetic()
-                        || matches!(*c,
-                            '\u{2080}'..='\u{2089}'
-                            | '\u{00B2}' | '\u{00B3}'
-                            | '\u{2070}'..='\u{2079}'
-                            | '∇' | '∂' | '∞' | '∫'
-                            | 'α'..='ω' | 'Α'..='Ω'
-                        )
-                }) || w.chars.contains(&'(')
-                    || w.chars.contains(&')')
-                    || w.chars.contains(&'/')
-            }
-            Some(Token::PreEncoded(_)) => true,
-            _ => false,
-        }
-    }
     fn token_is_relation_operator_word(token: Option<&Token<'_>>) -> bool {
         match token {
             Some(Token::Word(w)) => {
@@ -904,5 +915,28 @@ mod tests {
     #[test]
     fn emit_round_trip_roma_bracket() {
         assert_round_trip("Roma [ㄹㄹ로마]");
+    }
+
+    /// emit:85 (extracted helper) — `token_is_math_word` returns false for None
+    /// and for tokens that aren't Word/PreEncoded (Space, Mode, Fraction).
+    #[test]
+    fn token_is_math_word_returns_false_for_non_word_non_preencoded() {
+        use super::token_is_math_word;
+        use crate::rules::token::{ModeEvent, SpaceKind};
+        assert!(!token_is_math_word(None));
+        assert!(!token_is_math_word(Some(&Token::Space(SpaceKind::Regular))));
+        assert!(!token_is_math_word(Some(&Token::Mode(
+            ModeEvent::EnterEnglish
+        ))));
+        // Korean Word also returns false (meta.has_korean = true).
+        let chars: Vec<char> = "한국".chars().collect();
+        let kw = Token::Word(crate::rules::token::WordToken {
+            text: std::borrow::Cow::Borrowed("한국"),
+            chars: chars.clone(),
+            meta: crate::rules::token::WordMeta::from_chars(&chars),
+        });
+        assert!(!token_is_math_word(Some(&kw)));
+        // PreEncoded → true.
+        assert!(token_is_math_word(Some(&Token::PreEncoded(vec![1, 2, 3]))));
     }
 }

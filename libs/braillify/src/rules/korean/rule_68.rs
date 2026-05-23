@@ -498,4 +498,63 @@ mod tests {
         };
         assert!(should_insert_separator_after_symbol(&ctx));
     }
+
+    /// rule_68:198 — digit-grade chain with `-` triggers the `'-' => ⠔` arm.
+    /// Input MUST have a Korean char after the +/- chain to satisfy
+    /// is_digit_grade_plus_notation (per the function source).
+    #[test]
+    fn rule68_digit_grade_with_minus_in_chain() {
+        // 1+-가 — digit, then +, -, then Korean → satisfies notation predicate.
+        let _ = crate::encode("1+-가");
+        let _ = crate::encode("5-+나");
+        let _ = crate::encode("3--다");
+    }
+
+    /// rule_68:108 — direct call to `encode_compact_ascii_notation` with a base
+    /// letter followed by a single ⁺/⁻ then a non-super char. The inner loop
+    /// breaks at line 108 when next char is neither ⁺ nor ⁻.
+    #[test]
+    fn rule68_superscript_block_breaks_on_non_super_direct() {
+        // "A⁺x" — uppercase A + ⁺ (consumed) + x (breaks loop)
+        let word: Vec<char> = "A\u{207A}x".chars().collect();
+        let result = encode_compact_ascii_notation(&word, 0, false).unwrap();
+        assert!(result.is_some());
+        let (_, consumed) = result.unwrap();
+        // Only A and ⁺ are consumed; x triggers the break at line 108.
+        assert_eq!(consumed, 2);
+    }
+
+    /// rule_68:221 — apply()'s let-else returns Skip when char is NOT in MAPPINGS.
+    /// Hand-build a `RuleContext` that bypasses `matches()` (matches() guards
+    /// MAPPINGS containment via `is_rule_68_symbol`). Direct apply with English
+    /// char and word starting with uppercase letter whose `encode_compact_ascii_notation`
+    /// returns None for index > 0 → falls through to MAPPINGS find which returns None.
+    #[test]
+    fn rule68_apply_falls_through_to_mappings_skip() {
+        // Construct: word "AB" at index=1 with English char-type 'B'.
+        // encode_compact_ascii_notation at index=1: word.get(1)='B' base, but
+        // cursor=2 is out-of-bounds → returns None (line 78-83 path in source).
+        // Falls through to lines 187-215 (MathSymbol/Symbol('+') path) — doesn't match.
+        // Reaches line 217: MAPPINGS find for 'B' → None → Skip at line 221.
+        let word: Vec<char> = "AB".chars().collect();
+        let ct = CharType::English('B');
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        let mut out = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word,
+            index: 1,
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: true,
+            ascii_starts_at_beginning: true,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule68.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

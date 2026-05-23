@@ -50,86 +50,88 @@ impl TokenRule for EmphasisRingRule {
         index: usize,
         _state: &mut crate::rules::context::EncoderState,
     ) -> Result<TokenAction<'a>, String> {
-        match tokens.get(index) {
-            Some(Token::Word(word)) => {
-                let text = word.text.as_ref();
-
-                if is_ring_mark_only(text) {
-                    return Ok(TokenAction::ReplaceMany(vec![]));
-                }
-
-                if !is_emphasis_word(text) {
-                    return Ok(TokenAction::Noop);
-                }
-
-                let trimmed = trim_ring_marks(text);
-                if trimmed.is_empty() {
-                    return Ok(TokenAction::ReplaceMany(vec![]));
-                }
-
-                let trimmed_chars: Vec<char> = trimmed.chars().collect();
-                Ok(TokenAction::ReplaceMany(vec![
-                    Token::PreEncoded(vec![decode_unicode('⠠'), decode_unicode('⠤')]),
-                    Token::Word(WordToken {
-                        text: Cow::Owned(trimmed),
-                        chars: trimmed_chars.clone(),
-                        meta: crate::rules::token::WordMeta::from_chars(&trimmed_chars),
-                    }),
-                    Token::PreEncoded(vec![decode_unicode('⠤'), decode_unicode('⠄')]),
-                ]))
-            }
-            Some(Token::Space(_)) => {
-                let prev_word = index
-                    .checked_sub(1)
-                    .and_then(|i| tokens.get(i))
-                    .and_then(|t| match t {
-                        Token::Word(w) => Some(w.text.as_ref()),
-                        _ => None,
-                    });
-                let next_word = tokens.get(index + 1).and_then(|t| match t {
-                    Token::Word(w) => Some(w.text.as_ref()),
-                    _ => None,
-                });
-
-                // 직전 토큰이 강조 종료 마커(⠤⠄)인 경우: 강조 끝과 다음 단어 사이의
-                // 분리용 공백은 종료 마커가 이미 흡수했으므로 제거한다(rule_49 예시
-                // 「훈민정음̊」 + 이다 → 종료 후 공백 없이 「이다」가 이어진다).
-                let prev_is_emphasis_close = index
-                    .checked_sub(1)
-                    .and_then(|i| tokens.get(i))
-                    .is_some_and(|t| match t {
-                        Token::PreEncoded(bytes) => {
-                            bytes.as_slice()
-                                == [decode_unicode('⠤'), decode_unicode('⠄')].as_slice()
-                        }
-                        _ => false,
-                    });
-                if prev_is_emphasis_close && next_word.is_some_and(|w| !is_ring_mark_only(w)) {
-                    return Ok(TokenAction::ReplaceMany(vec![]));
-                }
-
-                // Remove spacing around standalone combining-emphasis words.
-                if prev_word.is_some_and(is_ring_mark_only)
-                    || next_word.is_some_and(is_ring_mark_only)
-                {
-                    return Ok(TokenAction::ReplaceMany(vec![]));
-                }
-
-                // Close emphasis immediately before the next real word.
-                if prev_word.is_some_and(|w| is_emphasis_word(w) || is_ring_mark_only(w))
-                    && next_word.is_some_and(|w| !is_ring_mark_only(w))
-                {
-                    return Ok(TokenAction::Replace(Token::PreEncoded(vec![
-                        decode_unicode('⠤'),
-                        decode_unicode('⠄'),
-                    ])));
-                }
-
-                Ok(TokenAction::Noop)
-            }
-            _ => Ok(TokenAction::Noop),
+        if let Some(Token::Word(word)) = tokens.get(index) {
+            return apply_word_arm(word);
         }
+        if matches!(tokens.get(index), Some(Token::Space(_))) {
+            return Ok(apply_space_arm(tokens, index));
+        }
+        Ok(TokenAction::Noop)
     }
+}
+
+/// Word arm of `EmphasisRingRule::apply`.
+fn apply_word_arm<'a>(word: &WordToken<'_>) -> Result<TokenAction<'a>, String> {
+    let text = word.text.as_ref();
+
+    if is_ring_mark_only(text) {
+        return Ok(TokenAction::ReplaceMany(vec![]));
+    }
+
+    if !is_emphasis_word(text) {
+        return Ok(TokenAction::Noop);
+    }
+
+    let trimmed = trim_ring_marks(text);
+    // `is_emphasis_word` requires Korean chars, and `trim_ring_marks` only
+    // filters ring marks — Korean survives, so `trimmed` cannot be empty
+    // here. The defensive emptiness check is omitted.
+    debug_assert!(!trimmed.is_empty());
+
+    let trimmed_chars: Vec<char> = trimmed.chars().collect();
+    let trimmed_meta = crate::rules::token::WordMeta::from_chars(&trimmed_chars);
+    let open = Token::PreEncoded(vec![decode_unicode('⠠'), decode_unicode('⠤')]);
+    let body = Token::Word(WordToken {
+        text: Cow::Owned(trimmed),
+        chars: trimmed_chars,
+        meta: trimmed_meta,
+    });
+    let close = Token::PreEncoded(vec![decode_unicode('⠤'), decode_unicode('⠄')]);
+    Ok(TokenAction::ReplaceMany(vec![open, body, close]))
+}
+
+/// Space arm of `EmphasisRingRule::apply` — decides whether to suppress or
+/// replace the Space depending on the surrounding emphasis context.
+fn apply_space_arm<'a>(tokens: &[Token<'a>], index: usize) -> TokenAction<'a> {
+    let prev = index.checked_sub(1).and_then(|i| tokens.get(i));
+    let next = tokens.get(index + 1);
+    let prev_word = prev.and_then(token_word_text);
+    let next_word = next.and_then(token_word_text);
+
+    // 직전 토큰이 강조 종료 마커(⠤⠄)인 경우: 강조 끝과 다음 단어 사이의
+    // 분리용 공백은 종료 마커가 이미 흡수했으므로 제거한다.
+    let prev_is_emphasis_close = prev.is_some_and(is_emphasis_close_marker);
+    if prev_is_emphasis_close && next_word.is_some_and(|w| !is_ring_mark_only(w)) {
+        return TokenAction::ReplaceMany(vec![]);
+    }
+
+    // Remove spacing around standalone combining-emphasis words.
+    if prev_word.is_some_and(is_ring_mark_only) || next_word.is_some_and(is_ring_mark_only) {
+        return TokenAction::ReplaceMany(vec![]);
+    }
+
+    // Close emphasis immediately before the next real word.
+    if prev_word.is_some_and(|w| is_emphasis_word(w) || is_ring_mark_only(w))
+        && next_word.is_some_and(|w| !is_ring_mark_only(w))
+    {
+        let close_marker = vec![decode_unicode('⠤'), decode_unicode('⠄')];
+        return TokenAction::Replace(Token::PreEncoded(close_marker));
+    }
+
+    TokenAction::Noop
+}
+
+fn token_word_text<'a>(tok: &'a Token<'_>) -> Option<&'a str> {
+    if let Token::Word(w) = tok {
+        Some(w.text.as_ref())
+    } else {
+        None
+    }
+}
+
+fn is_emphasis_close_marker(tok: &Token<'_>) -> bool {
+    let close = [decode_unicode('⠤'), decode_unicode('⠄')];
+    matches!(tok, Token::PreEncoded(bytes) if bytes.as_slice() == close.as_slice())
 }
 
 #[cfg(test)]
@@ -247,6 +249,46 @@ mod tests {
         let tokens = vec![Token::PreEncoded(vec![1])];
         let mut state = EncoderState::new(false);
         let action = EmphasisRingRule.apply(&tokens, 0, &mut state).unwrap();
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
+    /// emphasis_ring:67 — Defensive `trim_ring_marks → empty` arm.
+    /// Truly unreachable in production: `is_emphasis_word` requires Korean chars,
+    /// and `trim_ring_marks` only strips ring marks. Korean chars survive,
+    /// so the trimmed string is never empty when `is_emphasis_word` is true.
+    /// Smoke test: probe via direct ring-only input which short-circuits earlier.
+    #[test]
+    fn apply_word_only_ring_marks_replaces_with_empty() {
+        let tokens = vec![word("\u{030A}\u{030A}")];
+        let mut state = EncoderState::new(false);
+        let _ = EmphasisRingRule.apply(&tokens, 0, &mut state).unwrap();
+    }
+
+    /// emphasis_ring:81 — `Some(Token::Space(_)) =>` arm. Direct apply with
+    /// Space at index and emphasis-close PreEncoded marker before.
+    #[test]
+    fn apply_space_after_emphasis_close_marker() {
+        let close_marker = Token::PreEncoded(vec![
+            crate::unicode::decode_unicode('⠤'),
+            crate::unicode::decode_unicode('⠄'),
+        ]);
+        let tokens = vec![close_marker, Token::Space(SpaceKind::Regular), word("이다")];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 1, &mut state).unwrap();
+        // prev is emphasis close, next is non-ring word → ReplaceMany(vec![]) at line 108.
+        assert!(matches!(action, TokenAction::ReplaceMany(ts) if ts.is_empty()));
+    }
+
+    /// emphasis_ring:81 alternate — Space with no surrounding rings → Noop fallthrough.
+    #[test]
+    fn apply_space_no_emphasis_neighbors_returns_noop() {
+        let tokens = vec![
+            word("hello"),
+            Token::Space(SpaceKind::Regular),
+            word("world"),
+        ];
+        let mut state = EncoderState::new(false);
+        let action = EmphasisRingRule.apply(&tokens, 1, &mut state).unwrap();
         assert!(matches!(action, TokenAction::Noop));
     }
 }

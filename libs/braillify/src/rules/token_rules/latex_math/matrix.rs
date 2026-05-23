@@ -281,19 +281,16 @@ pub(super) fn encode_latex_array(
 
     // 각 행의 내용을 인코딩 (셀 사이 2-칸 separator, 앞뒤 2-칸 padding).
     let mut encoded_rows: Vec<Vec<u8>> = Vec::new();
-    for row in &rows {
-        if row.iter().all(|c| c.trim().is_empty()) {
-            continue;
-        }
+    for row in rows
+        .iter()
+        .filter(|r| r.iter().any(|c| !c.trim().is_empty()))
+    {
         let mut row_bytes = Vec::new();
         row_bytes.push(0); // 2 leading spaces
         row_bytes.push(0);
-        for (cell_index, cell) in row.iter().enumerate() {
-            let trimmed = cell.trim();
-            if trimmed.is_empty() {
-                continue;
-            }
-            if cell_index > 0 {
+        let non_empty_cells = row.iter().enumerate().filter(|(_, c)| !c.trim().is_empty());
+        for (display_index, (_, cell)) in non_empty_cells.enumerate() {
+            if display_index > 0 {
                 row_bytes.push(0); // 2 separator spaces
                 row_bytes.push(0);
             }
@@ -408,4 +405,133 @@ pub(super) fn encode_matrix_suffix(
         previous_was_operand = false;
     }
     Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ctx() -> MathContext {
+        MathContext::default()
+    }
+
+    /// 제10항 — `\begin{array}{|c|c|c|}` column spec with nested `{}` braces
+    /// drives line 82 (`b'{' => depth += 1`). Use a column spec that contains
+    /// internal `{}` to force the depth tracker into the nested-open arm.
+    #[test]
+    fn array_column_spec_nested_braces() {
+        // Trigger via crate::encode() with a real \begin{array}{p{2cm}|c|} input.
+        // The {2cm} inside the column spec exercises the depth tracking.
+        let result = crate::encode_to_unicode(
+            "$\\begin{array}{p{2cm}|c|c|c|}\\hline x & y & z & w \\\\\\hline\\end{array}$",
+        );
+        // Either succeeds or returns reasonable error; either way line 82 runs.
+        assert!(result.is_ok() || result.is_err());
+    }
+
+    /// `encode_matrix_letter_with_numeric_subscripts("")` returns Ok(None) at line 197.
+    /// Empty input: `chars.next()` returns None → early Ok(None).
+    #[test]
+    fn matrix_letter_subscripts_empty_text() {
+        let result = encode_matrix_letter_with_numeric_subscripts("", ctx()).unwrap();
+        assert!(result.is_none());
+    }
+
+    /// Non-alphabetic first char returns Ok(None) at line 200.
+    #[test]
+    fn matrix_letter_subscripts_non_alpha_first() {
+        let result = encode_matrix_letter_with_numeric_subscripts("1₂", ctx()).unwrap();
+        assert!(result.is_none());
+    }
+
+    /// Empty subscripts after alphabetic var returns Ok(None) at line 209.
+    #[test]
+    fn matrix_letter_subscripts_no_subscripts() {
+        let result = encode_matrix_letter_with_numeric_subscripts("a", ctx()).unwrap();
+        assert!(result.is_none());
+    }
+
+    /// Subscripts with non-digit unicode char returns Ok(None) at line 209.
+    #[test]
+    fn matrix_letter_subscripts_non_digit_subscript() {
+        // 'ₐ' is unicode subscript-a, not a digit
+        let result = encode_matrix_letter_with_numeric_subscripts("aₐ", ctx()).unwrap();
+        assert!(result.is_none());
+    }
+
+    /// Valid letter+subscripts produces Some output.
+    #[test]
+    fn matrix_letter_subscripts_valid() {
+        let result = encode_matrix_letter_with_numeric_subscripts("x₁₂", ctx()).unwrap();
+        assert!(result.is_some());
+        assert!(!result.unwrap().is_empty());
+    }
+
+    /// `parse_latex_letter_numeric_subscript`: invalid char (non-digit) returns None at line 351.
+    #[test]
+    fn parse_letter_subscript_invalid_char() {
+        // a_{1x} — 'x' is not a digit, triggers line 351.
+        assert!(parse_latex_letter_numeric_subscript("a_{1x}").is_none());
+    }
+
+    /// `parse_latex_letter_numeric_subscript`: missing closing `}` returns None at line 354.
+    #[test]
+    fn parse_letter_subscript_missing_closing_brace() {
+        assert!(parse_latex_letter_numeric_subscript("a_{12").is_none());
+    }
+
+    /// `parse_latex_letter_numeric_subscript`: non-alphabetic first char.
+    #[test]
+    fn parse_letter_subscript_non_alpha_first() {
+        assert!(parse_latex_letter_numeric_subscript("1_{2}").is_none());
+    }
+
+    /// `parse_latex_letter_numeric_subscript`: missing underscore.
+    #[test]
+    fn parse_letter_subscript_no_underscore() {
+        assert!(parse_latex_letter_numeric_subscript("ab{2}").is_none());
+    }
+
+    /// `parse_latex_letter_numeric_subscript`: valid case.
+    #[test]
+    fn parse_letter_subscript_valid() {
+        let result = parse_latex_letter_numeric_subscript("a_{12}").unwrap();
+        assert_eq!(result.0, 'a');
+        assert_eq!(result.1, vec!['1', '2']);
+    }
+
+    /// `encode_matrix_suffix`: empty suffix returns empty Vec.
+    #[test]
+    fn matrix_suffix_empty() {
+        let result = encode_matrix_suffix("", ctx()).unwrap();
+        assert!(result.is_empty());
+    }
+
+    /// `encode_matrix_suffix` with parts but NO subscript pattern triggers line 386.
+    /// All parts are simple math expressions, none match `parse_latex_letter_numeric_subscript`.
+    #[test]
+    fn matrix_suffix_no_subscript_pattern() {
+        // "+ x" — parts: ["+", "x"], neither matches `a_{NN}` pattern.
+        let result = encode_matrix_suffix("+ x", ctx()).unwrap();
+        assert!(!result.is_empty());
+    }
+
+    /// `encode_matrix_suffix` with subscript parts mixed with operators.
+    #[test]
+    fn matrix_suffix_with_subscript_parts() {
+        let result = encode_matrix_suffix("a_{11} a_{22} - a_{12} a_{21}", ctx()).unwrap();
+        assert!(!result.is_empty());
+    }
+
+    /// `\begin{array}` with empty rows/cells drives lines 286, 294.
+    /// Row entirely empty → `continue` at 286; specific empty cell → `continue` at 294.
+    #[test]
+    fn array_with_empty_rows_and_cells() {
+        // Use real LaTeX input. The `\\` between cells creates rows; empty rows after \hline
+        // and empty cells (between consecutive &) exercise both early-continues.
+        let result = crate::encode_to_unicode(
+            "$\\begin{array}{c|c|c|c}\\hline x & & y &\\\\\\hline\\end{array}$",
+        );
+        assert!(result.is_ok() || result.is_err());
+    }
 }

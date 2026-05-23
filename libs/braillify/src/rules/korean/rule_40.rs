@@ -13,7 +13,6 @@ use crate::char_struct::CharType;
 use crate::number;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
-use crate::rules::korean::rule_69::parse_numeric_ascii_unit_prefix;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META_40: RuleMeta = RuleMeta {
@@ -59,16 +58,9 @@ impl BrailleRule for Rule40 {
             return Ok(RuleResult::Skip);
         };
 
-        if ctx.index == 0
-            && let Some((numeric, unit, consumed)) = parse_numeric_ascii_unit_prefix(ctx.word_chars)
-        {
-            let mut encoded = crate::encode(&numeric)?;
-            encoded.extend(unit);
-            ctx.emit_slice(&encoded);
-            ctx.state.is_number = false;
-            *ctx.skip_count = consumed.saturating_sub(1);
-            return Ok(RuleResult::Consumed);
-        }
+        // PDF 제40항/제69항 — numeric+unit prefix는 Rule69(priority=90)가
+        // Rule40(priority=100, 기본값)보다 먼저 처리한다. 이 분기는 dead code였다.
+        // (rule_69.rs:174-181 matches() + 184-196 apply() 참조)
 
         if !ctx.state.is_number {
             // 제43항: skip prefix after continuation characters (. or ,)
@@ -134,6 +126,23 @@ mod tests {
                 "Rule 40 golden test failed for: {}",
                 input
             );
+        }
+    }
+
+    /// PDF 제40항 + 제69항 — numeric prefix followed by ASCII unit (kg, cm, etc.)
+    /// is handled by Rule69 (priority=90) BEFORE Rule40 (priority=100). This test
+    /// verifies the integration path works (not Rule40's apply specifically).
+    #[test]
+    fn number_with_ascii_unit_prefix_handled_by_rule69() {
+        let cases = vec!["1kg", "5cm", "10mm", "3m", "2h", "100GB"];
+        for input in cases {
+            let result = crate::encode(input);
+            assert!(
+                result.is_ok(),
+                "encode({input}) should succeed via Rule69 path"
+            );
+            let bytes = result.unwrap();
+            assert!(!bytes.is_empty(), "non-empty output for {input}");
         }
     }
 }

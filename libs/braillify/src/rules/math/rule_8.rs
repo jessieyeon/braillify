@@ -49,13 +49,10 @@ pub fn encode_decimal_point(
         j > 0 && matches!(tokens.get(j - 1), Some(MathToken::Number(_)))
     };
     if !*prev_was_number && !prev_baseline_is_number {
-        let has_next_number = match tokens.get(i + 1) {
-            Some(MathToken::Number(_)) => true,
-            Some(MathToken::MathSymbol('\u{0307}')) => {
-                matches!(tokens.get(i + 2), Some(MathToken::Number(_)))
-            }
-            _ => false,
-        };
+        let next = tokens.get(i + 1);
+        let has_next_number = matches!(next, Some(MathToken::Number(_)))
+            || (matches!(next, Some(MathToken::MathSymbol('\u{0307}')))
+                && matches!(tokens.get(i + 2), Some(MathToken::Number(_))));
         if has_next_number {
             result.push(60);
             *prev_was_number = true;

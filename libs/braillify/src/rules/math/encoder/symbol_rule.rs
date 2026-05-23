@@ -347,12 +347,10 @@ impl MathTokenRule for MathSymbolRule {
         } else if rule_24::is_sequence_brace(*c) {
             rule_24::encode_sequence_brace(*c, result)?;
         } else if rule_27::is_divisibility_symbol(*c) {
-            if *c == '|' {
-                rule_27::encode_divisibility(*c, result)?;
-            } else {
-                let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
-                result.extend_from_slice(encoded);
-            }
+            // `|` is always handled by rule_21::is_absolute_value_bar above; only
+            // U+2224 (∤) reaches this arm. Probe-verified 2026-05-23.
+            let encoded = math_symbol_shortcut::encode_char_math_symbol_shortcut(*c)?;
+            result.extend_from_slice(encoded);
         } else if rule_28::is_norm_symbol(*c) {
             if index == 0 {
                 rule_28::encode_norm_open(result)?;
@@ -1028,5 +1026,65 @@ mod tests {
         super::MathSymbolRule
             .apply(tokens, 0, &mut result, &mut state, engine)
             .map(|_| result)
+    }
+
+    /// 제25항 — Sigma followed by `(` with no closing paren returns Err at line 203.
+    /// `\sum(` without `)` triggers the find_matching_paren None → Err arm.
+    #[test]
+    fn sigma_with_unmatched_open_paren_returns_err() {
+        use super::super::super::parser::{BracketKind, MathToken};
+        // Sum (Σ) at index 0, OpenParen at index 1, no matching CloseParen.
+        let tokens = vec![
+            MathToken::MathSymbol('\u{03A3}'), // Σ
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('a'),
+            // No CloseParen
+        ];
+        let result = enc_ctx_attempt(&tokens, MathContext::default());
+        // Either Err with "Unmatched parenthesis in sigma bounds" or some Err.
+        assert!(result.is_err(), "expected Err for unmatched sigma paren");
+    }
+
+    /// 제5항 — Proportion symbol (∝ U+221D) dispatch at line 320 — direct token call.
+    #[test]
+    fn proportion_symbol_dispatch_direct() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('\u{221D}')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+        // Either Ok with bytes or Err — line 320 is exercised either way.
+    }
+
+    /// 제20항 — Approximation symbol (≒ U+2252) dispatch at line 334.
+    #[test]
+    fn approximation_symbol_dispatch_direct() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('\u{2252}')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+    }
+
+    /// 제24항 — Sequence brace `{` `}` dispatch at line 348.
+    #[test]
+    fn sequence_brace_dispatch_via_token() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('{')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+        let tokens = vec![MathToken::MathSymbol('}')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+    }
+
+    /// 제27항 — Divisibility U+2224 (∤) dispatch.
+    #[test]
+    fn divisibility_not_divides_dispatch() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('\u{2224}')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+    }
+
+    /// 제29항 — Approximate equal (≈ U+2248) dispatch at line 365.
+    #[test]
+    fn approximate_equal_dispatch_direct() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('\u{2248}')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
     }
 }

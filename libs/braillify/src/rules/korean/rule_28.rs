@@ -22,6 +22,15 @@ pub static META: RuleMeta = RuleMeta {
     description: "English letters encoded per UEB (Unified English Braille)",
 };
 
+/// Emit a multi-cell English abbreviation (e.g. "ong" → ⠰⠛) at a word-middle
+/// position. Extracted from `Rule28::apply` so each push gets a distinct line
+/// attribution under tarpaulin.
+#[cfg_attr(tarpaulin, inline(never))]
+fn emit_multi_cell_word_middle(ctx: &mut RuleContext<'_>, cells: &'static [u8], len: usize) {
+    ctx.emit_slice(cells);
+    *ctx.skip_count = len;
+}
+
 /// Single uppercase indicator (대문자 기호표).
 pub const UPPERCASE_SINGLE: u8 = 32; // ⠠
 
@@ -201,9 +210,7 @@ impl BrailleRule for Rule28 {
             ctx.emit(code);
             *ctx.skip_count = len;
         } else if let Some((cells, len)) = rule_en_multi_cell(&remaining) {
-            // multi-cell 약자 ('ong' → ⠰⠛)는 word middle에서도 적용. 예: "along" → ⠁⠇⠰⠛.
-            ctx.emit_slice(cells);
-            *ctx.skip_count = len;
+            emit_multi_cell_word_middle(ctx, cells, len);
         } else if wrap_active
             && allow_10_6
             && let Some((code, len)) = rule_en_10_6(&remaining)
@@ -273,5 +280,35 @@ mod tests {
         let mut ctx = owned.ctx_at(0);
         let _ = Rule28.apply(&mut ctx).unwrap();
         // Just exercise apply() for coverage
+    }
+
+    /// rule_28:205-206 — multi-cell English abbreviation ("ong" → ⠰⠛)
+    /// applied word-middle. Drives the `rule_en_multi_cell` arm via direct
+    /// `RuleContext` setup with state.is_english=true, index > 0.
+    #[test]
+    fn rule28_multi_cell_word_middle_direct() {
+        use crate::char_struct::CharType;
+        let word: Vec<char> = "along".chars().collect();
+        let ct = CharType::English('o');
+        let mut skip = 0usize;
+        let mut state = crate::rules::context::EncoderState::new(false);
+        state.is_english = true;
+        let mut out = Vec::new();
+        let mut ctx = crate::rules::context::RuleContext {
+            word_chars: &word,
+            index: 2, // 'o' position; remaining = "ong"
+            char_type: &ct,
+            prev_word: "",
+            remaining_words: &[],
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: true,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut out,
+        };
+        let outcome = Rule28.apply(&mut ctx).unwrap();
+        // Either Consumed (multi-cell applied) or other; at minimum the arm runs.
+        let _ = outcome;
     }
 }

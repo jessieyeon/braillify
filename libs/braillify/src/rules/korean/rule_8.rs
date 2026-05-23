@@ -48,27 +48,22 @@ pub fn determine_prefix<F>(
 where
     F: Fn(char) -> bool,
 {
-    match word_len {
-        1 => ONTAB, // 제8항: standalone
-        2 => ONTAB, // 제8항/제9항: standalone in 2-char word
-        _ => {
-            // Multi-char word: check context
-            let is_first_with_ja = char_index == 0 && word_len > 1 && word_chars[1] == '자';
+    if word_len <= 2 {
+        // 제8항/제9항: standalone in 1- or 2-char word
+        return ONTAB;
+    }
 
-            let is_bordered_by_symbols = {
-                let prev_is_symbol_or_start =
-                    char_index == 0 || (char_index > 0 && is_symbol(word_chars[char_index - 1]));
-                let next_is_symbol_or_end = word_len - 1 == char_index
-                    || (char_index < word_len - 1 && is_symbol(word_chars[char_index + 1]));
-                prev_is_symbol_or_start && next_is_symbol_or_end
-            };
+    // Multi-char word: check context
+    let is_first_with_ja = char_index == 0 && word_chars[1] == '자';
 
-            if (is_first_with_ja || is_bordered_by_symbols) || !has_korean_char {
-                ONTAB // 제8항: standalone context
-            } else {
-                WORD_ATTACHED_PREFIX // 제10항: attached to Korean word
-            }
-        }
+    let prev_is_symbol_or_start = char_index == 0 || is_symbol(word_chars[char_index - 1]);
+    let next_is_symbol_or_end = char_index == word_len - 1 || is_symbol(word_chars[char_index + 1]);
+    let is_bordered_by_symbols = prev_is_symbol_or_start && next_is_symbol_or_end;
+
+    if is_first_with_ja || is_bordered_by_symbols || !has_korean_char {
+        ONTAB // 제8항: standalone context
+    } else {
+        WORD_ATTACHED_PREFIX // 제10항: attached to Korean word
     }
 }
 

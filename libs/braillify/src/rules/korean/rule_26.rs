@@ -74,10 +74,12 @@ impl BrailleRule for Rule26 {
             return Ok(RuleResult::Consumed);
         }
 
-        let Some(encoded) = encode_legacy(c) else {
-            return Ok(RuleResult::Skip);
-        };
-
+        // `matches()` requires `encode_legacy(c).is_some()` OR
+        // `is_standalone_i_after_hanja`. The latter is already handled at line 72.
+        // So reaching here implies `encode_legacy(c)` returns Some.
+        let encoded = encode_legacy(c).expect(
+            "matches() guarantees encode_legacy returns Some when standalone-i path didn't fire",
+        );
         ctx.emit_slice(&encoded);
         Ok(RuleResult::Consumed)
     }

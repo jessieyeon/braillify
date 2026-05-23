@@ -4,22 +4,29 @@ use crate::rules::token::Token;
 
 /// Whether the immediate neighbour (direct or via single Space) is a Korean Word.
 fn neighbor_is_korean(tokens: &[Token<'_>], index: usize, dir: NeighborDir) -> bool {
-    let direct = match dir {
-        NeighborDir::Prev => index.checked_sub(1).and_then(|i| tokens.get(i)),
-        NeighborDir::Next => tokens.get(index + 1),
+    let neighbor_idx = match dir {
+        NeighborDir::Prev => index.checked_sub(1),
+        NeighborDir::Next => Some(index + 1),
     };
-    let Some(tok) = direct else { return false };
-    if let Token::Word(w) = tok {
-        return w.meta.has_korean;
+    let Some(idx) = neighbor_idx else {
+        return false;
+    };
+    let direct_is_korean_word =
+        matches!(tokens.get(idx), Some(Token::Word(w)) if w.meta.has_korean);
+    if direct_is_korean_word {
+        return true;
     }
-    if matches!(tok, Token::Space(_)) {
-        let beyond = match dir {
-            NeighborDir::Prev => index.checked_sub(2).and_then(|i| tokens.get(i)),
-            NeighborDir::Next => tokens.get(index + 2),
-        };
-        return beyond.is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean));
+    let direct_is_space = matches!(tokens.get(idx), Some(Token::Space(_)));
+    if !direct_is_space {
+        return false;
     }
-    false
+    let beyond_idx = match dir {
+        NeighborDir::Prev => idx.checked_sub(1),
+        NeighborDir::Next => Some(idx + 1),
+    };
+    beyond_idx
+        .and_then(|j| tokens.get(j))
+        .is_some_and(|t| matches!(t, Token::Word(w) if w.meta.has_korean))
 }
 
 #[derive(Clone, Copy)]
@@ -163,4 +170,57 @@ pub(crate) fn wrap_latex_math_tokens_with_inner<'a>(
         }
     }
     replacement
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::token::{SpaceKind, WordMeta, WordToken};
+    use std::borrow::Cow;
+
+    fn word(text: &str) -> Token<'static> {
+        let chars: Vec<char> = text.chars().collect();
+        Token::Word(WordToken {
+            text: Cow::Owned(text.to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        })
+    }
+
+    /// `neighbor_is_korean`: direct neighbour is a Korean Word (no Space between).
+    /// Drives the `direct_is_korean_word = true → return true` branch.
+    #[test]
+    fn neighbor_is_korean_direct_korean_word() {
+        // [한국, MATH_TOKEN_AT_INDEX_1] — direct Prev neighbour is Korean Word.
+        let tokens = vec![word("한국"), Token::PreEncoded(vec![])];
+        assert!(neighbor_is_korean(&tokens, 1, NeighborDir::Prev));
+        // [MATH_TOKEN_AT_INDEX_0, 한국] — direct Next neighbour is Korean Word.
+        let tokens = vec![Token::PreEncoded(vec![]), word("한국")];
+        assert!(neighbor_is_korean(&tokens, 0, NeighborDir::Next));
+    }
+
+    /// Negative case: direct neighbour is non-Korean Word → return false.
+    #[test]
+    fn neighbor_is_korean_direct_english_word() {
+        let tokens = vec![word("hello"), Token::PreEncoded(vec![])];
+        assert!(!neighbor_is_korean(&tokens, 1, NeighborDir::Prev));
+    }
+
+    /// Space + Korean Word beyond → returns true via beyond_idx path.
+    #[test]
+    fn neighbor_is_korean_space_then_korean() {
+        let tokens = vec![
+            word("한국"),
+            Token::Space(SpaceKind::Regular),
+            Token::PreEncoded(vec![]),
+        ];
+        assert!(neighbor_is_korean(&tokens, 2, NeighborDir::Prev));
+    }
+
+    /// No neighbour at all (Prev at index 0) → false.
+    #[test]
+    fn neighbor_is_korean_no_neighbour() {
+        let tokens = vec![Token::PreEncoded(vec![])];
+        assert!(!neighbor_is_korean(&tokens, 0, NeighborDir::Prev));
+    }
 }

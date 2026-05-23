@@ -244,9 +244,9 @@ pub fn encode_subscript(
                 | '\u{2203}' // ∃
             ))
     );
-    if prev_is_quantifier && needs_quantifier_trailing_space(tokens, *i) {
-        result.push(0);
-    }
+    let needs_pad = prev_is_quantifier && needs_quantifier_trailing_space(tokens, *i);
+    let pad_bytes: &[u8] = if needs_pad { &[0] } else { &[] };
+    result.extend_from_slice(pad_bytes);
     Ok(false)
 }
 
@@ -484,5 +484,44 @@ mod tests {
         // ₂P₃ style via pipeline
         let bytes = enc("$\\sum_{n}P_{r}$");
         let _ = bytes;
+    }
+
+    /// 제19항 — needs_quantifier_trailing_space: while-loop encounters Space
+    /// after advancing past an Operator/other token (line 265).
+    #[test]
+    fn needs_quantifier_trailing_space_loop_encounters_space() {
+        // Operator at idx=0, Space at idx=1. cursor=0 starts; line 256 not triggered
+        // (cursor=idx=0, tokens[0]=Operator → not Space). Line 260 also not (not Superscript).
+        // While-loop hits `_` arm at 273 → cursor=1, then matches Space at 265 → false.
+        let toks = vec![MathToken::Operator(','), MathToken::Space];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+    }
+
+    /// 제19항 — needs_quantifier_trailing_space: while-loop encounters Superscript
+    /// after advancing (line 266).
+    #[test]
+    fn needs_quantifier_trailing_space_loop_encounters_superscript() {
+        // Operator advances cursor, then Superscript at cursor=1 → return false.
+        let toks = vec![
+            MathToken::Operator(','),
+            MathToken::Superscript(vec![MathToken::Number("2".into())]),
+        ];
+        assert!(!needs_quantifier_trailing_space(&toks, 0));
+    }
+
+    /// 제19항 — SubscriptRule.apply with non-Subscript token at index returns Skip (line 303).
+    #[test]
+    fn subscript_rule_apply_with_non_subscript_returns_skip() {
+        let r = SubscriptRule;
+        let mut state = MathEncodeState::with_context(
+            false,
+            super::super::math_token_rule::MathContext::default(),
+        );
+        let toks = vec![MathToken::Variable('x')];
+        let mut result = Vec::new();
+        let engine =
+            MathTokenEngine::with_context(super::super::math_token_rule::MathContext::default());
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
     }
 }

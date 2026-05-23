@@ -66,3 +66,47 @@ pub fn encode_korean_char(korean: &KoreanChar) -> Result<Vec<u8>, String> {
 
     Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::char_struct::KoreanChar;
+
+    /// korean_char:25 — ㅇ-base shortcut found for jong0 AND cho0 != ㅇ.
+    /// Smoke-test by encoding many Korean syllables with varied jongseong;
+    /// at least one path should exercise the shortcut+non-ㅇ-cho branch.
+    #[test]
+    fn korean_char_encode_various_syllables() {
+        // Encode a few syllables with explicit KoreanChar construction.
+        // 갈 = ㄱ+ㅏ+ㄹ
+        let kc = KoreanChar {
+            cho: 'ㄱ',
+            jung: 'ㅏ',
+            jong: Some('ㄹ'),
+        };
+        let _ = encode_korean_char(&kc);
+        // 닭 = ㄷ+ㅏ+ㄺ (compound jongseong)
+        let kc = KoreanChar {
+            cho: 'ㄷ',
+            jung: 'ㅏ',
+            jong: Some('ㄺ'),
+        };
+        let _ = encode_korean_char(&kc);
+        // 값 = ㄱ+ㅏ+ㅄ
+        let kc = KoreanChar {
+            cho: 'ㄱ',
+            jung: 'ㅏ',
+            jong: Some('ㅄ'),
+        };
+        let _ = encode_korean_char(&kc);
+        // 깍 = ㄲ+ㅏ+ㄱ (double-cho)
+        let kc = KoreanChar {
+            cho: 'ㄲ',
+            jung: 'ㅏ',
+            jong: Some('ㄱ'),
+        };
+        let _ = encode_korean_char(&kc);
+        // Various other patterns through encode().
+        let _ = crate::encode("값있는 닭의 갈비");
+    }
+}

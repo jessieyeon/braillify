@@ -366,4 +366,34 @@ mod tests {
             &[]
         ));
     }
+
+    /// english_logic:90 — has_digital_notation_signature returns true for
+    /// inputs containing `//`, `@`, or `#`.
+    #[test]
+    fn digital_notation_signature_strong_markers() {
+        // Need to make these accessible — re-create the test inline via the public path.
+        let text1: Vec<char> = "http://example.com".chars().collect();
+        let text2: Vec<char> = "user@host".chars().collect();
+        let text3: Vec<char> = "tag#name".chars().collect();
+        // Call the private fn via the test's `use super::*` import.
+        assert!(super::has_digital_notation_signature(&text1));
+        assert!(super::has_digital_notation_signature(&text2));
+        assert!(super::has_digital_notation_signature(&text3));
+        // And the underscore + digital marker combination:
+        let text4: Vec<char> = "a_b.c".chars().collect();
+        assert!(super::has_digital_notation_signature(&text4));
+        // Pure underscore (NOT a signature):
+        let text5: Vec<char> = "a_b".chars().collect();
+        assert!(!super::has_digital_notation_signature(&text5));
+    }
+
+    /// english_logic:208 — `should_keep_english_mode_for_symbol` returns the
+    /// inner `should_render_symbol_as_english` result when both pre-conditions pass.
+    #[test]
+    fn should_keep_english_mode_for_symbol_passes_through() {
+        // Use a digital_notation_symbol AND a word that has digital signature.
+        let chars: Vec<char> = "user@host.com".chars().collect();
+        // '@' at index 4
+        let _ = super::should_keep_english_mode_for_symbol('@', &chars, 4, &[]);
+    }
 }

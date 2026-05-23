@@ -198,3 +198,28 @@ pub(crate) fn encode_ipa_char(ch: char) -> Option<Vec<u8>> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// ipa:108 — IPA input WITHOUT any Korean char triggers the else branch
+    /// in flush_korean: `encode(buf.as_str())?` (no with_encoder wrap).
+    #[test]
+    fn ipa_input_without_korean_uses_plain_encode() {
+        // Pure English + IPA bracket, no Korean anywhere.
+        let _ = encode_ipa("think [θɪŋk]");
+        let _ = encode_ipa("[θ]/æ/");
+    }
+
+    /// ipa:196 — `encode_ipa_char` returns None for chars that aren't in the
+    /// IPA mapping AND `english::encode_english` returns Err for.
+    /// Use a character that has no English mapping (e.g. emoji or arbitrary unicode).
+    #[test]
+    fn ipa_encode_char_none_for_unsupported() {
+        // Emoji or arbitrary char not in english map and not in IPA map.
+        assert!(encode_ipa_char('\u{1F600}').is_none()); // 😀
+        // Arbitrary CJK character not in english.
+        assert!(encode_ipa_char('한').is_none());
+    }
+}

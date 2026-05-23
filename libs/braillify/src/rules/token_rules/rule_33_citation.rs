@@ -94,30 +94,7 @@ impl TokenRule for Rule33CitationYearSuffixRule {
 
         // 직전 비공백 토큰이 동일 패턴(연속 인용)인지 확인 → ⠰ (continue) 마커.
         // 아니면 ⠴ (begin) 마커.
-        // - 직전이 같은 year-suffix Word이면 continue.
-        // - 직전이 Rule33가 emit한 PreEncoded(끝이 영어 모드 종료 마커)이면 continue.
-        let prev_is_same_pattern = {
-            let mut i = index;
-            loop {
-                if i == 0 {
-                    break false;
-                }
-                i -= 1;
-                match tokens.get(i) {
-                    Some(Token::Space(_)) => continue,
-                    Some(Token::Word(w)) => {
-                        break match_year_suffix(w.text.as_ref()).is_some();
-                    }
-                    Some(Token::PreEncoded(bytes)) => {
-                        // Rule33이 자체 emit한 PreEncoded인지 구조적으로 확인한다.
-                        // 패턴: `⠼(60)` + 4 digits(1..=10) + 마커(48|52) + letter(1..=26) + suffix.
-                        // suffix: `⠂(2)` | `⠰⠆(48,6)` | `⠲(50)`
-                        break is_rule33_emission(bytes);
-                    }
-                    _ => break false,
-                }
-            }
-        };
+        let prev_is_same_pattern = check_prev_is_same_pattern(tokens, index);
 
         let mut bytes = Vec::new();
         // ⠼ + 연도 숫자
@@ -134,18 +111,37 @@ impl TokenRule for Rule33CitationYearSuffixRule {
         // letter
         bytes.push(encode_english(letter)?);
         // 구두점 — 영어 모드 inside
-        match punct {
-            ',' => bytes.push(decode_unicode('⠂')), // 영어 모드 comma
-            ';' => {
-                bytes.push(decode_unicode('⠰'));
-                bytes.push(decode_unicode('⠆'));
-            }
-            '.' => bytes.push(decode_unicode('⠲')),
-            _ => {}
+        // `match_year_suffix` returns Some only when punct is `,`, `;`, or `.`
+        // (see lines 62-64), so no defensive `_ =>` arm is needed.
+        if punct == ',' {
+            bytes.push(decode_unicode('⠂'));
+        } else if punct == ';' {
+            bytes.push(decode_unicode('⠰'));
+            bytes.push(decode_unicode('⠆'));
+        } else {
+            // punct == '.'
+            bytes.push(decode_unicode('⠲'));
         }
 
         Ok(TokenAction::Replace(Token::PreEncoded(bytes)))
     }
+}
+
+/// Walk backward through `tokens[..index]` looking for the nearest non-space/
+/// non-PreEncoded token. Returns true if the previous Word matches a year-suffix
+/// pattern or the previous PreEncoded looks like a Rule33 emission.
+fn check_prev_is_same_pattern(tokens: &[Token<'_>], index: usize) -> bool {
+    let mut i = index;
+    while i > 0 {
+        i -= 1;
+        match tokens.get(i) {
+            Some(Token::Space(_)) => continue,
+            Some(Token::Word(w)) => return match_year_suffix(w.text.as_ref()).is_some(),
+            Some(Token::PreEncoded(bytes)) => return is_rule33_emission(bytes),
+            _ => return false,
+        }
+    }
+    false
 }
 
 #[cfg(test)]
@@ -298,6 +294,24 @@ mod tests {
         let action = r.apply(&tokens, 2, &mut state).unwrap();
         if let TokenAction::Replace(Token::PreEncoded(bytes)) = action {
             assert_eq!(bytes[5], 48); // ⠰ continue
+        } else {
+            panic!("expected Replace");
+        }
+    }
+
+    /// rule_33_citation:117 — backward token traversal encounters a non-Word/Space/
+    /// PreEncoded token (e.g. Mode) → break false. The year-suffix word at index
+    /// has a Mode token before it; loop hits `_ => break false`.
+    #[test]
+    fn citation_with_mode_token_before_breaks_false() {
+        use crate::rules::token::ModeEvent;
+        let r = Rule33CitationYearSuffixRule;
+        let tokens = vec![Token::Mode(ModeEvent::EnterEnglish), word_token("1998a,")];
+        let mut state = EncoderState::new(false);
+        let action = r.apply(&tokens, 1, &mut state).unwrap();
+        // prev_is_same_pattern = false (Mode → break false at line 117) → begin marker ⠴ at bytes[5].
+        if let TokenAction::Replace(Token::PreEncoded(bytes)) = action {
+            assert_eq!(bytes[5], 52); // ⠴ begin
         } else {
             panic!("expected Replace");
         }

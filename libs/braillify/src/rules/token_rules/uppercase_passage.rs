@@ -128,3 +128,88 @@ impl TokenRule for UppercasePassageRule {
         Ok(TokenAction::ReplaceMany(replacement))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rules::context::EncoderState;
+    use crate::rules::token::{SpaceKind, WordMeta};
+    use std::borrow::Cow;
+
+    fn word(text: &str) -> Token<'static> {
+        let chars: Vec<char> = text.chars().collect();
+        Token::Word(WordToken {
+            text: Cow::Owned(text.to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        })
+    }
+
+    /// uppercase_passage:78 — `EnterEnglishContinue` arm fires when
+    /// `state.needs_english_continuation` is true at the moment of inline entry.
+    /// Direct apply with hand-crafted state.
+    #[test]
+    fn uppercase_passage_enter_english_continue_direct() {
+        let r = UppercasePassageRule;
+        let mut state = EncoderState::new(false);
+        state.english_indicator = true;
+        state.is_english = false; // needs_inline_entry requires this
+        state.needs_english_continuation = true; // selects EnterEnglishContinue arm
+        // 3 uppercase words: first triggers entry, next two satisfy passage start.
+        let tokens = vec![
+            word("ABC"),
+            Token::Space(SpaceKind::Regular),
+            word("DEF"),
+            Token::Space(SpaceKind::Regular),
+            word("GHI"),
+        ];
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        // The replacement must contain Mode::EnterEnglishContinue.
+        let found = matches!(action, TokenAction::ReplaceMany(ref ts)
+            if ts.iter().any(|t| matches!(t, Token::Mode(ModeEvent::EnterEnglishContinue))));
+        assert!(found, "expected EnterEnglishContinue Mode token");
+    }
+
+    /// uppercase_passage:80 — `EnterEnglish` arm fires when
+    /// `state.needs_english_continuation` is false.
+    #[test]
+    fn uppercase_passage_enter_english_direct() {
+        let r = UppercasePassageRule;
+        let mut state = EncoderState::new(false);
+        state.english_indicator = true;
+        state.is_english = false;
+        state.needs_english_continuation = false;
+        let tokens = vec![
+            word("ABC"),
+            Token::Space(SpaceKind::Regular),
+            word("DEF"),
+            Token::Space(SpaceKind::Regular),
+            word("GHI"),
+        ];
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        let found = matches!(action, TokenAction::ReplaceMany(ref ts)
+            if ts.iter().any(|t| matches!(t, Token::Mode(ModeEvent::EnterEnglish))));
+        assert!(found, "expected EnterEnglish Mode token");
+    }
+
+    /// uppercase_passage:98 — Grade1Indicator pushed for shortform-colliding word
+    /// (e.g. "CD" = "could") at passage start.
+    #[test]
+    fn uppercase_passage_grade1_indicator_for_shortform_direct() {
+        let r = UppercasePassageRule;
+        let mut state = EncoderState::new(false);
+        state.english_indicator = true;
+        state.is_english = false;
+        let tokens = vec![
+            word("CD"),
+            Token::Space(SpaceKind::Regular),
+            word("ABC"),
+            Token::Space(SpaceKind::Regular),
+            word("DEF"),
+        ];
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        let found = matches!(action, TokenAction::ReplaceMany(ref ts)
+            if ts.iter().any(|t| matches!(t, Token::Mode(ModeEvent::Grade1Indicator))));
+        assert!(found, "expected Grade1Indicator Mode token");
+    }
+}

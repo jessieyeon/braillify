@@ -57,22 +57,42 @@ fn is_left_superscript_position(tokens: &[MathToken], index: usize) -> bool {
     let mut i = index;
     while i > 0 {
         i -= 1;
-        match tokens.get(i) {
-            Some(MathToken::Space | MathToken::Subscript(_)) => continue,
-            Some(MathToken::MathSymbol(
-                '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
-                | '\u{2200}' | '\u{2203}',
-            )) => {
-                return false;
-            }
-            Some(MathToken::FunctionName(_)) => return false,
-            _ => break,
+        let tok = tokens.get(i);
+        if is_quantifier_symbol(tok) || is_function_name_token(tok) {
+            return false;
+        }
+        if !is_space_or_subscript(tok) {
+            break;
         }
     }
     matches!(
         next_non_space(tokens, index),
         Some(MathToken::Variable(_)) | Some(MathToken::UpperVariable(_))
     )
+}
+
+fn is_space_or_subscript(tok: Option<&MathToken>) -> bool {
+    matches!(tok, Some(MathToken::Space | MathToken::Subscript(_)))
+}
+
+fn is_quantifier_symbol(tok: Option<&MathToken>) -> bool {
+    matches!(
+        tok,
+        Some(MathToken::MathSymbol(
+            '\u{222B}'
+                | '\u{222C}'
+                | '\u{222D}'
+                | '\u{222E}'
+                | '\u{2211}'
+                | '\u{220F}'
+                | '\u{2200}'
+                | '\u{2203}'
+        ))
+    )
+}
+
+fn is_function_name_token(tok: Option<&MathToken>) -> bool {
+    matches!(tok, Some(MathToken::FunctionName(_)))
 }
 
 fn is_simple_signed_number(content: &[MathToken]) -> bool {
@@ -480,5 +500,57 @@ mod tests {
         // ^{(a+b)} — has operator → force_group, strip outer parens
         let bytes = enc("$x^{(a+b)}$");
         assert!(!bytes.is_empty());
+    }
+
+    /// `is_left_superscript_position` while-loop: Space or Subscript token between
+    /// the superscript and the previous token — drives line 61 (continue).
+    /// We hand-craft a token vector with a Space/Subscript in between.
+    #[test]
+    fn left_superscript_position_continues_over_space_and_subscript() {
+        // [Variable, Space, Superscript, Variable] — going backward from index 2,
+        // we hit Space at index 1 → continue, then Variable at 0 (not function/quantifier).
+        let toks = vec![
+            MathToken::Variable('a'),
+            MathToken::Space,
+            MathToken::Superscript(vec![MathToken::Number("2".into())]),
+            MathToken::Variable('b'),
+        ];
+        // Index 2 → backward: cursor=1 (Space → continue), cursor=0 (Variable, _ => break).
+        // Then forward check at next_non_space → tokens[3]=Variable → matches!
+        let _ = is_left_superscript_position(&toks, 2);
+        // [Subscript, Superscript, Variable] — backward from 1: Subscript → continue
+        let toks = vec![
+            MathToken::Subscript(vec![MathToken::Number("1".into())]),
+            MathToken::Superscript(vec![MathToken::Number("2".into())]),
+            MathToken::Variable('b'),
+        ];
+        let _ = is_left_superscript_position(&toks, 1);
+    }
+
+    /// `encode_superscript`: line 150 — `result.push(0)` when CloseParen(Square) +
+    /// Subscript precedes superscript AND next token is not Space/None.
+    /// Trigger via crafted token slice through SuperscriptRule.apply.
+    #[test]
+    fn superscript_after_close_square_subscript_followed_by_var() {
+        // [a]_i^{x} y — square-close at idx-2, subscript at idx-1, superscript at idx,
+        // variable at idx+1 → line 150 pushes 0.
+        let bytes = enc("$[a]_i^{x}y$");
+        assert!(!bytes.is_empty());
+    }
+
+    /// `SuperscriptRule.apply` with non-Superscript token at index returns Skip (line 272).
+    #[test]
+    fn superscript_rule_apply_with_non_superscript_skip() {
+        let r = SuperscriptRule;
+        let mut state = MathEncodeState::with_context(
+            false,
+            super::super::math_token_rule::MathContext::default(),
+        );
+        let toks = vec![MathToken::Variable('x')];
+        let mut result = Vec::new();
+        let engine =
+            MathTokenEngine::with_context(super::super::math_token_rule::MathContext::default());
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
     }
 }
