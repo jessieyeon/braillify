@@ -207,13 +207,13 @@ pub(crate) fn parse_math_expression_with_math_mode(
         }
 
         // Function name detection (must come before letter detection)
-        if c.is_ascii_lowercase() {
-            let remaining: String = chars[i..].iter().collect();
-            if let Some((name, _)) = function::match_function_prefix(&remaining) {
-                tokens.push(MathToken::FunctionName(name.to_string()));
-                i += name.len();
-                continue;
-            }
+        if c.is_ascii_lowercase()
+            && let Some((name, _)) =
+                function::match_function_prefix(&chars[i..].iter().collect::<String>())
+        {
+            tokens.push(MathToken::FunctionName(name.to_string()));
+            i += name.len();
+            continue;
         }
 
         // Unicode superscript sequence → merge into single Superscript

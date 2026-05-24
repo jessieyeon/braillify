@@ -251,10 +251,13 @@ fn count_script_words(tokens: &[Token<'_>]) -> (usize, usize) {
 
     for token in tokens.iter() {
         let Token::Word(word) = token else { continue };
-        match first_script_char(word) {
-            Some(c) if c.is_ascii_alphabetic() => english_words += 1,
-            Some(c) if is_korean_char(c) => korean_words += 1,
-            _ => {}
+        let Some(c) = first_script_char(word) else {
+            continue;
+        };
+        if c.is_ascii_alphabetic() {
+            english_words += 1;
+        } else if is_korean_char(c) {
+            korean_words += 1;
         }
     }
 
@@ -319,7 +322,6 @@ fn segment_in_english_context_with_majority<'a>(
 /// PDF 제39항 — Korean segment with both sides at token boundary (case 1).
 /// Wrap only when prev and next Word tokens are pure English AND the document
 /// is English-majority.
-#[cfg_attr(tarpaulin, inline(never))]
 fn boundary_segment_wrap<'a>(
     tokens: &[Token<'a>],
     token_index: usize,

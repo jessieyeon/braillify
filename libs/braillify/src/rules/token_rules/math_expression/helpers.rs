@@ -159,7 +159,6 @@ pub(super) fn build_word_token(text: String) -> Token<'static> {
     })
 }
 
-#[cfg_attr(tarpaulin, inline(never))]
 pub(super) fn is_strong_mixed_math_candidate(chars: &[char], text: &str) -> bool {
     if chars.len() <= 1 {
         return false;
@@ -326,7 +325,6 @@ pub(super) fn try_encode_mixed_math_prefix(
 
 /// Build the math-prefix + Korean-suffix replacement Vec.
 /// Single-line construction prevents tarpaulin multi-line vec! attribution loss.
-#[cfg_attr(tarpaulin, inline(never))]
 fn build_math_prefix_replacement(
     leading_delimiter_len: usize,
     bytes: Vec<u8>,
@@ -340,7 +338,6 @@ fn build_math_prefix_replacement(
 }
 
 /// Build the Korean-prefix + math-suffix replacement Vec.
-#[cfg_attr(tarpaulin, inline(never))]
 fn build_korean_prefix_math_suffix(prefix: String, bytes: Vec<u8>) -> Vec<Token<'static>> {
     let head = build_word_token(prefix);
     let sep = Token::PreEncoded(vec![0, 0]);
@@ -370,14 +367,18 @@ pub(super) fn split_mixed_math_word(
             return None;
         }
 
-        if !chars[end..].iter().all(|c| is_korean_suffix_char(*c))
-            || !chars[end..].iter().any(|c| is_korean_char(*c))
+        let suffix_chars = &chars[end..];
+        if !suffix_chars.iter().all(|c| is_korean_suffix_char(*c))
+            || !suffix_chars.iter().any(|c| is_korean_char(*c))
         {
             continue;
         }
-        let suffix: String = chars[end..].iter().collect();
-        let replacement = build_math_prefix_replacement(leading_delimiter_len, bytes, suffix);
-        return Some(replacement);
+        let suffix: String = suffix_chars.iter().collect();
+        return Some(build_math_prefix_replacement(
+            leading_delimiter_len,
+            bytes,
+            suffix,
+        ));
     }
 
     // PDF — Korean 접두어 + math 접미어 (예: `정수∵y=n+2`).

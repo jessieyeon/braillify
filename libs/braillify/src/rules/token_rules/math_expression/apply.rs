@@ -204,7 +204,6 @@ pub(super) fn is_logic_symbol_word(word: &crate::rules::token::WordToken<'_>) ->
 /// PDF — Compute leading spaces for a math token inserted at `index` based on
 /// surrounding token context. Extracted to a standalone helper so each branch
 /// gets a unique line attribution under tarpaulin.
-#[cfg_attr(tarpaulin, inline(never))]
 fn compute_leading_spaces(
     tokens: &[Token<'_>],
     index: usize,

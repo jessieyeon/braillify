@@ -102,7 +102,6 @@ pub fn encode(text: &str) -> Result<Vec<u8>, String> {
 /// 첨자 라틴 문자를 ASCII 라틴 문자로 정규화한다.
 /// 한국 점자 수학 규정은 글꼴 변형(italic/bold/script 등)을 별도 표기하지
 /// 않으므로 `𝑃`(MATH ITALIC CAPITAL P) ≡ 일반 `P`로 취급한다.
-#[cfg_attr(tarpaulin, inline(never))]
 fn normalize_math_alphanumeric_char(c: char) -> char {
     let cp = c as u32;
     // Mathematical Italic small h는 U+1D455 자리 비고 U+210E (Planck) 사용.

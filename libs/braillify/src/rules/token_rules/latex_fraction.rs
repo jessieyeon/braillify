@@ -13,7 +13,6 @@ impl TokenRule for LatexFractionRule {
         100
     }
 
-    #[cfg_attr(tarpaulin, inline(never))]
     fn apply<'a>(
         &self,
         tokens: &[Token<'a>],

@@ -137,7 +137,6 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     Ok(result)
 }
 
-#[cfg_attr(tarpaulin, inline(never))]
 fn encode_digital_english_segment(chars: &[char], result: &mut Vec<u8>) -> Result<(), String> {
     let mut i = 0usize;
     while i < chars.len() {
