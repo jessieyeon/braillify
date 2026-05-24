@@ -14,7 +14,8 @@ fn main() {
     if !target.contains("wasm32") {
         #[cfg(windows)]
         {
-            embed_manifest(new_manifest("Braillify.Braillify")).expect("unable to embed manifest file");
+            embed_manifest(new_manifest("Braillify.Braillify"))
+                .expect("unable to embed manifest file");
         }
     }
 }
