@@ -27,7 +27,11 @@ jobs:
           - windows-latest
           - macos-latest
     steps:
+      # pull_request_target는 보안상 기본적으로 base branch(main)를 체크아웃한다.
+      # PR 코드의 커버리지를 측정하려면 PR head를 명시적으로 지정해야 한다.
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -113,7 +117,10 @@ jobs:
             rid: osx-x64
             lib_name: libbraillify_native.dylib
     steps:
+      # pull_request_target에서도 PR 코드를 체크아웃해 테스트한다.
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
