@@ -48,7 +48,7 @@ jobs:
             file: libs/braillify/src/rules/token_rules/math_expression/apply.rs
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -56,7 +56,7 @@ jobs:
           toolchain: stable
 
       - name: Cache cargo-mutants binary
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cargo/bin/cargo-mutants
           key: cargo-mutants-bin-v27-${{ runner.os }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: Upload mutants report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mutants-${{ matrix.shard.label }}
           path: target/mutants-${{ matrix.shard.label }}/mutants.out/
