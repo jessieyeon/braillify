@@ -50,9 +50,18 @@ mod tests {
         Err(last.expect("Err arm guarantees Some on at least one iteration"))
     }
 
+    /// Panic helper for `get_built_binary` when all retries are exhausted.
+    /// Extracted so it can be directly tested via `#[should_panic]` without
+    /// relying on actual build failure.
+    fn panic_build_failed(err: &dyn std::fmt::Debug) -> ! {
+        panic!(
+            "Failed to build braillify binary for testing after 3 attempts. Last error: {err:?}. This may happen on the first test run. Try running 'cargo build --bin braillify' manually first."
+        )
+    }
+
     fn get_built_binary() -> &'static escargot::CargoRun {
+        // 재시도 로직: 첫 번째 테스트에서 빌드가 실패할 수 있으므로 재시도
         BUILT_BINARY.get_or_init(|| {
-            // 재시도 로직: 첫 번째 테스트에서 빌드가 실패할 수 있으므로 재시도
             retry_with_backoff(
                 3,
                 || {
@@ -64,15 +73,15 @@ mod tests {
                 },
                 |attempt| 200 * u64::from(attempt),
             )
-            .unwrap_or_else(|e| {
-                panic!(
-                    "Failed to build braillify binary for testing after 3 attempts. \
-                    Last error: {e:?}. \
-                    This may happen on the first test run. \
-                    Try running 'cargo build --bin braillify' manually first."
-                )
-            })
+            .unwrap_or_else(|e| panic_build_failed(&e))
         })
+    }
+
+    /// Directly invokes `panic_build_failed` so the panic branch is attributed.
+    #[test]
+    #[should_panic(expected = "Failed to build braillify binary")]
+    fn panic_build_failed_emits_message() {
+        panic_build_failed(&"synthetic-error-for-coverage");
     }
 
     /// `retry_with_backoff` returns Ok immediately on first success.

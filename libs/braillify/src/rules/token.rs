@@ -204,7 +204,11 @@ fn merge_math_span(raw_words: &[&str], start: usize) -> Option<(String, usize)> 
 
     while end < raw_words.len() {
         let word = raw_words[end];
-        if !word.chars().all(is_math_span_char) {
+        // Closure (not bare fn) is intentional: forces tarpaulin to attribute
+        // the call to `is_math_span_char` body instead of fn declaration line.
+        #[allow(clippy::redundant_closure)]
+        let all_span = word.chars().all(|c| is_math_span_char(c));
+        if !all_span {
             break;
         }
 

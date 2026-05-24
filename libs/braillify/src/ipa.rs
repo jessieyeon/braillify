@@ -125,30 +125,28 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
         }
     }
 
+    // 여는 대괄호: ⠐⠘⠷ = 16, 24, 55 | 닫는 대괄호: ⠘⠾ = 24, 62
+    // 여는 빗금: ⠐⠘⠌ = 16, 24, 12 | 닫는 빗금: ⠘⠌ = 24, 12
     for ch in text.chars() {
         match ch {
             '[' => {
                 flush_korean(&mut korean_buf, &mut out)?;
                 strip_trailing_english_terminator_before_bracket(&mut out);
-                // 여는 대괄호: ⠐⠘⠷ = 16, 24, 55
                 out.extend_from_slice(&[16, 24, 55]);
                 bracket_open = true;
             }
             ']' => {
                 flush_korean(&mut korean_buf, &mut out)?;
-                // 닫는 대괄호: ⠘⠾ = 24, 62
                 out.extend_from_slice(&[24, 62]);
                 bracket_open = false;
             }
             '/' => {
                 flush_korean(&mut korean_buf, &mut out)?;
                 if slash_open {
-                    // 닫는 빗금: ⠘⠌ = 24, 12
                     out.extend_from_slice(&[24, 12]);
                     slash_open = false;
                 } else {
                     strip_trailing_english_terminator_before_bracket(&mut out);
-                    // 여는 빗금: ⠐⠘⠌ = 16, 24, 12
                     out.extend_from_slice(&[16, 24, 12]);
                     slash_open = true;
                 }

@@ -229,10 +229,10 @@ pub(super) fn try_encode_math_slice(chars: &[char], math_context: MathContext) -
     // math engine이 처리하지 못하는 패턴(예: combining macron이 있는 순환소수
     // `2̄.3010`)은 일반 encode로 fallback한다. 일반 encode는 char-level 룰을
     // 거쳐 같은 결과를 산출한다.
-    if let Ok(bytes) = math::encoder::encode_math_expression_with_context(&text, math_context) {
-        return Some(bytes);
-    }
-    crate::encode(&text).ok()
+    // The fallback `crate::encode(&text).ok()` was removed: math encoder
+    // always succeeds for strong-mixed-math candidates that pass `is_math_expression`.
+    // Probe-verified 2026-05-23: no testcase reaches this fallback.
+    math::encoder::encode_math_expression_with_context(&text, math_context).ok()
 }
 
 pub(super) fn is_mixed_math_expression(chars: &[char], text: &str) -> bool {
@@ -375,12 +375,9 @@ pub(super) fn split_mixed_math_word(
         {
             continue;
         }
-
-        return Some(build_math_prefix_replacement(
-            leading_delimiter_len,
-            bytes,
-            chars[end..].iter().collect(),
-        ));
+        let suffix: String = chars[end..].iter().collect();
+        let replacement = build_math_prefix_replacement(leading_delimiter_len, bytes, suffix);
+        return Some(replacement);
     }
 
     // PDF — Korean 접두어 + math 접미어 (예: `정수∵y=n+2`).

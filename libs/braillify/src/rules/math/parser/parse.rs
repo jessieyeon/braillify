@@ -554,35 +554,33 @@ pub(crate) fn parse_math_expression_with_math_mode(
                 i += 1;
                 continue;
             }
+            // PDF — math mode 컨텍스트면 Korean 내용 있어도 Hangul wrap 우회.
+            // 콤마로 구분된 튜플(예: (f/x₁, f/x₂, ...))은 MathParen으로 유지.
+            // 산술 식 그룹(예: (a+b)/c)만 Grouping으로 승격한다.
             ')' => {
-                let kind = if let Some(group) = bracket_stack.pop() {
-                    // PDF — math mode 컨텍스트면 Korean 내용 있어도 Hangul wrap 우회.
-                    let resolved_kind = if !math_mode_active
-                        && group.contains_korean
-                        && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping)
-                    {
-                        BracketKind::Hangul
-                    } else if group.promote_grouping
-                        && group.contains_arithmetic
-                        && !group.contains_comma
-                        && matches!(group.kind, BracketKind::MathParen)
-                    {
-                        // 콤마로 구분된 튜플(예: (f/x₁, f/x₂, ...))은 MathParen으로 유지.
-                        // 산술 식 그룹(예: (a+b)/c)만 Grouping으로 승격한다.
-                        BracketKind::Grouping
-                    } else {
-                        group.kind
-                    };
-
-                    if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index)
-                    {
-                        *open_kind = resolved_kind;
-                    }
-                    resolved_kind
-                } else {
-                    BracketKind::MathParen
+                let Some(group) = bracket_stack.pop() else {
+                    tokens.push(MathToken::CloseParen(BracketKind::MathParen));
+                    i += 1;
+                    continue;
                 };
-                tokens.push(MathToken::CloseParen(kind));
+                let is_korean_wrap = !math_mode_active
+                    && group.contains_korean
+                    && matches!(group.kind, BracketKind::MathParen | BracketKind::Grouping);
+                let is_arith_group = group.promote_grouping
+                    && group.contains_arithmetic
+                    && !group.contains_comma
+                    && matches!(group.kind, BracketKind::MathParen);
+                let resolved_kind = if is_korean_wrap {
+                    BracketKind::Hangul
+                } else if is_arith_group {
+                    BracketKind::Grouping
+                } else {
+                    group.kind
+                };
+                if let Some(MathToken::OpenParen(open_kind)) = tokens.get_mut(group.token_index) {
+                    *open_kind = resolved_kind;
+                }
+                tokens.push(MathToken::CloseParen(resolved_kind));
                 i += 1;
                 continue;
             }

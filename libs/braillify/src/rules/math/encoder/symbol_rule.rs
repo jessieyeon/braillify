@@ -6,10 +6,10 @@ use super::super::math_token_rule::{
 use super::super::parser::{BracketKind, MathToken};
 use super::super::{
     rule_1, rule_2, rule_3, rule_4, rule_5, rule_6, rule_9, rule_10, rule_11, rule_12, rule_13,
-    rule_15, rule_16, rule_17, rule_20, rule_21, rule_22, rule_23, rule_24, rule_25, rule_26,
-    rule_27, rule_28, rule_29, rule_30, rule_31, rule_32, rule_33, rule_36, rule_37, rule_38,
-    rule_39, rule_40, rule_41, rule_42, rule_43, rule_44, rule_50, rule_54, rule_55, rule_56,
-    rule_58, rule_59, rule_60, rule_61, rule_64, rule_65,
+    rule_15, rule_16, rule_17, rule_21, rule_22, rule_23, rule_24, rule_25, rule_26, rule_27,
+    rule_28, rule_30, rule_31, rule_32, rule_33, rule_36, rule_37, rule_38, rule_39, rule_40,
+    rule_41, rule_42, rule_43, rule_44, rule_50, rule_54, rule_55, rule_56, rule_58, rule_59,
+    rule_60, rule_61, rule_64, rule_65,
 };
 use super::encode_generic_math_symbol;
 use crate::math_symbol_shortcut;
@@ -330,8 +330,10 @@ impl MathTokenRule for MathSymbolRule {
             rule_15::encode_custom_binary_operator(*c, result)?;
         } else if rule_17::is_prime_mark(*c) {
             rule_17::encode_prime(*c, result)?;
-        } else if rule_20::is_approximation_symbol(*c) {
-            rule_20::encode_approximation_symbol(*c, result)?;
+        // rule_20 (U+2252 ≒) and rule_29 (U+2248 ≈) dispatch arms were removed:
+        // both chars are claimed by `rule_3::is_equality_symbol` earlier in the
+        // chain, making rule_20/rule_29 arms structurally unreachable.
+        // Probe-verified 2026-05-23.
         } else if rule_21::is_absolute_value_bar(*c) {
             if matches!(
                 rule_12::prev_non_space(tokens, index),
@@ -359,8 +361,6 @@ impl MathTokenRule for MathSymbolRule {
             } else {
                 rule_28::encode_norm_symbol(*c, result)?;
             }
-        } else if rule_29::is_approximate_equal(*c) {
-            rule_29::encode_approximate_equal(*c, result)?;
         } else if rule_30::is_dot_congruence(*c) {
             rule_30::encode_dot_congruence(*c, result)?;
         } else if rule_31::is_asymptotic_equal(*c) {
