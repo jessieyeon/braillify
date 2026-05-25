@@ -56,18 +56,6 @@ pub(super) fn is_subscript_char(c: char) -> bool {
     )
 }
 
-pub(super) fn is_combining_math_mark(c: char) -> bool {
-    matches!(
-        c,
-        '\u{0307}' // combining dot above
-            | '\u{0305}' // combining overline
-            | '\u{0308}' // combining diaeresis
-            | '\u{0309}' // combining hook above (used as ring case in tests)
-            | '\u{030A}' // combining ring above
-            | '\u{0332}' // combining low line
-    )
-}
-
 /// Normalize a superscript character to its base form.
 pub(super) fn normalize_superscript(c: char) -> Option<MathToken> {
     match c {
@@ -209,4 +197,41 @@ pub(super) fn normalize_math_alphanumeric(c: char) -> char {
         }
     }
     c
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `normalize_superscript` returns None for non-superscript chars.
+    #[rstest::rstest]
+    #[case('a')]
+    #[case('1')]
+    fn normalize_superscript_none_for_non_superscript(#[case] ch: char) {
+        assert!(normalize_superscript(ch).is_none());
+    }
+
+    /// `normalize_subscript` returns None for non-subscript chars.
+    #[rstest::rstest]
+    #[case('a')]
+    #[case('Z')]
+    fn normalize_subscript_none_for_non_subscript(#[case] ch: char) {
+        assert!(normalize_subscript(ch).is_none());
+    }
+
+    /// `normalize_math_alphanumeric` maps Math Alphanumeric Symbols to ASCII base.
+    /// - U+210E PLANCK CONSTANT → 'h'
+    /// - U+1D400 MATHEMATICAL BOLD CAPITAL A → 'A'
+    /// - U+1D434 MATHEMATICAL ITALIC CAPITAL A → 'A'
+    /// - U+1D7CE MATHEMATICAL BOLD DIGIT ZERO → '0'
+    /// - U+1D7D8 MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO → '0'
+    #[rstest::rstest]
+    #[case('\u{210E}', 'h')]
+    #[case('\u{1D400}', 'A')]
+    #[case('\u{1D434}', 'A')]
+    #[case('\u{1D7CE}', '0')]
+    #[case('\u{1D7D8}', '0')]
+    fn normalize_math_alphanumeric_table(#[case] input: char, #[case] expected: char) {
+        assert_eq!(normalize_math_alphanumeric(input), expected);
+    }
 }

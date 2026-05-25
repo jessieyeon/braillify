@@ -627,4 +627,41 @@ mod tests {
         let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
         assert!(matches!(res, Ok(MathTokenResult::Skip)));
     }
+
+    /// 제7항 — GroupedFractionReversalRule.apply with `(...)X` (no slash after `)`):
+    /// `is_fraction_slash` returns false → Skip at line 60.
+    #[test]
+    fn grouped_fraction_apply_no_slash_after_paren() {
+        let r = GroupedFractionReversalRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        // `(a)b` — paren closes, but `b` not `/` → triggers line 60 Skip.
+        let toks = vec![
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('a'),
+            MathToken::CloseParen(BracketKind::MathParen),
+            MathToken::Variable('b'),
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    /// 제7항 — FractionReversalRule.apply with `Number / Number` exercises the
+    /// reversal encoding body (lines 143-147).
+    #[test]
+    fn fraction_reversal_apply_number_over_number() {
+        let r = FractionReversalRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks = vec![
+            MathToken::Number("2".to_string()),
+            MathToken::Operator('/'),
+            MathToken::Number("3".to_string()),
+        ];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Consumed(3))));
+        assert!(!result.is_empty(), "should emit reversed number bytes");
+    }
 }

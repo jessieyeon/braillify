@@ -427,8 +427,42 @@ mod tests {
             result: &mut result,
         };
         let outcome = engine.apply(&mut ctx).expect("ok");
-        // Disabled and non-matching skipped → Continue → Skip → no Consumed.
+        // Disabled and non-matching skipped �� Continue �� Skip �� no Consumed.
         // Final return value is Skip.
+        assert_eq!(outcome, RuleResult::Skip);
+    }
+
+    /// engine.rs line 124 - `apply_phase` skip arm for disabled rules.
+    #[test]
+    fn engine_apply_phase_skips_disabled_rules() {
+        use crate::char_struct::CharType;
+
+        let mut engine = RuleEngine::new();
+        engine.register(Box::new(TestRule));
+        engine.disable("test");
+
+        let word_chars = vec!['x'];
+        let char_type = CharType::English('x');
+        let empty: [&str; 0] = [];
+        let mut skip = 0usize;
+        let mut state = EncoderState::new(false);
+        let mut result = Vec::new();
+        let mut ctx = RuleContext {
+            word_chars: &word_chars,
+            index: 0,
+            char_type: &char_type,
+            prev_word: "",
+            remaining_words: &empty,
+            has_korean_char: false,
+            is_all_uppercase: false,
+            ascii_starts_at_beginning: false,
+            skip_count: &mut skip,
+            state: &mut state,
+            result: &mut result,
+        };
+        // TestRule.phase() = CoreEncoding; with disabled section "test", apply_phase
+        // hits the `if !self.is_enabled(meta.section) { continue; }` arm.
+        let outcome = engine.apply_phase(Phase::CoreEncoding, &mut ctx).unwrap();
         assert_eq!(outcome, RuleResult::Skip);
     }
 }

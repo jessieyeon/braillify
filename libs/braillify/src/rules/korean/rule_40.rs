@@ -145,4 +145,13 @@ mod tests {
             assert!(!bytes.is_empty(), "non-empty output for {input}");
         }
     }
+
+    /// rule_40 line 52 — `let-else return Skip` for non-Number ctx.
+    #[test]
+    fn rule40_apply_skip_for_non_number_ctx() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("가", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule40.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

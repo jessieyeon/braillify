@@ -812,8 +812,38 @@ mod tests {
     /// Trigger via x^{(n)} = ... pattern that includes the Operator('=') context.
     #[test]
     fn upper_variable_paren_wrapped_superscript_eq_pattern() {
-        // y^{(n)} = ... — exercises the matches!() check at line 92.
+        // y^{(n)} = ... ? exercises the matches!() check at line 92.
         let bytes = enc("$y^{(n)}=f(x)$");
         let _ = bytes;
+    }
+
+    use super::super::math_token_rule::MathContext;
+
+    fn dummy_engine() -> MathTokenEngine {
+        MathTokenEngine::with_context(MathContext::default())
+    }
+
+    /// rule_12 line 329 - VariableRule.apply let-else Skip when token isn't Variable.
+    #[test]
+    fn variable_rule_apply_skip_for_non_variable() {
+        let r = VariableRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks = vec![MathToken::Number("1".to_string())];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    /// rule_12 line 355 - UpperVariableRule.apply let-else Skip when token isn't UpperVariable.
+    #[test]
+    fn upper_variable_rule_apply_skip_for_non_upper_variable() {
+        let r = UpperVariableRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks = vec![MathToken::Variable('a')];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
     }
 }

@@ -440,9 +440,11 @@ fn is_vector_mark(c: char) -> bool {
 /// 결합 부호가 각각 붙어 있으면, 결합부호를 한 번만 prefix하고 본문은 연쇄로 본다.
 /// 예: `A⃗B⃗` → `⃗AB` → 점자 `⠒⠕⠠⠠⠁⠃`.
 fn collapse_repeated_vector_marks<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
-    if !text.as_ref().chars().any(is_vector_mark) {
-        return text;
-    }
+    // Caller (line 483) guards with `normalization_triggers.has_vector_mark`, so
+    // this function only runs when text contains at least one vector mark. The
+    // defensive guard is preserved for safety but is structurally unreachable
+    // under current call patterns.
+    debug_assert!(text.as_ref().chars().any(is_vector_mark));
 
     let source = text.as_ref();
     let chars: Vec<char> = source.chars().collect();

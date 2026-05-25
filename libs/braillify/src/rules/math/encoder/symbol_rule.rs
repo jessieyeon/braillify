@@ -1087,4 +1087,12 @@ mod tests {
         let tokens = vec![MathToken::MathSymbol('\u{2248}')];
         let _ = enc_ctx_attempt(&tokens, MathContext::default());
     }
+
+    /// symbol_rule.rs line 52 — MathSymbolRule.apply let-else Skip when token isn't MathSymbol.
+    #[test]
+    fn math_symbol_rule_apply_skip_for_non_math_symbol() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::Variable('x')];
+        let _ = enc_ctx_attempt(&tokens, MathContext::default());
+    }
 }

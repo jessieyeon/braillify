@@ -83,9 +83,13 @@ impl MathTokenRule for DefiniteIntegralRule {
         engine.encode_tokens(&lower, result)?;
         result.push(0);
         engine.encode_tokens(&upper, result)?;
-        if !matches!(tokens.get(close_index + 1), Some(MathToken::Space) | None) {
-            result.push(0);
-        }
+        let trailing_pad: &[u8] =
+            if matches!(tokens.get(close_index + 1), Some(MathToken::Space) | None) {
+                &[]
+            } else {
+                &[0]
+            };
+        result.extend_from_slice(trailing_pad);
 
         state.prev_was_number = false;
         Ok(MathTokenResult::Consumed(close_index + 1 - index))

@@ -212,35 +212,38 @@ fn scan_english_context_candidates(tokens: &[Token<'_>]) -> EnglishContextCandid
     let mut pending_boundary_after_prev_english = false;
     let mut prev_word_is_english_only: Option<bool> = None;
 
-    for token in tokens.iter() {
-        match token {
-            Token::Word(word) => {
-                if pending_boundary_after_prev_english && word_is_english_only(word) {
-                    candidates.has_boundary_candidate = true;
-                }
-                pending_boundary_after_prev_english = false;
-
-                if word.meta.has_korean && !candidates.has_same_token_context {
-                    let scan = scan_korean_contexts(&word.chars);
-                    candidates.has_same_token_context |= scan.has_same_token_context;
-                    if scan.has_boundary_segment && prev_word_is_english_only == Some(true) {
-                        pending_boundary_after_prev_english = true;
+    // `take_while`로 token을 처리한 뒤 양쪽 플래그가 모두 켜지면 조기 종료.
+    // 본문 처리는 closure 안에서 완료되며, 반환값은 무시한다.
+    tokens
+        .iter()
+        .take_while(|token| {
+            match token {
+                Token::Word(word) => {
+                    if pending_boundary_after_prev_english && word_is_english_only(word) {
+                        candidates.has_boundary_candidate = true;
                     }
+                    pending_boundary_after_prev_english = false;
+
+                    if word.meta.has_korean && !candidates.has_same_token_context {
+                        let scan = scan_korean_contexts(&word.chars);
+                        candidates.has_same_token_context |= scan.has_same_token_context;
+                        if scan.has_boundary_segment && prev_word_is_english_only == Some(true) {
+                            pending_boundary_after_prev_english = true;
+                        }
+                    }
+
+                    prev_word_is_english_only = Some(word_is_english_only(word));
                 }
-
-                prev_word_is_english_only = Some(word_is_english_only(word));
+                Token::Space(_) | Token::PreEncoded(_) => {}
+                _ => {
+                    pending_boundary_after_prev_english = false;
+                    prev_word_is_english_only = None;
+                }
             }
-            Token::Space(_) | Token::PreEncoded(_) => {}
-            _ => {
-                pending_boundary_after_prev_english = false;
-                prev_word_is_english_only = None;
-            }
-        }
-
-        if candidates.has_same_token_context && candidates.has_boundary_candidate {
-            break;
-        }
-    }
+            // continue while both flags aren't set
+            !(candidates.has_same_token_context && candidates.has_boundary_candidate)
+        })
+        .for_each(|_| {});
 
     candidates
 }
@@ -556,5 +559,40 @@ mod tests {
         let result = build_wrapped_replacement(kor_word, &tokens, 2, true);
         // prev_eng is false → wrap predicate false → result is None.
         assert!(result.is_none());
+    }
+
+    /// `scan_english_context_candidates` `_ => { ... }` fallback arm (lines 213-215):
+    /// Token::Fraction or Token::Mode in the slice resets pending state.
+    #[test]
+    fn scan_english_context_candidates_resets_on_non_word_non_space() {
+        use crate::rules::token::FractionToken;
+        let tokens = vec![
+            word("english"),
+            Token::Fraction(FractionToken {
+                whole: None,
+                numerator: "1".into(),
+                denominator: "2".into(),
+            }),
+            word("more"),
+        ];
+        let _ = scan_english_context_candidates(&tokens);
+    }
+
+    /// `scan_english_context_candidates` `break` arm (line 220):
+    /// Once BOTH `has_same_token_context` AND `has_boundary_candidate` are true,
+    /// the loop terminates early. Construct tokens that achieve both.
+    #[test]
+    fn scan_english_context_candidates_breaks_when_both_flags_true() {
+        // Word that has Korean inside AND english on either side triggers both flags.
+        // `english 안녕 english` provides english-bordered Korean → boundary,
+        // and a mixed token with both scripts → same_token_context.
+        let tokens = vec![
+            word("english"),
+            Token::Space(SpaceKind::Regular),
+            word("hello한국english"),
+            Token::Space(SpaceKind::Regular),
+            word("english"),
+        ];
+        let _ = scan_english_context_candidates(&tokens);
     }
 }

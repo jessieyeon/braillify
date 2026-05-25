@@ -203,4 +203,13 @@ mod tests {
         assert!(matches!(outcome, RuleResult::Consumed));
         assert_eq!(owned.result, GEOSEONG.to_vec());
     }
+
+    /// rule_27 line 106 — `_ => return Ok(Skip)` fallback for non-· non-: symbol char.
+    #[test]
+    fn rule27_apply_skip_for_unrelated_symbol() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("!", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule27.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

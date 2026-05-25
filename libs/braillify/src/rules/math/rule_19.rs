@@ -175,30 +175,33 @@ pub fn encode_subscript(
     // 컨텍스트에 속하므로 묶음 없이 출력한다. (이전 첨자를 거슬러 올라가 한정자를 찾는다.)
     let prev_is_quantifier_op = {
         let mut cursor = *i;
-        loop {
+        let mut result: Option<bool> = None;
+        while result.is_none() {
             match prev_non_space(tokens, cursor) {
                 Some(MathToken::MathSymbol(
                     '\u{222B}' | '\u{222C}' | '\u{222D}' | '\u{222E}' | '\u{2211}' | '\u{220F}'
                     | '\u{2200}' | '\u{2203}',
                 ))
-                | Some(MathToken::FunctionName(_)) => break true,
+                | Some(MathToken::FunctionName(_)) => {
+                    result = Some(true);
+                }
                 Some(MathToken::Subscript(_)) => {
                     // 이전 토큰이 첨자이면 한 단계 더 거슬러 본다 (substack 펼침 케이스).
-                    let mut prev_cursor = cursor;
-                    while prev_cursor > 0 {
-                        prev_cursor -= 1;
-                        if !matches!(tokens.get(prev_cursor), Some(MathToken::Space)) {
-                            break;
-                        }
-                    }
-                    if prev_cursor == cursor {
-                        break false;
-                    }
-                    cursor = prev_cursor;
+                    // prev_non_space로 Space를 건너뛰며 가장 가까운 non-Space 위치를 찾는다.
+                    // 진전 없으면(cursor==0) result=false로 종료, 그 외엔 cursor 업데이트.
+                    // 진전 없으면(cursor 그대로) result=Some(false)로 종료, 그 외엔 cursor 업데이트.
+                    let progress = (0..cursor)
+                        .rev()
+                        .find(|&pc| !matches!(tokens.get(pc), Some(MathToken::Space)));
+                    cursor = progress.unwrap_or(cursor);
+                    result = progress.is_none().then_some(false);
                 }
-                _ => break false,
+                _ => {
+                    result = Some(false);
+                }
             }
         }
+        result.unwrap_or(false)
     };
     if prev_is_quantifier_op {
         engine.encode_tokens(content, result)?;

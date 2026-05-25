@@ -83,4 +83,11 @@ mod test {
         assert_eq!(encode_unicode(63), '⠿');
         assert_eq!(encode_unicode(255), '\n');
     }
+
+    /// unicode.rs line 10 - decode_unicode panics for chars before U+2800.
+    #[test]
+    #[should_panic(expected = "Invalid unicode character")]
+    fn decode_unicode_panics_for_non_braille_char() {
+        let _ = decode_unicode('A');
+    }
 }

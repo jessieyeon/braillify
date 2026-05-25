@@ -350,6 +350,18 @@ mod tests {
         let _ = enc("$a+b$");
         let _ = enc("$5!$");
     }
+
+    /// rule_2 line 284 - `OperatorRule.apply` Skip when token isn't Operator.
+    #[test]
+    fn operator_rule_apply_skip_for_non_operator() {
+        let r = OperatorRule;
+        let mut state = MathEncodeState::with_context(false, MathContext::default());
+        let toks = vec![MathToken::Variable('a')];
+        let mut result = Vec::new();
+        let engine = dummy_engine();
+        let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
+        assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
 }
 
 pub struct OperatorRule;

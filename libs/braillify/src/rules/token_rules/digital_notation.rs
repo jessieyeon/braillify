@@ -95,26 +95,30 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
             continue;
         }
 
-        match ch {
-            '/' => {
-                result.push(decode_unicode('⠸'));
-                result.push(decode_unicode('⠌'));
-            }
-            '#' => {
-                result.push(decode_unicode('⠸'));
-                result.push(decode_unicode('⠹'));
-            }
-            '@' => {
-                result.push(decode_unicode('⠈'));
-                result.push(decode_unicode('⠁'));
-            }
-            '.' => result.push(decode_unicode('⠲')),
-            ':' => result.push(decode_unicode('⠒')),
-            '_' => {
-                result.push(decode_unicode('⠨'));
-                result.push(decode_unicode('⠤'));
-            }
-            _ => return Err(format!("unsupported digital notation character: {ch}")),
+        // line 51 filter restricts ch to alphanumeric + `/#@.:_`. Alphanumerics
+        // are consumed earlier (lines 57/71). So ch here is one of `/#@.:_` and
+        // the `_` fallback arm of a `match` would be structurally unreachable;
+        // an if-else chain is used to avoid carrying a dead Err arm.
+        if ch == '/' {
+            result.push(decode_unicode('⠸'));
+            result.push(decode_unicode('⠌'));
+        } else if ch == '#' {
+            result.push(decode_unicode('⠸'));
+            result.push(decode_unicode('⠹'));
+        } else if ch == '@' {
+            result.push(decode_unicode('⠈'));
+            result.push(decode_unicode('⠁'));
+        } else if ch == '.' {
+            result.push(decode_unicode('⠲'));
+        } else if ch == ':' {
+            result.push(decode_unicode('⠒'));
+        } else {
+            debug_assert_eq!(
+                ch, '_',
+                "filter at line 51 guarantees ch is one of `/#@.:_`"
+            );
+            result.push(decode_unicode('⠨'));
+            result.push(decode_unicode('⠤'));
         }
         i += 1;
     }

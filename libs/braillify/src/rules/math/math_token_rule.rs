@@ -177,4 +177,19 @@ mod tests {
         let r = DummyRule;
         assert_eq!(r.priority(), 100);
     }
+
+    /// math_token_rule.rs line 97 - `MathTokenEngine.encode_tokens` returns Err
+    /// when no registered rule matches the input token.
+    #[test]
+    fn encode_tokens_errors_when_no_rule_matches() {
+        // Empty engine: no rules registered, any token will be unhandled.
+        let engine = MathTokenEngine::with_context(MathContext::default());
+        let mut result = Vec::new();
+        let toks = vec![MathToken::Variable('x')];
+        let err = engine.encode_tokens(&toks, &mut result).unwrap_err();
+        assert!(
+            err.contains("No rule matched token at index 0"),
+            "got: {err}"
+        );
+    }
 }

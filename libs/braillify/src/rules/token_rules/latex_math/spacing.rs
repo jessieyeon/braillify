@@ -223,4 +223,28 @@ mod tests {
         let tokens = vec![Token::PreEncoded(vec![])];
         assert!(!neighbor_is_korean(&tokens, 0, NeighborDir::Prev));
     }
+
+    /// spacing.rs - `*_content_needs_math_spacing` None arms when index points past tokens.
+    #[rstest::rstest]
+    #[case::prev_oob(true, 2)]
+    #[case::next_oob(false, 2)]
+    fn content_needs_math_spacing_none_arm_returns_zero(
+        #[case] is_prev: bool,
+        #[case] index: usize,
+    ) {
+        let tokens: Vec<Token<'_>> = vec![Token::PreEncoded(vec![])];
+        let result = if is_prev {
+            previous_content_needs_math_spacing(&tokens, index)
+        } else {
+            next_content_needs_math_spacing(&tokens, index)
+        };
+        assert_eq!(result, 0);
+    }
+
+    /// spacing.rs - `next_content_needs_math_spacing` direct Word/PreEncoded arm → 2.
+    #[test]
+    fn next_content_needs_math_spacing_word_or_preencoded_returns_2() {
+        let tokens: Vec<Token<'_>> = vec![Token::PreEncoded(vec![]), Token::PreEncoded(vec![])];
+        assert_eq!(next_content_needs_math_spacing(&tokens, 0), 2);
+    }
 }

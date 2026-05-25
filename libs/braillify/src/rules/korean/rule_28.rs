@@ -306,4 +306,13 @@ mod tests {
         // Either Consumed (multi-cell applied) or other; at minimum the arm runs.
         let _ = outcome;
     }
+
+    /// rule_28 line 64 — `let-else return Skip` for non-English ctx.
+    #[test]
+    fn rule28_apply_skip_for_non_english_ctx() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("가", false);
+        let mut ctx = owned.ctx_at(0);
+        let outcome = Rule28.apply(&mut ctx).unwrap();
+        assert!(matches!(outcome, RuleResult::Skip));
+    }
 }

@@ -1244,4 +1244,18 @@ mod tests {
             Ok(crate::rules::math::math_token_rule::MathTokenResult::Skip)
         ));
     }
+
+    /// encoder.rs line 348 — `encode_math_expression_with_context` Roman numeral fast-path
+    /// when context is NON-default (forces the second is_roman_numeral check).
+    #[test]
+    fn encode_math_expression_with_context_roman_numeral_non_default_context() {
+        use crate::rules::math::math_token_rule::MathContext;
+        let ctx = MathContext {
+            math_mode_active: true,
+            ..MathContext::default()
+        };
+        let result = super::encode_math_expression_with_context("XII", ctx);
+        assert!(result.is_ok());
+        assert!(!result.unwrap().is_empty());
+    }
 }

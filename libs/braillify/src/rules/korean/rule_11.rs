@@ -203,4 +203,21 @@ mod tests {
         assert!(matches!(Rule11.phase(), Phase::InterCharacter));
         assert_eq!(Rule11.priority(), 100);
     }
+
+    /// rule_11 line 53 — `let-else return false` for non-Korean ctx.
+    #[test]
+    fn rule11_matches_false_for_non_korean_ctx() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("Ax", false);
+        let ctx = owned.ctx_at(0);
+        assert!(!Rule11.matches(&ctx));
+    }
+
+    /// rule_11 line 59 — `let-else return false` when no next char.
+    #[test]
+    fn rule11_matches_false_at_end_of_word() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("아", false);
+        let ctx = owned.ctx_at(0);
+        // Single Korean char, no next → next_char() returns None.
+        assert!(!Rule11.matches(&ctx));
+    }
 }

@@ -7,6 +7,15 @@ use crate::{
     utils::build_char,
 };
 
+/// 합성 종성(예: ㄳ→ㄱ+ㅅ) 두 번째 자모가 있으면 인코딩 후 result에 추가한다.
+fn extend_compound_jongseong(jong1: Option<char>, result: &mut Vec<u8>) -> Result<(), String> {
+    if let Some(code) = jong1 {
+        let bytes = encode_jongseong(code)?;
+        result.extend(bytes);
+    }
+    Ok(())
+}
+
 pub fn encode_korean_char(korean: &KoreanChar) -> Result<Vec<u8>, String> {
     let mut result = Vec::new();
     let (cho0, cho1) = split_korean_jauem(korean.cho)?;
@@ -20,23 +29,16 @@ pub fn encode_korean_char(korean: &KoreanChar) -> Result<Vec<u8>, String> {
             char_shortcut::encode_char_shortcut(build_char('ㅇ', korean.jung, Some(jong0)))
         {
             // 초성 자체를 결합
-
             if cho0 != 'ㅇ' {
                 result.push(encode_choseong(cho0)?);
             }
             result.extend(code);
-            if let Some(code) = jong1 {
-                // 이미 합쳐질 경우 종성을 더 추가한다.
-                result.extend(encode_jongseong(code)?);
-            }
+            extend_compound_jongseong(jong1, &mut result)?;
         } else if let Ok(code) =
             char_shortcut::encode_char_shortcut(build_char(cho0, korean.jung, Some(jong0)))
         {
             result.extend(code);
-            if let Some(code) = jong1 {
-                // 이미 합쳐질 경우 종성을 더 추가한다.
-                result.extend(encode_jongseong(code)?);
-            }
+            extend_compound_jongseong(jong1, &mut result)?;
         } else if let Ok(code) =
             char_shortcut::encode_char_shortcut(build_char(cho0, korean.jung, None))
         {

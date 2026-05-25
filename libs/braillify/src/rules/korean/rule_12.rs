@@ -216,6 +216,7 @@ mod tests {
     #[case("관애", false)] // current has jong (ㄴ)
     #[case("야이", false)] // next is 이, not 애
     #[case("A", false)] // non-Korean
+    #[case("야", false)] // single char, no next → line 65 hit
     fn rule12_matches_triggering_vowel_ae(#[case] input: &str, #[case] expected: bool) {
         let mut owned = crate::test_helpers::CtxOwned::for_text(input, false);
         let ctx = owned.ctx_at(0);

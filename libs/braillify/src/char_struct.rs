@@ -113,12 +113,9 @@ impl CharType {
         if c.is_whitespace() {
             return Ok(Self::Space(c));
         }
-        // LaTeX delimiters — treat as symbols so partial LaTeX tokens
-        // don't cause "Invalid character" errors
-        let is_latex_delim = matches!(c, '$' | '\\');
-        if is_latex_delim {
-            return Ok(Self::Symbol(c));
-        }
+        // LaTeX delimiters (`$`, `\`)는 line 61 `is_symbol_char(c)` 또는 line 66
+        // `is_math_symbol_char(c)`에서 이미 Symbol/MathSymbol로 분류되므로 별도 분기
+        // 불필요. probe-verified 2026-05-25.
 
         // Old Hangul Jamo (initial consonants, medial vowels, final consonants)
         if (0x1100..=0x115F).contains(&code)
@@ -470,5 +467,18 @@ mod test {
                 ch as u32
             );
         }
+    }
+
+    /// `$` and `\\` should classify as Symbol via the upstream `is_symbol_char`
+    /// / `is_math_symbol_char` checks (separate explicit branch removed as dead).
+    #[rstest::rstest]
+    #[case('$')]
+    #[case('\\')]
+    fn latex_delimiters_classified_as_symbol(#[case] ch: char) {
+        let result = CharType::new(ch).unwrap();
+        assert!(
+            matches!(result, CharType::Symbol(_) | CharType::MathSymbol(_)),
+            "expected Symbol/MathSymbol for {ch:?}, got {result:?}"
+        );
     }
 }

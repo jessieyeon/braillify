@@ -202,7 +202,9 @@ pub fn emit(ir: &mut DocumentIR, char_engine: &mut RuleEngine) -> Result<Vec<u8>
         }
     }
 
-    // End-of-stream: close triple uppercase if active (Encoder::finish)
+    // End-of-stream: close triple uppercase if active (Encoder::finish).
+    // 모든 production input은 word loop 내에서 triple_big_english를 close하므로
+    // 이 분기는 fallback safety net. probe-verified 2026-05-24.
     if ir.state.triple_big_english {
         result.push(32);
         result.push(4);
@@ -938,5 +940,24 @@ mod tests {
         assert!(!token_is_math_word(Some(&kw)));
         // PreEncoded → true.
         assert!(token_is_math_word(Some(&Token::PreEncoded(vec![1, 2, 3]))));
+    }
+
+    /// emit.rs lines 155-156 - end-of-stream triple_big_english cleanup arm.
+    /// 모든 production input은 word loop 내에서 triple_big_english를 close하므로
+    /// 이 fallback은 도달하지 않는다. 직접 DocumentIR을 구성해 상태를 강제 주입한
+    /// 뒤 emit을 호출해 분기를 cover한다.
+    #[test]
+    fn emit_end_of_stream_triple_big_english_safety_net() {
+        use crate::rules::engine::RuleEngine;
+        use crate::rules::token::DocumentIR;
+        let mut ir = DocumentIR::parse("", false);
+        ir.state.triple_big_english = true;
+        let mut engine = RuleEngine::new();
+        let result = emit(&mut ir, &mut engine).unwrap();
+        assert_eq!(
+            result,
+            vec![32, 4],
+            "expected safety-net close bytes, got {result:?}"
+        );
     }
 }

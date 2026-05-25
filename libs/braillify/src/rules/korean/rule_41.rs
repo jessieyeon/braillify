@@ -137,4 +137,21 @@ mod tests {
         assert_eq!(META.section, "41");
         assert_eq!(META.name, "numeric_comma");
     }
+
+    /// rule_41 line 39 — `let-else return false` for non-Symbol ctx.
+    #[test]
+    fn rule41_matches_false_for_non_symbol_ctx() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("ab", false);
+        let ctx = owned.ctx_at(0);
+        assert!(!Rule41.matches(&ctx));
+    }
+
+    /// rule_41 line 75 — `j -= 1;` when prev char is a space (continues backward scan).
+    #[test]
+    fn scan_prefix_skips_space_then_finds_digit() {
+        let chars: Vec<char> = "1 ,".chars().collect();
+        let (num, _) = scan_prefix(&chars, 2);
+        // prev=` `, j-=1, prev=`1`→ digit → has_numeric_prefix=true.
+        assert!(num);
+    }
 }

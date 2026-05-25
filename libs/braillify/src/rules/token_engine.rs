@@ -332,4 +332,10 @@ mod tests {
         // AlwaysNoop returns Noop → fall through to ReplaceWordAt0 which fires at index 0.
         assert!(matches!(tokens[0], Token::PreEncoded(ref b) if b == &vec![9]));
     }
+
+    /// token_engine.rs lines 95-96 - `impl Default::default()` body.
+    #[test]
+    fn token_rule_engine_default_constructs_empty() {
+        let _engine = TokenRuleEngine::default();
+    }
 }

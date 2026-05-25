@@ -163,6 +163,16 @@ mod tests {
         assert!(!is_no_abbrev_target('가'));
     }
 
+    /// rule_14 line 56 — `is_no_abbrev_target` returns false for non-Hangul char.
+    /// Triggers the `!(0xAC00..=0xD7A3).contains(&code)` branch.
+    #[rstest::rstest]
+    #[case('A')]
+    #[case('1')]
+    #[case(' ')]
+    fn is_no_abbrev_target_non_hangul_returns_false(#[case] ch: char) {
+        assert!(!is_no_abbrev_target(ch));
+    }
+
     #[test]
     fn suppresses_when_next_is_vowel_initial() {
         assert!(should_suppress_abbreviation('나', true));

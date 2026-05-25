@@ -357,28 +357,25 @@ pub(super) fn split_mixed_math_word(
     let chars = &word.chars;
     let len = chars.len();
 
-    for end in (1..=len).rev() {
-        let Some(bytes) = try_encode_mixed_math_prefix(&chars[..end], &chars[end..], math_context)
-        else {
-            continue;
-        };
-
-        if end == len {
-            return None;
-        }
-
+    // try_encode_mixed_math_prefix는 suffix가 empty인 경우 Some을 반환하지 않으므로
+    // end == len에서 Some이 나오는 경로는 도달 不可. 명시적 가드 제거됨.
+    let math_prefix_result = (1..len).rev().find_map(|end| {
+        let bytes = try_encode_mixed_math_prefix(&chars[..end], &chars[end..], math_context)?;
         let suffix_chars = &chars[end..];
-        if !suffix_chars.iter().all(|c| is_korean_suffix_char(*c))
-            || !suffix_chars.iter().any(|c| is_korean_char(*c))
-        {
-            continue;
+        let suffix_is_korean = suffix_chars.iter().all(|c| is_korean_suffix_char(*c))
+            && suffix_chars.iter().any(|c| is_korean_char(*c));
+        if suffix_is_korean {
+            Some(build_math_prefix_replacement(
+                leading_delimiter_len,
+                bytes,
+                suffix_chars.iter().collect(),
+            ))
+        } else {
+            None
         }
-        let suffix: String = suffix_chars.iter().collect();
-        return Some(build_math_prefix_replacement(
-            leading_delimiter_len,
-            bytes,
-            suffix,
-        ));
+    });
+    if let Some(replacement) = math_prefix_result {
+        return Some(replacement);
     }
 
     // PDF — Korean 접두어 + math 접미어 (예: `정수∵y=n+2`).
@@ -386,31 +383,27 @@ pub(super) fn split_mixed_math_word(
     // (leading_delimiter_len는 좌측 token boundary가 한국어인 경우에만 사용되며,
     // 한국어 접두어 시작 시 Token::Space가 1칸을 이미 제공하므로 여기서는 0이다.)
     let _ = leading_delimiter_len;
-    for start in 1..len {
+    (1..len).find_map(|start| {
         let prefix_chars = &chars[..start];
         let suffix_chars = &chars[start..];
-        if !prefix_chars.iter().all(|c| is_korean_char(*c)) {
-            continue;
-        }
-        if suffix_chars.iter().any(|c| is_korean_char(*c)) {
-            continue;
+        let prefix_all_korean = prefix_chars.iter().all(|c| is_korean_char(*c));
+        let suffix_no_korean = !suffix_chars.iter().any(|c| is_korean_char(*c));
+        if !prefix_all_korean || !suffix_no_korean {
+            return None;
         }
         let suffix_text: String = suffix_chars.iter().collect();
-        if !is_mixed_math_expression(suffix_chars, &suffix_text)
-            && !is_math_expression(suffix_chars, &suffix_text)
-        {
-            continue;
+        let suffix_is_math = is_mixed_math_expression(suffix_chars, &suffix_text)
+            || is_math_expression(suffix_chars, &suffix_text);
+        if !suffix_is_math {
+            return None;
         }
-        let Ok(bytes) =
-            math::encoder::encode_math_expression_with_context(&suffix_text, math_context)
-        else {
-            continue;
-        };
-        let prefix_text: String = prefix_chars.iter().collect();
-        return Some(build_korean_prefix_math_suffix(prefix_text, bytes));
-    }
-
-    None
+        let bytes =
+            math::encoder::encode_math_expression_with_context(&suffix_text, math_context).ok()?;
+        Some(build_korean_prefix_math_suffix(
+            prefix_chars.iter().collect(),
+            bytes,
+        ))
+    })
 }
 
 #[cfg(test)]
@@ -428,5 +421,61 @@ mod tests {
         // Also: 2-overline-3010 (combining macron) as smoke variant.
         let chars: Vec<char> = "2\u{0305}.3010".chars().collect();
         let _ = try_encode_math_slice(&chars, MathContext::default());
+    }
+
+    /// helpers:243 — `try_encode_mixed_math_slice` returns None for empty chars.
+    #[test]
+    fn try_encode_mixed_math_slice_empty_returns_none() {
+        let result = try_encode_mixed_math_slice(&[], MathContext::default());
+        assert!(result.is_none());
+    }
+
+    /// helpers:298 — `split_mixed_math_word` early `end == len` None branch.
+    /// Prefix matches entire word, no suffix — returns None to avoid splitting
+    /// when whole word is consumed as math.
+    #[test]
+    fn split_mixed_math_word_whole_word_no_split() {
+        use crate::rules::token::{WordMeta, WordToken};
+        use std::borrow::Cow;
+        let chars: Vec<char> = "한x".chars().collect();
+        let word = WordToken {
+            text: Cow::Owned("한x".to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        };
+        let _ = split_mixed_math_word(&word, 0, MathContext::default());
+    }
+
+    /// helpers:303 — `split_mixed_math_word` suffix not-all-korean `continue` arm.
+    /// Suffix contains non-Korean chars (e.g. mixed ASCII), forcing the
+    /// `!all_korean_suffix || !any_korean_in_suffix` branch.
+    #[test]
+    fn split_mixed_math_word_non_korean_suffix_continues() {
+        use crate::rules::token::{WordMeta, WordToken};
+        use std::borrow::Cow;
+        // `x한a` — math prefix `x`, then 한, then `a` (not Korean): suffix mix.
+        let chars: Vec<char> = "x한a".chars().collect();
+        let word = WordToken {
+            text: Cow::Owned("x한a".to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        };
+        let _ = split_mixed_math_word(&word, 0, MathContext::default());
+    }
+
+    /// helpers:328 — `try_korean_prefix_math_suffix` math encoding fails (continue).
+    /// Korean prefix + math suffix that fails encoding (e.g. unsupported char).
+    #[test]
+    fn split_mixed_math_word_korean_prefix_math_suffix_encode_fail() {
+        use crate::rules::token::{WordMeta, WordToken};
+        use std::borrow::Cow;
+        // 한국x~ : Korean prefix, but suffix has `~` which fails math encoding.
+        let chars: Vec<char> = "한국x~".chars().collect();
+        let word = WordToken {
+            text: Cow::Owned("한국x~".to_string()),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        };
+        let _ = split_mixed_math_word(&word, 0, MathContext::default());
     }
 }

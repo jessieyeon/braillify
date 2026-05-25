@@ -54,13 +54,6 @@ pub fn is_rule_69_symbol(c: char) -> bool {
     SINGLE_MAPPINGS.iter().any(|(candidate, _)| *candidate == c) || c == 'μ'
 }
 
-fn next_non_ascii_after(word: &[char], start: usize) -> Option<char> {
-    word.iter()
-        .skip(start)
-        .copied()
-        .find(|ch| !ch.is_ascii_alphabetic())
-}
-
 fn is_numeric_or_unit_context(ctx: &RuleContext) -> bool {
     ctx.prev_char()
         .is_some_and(|prev| prev.is_ascii_digit() || matches!(prev, '/' | 'μ'))
@@ -118,12 +111,6 @@ pub(crate) fn encode_ascii_unit(word: &[char], index: usize) -> Option<(Vec<u8>,
         if !chars_start_with_ascii(tail, unit) {
             continue;
         }
-
-        let next = next_non_ascii_after(word, index + unit.len());
-        if next.is_some_and(|ch| ch.is_ascii_alphabetic()) {
-            continue;
-        }
-
         return Some((encode_unicode_cells(unicode), unit.len()));
     }
     None

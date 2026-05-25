@@ -695,11 +695,8 @@ pub(crate) fn parse_math_expression_with_math_mode(
                     group.contains_arithmetic = true;
                 }
             }
-            if op == ',' {
-                for group in &mut bracket_stack {
-                    group.contains_comma = true;
-                }
-            }
+            // `,` 는 line 587 matches! filter에 포함되지 않으므로 `op == ','` 분기는
+            // 구조적 unreachable. 제거됨 (probe-verified 2026-05-24).
             tokens.push(MathToken::Operator(op));
             i += 1;
             continue;
@@ -712,14 +709,9 @@ pub(crate) fn parse_math_expression_with_math_mode(
             continue;
         }
 
-        if is_combining_math_mark(c) {
-            // When `should_prefix_overline` is true, the overline chars \u{0305}/\u{0304}
-            // are consumed by the early guard at lines 162-165 (top of loop), so they
-            // never reach this combining-mark branch. Probe-verified 2026-05-23.
-            tokens.push(MathToken::MathSymbol(c));
-            i += 1;
-            continue;
-        }
+        // 조합 수학 부호(combining math mark: U+0305/U+0304 등)는 line 162-165의 early
+        // overline guard에서 소비되므로 본 branch에 도달하지 않는다 (probe-verified 2026-05-24).
+        // 분리된 fallback이 필요해지면 재추가한다.
 
         // Decimal point in number context (e.g., 3.14, .47)
         if c == '.' && i + 2 < chars.len() && chars[i + 1] == '.' && chars[i + 2] == '.' {
