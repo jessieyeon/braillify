@@ -1,1 +1,0 @@
-{"changes":{"packages/python/pyproject.toml":"Patch","packages/dotnet/BraillifyNet/BraillifyNet.csproj":"Patch","libs/braillify/Cargo.toml":"Patch","packages/node/package.json":"Patch","packages/dotnet/Braillify/Braillify.csproj":"Patch"},"note":"pass all of test","date":"2026-05-25T14:52:09.931695100Z"}
