@@ -172,24 +172,17 @@ mod tests {
     use super::*;
     use crate::unicode::decode_unicode;
 
-    #[test]
-    fn encodes_basic_punctuation() {
-        assert_eq!(apply('.').unwrap(), &[decode_unicode('⠲')]);
-        assert_eq!(apply(',').unwrap(), &[decode_unicode('⠐')]);
-        assert_eq!(apply('?').unwrap(), &[decode_unicode('⠦')]);
-        assert_eq!(apply('!').unwrap(), &[decode_unicode('⠖')]);
-    }
-
-    #[test]
-    fn encodes_brackets() {
-        assert_eq!(
-            apply('(').unwrap(),
-            &[decode_unicode('⠦'), decode_unicode('⠄')]
-        );
-        assert_eq!(
-            apply(')').unwrap(),
-            &[decode_unicode('⠠'), decode_unicode('⠴')]
-        );
+    /// 제49항 — 기본 문장부호 점형.
+    #[rstest::rstest]
+    #[case::period('.', vec!['⠲'])]
+    #[case::comma(',', vec!['⠐'])]
+    #[case::question('?', vec!['⠦'])]
+    #[case::exclamation('!', vec!['⠖'])]
+    #[case::open_paren('(', vec!['⠦', '⠄'])]
+    #[case::close_paren(')', vec!['⠠', '⠴'])]
+    fn encodes_basic_punctuation(#[case] ch: char, #[case] expected_unicode: Vec<char>) {
+        let expected: Vec<u8> = expected_unicode.into_iter().map(decode_unicode).collect();
+        assert_eq!(apply(ch).unwrap(), expected.as_slice());
     }
 
     #[test]
@@ -199,13 +192,15 @@ mod tests {
         assert_ne!(eng, kor, "English and Korean parentheses should differ");
     }
 
-    #[test]
-    fn is_symbol_detection() {
-        assert!(is_symbol('.'));
-        assert!(is_symbol('?'));
-        assert!(is_symbol('('));
-        assert!(!is_symbol('A'));
-        assert!(!is_symbol('가'));
+    /// `is_symbol` — 문장부호 / 괄호는 true, 영문/한글은 false.
+    #[rstest::rstest]
+    #[case::period('.', true)]
+    #[case::question('?', true)]
+    #[case::open_paren('(', true)]
+    #[case::ascii_letter('A', false)]
+    #[case::korean_syllable('가', false)]
+    fn is_symbol_detection(#[case] ch: char, #[case] expected: bool) {
+        assert_eq!(is_symbol(ch), expected);
     }
 
     #[test]

@@ -431,51 +431,49 @@ mod tests {
         assert!(!bytes.is_empty());
     }
 
-    /// `encode_log_base_digit` direct table coverage.
-    #[test]
-    fn log_base_digit_table_each_digit() {
-        for d in '0'..='9' {
-            assert!(encode_log_base_digit(d).is_some(), "{d}");
-        }
-        assert!(encode_log_base_digit('a').is_none());
+    /// `encode_log_base_digit` direct table coverage — 0~9 매칭, 그 외 None.
+    #[rstest::rstest]
+    #[case::digit_0('0', true)]
+    #[case::digit_1('1', true)]
+    #[case::digit_2('2', true)]
+    #[case::digit_3('3', true)]
+    #[case::digit_4('4', true)]
+    #[case::digit_5('5', true)]
+    #[case::digit_6('6', true)]
+    #[case::digit_7('7', true)]
+    #[case::digit_8('8', true)]
+    #[case::digit_9('9', true)]
+    #[case::non_digit_letter('a', false)]
+    fn log_base_digit_table_each_digit(#[case] ch: char, #[case] is_some: bool) {
+        assert_eq!(encode_log_base_digit(ch).is_some(), is_some, "{ch}");
     }
 
-    #[test]
-    fn is_single_digit_base_paths() {
-        let one = vec![MathToken::Number("3".to_string())];
-        assert!(is_single_digit_base(&one).is_some());
-        // Multi-digit → None
-        let two = vec![MathToken::Number("12".to_string())];
-        assert!(is_single_digit_base(&two).is_none());
-        // Variable → None
-        let v = vec![MathToken::Variable('x')];
-        assert!(is_single_digit_base(&v).is_none());
+    #[rstest::rstest]
+    #[case::single_digit(vec![MathToken::Number("3".to_string())], true)]
+    #[case::multi_digit_none(vec![MathToken::Number("12".to_string())], false)]
+    #[case::variable_none(vec![MathToken::Variable('x')], false)]
+    fn is_single_digit_base_paths(#[case] tokens: Vec<MathToken>, #[case] is_some: bool) {
+        assert_eq!(is_single_digit_base(&tokens).is_some(), is_some);
     }
 
-    #[test]
-    fn is_single_variable_base_paths() {
-        let lower = vec![MathToken::Variable('a')];
-        assert_eq!(is_single_variable_base(&lower), Some('a'));
-        let upper = vec![MathToken::UpperVariable('A')];
-        assert_eq!(is_single_variable_base(&upper), Some('a'));
-        let multi = vec![MathToken::Variable('a'), MathToken::Variable('b')];
-        assert_eq!(is_single_variable_base(&multi), None);
+    #[rstest::rstest]
+    #[case::lowercase(vec![MathToken::Variable('a')], Some('a'))]
+    #[case::uppercase_lowered(vec![MathToken::UpperVariable('A')], Some('a'))]
+    #[case::multi_none(vec![MathToken::Variable('a'), MathToken::Variable('b')], None)]
+    fn is_single_variable_base_paths(
+        #[case] tokens: Vec<MathToken>,
+        #[case] expected: Option<char>,
+    ) {
+        assert_eq!(is_single_variable_base(&tokens), expected);
     }
 
-    #[test]
-    fn next_is_lim_body_paths() {
-        // Space → false
-        let toks = vec![MathToken::Space];
-        assert!(!next_is_lim_body(&toks, 0));
-        // Variable → true
-        let toks = vec![MathToken::Variable('x')];
-        assert!(next_is_lim_body(&toks, 0));
-        // Number → true
-        let toks = vec![MathToken::Number("1".into())];
-        assert!(next_is_lim_body(&toks, 0));
-        // Empty / end → false
-        let toks: Vec<MathToken> = vec![];
-        assert!(!next_is_lim_body(&toks, 0));
+    #[rstest::rstest]
+    #[case::space_false(vec![MathToken::Space], false)]
+    #[case::variable_true(vec![MathToken::Variable('x')], true)]
+    #[case::number_true(vec![MathToken::Number("1".into())], true)]
+    #[case::empty_false(vec![], false)]
+    fn next_is_lim_body_paths(#[case] tokens: Vec<MathToken>, #[case] expected: bool) {
+        assert_eq!(next_is_lim_body(&tokens, 0), expected);
     }
 
     #[test]
@@ -539,26 +537,24 @@ mod tests {
 
     /// `content_is_math_paren_wrapped` returns true only when both ends are
     /// `MathParen` open/close. Drives lines 67-79 of `encode_log_base`.
-    #[test]
-    fn content_is_math_paren_wrapped_paths() {
-        let wrapped = vec![
+    #[rstest::rstest]
+    #[case::fully_wrapped(
+        vec![
             MathToken::OpenParen(BracketKind::MathParen),
             MathToken::Variable('x'),
             MathToken::Operator('+'),
             MathToken::Number("1".into()),
             MathToken::CloseParen(BracketKind::MathParen),
-        ];
-        assert!(content_is_math_paren_wrapped(&wrapped));
-
-        let single = vec![MathToken::Variable('x')];
-        assert!(!content_is_math_paren_wrapped(&single));
-
-        // First is non-paren but last is.
-        let half = vec![
-            MathToken::Variable('x'),
-            MathToken::CloseParen(BracketKind::MathParen),
-        ];
-        assert!(!content_is_math_paren_wrapped(&half));
+        ],
+        true,
+    )]
+    #[case::single_token_not_wrapped(vec![MathToken::Variable('x')], false)]
+    #[case::only_close_paren(
+        vec![MathToken::Variable('x'), MathToken::CloseParen(BracketKind::MathParen)],
+        false,
+    )]
+    fn content_is_math_paren_wrapped_paths(#[case] tokens: Vec<MathToken>, #[case] expected: bool) {
+        assert_eq!(content_is_math_paren_wrapped(&tokens), expected);
     }
 
     /// `encode_log_token` with an unmatched OpenParen → Err arm (line 132).
@@ -622,32 +618,22 @@ mod tests {
 
     /// `tokens_form_simple_fraction` recognises N/N, V/V, N/V, V/N with both
     /// `Operator('/')` and `MathSymbol(⁄ U+2044)` as the separator.
-    #[test]
-    fn tokens_form_simple_fraction_paths() {
-        let n_op_n = vec![
-            MathToken::Number("3".into()),
-            MathToken::Operator('/'),
-            MathToken::Number("4".into()),
-        ];
-        assert!(tokens_form_simple_fraction(&n_op_n, 0));
-
-        let v_sym_v = vec![
-            MathToken::Variable('a'),
-            MathToken::MathSymbol('\u{2044}'),
-            MathToken::Variable('b'),
-        ];
-        assert!(tokens_form_simple_fraction(&v_sym_v, 0));
-
-        let too_short = vec![MathToken::Number("1".into())];
-        assert!(!tokens_form_simple_fraction(&too_short, 0));
-
-        // Wrong middle token (not slash).
-        let wrong_mid = vec![
-            MathToken::Number("3".into()),
-            MathToken::Operator('+'),
-            MathToken::Number("4".into()),
-        ];
-        assert!(!tokens_form_simple_fraction(&wrong_mid, 0));
+    #[rstest::rstest]
+    #[case::number_op_slash_number(
+        vec![MathToken::Number("3".into()), MathToken::Operator('/'), MathToken::Number("4".into())],
+        true,
+    )]
+    #[case::variable_unicode_slash_variable(
+        vec![MathToken::Variable('a'), MathToken::MathSymbol('\u{2044}'), MathToken::Variable('b')],
+        true,
+    )]
+    #[case::too_short_single(vec![MathToken::Number("1".into())], false)]
+    #[case::wrong_middle_operator(
+        vec![MathToken::Number("3".into()), MathToken::Operator('+'), MathToken::Number("4".into())],
+        false,
+    )]
+    fn tokens_form_simple_fraction_paths(#[case] tokens: Vec<MathToken>, #[case] expected: bool) {
+        assert_eq!(tokens_form_simple_fraction(&tokens, 0), expected);
     }
 
     /// rule_47:263 — `next_is_lim_body` while loop encounters Space mid-traversal.

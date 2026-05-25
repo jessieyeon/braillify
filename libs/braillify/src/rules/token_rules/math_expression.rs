@@ -128,33 +128,37 @@ mod tests {
     }
 
     /// detect.rs line 127 — `arc<trig>` recognised as math.
-    #[test]
-    fn test_is_math_arctrig_prefix() {
-        for input in ["arcsinx", "arccosy", "arctanz"] {
-            let chars: Vec<char> = input.chars().collect();
-            assert!(is_math_expression(&chars, input), "input={input}");
-        }
+    #[rstest::rstest]
+    #[case("arcsinx")]
+    #[case("arccosy")]
+    #[case("arctanz")]
+    fn test_is_math_arctrig_prefix(#[case] input: &str) {
+        let chars: Vec<char> = input.chars().collect();
+        assert!(is_math_expression(&chars, input), "input={input}");
     }
 
     /// detect.rs lines 213-220 — letter-slash-letter fraction pattern.
-    #[test]
-    fn test_is_math_letter_slash_letter_fraction() {
-        for input in ["F/N", "a/b", "x/y", "P/Q"] {
-            let chars: Vec<char> = input.chars().collect();
-            assert!(is_math_expression(&chars, input), "input={input}");
-        }
-        // Trailing slash should NOT be math (a/)
-        let chars: Vec<char> = "a/".chars().collect();
-        assert!(!is_math_expression(&chars, "a/"));
+    #[rstest::rstest]
+    #[case::upper_force_normal("F/N", true)]
+    #[case::lower_pair("a/b", true)]
+    #[case::xy_pair("x/y", true)]
+    #[case::pq_pair("P/Q", true)]
+    #[case::trailing_slash_not_math("a/", false)]
+    fn test_is_math_letter_slash_letter_fraction(#[case] input: &str, #[case] expected: bool) {
+        let chars: Vec<char> = input.chars().collect();
+        assert_eq!(is_math_expression(&chars, input), expected, "input={input}");
     }
 
     /// detect.rs line 226 — signed (− / -) numeric → math.
-    #[test]
-    fn test_is_math_signed_numeric() {
-        for input in ["-3", "-1.5", "−7", "-3x", "−5y"] {
-            let chars: Vec<char> = input.chars().collect();
-            assert!(is_math_expression(&chars, input), "input={input}");
-        }
+    #[rstest::rstest]
+    #[case("-3")]
+    #[case("-1.5")]
+    #[case("−7")]
+    #[case("-3x")]
+    #[case("−5y")]
+    fn test_is_math_signed_numeric(#[case] input: &str) {
+        let chars: Vec<char> = input.chars().collect();
+        assert!(is_math_expression(&chars, input), "input={input}");
     }
 
     #[test]

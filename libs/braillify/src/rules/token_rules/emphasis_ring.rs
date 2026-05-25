@@ -152,27 +152,25 @@ mod tests {
 
     /// `is_emphasis_word` requires both a combining mark AND a Korean char in
     /// the same word. Non-Korean inputs with marks pass through.
-    #[test]
-    fn is_emphasis_word_table() {
-        // Combining mark + Korean → emphasis.
-        assert!(is_emphasis_word("훈민정음\u{030A}"));
-        // Combining mark + Latin only → NOT emphasis.
-        assert!(!is_emphasis_word("Å"));
-        // Korean only → no marks → NOT emphasis.
-        assert!(!is_emphasis_word("훈민정음"));
-        // Empty → NOT emphasis.
-        assert!(!is_emphasis_word(""));
+    #[rstest::rstest]
+    #[case::korean_with_mark("훈민정음\u{030A}", true)]
+    #[case::latin_with_mark_only("Å", false)]
+    #[case::korean_without_mark("훈민정음", false)]
+    #[case::empty("", false)]
+    fn is_emphasis_word_table(#[case] text: &str, #[case] expected: bool) {
+        assert_eq!(is_emphasis_word(text), expected);
     }
 
     /// `is_ring_mark_only` recognises strings made up of ring marks only.
-    #[test]
-    fn is_ring_mark_only_table() {
-        assert!(is_ring_mark_only("\u{030A}"));
-        assert!(is_ring_mark_only("\u{0307}"));
-        assert!(is_ring_mark_only("\u{030A}\u{0307}"));
-        assert!(!is_ring_mark_only(""));
-        assert!(!is_ring_mark_only("a"));
-        assert!(!is_ring_mark_only("\u{030A}a"));
+    #[rstest::rstest]
+    #[case::single_ring("\u{030A}", true)]
+    #[case::single_dot_above("\u{0307}", true)]
+    #[case::ring_then_dot("\u{030A}\u{0307}", true)]
+    #[case::empty("", false)]
+    #[case::ascii_letter("a", false)]
+    #[case::ring_then_letter("\u{030A}a", false)]
+    fn is_ring_mark_only_table(#[case] text: &str, #[case] expected: bool) {
+        assert_eq!(is_ring_mark_only(text), expected);
     }
 
     /// `apply` Word arm with a Korean+ring-mark word emits open/word/close

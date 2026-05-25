@@ -211,76 +211,88 @@ mod tests {
     use crate::rules::context::EncoderState;
     use crate::rules::token::SpaceKind;
 
-    #[test]
-    fn is_upper_lower_roman_char_basic() {
-        for c in ['I', 'V', 'X'] {
-            assert!(is_upper_roman_char(c));
-            assert!(!is_lower_roman_char(c));
-        }
-        for c in ['i', 'v', 'x'] {
-            assert!(is_lower_roman_char(c));
-            assert!(!is_upper_roman_char(c));
-        }
-        assert!(!is_upper_roman_char('A'));
-        assert!(!is_lower_roman_char('a'));
+    /// `is_upper_roman_char` / `is_lower_roman_char` — 케이스별 분류.
+    #[rstest::rstest]
+    #[case::upper_i('I', true, false)]
+    #[case::upper_v('V', true, false)]
+    #[case::upper_x('X', true, false)]
+    #[case::lower_i('i', false, true)]
+    #[case::lower_v('v', false, true)]
+    #[case::lower_x('x', false, true)]
+    #[case::non_roman_upper('A', false, false)]
+    #[case::non_roman_lower('a', false, false)]
+    fn is_upper_lower_roman_char_basic(#[case] ch: char, #[case] upper: bool, #[case] lower: bool) {
+        assert_eq!(is_upper_roman_char(ch), upper);
+        assert_eq!(is_lower_roman_char(ch), lower);
     }
 
-    #[test]
-    fn roman_case_all_upper_all_lower_mixed() {
-        assert_eq!(roman_case("XII"), Some(true));
-        assert_eq!(roman_case("xii"), Some(false));
-        assert_eq!(roman_case("Xi"), None);
-        assert_eq!(roman_case("XA"), None);
+    #[rstest::rstest]
+    #[case::all_upper("XII", Some(true))]
+    #[case::all_lower("xii", Some(false))]
+    #[case::mixed_case("Xi", None)]
+    #[case::non_roman_char("XA", None)]
+    fn roman_case_all_upper_all_lower_mixed(#[case] input: &str, #[case] expected: Option<bool>) {
+        assert_eq!(roman_case(input), expected);
     }
 
-    #[test]
-    fn is_valid_roman_1_to_39_table() {
-        // Empty
-        assert!(!is_valid_roman_1_to_39(""));
-        // Mixed case → invalid
-        assert!(!is_valid_roman_1_to_39("Iv"));
-        // All ones
-        for s in ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"] {
-            assert!(is_valid_roman_1_to_39(s), "{s} should be valid");
-        }
-        // With X prefix
-        for s in ["X", "XI", "XV", "XXIX", "XXX", "XXXIX"] {
-            assert!(is_valid_roman_1_to_39(s), "{s} should be valid");
-        }
-        // Too many X (>3)
-        assert!(!is_valid_roman_1_to_39("XXXX"));
-        // Invalid ones part
-        assert!(!is_valid_roman_1_to_39("IIII"));
-        assert!(!is_valid_roman_1_to_39("VV"));
-        // Non-Roman char
-        assert!(!is_valid_roman_1_to_39("XXA"));
+    /// `is_valid_roman_1_to_39` — PDF 제36항 1~39 범위 검증.
+    #[rstest::rstest]
+    #[case::empty("", false)]
+    #[case::mixed_case("Iv", false)]
+    #[case::one("I", true)]
+    #[case::two("II", true)]
+    #[case::three("III", true)]
+    #[case::four("IV", true)]
+    #[case::five("V", true)]
+    #[case::six("VI", true)]
+    #[case::seven("VII", true)]
+    #[case::eight("VIII", true)]
+    #[case::nine("IX", true)]
+    #[case::ten("X", true)]
+    #[case::eleven("XI", true)]
+    #[case::fifteen("XV", true)]
+    #[case::twenty_nine("XXIX", true)]
+    #[case::thirty("XXX", true)]
+    #[case::thirty_nine("XXXIX", true)]
+    #[case::too_many_x("XXXX", false)]
+    #[case::invalid_ones_iiii("IIII", false)]
+    #[case::invalid_ones_vv("VV", false)]
+    #[case::non_roman_char("XXA", false)]
+    fn is_valid_roman_1_to_39_table(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(is_valid_roman_1_to_39(input), expected, "input={input:?}");
     }
 
-    #[test]
-    fn split_roman_prefix_various() {
-        assert_eq!(split_roman_prefix("IV"), ("IV", ""));
-        assert_eq!(split_roman_prefix("IVs"), ("IV", "s"));
-        assert_eq!(split_roman_prefix("IV-V"), ("IV", "-V"));
-        assert_eq!(split_roman_prefix("abc"), ("", "abc"));
-        assert_eq!(split_roman_prefix(""), ("", ""));
+    #[rstest::rstest]
+    #[case::all_roman("IV", "IV", "")]
+    #[case::alpha_suffix("IVs", "IV", "s")]
+    #[case::hyphen_suffix("IV-V", "IV", "-V")]
+    #[case::no_roman_prefix("abc", "", "abc")]
+    #[case::empty("", "", "")]
+    fn split_roman_prefix_various(#[case] input: &str, #[case] roman: &str, #[case] rest: &str) {
+        assert_eq!(split_roman_prefix(input), (roman, rest));
     }
 
-    #[test]
-    fn split_after_hyphen_paths() {
-        assert_eq!(split_after_hyphen("-V"), Some(("V", "")));
-        assert_eq!(split_after_hyphen("-Vs"), Some(("V", "s")));
-        assert_eq!(split_after_hyphen("V"), None);
-        assert_eq!(split_after_hyphen("-"), None);
-        assert_eq!(split_after_hyphen("-abc"), None); // not Roman after hyphen
+    #[rstest::rstest]
+    #[case::hyphen_then_roman("-V", Some(("V", "")))]
+    #[case::hyphen_then_roman_then_alpha("-Vs", Some(("V", "s")))]
+    #[case::no_leading_hyphen("V", None)]
+    #[case::lone_hyphen("-", None)]
+    #[case::hyphen_then_non_roman("-abc", None)]
+    fn split_after_hyphen_paths(
+        #[case] input: &str,
+        #[case] expected: Option<(&'static str, &'static str)>,
+    ) {
+        assert_eq!(split_after_hyphen(input), expected);
     }
 
-    #[test]
-    fn starts_with_ascii_alpha_branches() {
-        assert!(starts_with_ascii_alpha("abc"));
-        assert!(starts_with_ascii_alpha("Z"));
-        assert!(!starts_with_ascii_alpha("123"));
-        assert!(!starts_with_ascii_alpha(""));
-        assert!(!starts_with_ascii_alpha("-"));
+    #[rstest::rstest]
+    #[case::lowercase_alpha("abc", true)]
+    #[case::uppercase_alpha("Z", true)]
+    #[case::digit_prefix("123", false)]
+    #[case::empty("", false)]
+    #[case::symbol_prefix("-", false)]
+    fn starts_with_ascii_alpha_branches(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(starts_with_ascii_alpha(input), expected);
     }
 
     #[test]

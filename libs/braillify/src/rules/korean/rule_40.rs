@@ -96,11 +96,13 @@ mod tests {
     use super::*;
     use crate::unicode::decode_unicode;
 
-    #[test]
-    fn encodes_digits() {
-        assert_eq!(encode_digit('1').unwrap(), decode_unicode('⠁'));
-        assert_eq!(encode_digit('0').unwrap(), decode_unicode('⠚'));
-        assert_eq!(encode_digit('9').unwrap(), decode_unicode('⠊'));
+    /// 제40항 — 숫자 0-9 점형.
+    #[rstest::rstest]
+    #[case::one('1', '⠁')]
+    #[case::zero('0', '⠚')]
+    #[case::nine('9', '⠊')]
+    fn encodes_digits(#[case] ch: char, #[case] expected: char) {
+        assert_eq!(encode_digit(ch).unwrap(), decode_unicode(expected));
     }
 
     #[test]
@@ -108,25 +110,24 @@ mod tests {
         assert!(encode_digit('a').is_err());
     }
 
-    #[test]
-    fn continuation_chars() {
-        assert!(is_number_continuation('.'));
-        assert!(is_number_continuation(','));
-        assert!(!is_number_continuation(' '));
-        assert!(!is_number_continuation('-'));
+    /// `is_number_continuation` — `.` / `,` 만 숫자 흐름에 포함.
+    #[rstest::rstest]
+    #[case::period('.', true)]
+    #[case::comma(',', true)]
+    #[case::space(' ', false)]
+    #[case::hyphen('-', false)]
+    fn continuation_chars(#[case] ch: char, #[case] expected: bool) {
+        assert_eq!(is_number_continuation(ch), expected);
     }
 
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![("1", "⠼⠁"), ("10", "⠼⠁⠚"), ("0.48", "⠼⠚⠲⠙⠓")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 40 golden test failed for: {}",
-                input
-            );
-        }
+    /// Rule 40 golden test — testcase JSON 정답과 byte-identical.
+    #[rstest::rstest]
+    #[case::single_digit("1", "⠼⠁")]
+    #[case::two_digit("10", "⠼⠁⠚")]
+    #[case::decimal("0.48", "⠼⠚⠲⠙⠓")]
+    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
+        let result = crate::encode_to_unicode(input).unwrap();
+        assert_eq!(result, expected, "Rule 40 golden test failed for: {input}");
     }
 
     /// PDF 제40항 + 제69항 — numeric prefix followed by ASCII unit (kg, cm, etc.)

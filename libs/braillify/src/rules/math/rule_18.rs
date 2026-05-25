@@ -323,35 +323,35 @@ mod tests {
         assert!(!is_simple_signed_number(&weird));
     }
 
-    #[test]
-    fn should_group_superscript_paths() {
-        // Single token → no group
-        let single = vec![MathToken::Number("2".into())];
-        assert!(!should_group_superscript(&single));
-        // Signed number (-1) → no group (line 86)
-        let signed = vec![MathToken::Operator('-'), MathToken::Number("1".into())];
-        assert!(!should_group_superscript(&signed));
-        // Has operator → group
-        let with_op = vec![
-            MathToken::Number("1".into()),
-            MathToken::Operator('+'),
-            MathToken::Number("2".into()),
-        ];
-        assert!(should_group_superscript(&with_op));
-        // Has paren → group
-        let with_paren = vec![
+    /// `should_group_superscript` — 위첨자 그룹화 조건.
+    #[rstest::rstest]
+    #[case::single_token_no_group(vec![MathToken::Number("2".into())], false)]
+    #[case::signed_number_no_group(
+        vec![MathToken::Operator('-'), MathToken::Number("1".into())],
+        false,
+    )]
+    #[case::has_operator_groups(
+        vec![MathToken::Number("1".into()), MathToken::Operator('+'), MathToken::Number("2".into())],
+        true,
+    )]
+    #[case::has_paren_groups(
+        vec![
             MathToken::OpenParen(BracketKind::MathParen),
             MathToken::Variable('x'),
             MathToken::CloseParen(BracketKind::MathParen),
-        ];
-        assert!(should_group_superscript(&with_paren));
-        // Length >= 3 with simple tokens → group
-        let len3 = vec![
+        ],
+        true,
+    )]
+    #[case::len_ge_3_simple_groups(
+        vec![
             MathToken::Number("1".into()),
             MathToken::Number("2".into()),
             MathToken::Number("3".into()),
-        ];
-        assert!(should_group_superscript(&len3));
+        ],
+        true,
+    )]
+    fn should_group_superscript_paths(#[case] content: Vec<MathToken>, #[case] expected: bool) {
+        assert_eq!(should_group_superscript(&content), expected);
     }
 
     /// Exercise via encode pipeline — these inputs trigger SuperscriptRule.

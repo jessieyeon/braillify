@@ -115,17 +115,17 @@ mod tests {
         assert!(result.contains('⠴'), "Should contain roman indicator ⠴");
     }
 
-    #[test]
-    fn prev_word_is_numeric_all_digits_or_punctuation() {
-        assert!(prev_word_is_numeric("123"));
-        assert!(prev_word_is_numeric("1,234"));
-        assert!(prev_word_is_numeric("3.14"));
-        assert!(prev_word_is_numeric("1.234,567"));
-        // Empty string → false
-        assert!(!prev_word_is_numeric(""));
-        // Contains letter → false
-        assert!(!prev_word_is_numeric("12a"));
-        assert!(!prev_word_is_numeric("hello"));
+    /// `prev_word_is_numeric` — 숫자 및 `.` / `,` 만으로 구성된 단어를 true.
+    #[rstest::rstest]
+    #[case::pure_digits("123", true)]
+    #[case::digits_with_comma("1,234", true)]
+    #[case::decimal("3.14", true)]
+    #[case::compound_punctuation("1.234,567", true)]
+    #[case::empty_string("", false)]
+    #[case::digits_with_letter("12a", false)]
+    #[case::letters_only("hello", false)]
+    fn prev_word_is_numeric_paths(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(prev_word_is_numeric(input), expected);
     }
 
     fn make_ctx<'a>(

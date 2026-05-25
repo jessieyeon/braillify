@@ -322,26 +322,27 @@ mod tests {
     }
 
     /// is_algebraic_neighbor returns true for various token kinds and false otherwise.
-    #[test]
-    fn is_algebraic_neighbor_paths() {
-        assert!(is_algebraic_neighbor(Some(&MathToken::Variable('x'))));
-        assert!(is_algebraic_neighbor(Some(&MathToken::Number("1".into()))));
-        assert!(is_algebraic_neighbor(Some(&MathToken::MathSymbol(
-            '\u{221E}'
-        ))));
-        assert!(!is_algebraic_neighbor(Some(&MathToken::Operator('+'))));
-        assert!(!is_algebraic_neighbor(None));
+    #[rstest::rstest]
+    #[case::variable(Some(MathToken::Variable('x')), true)]
+    #[case::number(Some(MathToken::Number("1".into())), true)]
+    #[case::infinity_symbol(Some(MathToken::MathSymbol('\u{221E}')), true)]
+    #[case::operator_excluded(Some(MathToken::Operator('+')), false)]
+    #[case::none_neighbor(None, false)]
+    fn is_algebraic_neighbor_paths(#[case] token: Option<MathToken>, #[case] expected: bool) {
+        assert_eq!(is_algebraic_neighbor(token.as_ref()), expected);
     }
 
     /// needs_binary_spacing covers each relation/inference operator.
-    #[test]
-    fn needs_binary_spacing_table() {
-        for c in [
-            '\u{2192}', '\u{21D2}', '\u{2227}', '\u{2228}', '\u{22A2}', '\u{2272}',
-        ] {
-            assert!(needs_binary_spacing(c), "{c}");
-        }
-        assert!(!needs_binary_spacing('+'));
+    #[rstest::rstest]
+    #[case::right_arrow('\u{2192}', true)]
+    #[case::right_double_arrow('\u{21D2}', true)]
+    #[case::logical_and('\u{2227}', true)]
+    #[case::logical_or('\u{2228}', true)]
+    #[case::right_tack('\u{22A2}', true)]
+    #[case::less_or_equiv('\u{2272}', true)]
+    #[case::plus_excluded('+', false)]
+    fn needs_binary_spacing_table(#[case] ch: char, #[case] expected: bool) {
+        assert_eq!(needs_binary_spacing(ch), expected, "{ch}");
     }
 
     /// Smoke test for full math encoding pipeline covering these rules.

@@ -375,23 +375,31 @@ mod tests {
         assert!(!bytes.is_empty());
     }
 
-    #[test]
-    fn needs_quantifier_trailing_space_branches() {
-        // Space → false
-        let toks = vec![MathToken::Space];
-        assert!(!needs_quantifier_trailing_space(&toks, 0));
-        // Variable → true
-        let toks = vec![MathToken::Variable('x')];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        // Superscript at idx → false (line 231-233 path)
-        let toks = vec![MathToken::Superscript(vec![MathToken::Number("2".into())])];
-        assert!(!needs_quantifier_trailing_space(&toks, 0));
-        // Number → true
-        let toks = vec![MathToken::Number("1".into())];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        // Empty → false
-        let toks: Vec<MathToken> = vec![];
-        assert!(!needs_quantifier_trailing_space(&toks, 0));
+    /// 제19항 — `needs_quantifier_trailing_space`의 토큰별 분기.
+    /// Variable/Number/FunctionName/OpenParen/MathSymbol/UpperVariable → true,
+    /// Space/Superscript/empty/Operator-only-tail → false.
+    #[rstest::rstest]
+    #[case::space_false(vec![MathToken::Space], false)]
+    #[case::variable_true(vec![MathToken::Variable('x')], true)]
+    #[case::superscript_at_idx_false(
+        vec![MathToken::Superscript(vec![MathToken::Number("2".into())])],
+        false,
+    )]
+    #[case::number_true(vec![MathToken::Number("1".into())], true)]
+    #[case::empty_false(vec![], false)]
+    #[case::function_name_true(vec![MathToken::FunctionName("sin".into())], true)]
+    #[case::open_paren_true(vec![MathToken::OpenParen(BracketKind::MathParen)], true)]
+    #[case::math_symbol_true(vec![MathToken::MathSymbol('+')], true)]
+    #[case::upper_variable_true(vec![MathToken::UpperVariable('X')], true)]
+    #[case::operator_tail_empty_false(
+        vec![MathToken::Operator('+'), MathToken::Operator('+')],
+        false,
+    )]
+    fn needs_quantifier_trailing_space_branches(
+        #[case] tokens: Vec<MathToken>,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(needs_quantifier_trailing_space(&tokens, 0), expected);
     }
 
     #[test]
@@ -447,38 +455,25 @@ mod tests {
         assert!(!bytes.is_empty());
     }
 
-    /// 제19항 — needs_quantifier_trailing_space: Function/Open paren tokens drive lines 265-272.
-    #[test]
-    fn needs_quantifier_trailing_space_function_token() {
-        let toks = vec![MathToken::FunctionName("sin".into())];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        let toks = vec![MathToken::OpenParen(BracketKind::MathParen)];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        let toks = vec![MathToken::MathSymbol('+')];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        let toks = vec![MathToken::UpperVariable('X')];
-        assert!(needs_quantifier_trailing_space(&toks, 0));
-        // Token::Operator continues — empty tail returns false (line 273-276)
-        let toks = vec![MathToken::Operator('+'), MathToken::Operator('+')];
-        assert!(!needs_quantifier_trailing_space(&toks, 0));
-    }
-
     /// 제19항 — should_group_subscript: paren-wrapped content returns false (lines 38-46).
-    #[test]
-    fn should_group_subscript_paren_wrapped_content_skipped() {
-        let paren_wrapped = vec![
+    #[rstest::rstest]
+    #[case::paren_wrapped_no_group(
+        vec![
             MathToken::OpenParen(BracketKind::MathParen),
             MathToken::Variable('a'),
             MathToken::CloseParen(BracketKind::MathParen),
-        ];
-        assert!(!should_group_subscript(&paren_wrapped));
-        // Multi-token non-numeric → true
-        let mixed = vec![
-            MathToken::Variable('a'),
-            MathToken::Operator('+'),
-            MathToken::Variable('b'),
-        ];
-        assert!(should_group_subscript(&mixed));
+        ],
+        false,
+    )]
+    #[case::multi_token_non_numeric_groups(
+        vec![MathToken::Variable('a'), MathToken::Operator('+'), MathToken::Variable('b')],
+        true,
+    )]
+    fn should_group_subscript_paren_wrapped_content_skipped(
+        #[case] content: Vec<MathToken>,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(should_group_subscript(&content), expected);
     }
 
     /// 제19항 — encode_combo_subscript_content via _nP_r pattern drives line 303.

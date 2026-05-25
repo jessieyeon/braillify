@@ -126,25 +126,23 @@ mod tests {
         assert!(result.contains('\u{2082}'));
     }
 
-    /// Exercise subscript_digit_to_ascii for each codepoint.
-    #[test]
-    fn subscript_digit_to_ascii_table() {
-        for (sub, ascii) in [
-            ('\u{2080}', '0'),
-            ('\u{2081}', '1'),
-            ('\u{2082}', '2'),
-            ('\u{2083}', '3'),
-            ('\u{2084}', '4'),
-            ('\u{2085}', '5'),
-            ('\u{2086}', '6'),
-            ('\u{2087}', '7'),
-            ('\u{2088}', '8'),
-            ('\u{2089}', '9'),
-        ] {
-            assert_eq!(subscript_digit_to_ascii(sub), Some(ascii), "sub={sub:?}");
-        }
-        assert!(subscript_digit_to_ascii('a').is_none());
-        assert!(subscript_digit_to_ascii('0').is_none());
+    /// Exercise `subscript_digit_to_ascii` for each subscript codepoint
+    /// (U+2080-U+2089 ↔ '0'-'9'), plus non-subscript inputs → None.
+    #[rstest::rstest]
+    #[case::sub_0('\u{2080}', Some('0'))]
+    #[case::sub_1('\u{2081}', Some('1'))]
+    #[case::sub_2('\u{2082}', Some('2'))]
+    #[case::sub_3('\u{2083}', Some('3'))]
+    #[case::sub_4('\u{2084}', Some('4'))]
+    #[case::sub_5('\u{2085}', Some('5'))]
+    #[case::sub_6('\u{2086}', Some('6'))]
+    #[case::sub_7('\u{2087}', Some('7'))]
+    #[case::sub_8('\u{2088}', Some('8'))]
+    #[case::sub_9('\u{2089}', Some('9'))]
+    #[case::ascii_letter_none('a', None)]
+    #[case::ascii_digit_none('0', None)]
+    fn subscript_digit_to_ascii_table(#[case] sub: char, #[case] expected: Option<char>) {
+        assert_eq!(subscript_digit_to_ascii(sub), expected, "sub={sub:?}");
     }
 
     fn enc(input: &str) -> Vec<u8> {

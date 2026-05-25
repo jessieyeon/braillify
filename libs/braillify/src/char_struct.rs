@@ -232,54 +232,51 @@ mod test {
     use super::*;
     use proptest::prelude::*;
 
-    #[test]
-    pub fn test_char_type() {
-        assert!(matches!(
-            CharType::new('A').unwrap(),
-            CharType::English('A')
-        ));
-        assert!(matches!(CharType::new('1').unwrap(), CharType::Number('1')));
-        assert!(matches!(CharType::new('!').unwrap(), CharType::Symbol('!')));
-        assert!(matches!(
-            CharType::new('ㄱ').unwrap(),
-            CharType::KoreanPart('ㄱ')
-        ));
-        assert!(matches!(CharType::new(' ').unwrap(), CharType::Space(' ')));
-        assert!(matches!(
-            CharType::new('½').unwrap(),
-            CharType::Fraction('½')
-        ));
-        assert!(matches!(CharType::new('□').unwrap(), CharType::Symbol('□')));
+    /// `CharType::new` 분류 표 — 각 variant의 대표 입력.
+    /// `$`, `\` 는 line 61 `is_symbol_char` 또는 line 66 `is_math_symbol_char`에서 Symbol/MathSymbol로 분류.
+    #[rstest::rstest]
+    #[case::english('A')]
+    #[case::digit('1')]
+    #[case::symbol('!')]
+    #[case::korean_part('ㄱ')]
+    #[case::space(' ')]
+    #[case::symbol_square('□')]
+    #[case::latex_dollar('$')]
+    #[case::latex_backslash('\\')]
+    #[case::cjk_unified('字')]
+    #[case::middle_dot('·')]
+    #[case::fullwidth_colon('：')]
+    #[case::em_dash('—')]
+    #[case::tab('\t')]
+    #[case::cjk_punct_close('\u{3009}')]
+    #[case::fullwidth_latin('\u{FF42}')]
+    fn char_type_new_classifies_known_char(#[case] c: char) {
+        let result = CharType::new(c);
+        assert!(
+            result.is_ok(),
+            "CharType::new({:?}) failed: {:?}",
+            c,
+            result
+        );
     }
 
-    /// Exhaustive branch coverage for every Unicode range special-cased in
-    /// `CharType::new`. Just exercises code paths through the function —
-    /// later predicates may catch a codepoint before the explicit range
-    /// arm is reached, but we still want the call to succeed.
-    /// `$` and `\` are explicit fall-through to Symbol when earlier predicates
-    /// don't catch them. Drives line 119.
-    #[test]
-    fn test_char_type_dollar_and_backslash_symbol() {
-        assert!(matches!(CharType::new('$').unwrap(), CharType::Symbol('$')));
-        assert!(matches!(
-            CharType::new('\\').unwrap(),
-            CharType::Symbol('\\')
-        ));
-    }
-
-    /// Fullwidth U+FF42 (Ｂ) hits the 0xFF00..=0xFFEF range arm (line 176).
-    #[test]
-    fn test_char_type_fullwidth_range_arm() {
-        // U+FF42 fullwidth Latin small b is not in is_symbol_char so hits the range arm.
-        let c = char::from_u32(0xFF42).unwrap();
-        assert!(matches!(CharType::new(c).unwrap(), CharType::Symbol(_)));
-    }
-
-    /// CJK U+3009 (〉) hits 0x3000..=0x303F range arm (line 200).
-    #[test]
-    fn test_char_type_cjk_punctuation_range_arm() {
-        let c = char::from_u32(0x3009).unwrap();
-        assert!(matches!(CharType::new(c).unwrap(), CharType::Symbol(_)));
+    /// Variant-specific 검증: 특정 입력이 정확한 variant 종류로 분류된다.
+    #[rstest::rstest]
+    #[case('A', |t: &CharType| matches!(t, CharType::English('A')))]
+    #[case('1', |t: &CharType| matches!(t, CharType::Number('1')))]
+    #[case('½', |t: &CharType| matches!(t, CharType::Fraction('½')))]
+    #[case(' ', |t: &CharType| matches!(t, CharType::Space(' ')))]
+    #[case('가', |t: &CharType| matches!(t, CharType::Korean(_)))]
+    #[case('ㄱ', |t: &CharType| matches!(t, CharType::KoreanPart('ㄱ')))]
+    fn char_type_new_returns_specific_variant(
+        #[case] input: char,
+        #[case] check: fn(&CharType) -> bool,
+    ) {
+        let result = CharType::new(input).unwrap();
+        assert!(
+            check(&result),
+            "unexpected variant for {input:?}: {result:?}"
+        );
     }
 
     #[test]

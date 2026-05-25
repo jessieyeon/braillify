@@ -212,11 +212,16 @@ pub(crate) fn should_keep_english_mode_for_symbol(
 mod tests {
     use super::*;
 
-    #[test]
-    fn requires_single_letter_continuation_distinguishes_letters() {
-        assert!(requires_single_letter_continuation('b'));
-        assert!(!requires_single_letter_continuation('a'));
-        assert!(!requires_single_letter_continuation('A'));
+    /// `requires_single_letter_continuation` — 영어 연속점이 필요한 letter 식별.
+    #[rstest::rstest]
+    #[case::lowercase_b_requires('b', true)]
+    #[case::lowercase_a_excluded('a', false)]
+    #[case::uppercase_excluded('A', false)]
+    fn requires_single_letter_continuation_distinguishes_letters(
+        #[case] ch: char,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(requires_single_letter_continuation(ch), expected);
     }
 
     #[test]
@@ -236,40 +241,46 @@ mod tests {
         assert!(!should_request_continuation('('));
     }
 
-    #[test]
-    fn english_symbol_detection_matches_lookup_table() {
-        assert!(is_english_symbol('('));
-        assert!(is_english_symbol(')'));
-        assert!(is_english_symbol(','));
-        assert!(!is_english_symbol('?'));
+    /// `is_english_symbol` 표 — 영어 모드에서 인식되는 기호 vs 아닌 것.
+    #[rstest::rstest]
+    #[case('(', true)]
+    #[case(')', true)]
+    #[case(',', true)]
+    #[case('?', false)]
+    fn english_symbol_detection_matches_lookup_table(#[case] ch: char, #[case] expected: bool) {
+        assert_eq!(is_english_symbol(ch), expected);
     }
 
-    #[test]
-    fn prev_ascii_letter_or_digit_skips_english_symbols() {
-        let word: Vec<char> = "A(,B".chars().collect();
-        assert!(prev_ascii_letter_or_digit(&word, 2));
-
-        let hangul: Vec<char> = "가,".chars().collect();
-        assert!(!prev_ascii_letter_or_digit(&hangul, 1));
+    /// `prev_ascii_letter_or_digit` — 영어 기호 건너뛰며 직전 ASCII 문자 탐색.
+    #[rstest::rstest]
+    #[case::skip_english_symbol_to_ascii("A(,B", 2, true)]
+    #[case::korean_neighbor_blocks("가,", 1, false)]
+    fn prev_ascii_letter_or_digit_skips_english_symbols(
+        #[case] input: &str,
+        #[case] idx: usize,
+        #[case] expected: bool,
+    ) {
+        let word: Vec<char> = input.chars().collect();
+        assert_eq!(prev_ascii_letter_or_digit(&word, idx), expected);
     }
 
-    #[test]
-    fn next_ascii_letter_or_digit_checks_future_ascii() {
-        let contiguous: Vec<char> = "A,B".chars().collect();
-        assert!(next_ascii_letter_or_digit(&contiguous, 1, &[]));
-
-        let with_symbol: Vec<char> = "A,(B".chars().collect();
-        assert!(next_ascii_letter_or_digit(&with_symbol, 1, &[]));
-
-        let with_remaining: Vec<char> = "A,".chars().collect();
-        assert!(next_ascii_letter_or_digit(&with_remaining, 1, &["B"]));
-
-        let hangul: Vec<char> = "A,가".chars().collect();
-        assert!(!next_ascii_letter_or_digit(&hangul, 1, &[]));
-
-        let only_symbols: Vec<char> = "A,".chars().collect();
-        assert!(next_ascii_letter_or_digit(&only_symbols, 1, &["(B"]));
-        assert!(!next_ascii_letter_or_digit(&only_symbols, 1, &["()"]));
+    /// `next_ascii_letter_or_digit` — 현재 토큰의 future ASCII 검사.
+    /// 토큰 내 직후 / 영어 기호 건너뛴 후 / 다음 단어로 이어 보는 케이스.
+    #[rstest::rstest]
+    #[case::contiguous_ascii("A,B", 1, &[], true)]
+    #[case::skip_english_symbol("A,(B", 1, &[], true)]
+    #[case::remaining_word_ascii("A,", 1, &["B"], true)]
+    #[case::hangul_following("A,가", 1, &[], false)]
+    #[case::remaining_word_with_symbol_then_ascii("A,", 1, &["(B"], true)]
+    #[case::remaining_word_only_symbols("A,", 1, &["()"], false)]
+    fn next_ascii_letter_or_digit_checks_future_ascii(
+        #[case] input: &str,
+        #[case] idx: usize,
+        #[case] remaining: &[&str],
+        #[case] expected: bool,
+    ) {
+        let word: Vec<char> = input.chars().collect();
+        assert_eq!(next_ascii_letter_or_digit(&word, idx, remaining), expected);
     }
 
     #[test]
@@ -307,84 +318,53 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn should_render_symbol_as_english_for_closing_parenthesis() {
+    /// `should_render_symbol_as_english` for ')' — paren stack top 만 본다.
+    #[rstest::rstest]
+    #[case::stack_top_true(true, true)]
+    #[case::stack_top_false(false, false)]
+    fn should_render_symbol_as_english_for_closing_parenthesis(
+        #[case] stack_top: bool,
+        #[case] expected: bool,
+    ) {
         let closer: Vec<char> = ")".chars().collect();
-        assert!(should_render_symbol_as_english(
-            true,
-            true,
-            &[true],
-            ')',
-            &closer,
-            0,
-            &[]
-        ));
-
-        assert!(!should_render_symbol_as_english(
-            true,
-            true,
-            &[false],
-            ')',
-            &closer,
-            0,
-            &[]
-        ));
+        assert_eq!(
+            should_render_symbol_as_english(true, true, &[stack_top], ')', &closer, 0, &[]),
+            expected,
+        );
     }
 
-    #[test]
-    fn should_render_symbol_as_english_for_comma_requires_ascii_neighbors() {
-        let word: Vec<char> = "A,B".chars().collect();
-        assert!(should_render_symbol_as_english(
-            true,
-            true,
-            &[],
-            ',',
-            &word,
-            1,
-            &[]
-        ));
-
-        let no_english_context: Vec<char> = "A,B".chars().collect();
-        assert!(!should_render_symbol_as_english(
-            true,
-            false,
-            &[],
-            ',',
-            &no_english_context,
-            1,
-            &[]
-        ));
-
-        let korean_neighbor: Vec<char> = "가,B".chars().collect();
-        assert!(!should_render_symbol_as_english(
-            true,
-            true,
-            &[],
-            ',',
-            &korean_neighbor,
-            1,
-            &[]
-        ));
+    /// `should_render_symbol_as_english` for ',' — 양쪽 ASCII + 영어 컨텍스트 둘 다 필요.
+    #[rstest::rstest]
+    #[case::both_ascii_in_english_mode("A,B", true, true)]
+    #[case::not_in_english_mode("A,B", false, false)]
+    #[case::korean_neighbor("가,B", true, false)]
+    fn should_render_symbol_as_english_for_comma_requires_ascii_neighbors(
+        #[case] input: &str,
+        #[case] is_english: bool,
+        #[case] expected: bool,
+    ) {
+        let word: Vec<char> = input.chars().collect();
+        assert_eq!(
+            should_render_symbol_as_english(true, is_english, &[], ',', &word, 1, &[]),
+            expected
+        );
     }
 
-    /// english_logic:90 — has_digital_notation_signature returns true for
-    /// inputs containing `//`, `@`, or `#`.
-    #[test]
-    fn digital_notation_signature_strong_markers() {
-        // Need to make these accessible — re-create the test inline via the public path.
-        let text1: Vec<char> = "http://example.com".chars().collect();
-        let text2: Vec<char> = "user@host".chars().collect();
-        let text3: Vec<char> = "tag#name".chars().collect();
-        // Call the private fn via the test's `use super::*` import.
-        assert!(super::has_digital_notation_signature(&text1));
-        assert!(super::has_digital_notation_signature(&text2));
-        assert!(super::has_digital_notation_signature(&text3));
-        // And the underscore + digital marker combination:
-        let text4: Vec<char> = "a_b.c".chars().collect();
-        assert!(super::has_digital_notation_signature(&text4));
-        // Pure underscore (NOT a signature):
-        let text5: Vec<char> = "a_b".chars().collect();
-        assert!(!super::has_digital_notation_signature(&text5));
+    /// `has_digital_notation_signature` — `//`, `@`, `#` 강한 마커 또는
+    /// underscore + digital marker 조합은 true, 단순 underscore는 false.
+    #[rstest::rstest]
+    #[case::double_slash("http://example.com", true)]
+    #[case::at_sign("user@host", true)]
+    #[case::hash("tag#name", true)]
+    #[case::underscore_plus_dot("a_b.c", true)]
+    #[case::pure_underscore("a_b", false)]
+    fn digital_notation_signature_strong_markers(#[case] input: &str, #[case] expected: bool) {
+        let chars: Vec<char> = input.chars().collect();
+        assert_eq!(
+            super::has_digital_notation_signature(&chars),
+            expected,
+            "input={input:?}"
+        );
     }
 
     /// english_logic:208 — `should_keep_english_mode_for_symbol` returns the

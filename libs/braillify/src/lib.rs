@@ -800,119 +800,96 @@ mod test {
         start..start + needle.len()
     }
 
-    #[test]
-    pub fn test_encode() {
-        assert_eq!(encode_to_unicode("상상이상의 ").unwrap(), "⠇⠶⠇⠶⠕⠇⠶⠺");
-        assert_eq!(encode_to_unicode("안녕\n반가워").unwrap(), "⠣⠒⠉⠻\n⠘⠒⠫⠏");
-        assert_eq!(encode_to_unicode("BMI(지수)").unwrap(), "⠴⠠⠠⠃⠍⠊⠦⠄⠨⠕⠠⠍⠠⠴");
-        assert_eq!(encode_to_unicode("지수(BMI)").unwrap(), "⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴");
+    /// `encode_to_unicode` 종합 표 — 한글/영어/숫자/수식/기호 혼합 시나리오.
+    /// 각 행은 단일 input/expected 쌍을 나타내며 #[case::xxx] 라벨로 시나리오 구분.
+    #[rstest::rstest]
+    // Korean repetition / inline newline
+    #[case::sangsang("상상이상의 ", "⠇⠶⠇⠶⠕⠇⠶⠺")]
+    #[case::an_nyeong_nl("안녕\n반가워", "⠣⠒⠉⠻\n⠘⠒⠫⠏")]
+    // English uppercase + Korean parentheses
+    #[case::bmi_paren("BMI(지수)", "⠴⠠⠠⠃⠍⠊⠦⠄⠨⠕⠠⠍⠠⠴")]
+    #[case::jisu_bmi("지수(BMI)", "⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
+    #[case::che_jil_bmi("체질량 지수(BMI)", "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
+    #[case::roma_bracket("Roma [ㄹㄹ로마]", "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴")]
+    #[case::ye_quoted("‘ㅖ’로 적는다.", "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲")]
+    // English mode
+    #[case::contents("Contents", "⠠⠒⠞⠢⠞⠎")]
+    #[case::table_of_contents("Table of Contents", "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎")]
+    #[case::bonjour("bonjour", "⠃⠕⠝⠚⠳⠗")]
+    // Korean jamo names
+    #[case::triangle_jamo("삼각형 ㄱㄴㄷ", "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔")]
+    // Specific syllables
+    #[case::keok("걲", "⠈⠹⠁")]
+    #[case::geot("겄", "⠈⠎⠌")]
+    // Unit symbols
+    #[case::kg("kg", "⠅⠛")]
+    #[case::kg_paren("(kg)", "⠦⠄⠅⠛⠠⠴")]
+    // Mixed arithmetic
+    #[case::naru_plus_bae("나루 + 배 = 나룻배", "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗")]
+    // Phone number
+    #[case::phone_dash("02-2669-9775~6", "⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠈⠔⠼⠋")]
+    // Triple uppercase
+    #[case::welcome_to_korea("WELCOME TO KOREA", "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄")]
+    #[case::sns_eseo("SNS에서", "⠴⠠⠠⠎⠝⠎⠲⠝⠠⠎")]
+    #[case::atm("ATM", "⠠⠠⠁⠞⠍")]
+    #[case::atm_korean("ATM 기기", "⠴⠠⠠⠁⠞⠍⠲⠀⠈⠕⠈⠕")]
+    // Numbers with separators
+    #[case::thousand("1,000", "⠼⠁⠂⠚⠚⠚")]
+    #[case::decimal("0.48", "⠼⠚⠲⠙⠓")]
+    #[case::id_number("820718-2036794", "⠼⠓⠃⠚⠛⠁⠓⠤⠼⠃⠚⠉⠋⠛⠊⠙")]
+    // Korean-math arithmetic
+    #[case::five_minus_three("5개−3개=2개", "⠼⠑⠈⠗⠀⠔⠀⠼⠉⠈⠗⠀⠒⠒⠀⠼⠃⠈⠗")]
+    // Standalone syllables
+    #[case::sohwaeg("소화액", "⠠⠥⠚⠧⠤⠗⠁")]
+    #[case::cap_x("X", "⠠⠭")]
+    #[case::kkeot("껐", "⠠⠈⠎⠌")]
+    #[case::tv_reul("TV를", "⠴⠠⠠⠞⠧⠲⠐⠮")]
+    #[case::kkeoteoyo("껐어요.", "⠠⠈⠎⠌⠎⠬⠲")]
+    #[case::five_un_six("5운6기", "⠼⠑⠀⠛⠼⠋⠈⠕")]
+    #[case::kkeunh("끊", "⠠⠈⠵⠴")]
+    #[case::kkeunh_gyeoss("끊겼어요", "⠠⠈⠵⠴⠈⠱⠌⠎⠬")]
+    #[case::si_yeyo("시예요", "⠠⠕⠤⠌⠬")]
+    #[case::jeong("정", "⠨⠻")]
+    #[case::na_yo("나요", "⠉⠣⠬")]
+    #[case::saiseu("사이즈", "⠇⠕⠨⠪")]
+    #[case::cheongso_reul("청소를", "⠰⠻⠠⠥⠐⠮")]
+    #[case::geos("것", "⠸⠎")]
+    #[case::geos_i("것이", "⠸⠎⠕")]
+    #[case::i_oss("이 옷", "⠕⠀⠥⠄")]
+    #[case::dot(".", "⠲")]
+    // Progressive an_nyeong_haseyo
+    #[case::an("안", "⠣⠒")]
+    #[case::an_nyeong("안녕", "⠣⠒⠉⠻")]
+    #[case::an_nyeong_ha("안녕하", "⠣⠒⠉⠻⠚")]
+    #[case::seyo("세요", "⠠⠝⠬")]
+    #[case::ha_seyo("하세요", "⠚⠠⠝⠬")]
+    #[case::an_nyeong_ha_seyo("안녕하세요", "⠣⠒⠉⠻⠚⠠⠝⠬")]
+    #[case::an_nyeong_hasibnikka("안녕하십니까", "⠣⠒⠉⠻⠚⠠⠕⠃⠉⠕⠠⠫")]
+    // Progressive geuraeseo
+    #[case::geuraeseo_jakdong("그래서 작동", "⠁⠎⠀⠨⠁⠊⠿")]
+    #[case::geuraeseo_hanā("그래서 작동하나", "⠁⠎⠀⠨⠁⠊⠿⠚⠉")]
+    #[case::geuraeseo_yo("그래서 작동하나요", "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬")]
+    #[case::geuraeseo_yo_q("그래서 작동하나요?", "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬⠦")]
+    #[case::i_norae("이 노래", "⠕⠀⠉⠥⠐⠗")]
+    // areum
+    #[case::a("아", "⠣")]
+    #[case::reum("름", "⠐⠪⠢")]
+    #[case::areum("아름", "⠣⠐⠪⠢")]
+    #[case::sa("사", "⠇")]
+    #[case::sang("상", "⠇⠶")]
+    #[case::areumda_sesang("아름다운 세상.", "⠣⠐⠪⠢⠊⠣⠛⠀⠠⠝⠇⠶⠲")]
+    #[case::modeun_things("모든 것이 무너진 듯해도", "⠑⠥⠊⠵⠀⠸⠎⠕⠀⠑⠍⠉⠎⠨⠟⠀⠊⠪⠄⠚⠗⠊⠥")]
+    // LaTeX fractions
+    #[case::latex_frac_3_4("$\\frac{3}{4}$", "⠼⠙⠌⠼⠉")]
+    #[case::latex_3_frac_1_4("$3\\frac{1}{4}$", "⠼⠉⠼⠙⠌⠼⠁")]
+    #[case::ascii_1_2("1/2", "⠼⠁⠸⠌⠼⠃")]
+    #[case::unicode_half("½", "⠼⠃⠌⠼⠁")]
+    fn encode_to_unicode_table(#[case] input: &str, #[case] expected: &str) {
         assert_eq!(
-            encode_to_unicode("체질량 지수(BMI)").unwrap(),
-            "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴"
+            encode_to_unicode(input).unwrap(),
+            expected,
+            "input={input:?}"
         );
-        assert_eq!(
-            encode_to_unicode("Roma [ㄹㄹ로마]").unwrap(),
-            "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴"
-        );
-        assert_eq!(
-            encode_to_unicode("‘ㅖ’로 적는다.").unwrap(),
-            "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲"
-        );
-        assert_eq!(encode_to_unicode("Contents").unwrap(), "⠠⠒⠞⠢⠞⠎");
-
-        assert_eq!(
-            encode_to_unicode("Table of Contents").unwrap(),
-            "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎"
-        );
-        assert_eq!(encode_to_unicode("bonjour").unwrap(), "⠃⠕⠝⠚⠳⠗");
-        assert_eq!(encode_to_unicode("삼각형 ㄱㄴㄷ").unwrap(), "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔");
-        assert_eq!(encode_to_unicode("걲").unwrap(), "⠈⠹⠁");
-        assert_eq!(encode_to_unicode("겄").unwrap(), "⠈⠎⠌");
-        assert_eq!(encode_to_unicode("kg").unwrap(), "⠅⠛");
-        assert_eq!(encode_to_unicode("(kg)").unwrap(), "⠦⠄⠅⠛⠠⠴");
-        assert_eq!(
-            encode_to_unicode("나루 + 배 = 나룻배").unwrap(),
-            "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗"
-        );
-        assert_eq!(
-            encode_to_unicode("02-2669-9775~6").unwrap(),
-            "⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠈⠔⠼⠋"
-        );
-        assert_eq!(
-            encode_to_unicode("WELCOME TO KOREA").unwrap(),
-            "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄"
-        );
-        assert_eq!(encode_to_unicode("SNS에서").unwrap(), "⠴⠠⠠⠎⠝⠎⠲⠝⠠⠎");
-        assert_eq!(encode_to_unicode("ATM").unwrap(), "⠠⠠⠁⠞⠍");
-        assert_eq!(encode_to_unicode("ATM 기기").unwrap(), "⠴⠠⠠⠁⠞⠍⠲⠀⠈⠕⠈⠕");
-        assert_eq!(encode_to_unicode("1,000").unwrap(), "⠼⠁⠂⠚⠚⠚");
-        assert_eq!(encode_to_unicode("0.48").unwrap(), "⠼⠚⠲⠙⠓");
-        assert_eq!(
-            encode_to_unicode("820718-2036794").unwrap(),
-            "⠼⠓⠃⠚⠛⠁⠓⠤⠼⠃⠚⠉⠋⠛⠊⠙"
-        );
-        assert_eq!(
-            encode_to_unicode("5개−3개=2개").unwrap(),
-            "⠼⠑⠈⠗⠀⠔⠀⠼⠉⠈⠗⠀⠒⠒⠀⠼⠃⠈⠗"
-        );
-        assert_eq!(encode_to_unicode("소화액").unwrap(), "⠠⠥⠚⠧⠤⠗⠁");
-        assert_eq!(encode_to_unicode("X").unwrap(), "⠠⠭");
-        assert_eq!(encode_to_unicode("껐").unwrap(), "⠠⠈⠎⠌");
-        assert_eq!(encode_to_unicode("TV를").unwrap(), "⠴⠠⠠⠞⠧⠲⠐⠮");
-        assert_eq!(encode_to_unicode("껐어요.").unwrap(), "⠠⠈⠎⠌⠎⠬⠲");
-        assert_eq!(encode_to_unicode("5운6기").unwrap(), "⠼⠑⠀⠛⠼⠋⠈⠕");
-        assert_eq!(encode_to_unicode("끊").unwrap(), "⠠⠈⠵⠴");
-        assert_eq!(encode_to_unicode("끊겼어요").unwrap(), "⠠⠈⠵⠴⠈⠱⠌⠎⠬");
-        assert_eq!(encode_to_unicode("시예요").unwrap(), "⠠⠕⠤⠌⠬");
-        assert_eq!(encode_to_unicode("정").unwrap(), "⠨⠻");
-        assert_eq!(encode_to_unicode("나요").unwrap(), "⠉⠣⠬");
-        assert_eq!(encode_to_unicode("사이즈").unwrap(), "⠇⠕⠨⠪");
-        assert_eq!(encode_to_unicode("청소를").unwrap(), "⠰⠻⠠⠥⠐⠮");
-        assert_eq!(encode_to_unicode("것").unwrap(), "⠸⠎");
-        assert_eq!(encode_to_unicode("것이").unwrap(), "⠸⠎⠕");
-        assert_eq!(encode_to_unicode("이 옷").unwrap(), "⠕⠀⠥⠄");
-        assert_eq!(encode_to_unicode(".").unwrap(), "⠲");
-        assert_eq!(encode_to_unicode("안").unwrap(), "⠣⠒");
-        assert_eq!(encode_to_unicode("안녕").unwrap(), "⠣⠒⠉⠻");
-        assert_eq!(encode_to_unicode("안녕하").unwrap(), "⠣⠒⠉⠻⠚");
-
-        assert_eq!(encode_to_unicode("세요").unwrap(), "⠠⠝⠬");
-
-        assert_eq!(encode_to_unicode("하세요").unwrap(), "⠚⠠⠝⠬");
-        assert_eq!(encode_to_unicode("안녕하세요").unwrap(), "⠣⠒⠉⠻⠚⠠⠝⠬");
-        //                                           ⠣⠒⠉⠻⠚⠠⠕⠃⠉⠕⠠⠈⠣
-        assert_eq!(encode_to_unicode("안녕하십니까").unwrap(), "⠣⠒⠉⠻⠚⠠⠕⠃⠉⠕⠠⠫");
-
-        assert_eq!(encode_to_unicode("그래서 작동").unwrap(), "⠁⠎⠀⠨⠁⠊⠿");
-        assert_eq!(encode_to_unicode("그래서 작동하나").unwrap(), "⠁⠎⠀⠨⠁⠊⠿⠚⠉");
-        //                                               ⠁⠎⠀⠨⠁⠊⠿⠚⠉⠬
-        assert_eq!(
-            encode_to_unicode("그래서 작동하나요").unwrap(),
-            "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬"
-        );
-        assert_eq!(
-            encode_to_unicode("그래서 작동하나요?").unwrap(),
-            "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬⠦"
-        );
-        assert_eq!(encode_to_unicode("이 노래").unwrap(), "⠕⠀⠉⠥⠐⠗");
-        assert_eq!(encode_to_unicode("아").unwrap(), "⠣");
-        assert_eq!(encode_to_unicode("름").unwrap(), "⠐⠪⠢");
-        assert_eq!(encode_to_unicode("아름").unwrap(), "⠣⠐⠪⠢");
-        // ⠠⠶
-        assert_eq!(encode_to_unicode("사").unwrap(), "⠇");
-        assert_eq!(encode_to_unicode("상").unwrap(), "⠇⠶");
-        assert_eq!(
-            encode_to_unicode("아름다운 세상.").unwrap(),
-            "⠣⠐⠪⠢⠊⠣⠛⠀⠠⠝⠇⠶⠲"
-        );
-        assert_eq!(
-            encode_to_unicode("모든 것이 무너진 듯해도").unwrap(),
-            "⠑⠥⠊⠵⠀⠸⠎⠕⠀⠑⠍⠉⠎⠨⠟⠀⠊⠪⠄⠚⠗⠊⠥"
-        );
-        assert_eq!(encode_to_unicode("$\\frac{3}{4}$").unwrap(), "⠼⠙⠌⠼⠉");
-        assert_eq!(encode_to_unicode("$3\\frac{1}{4}$").unwrap(), "⠼⠉⠼⠙⠌⠼⠁");
-        assert_eq!(encode_to_unicode("1/2").unwrap(), "⠼⠁⠸⠌⠼⠃");
-        assert_eq!(encode_to_unicode("½").unwrap(), "⠼⠃⠌⠼⠁");
     }
 
     #[test]
@@ -937,18 +914,14 @@ mod test {
         );
     }
 
-    #[test]
-    fn english_symbol_terminator_variants() {
-        let slash_case = encode("가 a/").unwrap();
+    #[rstest::rstest]
+    #[case::slash_forced_symbol("가 a/")]
+    #[case::underscore_leave_english("가 a_b")]
+    fn english_symbol_terminator_variants(#[case] input: &str) {
+        let output = encode(input).unwrap();
         assert!(
-            slash_case.contains(&50),
-            "forced symbol should add terminator"
-        );
-
-        let underscore_case = encode("가 a_b").unwrap();
-        assert!(
-            underscore_case.contains(&50),
-            "regular symbol should add terminator when leaving english"
+            output.contains(&50),
+            "english terminator (50) absent for {input:?}"
         );
     }
 
@@ -974,18 +947,14 @@ mod test {
         );
     }
 
-    #[test]
-    fn next_word_symbol_rules_apply() {
-        let forced_symbol = encode("가 a /").unwrap();
+    #[rstest::rstest]
+    #[case::forced_symbol_inserts_terminator("가 a /", 50)]
+    #[case::skip_symbol_requests_continuation("가 a . b", 48)]
+    fn next_word_symbol_rules_apply(#[case] input: &str, #[case] expected_byte: u8) {
+        let output = encode(input).unwrap();
         assert!(
-            forced_symbol.contains(&50),
-            "forced symbol should insert terminator between words"
-        );
-
-        let skip_symbol = encode("가 a . b").unwrap();
-        assert!(
-            skip_symbol.contains(&48),
-            "skip symbol should request continuation"
+            output.contains(&expected_byte),
+            "expected byte {expected_byte} not in output for {input:?}"
         );
     }
 
@@ -1510,12 +1479,18 @@ mod coverage_targeted_tests {
 
     /// All four FormattingKind variants must produce their declared markers.
     /// Covers `FormattingKind::markers` arms for Emphasis/Bold/Custom1/Custom2.
-    #[test]
-    fn formatting_kind_markers_all_variants() {
-        assert_eq!(FormattingKind::Emphasis.markers(), ([32, 36], [36, 4]));
-        assert_eq!(FormattingKind::Bold.markers(), ([48, 36], [36, 6]));
-        assert_eq!(FormattingKind::Custom1.markers(), ([16, 36], [36, 2]));
-        assert_eq!(FormattingKind::Custom2.markers(), ([8, 36], [36, 1]));
+    /// `FormattingKind::markers()` — 각 강조 종류별 시작·종료 점형 페어.
+    #[rstest::rstest]
+    #[case::emphasis(FormattingKind::Emphasis, [32, 36], [36, 4])]
+    #[case::bold(FormattingKind::Bold, [48, 36], [36, 6])]
+    #[case::custom1(FormattingKind::Custom1, [16, 36], [36, 2])]
+    #[case::custom2(FormattingKind::Custom2, [8, 36], [36, 1])]
+    fn formatting_kind_markers_all_variants(
+        #[case] kind: FormattingKind,
+        #[case] start: [u8; 2],
+        #[case] end: [u8; 2],
+    ) {
+        assert_eq!(kind.markers(), (start, end));
     }
 
     /// Mathematical italic small h (U+210E) normalizes to plain 'h'.
@@ -1526,16 +1501,13 @@ mod coverage_targeted_tests {
 
     /// Each block of Mathematical Alphanumeric Symbols maps to its ASCII base.
     /// Covers the BLOCKS loop and the `Self::Symbol(c)` style return.
-    #[test]
-    fn normalize_math_alphanumeric_block_mapping() {
-        // U+1D400 = MATH BOLD CAPITAL A → 'A'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D400}'), 'A');
-        // U+1D41A = MATH BOLD SMALL A → 'a'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D41A}'), 'a');
-        // U+1D7CE = MATH BOLD DIGIT ZERO → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7CE}'), '0');
-        // Non-math char passes through unchanged
-        assert_eq!(normalize_math_alphanumeric_char('Z'), 'Z');
+    #[rstest::rstest]
+    #[case::bold_capital_a('\u{1D400}', 'A')]
+    #[case::bold_small_a('\u{1D41A}', 'a')]
+    #[case::bold_digit_zero('\u{1D7CE}', '0')]
+    #[case::passthrough_ascii('Z', 'Z')]
+    fn normalize_math_alphanumeric_block_mapping(#[case] input: char, #[case] expected: char) {
+        assert_eq!(normalize_math_alphanumeric_char(input), expected);
     }
 
     /// `normalize_math_alphanumeric_string` short-circuits when no trigger char
@@ -1564,19 +1536,16 @@ mod coverage_targeted_tests {
     }
 
     /// ObjectSymbol mode dispatch — covers lines around 698-709.
-    #[test]
-    fn encode_object_symbol_mode_each_glyph() {
+    #[rstest::rstest]
+    #[case::circle("○", &[56, 52, 7])]
+    #[case::cross("×", &[56, 45, 7])]
+    #[case::triangle("△", &[56, 44, 7])]
+    #[case::square("□", &[56, 54, 7])]
+    fn encode_object_symbol_mode_each_glyph(#[case] input: &str, #[case] expected: &[u8]) {
         let opts = EncodeOptions {
             default_mode: Some(EncodingMode::ObjectSymbol),
         };
-        // ○
-        assert_eq!(encode_with_options("○", &opts).unwrap(), vec![56, 52, 7]);
-        // ×
-        assert_eq!(encode_with_options("×", &opts).unwrap(), vec![56, 45, 7]);
-        // △
-        assert_eq!(encode_with_options("△", &opts).unwrap(), vec![56, 44, 7]);
-        // □
-        assert_eq!(encode_with_options("□", &opts).unwrap(), vec![56, 54, 7]);
+        assert_eq!(encode_with_options(input, &opts).unwrap(), expected);
     }
 
     /// ObjectSymbol mode with non-matching char falls through to normal pipeline.
@@ -1724,33 +1693,18 @@ mod coverage_targeted_tests {
     }
 
     /// `detect_ipa_context` should return false for text without IPA markers.
-    /// Covers line 491.
-    #[test]
-    fn detect_ipa_context_no_markers() {
-        assert!(!detect_ipa_context("plain text"));
-    }
-
-    /// `detect_ipa_context` returns true when an IPA symbol appears inside `[ ]`.
-    #[test]
-    fn detect_ipa_context_with_brackets_ipa() {
-        // 'ə' is an IPA phonetic symbol
-        assert!(detect_ipa_context("[əbaut]"));
-    }
-
-    /// `detect_ipa_context` skips past `[...]` without IPA and continues.
-    /// Covers lines 504-505.
-    #[test]
-    fn detect_ipa_context_brackets_without_ipa_then_ipa_slashes() {
-        // First [...] has no IPA — must NOT short-circuit return true.
-        // Then /.../ has IPA — must continue scanning and match.
-        let s = "[abc] /əb/";
-        assert!(detect_ipa_context(s));
-    }
-
-    /// `detect_ipa_context` slash-delimited group with IPA. Covers lines 508-513.
-    #[test]
-    fn detect_ipa_context_slashes_with_ipa() {
-        assert!(detect_ipa_context("/əb/"));
+    /// `detect_ipa_context` — `[…]` 또는 `/…/` 내부의 IPA 음성 기호 검출.
+    /// `no_markers`: 마커 자체가 없음 (line 491).
+    /// `brackets_ipa`: `[ ]` 안에 IPA.
+    /// `brackets_without_ipa_then_slashes_ipa`: 첫 `[…]`은 무관, 이후 `/…/` 매치 (lines 504-505).
+    /// `slashes_with_ipa`: `/…/` 안에 IPA (lines 508-513).
+    #[rstest::rstest]
+    #[case::no_markers("plain text", false)]
+    #[case::brackets_ipa("[əbaut]", true)]
+    #[case::brackets_without_ipa_then_slashes_ipa("[abc] /əb/", true)]
+    #[case::slashes_with_ipa("/əb/", true)]
+    fn detect_ipa_context_variants(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(detect_ipa_context(input), expected, "input={input:?}");
     }
 
     /// `detect_ipa_context` slash group without IPA continues scanning.
@@ -1942,21 +1896,17 @@ mod coverage_targeted_tests {
 
     /// lib.rs:147 — Math Alphanumeric DIGIT blocks (𝟎-𝟗 across 5 styles) normalize
     /// to ASCII '0'-'9'. The DIGIT_BLOCKS loop returns at line 147 for matching codepoints.
-    #[test]
-    fn normalize_math_alphanumeric_digits() {
-        // 𝟎 U+1D7CE (MATHEMATICAL BOLD DIGIT ZERO) → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7CE}'), '0');
-        // 𝟏 U+1D7CF → '1'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7CF}'), '1');
-        // 𝟗 U+1D7D7 → '9'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7D7}'), '9');
-        // 𝟘 U+1D7D8 (DOUBLE-STRUCK DIGIT ZERO) → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7D8}'), '0');
-        // 𝟢 U+1D7E2 (SANS-SERIF DIGIT ZERO) → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7E2}'), '0');
-        // 𝟬 U+1D7EC (SANS-SERIF BOLD DIGIT ZERO) → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7EC}'), '0');
-        // 𝟶 U+1D7F6 (MONOSPACE DIGIT ZERO) → '0'
-        assert_eq!(normalize_math_alphanumeric_char('\u{1D7F6}'), '0');
+    /// lib.rs:147 — Math Alphanumeric DIGIT blocks (𝟎-𝟯 across 5 styles) normalize
+    /// to ASCII '0'-'9'. DIGIT_BLOCKS 의 각 base에서 ZERO offset 확인.
+    #[rstest::rstest]
+    #[case::bold_zero('\u{1D7CE}', '0')]
+    #[case::bold_one('\u{1D7CF}', '1')]
+    #[case::bold_nine('\u{1D7D7}', '9')]
+    #[case::double_struck_zero('\u{1D7D8}', '0')]
+    #[case::sans_serif_zero('\u{1D7E2}', '0')]
+    #[case::sans_serif_bold_zero('\u{1D7EC}', '0')]
+    #[case::monospace_zero('\u{1D7F6}', '0')]
+    fn normalize_math_alphanumeric_digits(#[case] input: char, #[case] expected: char) {
+        assert_eq!(normalize_math_alphanumeric_char(input), expected);
     }
 }

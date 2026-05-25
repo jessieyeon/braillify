@@ -759,14 +759,36 @@ mod tests {
 
     // ── Step 1-3: Basic token tests ──
 
-    #[test]
-    fn emit_round_trip_korean() {
-        assert_round_trip("안녕하세요");
-    }
-
-    #[test]
-    fn emit_round_trip_english_words() {
-        assert_round_trip("hello world");
+    /// `emit` 결과가 `encode()` 와 byte-identical 한지 (round-trip) 다양한
+    /// 입력에 대해 일관되게 통과하는지 검증한다. 각 case는 다른 점역 규칙
+    /// 경로를 통과한다 — 한글/영어/대문자/숫자/약어/LaTeX/전화번호/괄호 등.
+    #[rstest::rstest]
+    #[case::korean_greeting("안녕하세요")]
+    #[case::english_words("hello world")]
+    #[case::triple_uppercase_passage("WELCOME TO KOREA")]
+    #[case::english_indicator_sns("SNS에서")]
+    #[case::english_indicator_atm("ATM 기기")]
+    #[case::english_indicator_bmi_paren("BMI(지수)")]
+    #[case::mixed_upper_atm("ATM")]
+    #[case::mixed_upper_capitalized("Contents")]
+    #[case::mixed_upper_title("Table of Contents")]
+    #[case::number_with_comma("1,000")]
+    #[case::number_decimal("0.48")]
+    #[case::multi_word_korean("상상이상의 ")]
+    #[case::korean_with_newline("안녕\n반가워")]
+    #[case::word_shortcut_geuraeseo("그래서")]
+    #[case::word_shortcut_geureona("그러나")]
+    #[case::latex_fraction_half("$\\frac{1}{2}$")]
+    #[case::math_symbols_korean_sentence("나루 + 배 = 나룻배")]
+    #[case::phone_number_range("02-2669-9775~6")]
+    #[case::parenthesized_english_bmi("지수(BMI)")]
+    #[case::parenthesized_english_chejilryang_bmi("체질량 지수(BMI)")]
+    #[case::standalone_jamo("삼각형 ㄱㄴㄷ")]
+    #[case::kg_parenthesized("(kg)")]
+    #[case::kg_bare("kg")]
+    #[case::roma_bracket("Roma [ㄹㄹ로마]")]
+    fn emit_round_trip(#[case] text: &str) {
+        assert_round_trip(text);
     }
 
     #[test]
@@ -833,90 +855,6 @@ mod tests {
         let context = word_context(&word_texts, 1);
         assert_eq!(context.prev_word, "A");
         assert_eq!(context.remaining_words, ["C"]);
-    }
-
-    // ── Post-loop parity tests ──
-
-    #[test]
-    fn emit_round_trip_triple_uppercase() {
-        // 제28항 [붙임] 대문자 구절표
-        assert_round_trip("WELCOME TO KOREA");
-    }
-
-    #[test]
-    fn emit_round_trip_english_indicator_with_korean() {
-        // 로마자표 + 종료표 tests
-        assert_round_trip("SNS에서");
-        assert_round_trip("ATM 기기");
-        assert_round_trip("BMI(지수)");
-    }
-
-    #[test]
-    fn emit_round_trip_mixed_uppercase_word() {
-        assert_round_trip("ATM");
-        assert_round_trip("Contents");
-        assert_round_trip("Table of Contents");
-    }
-
-    #[test]
-    fn emit_round_trip_numbers() {
-        assert_round_trip("1,000");
-        assert_round_trip("0.48");
-    }
-
-    #[test]
-    fn emit_round_trip_multi_word_korean() {
-        assert_round_trip("상상이상의 ");
-    }
-
-    #[test]
-    fn emit_round_trip_korean_with_newline() {
-        // parse() splits on spaces; newlines within words are handled by per-char
-        assert_round_trip("안녕\n반가워");
-    }
-
-    #[test]
-    fn emit_round_trip_word_shortcut() {
-        // 제18항 약어 (그래서, 그러나, etc.)
-        assert_round_trip("그래서");
-        assert_round_trip("그러나");
-    }
-
-    #[test]
-    fn emit_round_trip_latex_fraction() {
-        assert_round_trip("$\\frac{1}{2}$");
-    }
-
-    #[test]
-    fn emit_round_trip_math_symbols() {
-        assert_round_trip("나루 + 배 = 나룻배");
-    }
-
-    #[test]
-    fn emit_round_trip_phone_number() {
-        assert_round_trip("02-2669-9775~6");
-    }
-
-    #[test]
-    fn emit_round_trip_parenthesized_english() {
-        assert_round_trip("지수(BMI)");
-        assert_round_trip("체질량 지수(BMI)");
-    }
-
-    #[test]
-    fn emit_round_trip_standalone_jamo() {
-        assert_round_trip("삼각형 ㄱㄴㄷ");
-    }
-
-    #[test]
-    fn emit_round_trip_kg_parenthesized() {
-        assert_round_trip("(kg)");
-        assert_round_trip("kg");
-    }
-
-    #[test]
-    fn emit_round_trip_roma_bracket() {
-        assert_round_trip("Roma [ㄹㄹ로마]");
     }
 
     /// emit:85 (extracted helper) — `token_is_math_word` returns false for None

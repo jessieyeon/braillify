@@ -52,24 +52,26 @@ mod tests {
     /// latex_fraction:32-33 — `$...$` wrapped input that is NOT a valid \frac
     /// returns Noop via the parse_latex_fraction let-else.
     /// Direct apply call to bypass any earlier token rules that might handle it.
-    #[test]
-    fn dollar_wrapped_non_fraction_direct_apply_noop() {
+    #[rstest::rstest]
+    #[case::single_variable("$x$")]
+    #[case::empty_frac("$\\frac{}$")]
+    #[case::digits("$123$")]
+    #[case::alpha("$abc$")]
+    fn dollar_wrapped_non_fraction_direct_apply_noop(#[case] text: &'static str) {
         let r = LatexFractionRule;
         let mut state = EncoderState::new(false);
-        for text in ["$x$", "$\\frac{}$", "$123$", "$abc$"] {
-            let chars: Vec<char> = text.chars().collect();
-            let word = Token::Word(WordToken {
-                text: Cow::Borrowed(text),
-                chars: chars.clone(),
-                meta: WordMeta::from_chars(&chars),
-            });
-            let tokens = vec![word];
-            let action = r.apply(&tokens, 0, &mut state).unwrap();
-            assert!(
-                matches!(action, TokenAction::Noop),
-                "expected Noop for {text}"
-            );
-        }
+        let chars: Vec<char> = text.chars().collect();
+        let word = Token::Word(WordToken {
+            text: Cow::Borrowed(text),
+            chars: chars.clone(),
+            meta: WordMeta::from_chars(&chars),
+        });
+        let tokens = vec![word];
+        let action = r.apply(&tokens, 0, &mut state).unwrap();
+        assert!(
+            matches!(action, TokenAction::Noop),
+            "expected Noop for {text}"
+        );
     }
 
     /// latex_fraction:22-23 — apply called on Space token returns Noop.

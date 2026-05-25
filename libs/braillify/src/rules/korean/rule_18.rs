@@ -104,25 +104,22 @@ impl BrailleRule for Rule18 {
 mod tests {
     use super::*;
 
-    #[test]
-    fn matches_all_word_abbreviations() {
-        let words = vec![
-            "그래서",
-            "그러나",
-            "그러면",
-            "그러므로",
-            "그런데",
-            "그리고",
-            "그리하여",
-        ];
-        for word in words {
-            let result = apply(word);
-            assert!(result.is_some(), "Expected abbreviation for: {}", word);
-            let (matched, codes, rest) = result.unwrap();
-            assert_eq!(matched, word);
-            assert!(!codes.is_empty());
-            assert!(rest.is_empty());
-        }
+    /// 제18항 — 7개 약어 단어가 모두 약자 매칭된다.
+    #[rstest::rstest]
+    #[case("그래서")]
+    #[case("그러나")]
+    #[case("그러면")]
+    #[case("그러므로")]
+    #[case("그런데")]
+    #[case("그리고")]
+    #[case("그리하여")]
+    fn matches_all_word_abbreviations(#[case] word: &str) {
+        let result = apply(word);
+        assert!(result.is_some(), "Expected abbreviation for: {word}");
+        let (matched, codes, rest) = result.unwrap();
+        assert_eq!(matched, word);
+        assert!(!codes.is_empty());
+        assert!(rest.is_empty());
     }
 
     #[test]
@@ -133,42 +130,38 @@ mod tests {
         assert_eq!(result.2, "인지");
     }
 
-    #[test]
-    fn no_match_for_non_abbreviation() {
-        assert!(apply("안녕하세요").is_none());
-        assert!(apply("hello").is_none());
+    /// 약어 사전 미등록 단어 → None.
+    #[rstest::rstest]
+    #[case::korean_unknown("안녕하세요")]
+    #[case::english("hello")]
+    fn no_match_for_non_abbreviation(#[case] input: &str) {
+        assert!(apply(input).is_none());
     }
 
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![("그래서", "⠁⠎"), ("그러나", "⠁⠉"), ("그리고", "⠁⠥")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 18 golden test failed for: {}",
-                input
-            );
-        }
+    /// Rule 18 golden test — testcase JSON 정답과 byte-identical.
+    #[rstest::rstest]
+    #[case::geuraeseo("그래서", "⠁⠎")]
+    #[case::geureona("그러나", "⠁⠉")]
+    #[case::geurigo("그리고", "⠁⠥")]
+    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
+        let result = crate::encode_to_unicode(input).unwrap();
+        assert_eq!(result, expected, "Rule 18 golden test failed for: {input}");
     }
 
     /// Direct tests for `match_word_shortcut` — covers lines 31-55.
-    #[test]
-    fn match_word_shortcut_finds_each_abbreviation() {
-        for word in [
-            "그래서",
-            "그러나",
-            "그러면",
-            "그러므로",
-            "그런데",
-            "그리고",
-            "그리하여",
-        ] {
-            let chars: Vec<char> = word.chars().collect();
-            let result = match_word_shortcut(&chars);
-            assert!(result.is_some(), "should match {word}");
-            assert!(!result.unwrap().is_empty());
-        }
+    #[rstest::rstest]
+    #[case("그래서")]
+    #[case("그러나")]
+    #[case("그러면")]
+    #[case("그러므로")]
+    #[case("그런데")]
+    #[case("그리고")]
+    #[case("그리하여")]
+    fn match_word_shortcut_finds_each_abbreviation(#[case] word: &str) {
+        let chars: Vec<char> = word.chars().collect();
+        let result = match_word_shortcut(&chars);
+        assert!(result.is_some(), "should match {word}");
+        assert!(!result.unwrap().is_empty());
     }
 
     #[test]

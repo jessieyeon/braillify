@@ -339,47 +339,41 @@ mod tests {
         assert!(result.unwrap_err().contains("denominator"));
     }
 
-    #[test]
-    fn test_normalize_digit_regular() {
-        assert_eq!(normalize_digit('0'), Some('0'));
-        assert_eq!(normalize_digit('1'), Some('1'));
-        assert_eq!(normalize_digit('9'), Some('9'));
-    }
-
-    #[test]
-    fn test_normalize_digit_superscript() {
-        assert_eq!(normalize_digit('⁰'), Some('0'));
-        assert_eq!(normalize_digit('¹'), Some('1'));
-        assert_eq!(normalize_digit('²'), Some('2'));
-        assert_eq!(normalize_digit('³'), Some('3'));
-        assert_eq!(normalize_digit('⁴'), Some('4'));
-        assert_eq!(normalize_digit('⁵'), Some('5'));
-        assert_eq!(normalize_digit('⁶'), Some('6'));
-        assert_eq!(normalize_digit('⁷'), Some('7'));
-        assert_eq!(normalize_digit('⁸'), Some('8'));
-        assert_eq!(normalize_digit('⁹'), Some('9'));
-    }
-
-    #[test]
-    fn test_normalize_digit_subscript() {
-        assert_eq!(normalize_digit('₀'), Some('0'));
-        assert_eq!(normalize_digit('₁'), Some('1'));
-        assert_eq!(normalize_digit('₂'), Some('2'));
-        assert_eq!(normalize_digit('₃'), Some('3'));
-        assert_eq!(normalize_digit('₄'), Some('4'));
-        assert_eq!(normalize_digit('₅'), Some('5'));
-        assert_eq!(normalize_digit('₆'), Some('6'));
-        assert_eq!(normalize_digit('₇'), Some('7'));
-        assert_eq!(normalize_digit('₈'), Some('8'));
-        assert_eq!(normalize_digit('₉'), Some('9'));
-    }
-
-    #[test]
-    fn test_normalize_digit_invalid() {
-        assert_eq!(normalize_digit('a'), None);
-        assert_eq!(normalize_digit('A'), None);
-        assert_eq!(normalize_digit('!'), None);
-        assert_eq!(normalize_digit(' '), None);
+    /// `normalize_digit` — ASCII / 위첨자 / 아래첨자 숫자를 ASCII '0'..'9'로 정규화.
+    #[rstest::rstest]
+    // ASCII digits
+    #[case('0', Some('0'))]
+    #[case('1', Some('1'))]
+    #[case('9', Some('9'))]
+    // Superscript digits (U+2070, U+00B9, U+00B2, U+00B3, U+2074..U+2079)
+    #[case('⁰', Some('0'))]
+    #[case('¹', Some('1'))]
+    #[case('²', Some('2'))]
+    #[case('³', Some('3'))]
+    #[case('⁴', Some('4'))]
+    #[case('⁵', Some('5'))]
+    #[case('⁶', Some('6'))]
+    #[case('⁷', Some('7'))]
+    #[case('⁸', Some('8'))]
+    #[case('⁹', Some('9'))]
+    // Subscript digits (U+2080..U+2089)
+    #[case('₀', Some('0'))]
+    #[case('₁', Some('1'))]
+    #[case('₂', Some('2'))]
+    #[case('₃', Some('3'))]
+    #[case('₄', Some('4'))]
+    #[case('₅', Some('5'))]
+    #[case('₆', Some('6'))]
+    #[case('₇', Some('7'))]
+    #[case('₈', Some('8'))]
+    #[case('₉', Some('9'))]
+    // Non-digit inputs return None
+    #[case('a', None)]
+    #[case('A', None)]
+    #[case('!', None)]
+    #[case(' ', None)]
+    fn normalize_digit_table(#[case] input: char, #[case] expected: Option<char>) {
+        assert_eq!(normalize_digit(input), expected);
     }
 
     #[test]
@@ -508,108 +502,66 @@ mod tests {
         assert_eq!(parse_latex_fraction("$$"), None);
     }
 
-    #[test]
-    fn test_parse_unicode_fraction_common() {
+    /// `parse_unicode_fraction` — 일반 Unicode 분수 글리프 → (분자, 분모) 분해.
+    #[rstest::rstest]
+    #[case('½', "1", "2")]
+    #[case('⅓', "1", "3")]
+    #[case('⅔', "2", "3")]
+    #[case('¼', "1", "4")]
+    #[case('¾', "3", "4")]
+    #[case('⅕', "1", "5")]
+    #[case('⅖', "2", "5")]
+    #[case('⅗', "3", "5")]
+    #[case('⅘', "4", "5")]
+    #[case('⅙', "1", "6")]
+    #[case('⅚', "5", "6")]
+    #[case('⅛', "1", "8")]
+    #[case('⅜', "3", "8")]
+    #[case('⅝', "5", "8")]
+    #[case('⅞', "7", "8")]
+    fn parse_unicode_fraction_common(#[case] input: char, #[case] num: &str, #[case] den: &str) {
         assert_eq!(
-            parse_unicode_fraction('½'),
-            Some(("1".to_string(), "2".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅓'),
-            Some(("1".to_string(), "3".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅔'),
-            Some(("2".to_string(), "3".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('¼'),
-            Some(("1".to_string(), "4".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('¾'),
-            Some(("3".to_string(), "4".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅕'),
-            Some(("1".to_string(), "5".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅖'),
-            Some(("2".to_string(), "5".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅗'),
-            Some(("3".to_string(), "5".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅘'),
-            Some(("4".to_string(), "5".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅙'),
-            Some(("1".to_string(), "6".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅚'),
-            Some(("5".to_string(), "6".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅛'),
-            Some(("1".to_string(), "8".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅜'),
-            Some(("3".to_string(), "8".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅝'),
-            Some(("5".to_string(), "8".to_string()))
-        );
-        assert_eq!(
-            parse_unicode_fraction('⅞'),
-            Some(("7".to_string(), "8".to_string()))
+            parse_unicode_fraction(input),
+            Some((num.to_string(), den.to_string()))
         );
     }
 
-    #[test]
-    fn test_parse_unicode_fraction_regular_chars() {
-        assert_eq!(parse_unicode_fraction('a'), None);
-        assert_eq!(parse_unicode_fraction('1'), None);
-        assert_eq!(parse_unicode_fraction('!'), None);
-        assert_eq!(parse_unicode_fraction(' '), None);
+    /// `parse_unicode_fraction` non-fraction 입력은 None.
+    #[rstest::rstest]
+    #[case('a')]
+    #[case('1')]
+    #[case('!')]
+    #[case(' ')]
+    #[case('/')]
+    #[case('가')]
+    fn parse_unicode_fraction_non_fraction_returns_none(#[case] input: char) {
+        assert_eq!(parse_unicode_fraction(input), None);
     }
 
-    #[test]
-    fn test_parse_unicode_fraction_slash() {
-        assert_eq!(parse_unicode_fraction('/'), None);
+    /// `is_unicode_fraction` true 케이스 — 일반 분수 글리프.
+    #[rstest::rstest]
+    #[case('½')]
+    #[case('⅓')]
+    #[case('⅔')]
+    #[case('¼')]
+    #[case('¾')]
+    #[case('⅕')]
+    #[case('⅙')]
+    #[case('⅛')]
+    fn is_unicode_fraction_true(#[case] ch: char) {
+        assert!(is_unicode_fraction(ch));
     }
 
-    #[test]
-    fn test_parse_unicode_fraction_korean() {
-        assert_eq!(parse_unicode_fraction('가'), None);
-    }
-
-    #[test]
-    fn test_is_unicode_fraction_true() {
-        assert!(is_unicode_fraction('½'));
-        assert!(is_unicode_fraction('⅓'));
-        assert!(is_unicode_fraction('⅔'));
-        assert!(is_unicode_fraction('¼'));
-        assert!(is_unicode_fraction('¾'));
-        assert!(is_unicode_fraction('⅕'));
-        assert!(is_unicode_fraction('⅙'));
-        assert!(is_unicode_fraction('⅛'));
-    }
-
-    #[test]
-    fn test_is_unicode_fraction_false() {
-        assert!(!is_unicode_fraction('a'));
-        assert!(!is_unicode_fraction('1'));
-        assert!(!is_unicode_fraction('!'));
-        assert!(!is_unicode_fraction('/'));
-        assert!(!is_unicode_fraction(' '));
-        assert!(!is_unicode_fraction('가'));
+    /// `is_unicode_fraction` false 케이스 — ASCII/한글/공백/분수슬래시 외 문자.
+    #[rstest::rstest]
+    #[case('a')]
+    #[case('1')]
+    #[case('!')]
+    #[case('/')]
+    #[case(' ')]
+    #[case('가')]
+    fn is_unicode_fraction_false(#[case] ch: char) {
+        assert!(!is_unicode_fraction(ch));
     }
 
     #[test]
@@ -782,28 +734,18 @@ mod tests {
         let _ = is_unicode_fraction('/');
     }
 
-    #[test]
-    fn read_braced_content_empty_braces_returns_none() {
-        let mut iter = "{}".chars().peekable();
-        // First consume '{'
-        assert!(read_braced_content(&mut iter).is_none());
-    }
-
-    #[test]
-    fn read_braced_content_missing_open_returns_none() {
-        let mut iter = "abc".chars().peekable();
-        assert!(read_braced_content(&mut iter).is_none());
-    }
-
-    #[test]
-    fn read_braced_content_non_digit_returns_none() {
-        let mut iter = "{1a2}".chars().peekable();
-        assert!(read_braced_content(&mut iter).is_none());
-    }
-
-    #[test]
-    fn read_braced_content_unterminated_returns_none() {
-        let mut iter = "{123".chars().peekable();
+    /// `read_braced_content` 실패 케이스 — None 반환.
+    /// - empty braces `{}`
+    /// - opening brace 없음 `abc`
+    /// - non-digit 내용 `{1a2}`
+    /// - unterminated `{123` (no closing brace)
+    #[rstest::rstest]
+    #[case::empty_braces("{}")]
+    #[case::missing_open("abc")]
+    #[case::non_digit("{1a2}")]
+    #[case::unterminated("{123")]
+    fn read_braced_content_invalid_returns_none(#[case] input: &str) {
+        let mut iter = input.chars().peekable();
         assert!(read_braced_content(&mut iter).is_none());
     }
 
@@ -825,44 +767,33 @@ mod tests {
         assert_eq!(whole, Some("3".to_string()));
     }
 
-    #[test]
-    fn parse_latex_fraction_invalid_no_dollar() {
-        assert!(parse_latex_fraction("\\frac{1}{2}").is_none());
+    /// `parse_latex_fraction` invalid 입력 — 다양한 형태에서 None.
+    /// - opening `$` 없음
+    /// - closing `$` 없음
+    /// - extra content after `$..$`
+    /// - `\frac` 명령 누락
+    /// - denominator 뒤 `$` 없음 (line 146)
+    #[rstest::rstest]
+    #[case::no_open_dollar("\\frac{1}{2}")]
+    #[case::no_close_dollar("$\\frac{1}{2}")]
+    #[case::extra_content("$\\frac{1}{2}$x")]
+    #[case::no_frac_keyword("$frac{1}{2}$")]
+    #[case::trailing_letter_before_close("$\\frac{1}{2}x$")]
+    #[case::missing_close_with_punct("$\\frac{3}{4}!")]
+    fn parse_latex_fraction_invalid_returns_none(#[case] input: &str) {
+        assert!(parse_latex_fraction(input).is_none(), "input={input:?}");
     }
 
-    #[test]
-    fn parse_latex_fraction_invalid_no_close_dollar() {
-        assert!(parse_latex_fraction("$\\frac{1}{2}").is_none());
-    }
-
-    #[test]
-    fn parse_latex_fraction_invalid_extra_content() {
-        assert!(parse_latex_fraction("$\\frac{1}{2}$x").is_none());
-    }
-
-    #[test]
-    fn parse_latex_fraction_invalid_no_frac() {
-        assert!(parse_latex_fraction("$frac{1}{2}$").is_none());
-    }
-
-    /// Line 146 — after `\frac{}{}` parses, next char must be `$`.
-    /// Input like `$\frac{1}{2}x$` has extra content before `$`; parser
-    /// reads numerator/denom successfully then encounters `x` instead of `$`.
-    #[test]
-    fn parse_latex_fraction_no_dollar_after_denominator() {
-        assert!(parse_latex_fraction("$\\frac{1}{2}x$").is_none());
-        // Also: missing $ at all after denominator
-        assert!(parse_latex_fraction("$\\frac{3}{4}!").is_none());
-    }
-
-    /// Line 195 — parse_fraction_chars: whitespace after a digit on numerator
-    /// side sets `sealed = true`. Uses U+2044 FRACTION SLASH (the actual constant).
-    #[test]
-    fn parse_decomposed_fraction_whitespace_seals_then_more_digits_fail() {
-        // "3 4\u{2044}5" — whitespace seals after "3", then "4" rejected (line 199).
-        assert!(parse_decomposed_fraction("3 4\u{2044}5").is_none());
-        // "3\u{2044}4 5" — whitespace seals den side, "5" rejected.
-        assert!(parse_decomposed_fraction("3\u{2044}4 5").is_none());
+    /// `parse_decomposed_fraction` whitespace seal — 숫자 사이 공백 후 추가 숫자는 실패.
+    /// U+2044 FRACTION SLASH 기준.
+    #[rstest::rstest]
+    #[case::numer_seal_then_more("3 4\u{2044}5")]
+    #[case::denom_seal_then_more("3\u{2044}4 5")]
+    fn parse_decomposed_fraction_whitespace_seals_then_more_digits_fail(#[case] input: &str) {
+        assert!(
+            parse_decomposed_fraction(input).is_none(),
+            "input={input:?}"
+        );
     }
 
     /// Lines 225, 233 — `is_unicode_fraction` multi-slash and seal-after-digit.

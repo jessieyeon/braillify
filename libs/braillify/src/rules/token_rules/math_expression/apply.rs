@@ -892,41 +892,21 @@ mod tests {
         );
     }
 
-    /// `is_logic_symbol_word` true ONLY for single-char `⊻`.
+    /// `is_logic_symbol_word` — XOR(⊻) 단독 토큰만 true, 그 외는 false.
     /// Kills: `-> false`, `!=` mutations.
-    #[test]
-    fn is_logic_symbol_word_matches_only_xor() {
-        // Positive: ⊻ alone.
-        let yes_word = WordToken {
-            text: Cow::Borrowed("⊻"),
-            chars: vec!['\u{22BB}'],
-            meta: WordMeta::from_chars(&['\u{22BB}']),
+    #[rstest::rstest]
+    #[case::xor_alone("⊻", true)]
+    #[case::wedge_alone("∧", false)]
+    #[case::xor_then_letter("⊻x", false)]
+    #[case::empty_word("", false)]
+    fn is_logic_symbol_word_matches_only_xor(#[case] text: &'static str, #[case] expected: bool) {
+        let chars: Vec<char> = text.chars().collect();
+        let word = WordToken {
+            text: Cow::Borrowed(text),
+            meta: WordMeta::from_chars(&chars),
+            chars,
         };
-        assert!(is_logic_symbol_word(&yes_word));
-
-        // Negative: a different symbol.
-        let other_word = WordToken {
-            text: Cow::Borrowed("∧"),
-            chars: vec!['\u{2227}'],
-            meta: WordMeta::from_chars(&['\u{2227}']),
-        };
-        assert!(!is_logic_symbol_word(&other_word));
-
-        // Negative: ⊻ followed by something (len > 1).
-        let multi = WordToken {
-            text: Cow::Borrowed("⊻x"),
-            chars: vec!['\u{22BB}', 'x'],
-            meta: WordMeta::from_chars(&['\u{22BB}', 'x']),
-        };
-        assert!(!is_logic_symbol_word(&multi));
-
-        // Negative: empty word.
-        let empty = WordToken {
-            text: Cow::Borrowed(""),
-            chars: vec![],
-            meta: WordMeta::from_chars(&[]),
-        };
-        assert!(!is_logic_symbol_word(&empty));
+        assert_eq!(is_logic_symbol_word(&word), expected);
     }
 
     // ----- Lines 66-110: `a ≲ b:` colon-suffix math merge -----

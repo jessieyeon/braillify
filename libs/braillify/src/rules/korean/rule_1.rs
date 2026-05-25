@@ -77,32 +77,27 @@ mod tests {
     use super::*;
     use crate::unicode::decode_unicode;
 
-    #[test]
-    fn encodes_all_13_basic_consonants() {
-        let cases = vec![
-            ('ㄱ', '⠈'),
-            ('ㄴ', '⠉'),
-            ('ㄷ', '⠊'),
-            ('ㄹ', '⠐'),
-            ('ㅁ', '⠑'),
-            ('ㅂ', '⠘'),
-            ('ㅅ', '⠠'),
-            ('ㅈ', '⠨'),
-            ('ㅊ', '⠰'),
-            ('ㅋ', '⠋'),
-            ('ㅌ', '⠓'),
-            ('ㅍ', '⠙'),
-            ('ㅎ', '⠚'),
-        ];
-        for (cho, expected_braille) in cases {
-            let result = apply(cho).unwrap();
-            assert_eq!(
-                result,
-                decode_unicode(expected_braille),
-                "Failed for choseong: {}",
-                cho
-            );
-        }
+    #[rstest::rstest]
+    #[case::giyeok('ㄱ', '⠈')]
+    #[case::nieun('ㄴ', '⠉')]
+    #[case::digeut('ㄷ', '⠊')]
+    #[case::rieul('ㄹ', '⠐')]
+    #[case::mieum('ㅁ', '⠑')]
+    #[case::bieup('ㅂ', '⠘')]
+    #[case::siot('ㅅ', '⠠')]
+    #[case::jieut('ㅈ', '⠨')]
+    #[case::chieut('ㅊ', '⠰')]
+    #[case::kieuk('ㅋ', '⠋')]
+    #[case::tieut('ㅌ', '⠓')]
+    #[case::pieup('ㅍ', '⠙')]
+    #[case::hieut('ㅎ', '⠚')]
+    fn encodes_all_13_basic_consonants(#[case] cho: char, #[case] expected_braille: char) {
+        let result = apply(cho).unwrap();
+        assert_eq!(
+            result,
+            decode_unicode(expected_braille),
+            "Failed for choseong: {cho}"
+        );
     }
 
     #[test]

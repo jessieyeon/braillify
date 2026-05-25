@@ -313,29 +313,21 @@ mod tests {
     }
 
     /// 제7항 — slash as fraction symbol detection.
-    #[test]
-    fn slash_as_fraction_symbol_paths() {
-        // Upper/Upper → true
-        let toks = vec![
-            MathToken::UpperVariable('A'),
-            MathToken::Operator('/'),
-            MathToken::UpperVariable('B'),
-        ];
-        assert!(slash_as_fraction_symbol(&toks, 1));
-        // Digit/Digit → true
-        let toks = vec![
-            MathToken::Number("3".into()),
-            MathToken::Operator('/'),
-            MathToken::Number("4".into()),
-        ];
-        assert!(slash_as_fraction_symbol(&toks, 1));
-        // Var/Var → false
-        let toks = vec![
-            MathToken::Variable('x'),
-            MathToken::Operator('/'),
-            MathToken::Variable('y'),
-        ];
-        assert!(!slash_as_fraction_symbol(&toks, 1));
+    #[rstest::rstest]
+    #[case::upper_over_upper(
+        vec![MathToken::UpperVariable('A'), MathToken::Operator('/'), MathToken::UpperVariable('B')],
+        true,
+    )]
+    #[case::digit_over_digit(
+        vec![MathToken::Number("3".into()), MathToken::Operator('/'), MathToken::Number("4".into())],
+        true,
+    )]
+    #[case::var_over_var_not_fraction(
+        vec![MathToken::Variable('x'), MathToken::Operator('/'), MathToken::Variable('y')],
+        false,
+    )]
+    fn slash_as_fraction_symbol_paths(#[case] tokens: Vec<MathToken>, #[case] expected: bool) {
+        assert_eq!(slash_as_fraction_symbol(&tokens, 1), expected);
     }
 
     /// 제7항 — GroupedFractionReversalRule rule metadata.
@@ -381,18 +373,36 @@ mod tests {
     }
 
     /// 제7항 — find_simple_right_end advances through allowed token kinds.
-    #[test]
-    fn find_simple_right_end_traverses_simple_tokens() {
-        let tokens = vec![
+    #[rstest::rstest]
+    #[case::advances_until_operator(
+        vec![
             MathToken::Number("1".into()),
             MathToken::Variable('x'),
             MathToken::Prime,
-            MathToken::Operator('+'), // stops here
+            MathToken::Operator('+'),
             MathToken::Number("2".into()),
-        ];
-        assert_eq!(find_simple_right_end(&tokens, 0), 3);
-        assert_eq!(find_simple_right_end(&tokens, 3), 3); // operator stops immediately
-        assert_eq!(find_simple_right_end(&[], 0), 0);
+        ],
+        0,
+        3,
+    )]
+    #[case::operator_stops_immediately(
+        vec![
+            MathToken::Number("1".into()),
+            MathToken::Variable('x'),
+            MathToken::Prime,
+            MathToken::Operator('+'),
+            MathToken::Number("2".into()),
+        ],
+        3,
+        3,
+    )]
+    #[case::empty_returns_index(vec![], 0, 0)]
+    fn find_simple_right_end_traverses_simple_tokens(
+        #[case] tokens: Vec<MathToken>,
+        #[case] index: usize,
+        #[case] expected: usize,
+    ) {
+        assert_eq!(find_simple_right_end(&tokens, index), expected);
     }
 
     /// 제7항 — FractionReversalRule metadata.

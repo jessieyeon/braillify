@@ -255,62 +255,53 @@ pub fn is_math_symbol_char(text: char) -> bool {
 mod test {
     use super::*;
 
+    /// `is_math_symbol_char` true 케이스 — 연산자/그리스/집합/미적분 기호 전체.
+    #[rstest::rstest]
+    // basic operators
+    #[case('+')]
+    #[case('−')]
+    #[case('×')]
+    #[case('÷')]
+    #[case('=')]
+    // greek
+    #[case('α')]
+    #[case('π')]
+    #[case('ω')]
+    // set / logic
+    #[case('∈')]
+    #[case('∅')]
+    #[case('∪')]
+    #[case('∩')]
+    // calculus
+    #[case('∫')]
+    #[case('∞')]
+    #[case('√')]
+    fn is_math_symbol_char_recognizes_math_chars(#[case] ch: char) {
+        assert!(is_math_symbol_char(ch));
+    }
+
+    /// `is_math_symbol_char` false 케이스 — ASCII 알파벳은 수학 기호 아님.
     #[test]
-    fn test_basic_operators() {
-        assert!(is_math_symbol_char('+'));
-        assert!(is_math_symbol_char('−'));
-        assert!(is_math_symbol_char('×'));
-        assert!(is_math_symbol_char('÷'));
-        assert!(is_math_symbol_char('='));
+    fn is_math_symbol_char_rejects_ascii_letter() {
         assert!(!is_math_symbol_char('a'));
     }
 
-    #[test]
-    fn test_superscript() {
-        // ² should be ^#b = ⠘⠼⠃
+    /// `encode_char_math_symbol_shortcut` 표 매핑.
+    /// - `²` (제곱) → `⠘⠼⠃` (^#b, 3-cell)
+    /// - `≥` (크거나 같음) → `⠲⠲` (2-cell)
+    /// - `≤` (작거나 같음) → `⠖⠖` (2-cell)
+    #[rstest::rstest]
+    #[case('²', &['⠘', '⠼', '⠃'][..])]
+    #[case('≥', &['⠲', '⠲'][..])]
+    #[case('≤', &['⠖', '⠖'][..])]
+    fn encode_char_math_symbol_shortcut_table(
+        #[case] input: char,
+        #[case] expected_chars: &[char],
+    ) {
+        let expected: Vec<u8> = expected_chars.iter().copied().map(decode_unicode).collect();
         assert_eq!(
-            encode_char_math_symbol_shortcut('²').unwrap(),
-            &[
-                decode_unicode('⠘'),
-                decode_unicode('⠼'),
-                decode_unicode('⠃')
-            ]
+            encode_char_math_symbol_shortcut(input).unwrap(),
+            expected.as_slice()
         );
-    }
-
-    #[test]
-    fn test_inequality() {
-        // ≥ should be 44 = ⠲⠲
-        assert_eq!(
-            encode_char_math_symbol_shortcut('≥').unwrap(),
-            &[decode_unicode('⠲'), decode_unicode('⠲')]
-        );
-        // ≤ should be 66 = ⠖⠖
-        assert_eq!(
-            encode_char_math_symbol_shortcut('≤').unwrap(),
-            &[decode_unicode('⠖'), decode_unicode('⠖')]
-        );
-    }
-
-    #[test]
-    fn test_greek() {
-        assert!(is_math_symbol_char('α'));
-        assert!(is_math_symbol_char('π'));
-        assert!(is_math_symbol_char('ω'));
-    }
-
-    #[test]
-    fn test_set_logic() {
-        assert!(is_math_symbol_char('∈'));
-        assert!(is_math_symbol_char('∅'));
-        assert!(is_math_symbol_char('∪'));
-        assert!(is_math_symbol_char('∩'));
-    }
-
-    #[test]
-    fn test_calculus() {
-        assert!(is_math_symbol_char('∫'));
-        assert!(is_math_symbol_char('∞'));
-        assert!(is_math_symbol_char('√'));
     }
 }

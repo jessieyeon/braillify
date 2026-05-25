@@ -225,28 +225,20 @@ mod tests {
         assert_eq!(r.priority(), 1);
     }
 
-    #[test]
-    fn has_digital_signature_paths() {
-        // URL/path with //
-        assert!(has_digital_signature("http://example.com"));
-        // Email with @
-        assert!(has_digital_signature("foo@bar.com"));
-        // Hashtag
-        assert!(has_digital_signature("a#hash"));
-        // Underscore with dot
-        assert!(has_digital_signature("a_b.c"));
-        // Underscore with slash
-        assert!(has_digital_signature("a_b/c"));
-        // Underscore with colon
-        assert!(has_digital_signature("a_b:c"));
-        // Plain alpha — no
-        assert!(!has_digital_signature("hello"));
-        // Just underscore — no
-        assert!(!has_digital_signature("a_b"));
-        // Non-alphanumeric start — no
-        assert!(!has_digital_signature("/foo"));
-        // Empty — no
-        assert!(!has_digital_signature(""));
+    /// `has_digital_signature` — URL/Email/Hashtag/Underscore 조합 인식.
+    #[rstest::rstest]
+    #[case::url_double_slash("http://example.com", true)]
+    #[case::email_at("foo@bar.com", true)]
+    #[case::hashtag("a#hash", true)]
+    #[case::underscore_dot("a_b.c", true)]
+    #[case::underscore_slash("a_b/c", true)]
+    #[case::underscore_colon("a_b:c", true)]
+    #[case::plain_alpha_only("hello", false)]
+    #[case::pure_underscore("a_b", false)]
+    #[case::non_alphanumeric_start("/foo", false)]
+    #[case::empty_string("", false)]
+    fn has_digital_signature_paths(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(has_digital_signature(input), expected);
     }
 
     #[test]
@@ -333,19 +325,23 @@ mod tests {
         assert!(!result.is_empty());
     }
 
-    #[test]
-    fn encode_digital_english_segment_all_abbreviations() {
-        // Exercise every digraph branch in encode_digital_english_segment
-        let cases = [
-            "aliment", "playing", "constant", "easy", "energy", "argon", "verb", "outdoor", "owls",
-            "thumb",
-        ];
-        for case in cases {
-            let chars: Vec<char> = case.chars().collect();
-            let mut buf = Vec::new();
-            encode_digital_english_segment(&chars, &mut buf).unwrap();
-            assert!(!buf.is_empty(), "{case} should encode");
-        }
+    /// 영문 약자 (digraph) 분기 — 각 입력이 빈 결과가 아닌 점역을 산출.
+    #[rstest::rstest]
+    #[case("aliment")]
+    #[case("playing")]
+    #[case("constant")]
+    #[case("easy")]
+    #[case("energy")]
+    #[case("argon")]
+    #[case("verb")]
+    #[case("outdoor")]
+    #[case("owls")]
+    #[case("thumb")]
+    fn encode_digital_english_segment_all_abbreviations(#[case] case: &str) {
+        let chars: Vec<char> = case.chars().collect();
+        let mut buf = Vec::new();
+        encode_digital_english_segment(&chars, &mut buf).unwrap();
+        assert!(!buf.is_empty(), "{case} should encode");
     }
 
     #[test]

@@ -92,34 +92,16 @@ impl BrailleRule for Rule53 {
 mod tests {
     use super::*;
 
-    #[test]
-    fn normalizes_six_periods() {
-        assert_eq!(normalize("hello......world"), "hello...world");
-    }
-
-    #[test]
-    fn normalizes_double_middle_dot() {
-        assert_eq!(normalize("hello……world"), "hello…world");
-    }
-
-    #[test]
-    fn no_change_for_three_periods() {
-        assert_eq!(normalize("hello...world"), "hello...world");
-    }
-
-    #[test]
-    fn no_change_for_single_middle_dot() {
-        assert_eq!(normalize("hello…world"), "hello…world");
-    }
-
-    #[test]
-    fn no_change_for_normal_text() {
-        assert_eq!(normalize("안녕하세요"), "안녕하세요");
-    }
-
-    #[test]
-    fn empty_string() {
-        assert_eq!(normalize(""), "");
+    /// 제53항 — 6개 마침표를 3개로, 더블 가운뎃점을 단일로 정규화. 그 외 입력은 변화 없음.
+    #[rstest::rstest]
+    #[case::six_periods_to_three("hello......world", "hello...world")]
+    #[case::double_middle_dot_to_single("hello……world", "hello…world")]
+    #[case::three_periods_unchanged("hello...world", "hello...world")]
+    #[case::single_middle_dot_unchanged("hello…world", "hello…world")]
+    #[case::normal_korean_unchanged("안녕하세요", "안녕하세요")]
+    #[case::empty_string("", "")]
+    fn normalize_paths(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(normalize(input), expected);
     }
 
     fn make_ctx<'a>(

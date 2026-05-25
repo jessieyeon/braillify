@@ -132,52 +132,41 @@ mod tests {
         matches!(c, '.' | ',' | '(' | ')' | '[' | ']')
     }
 
-    #[test]
-    fn standalone_single_char() {
-        assert_eq!(determine_prefix(1, 0, &['ㄱ'], false, not_symbol), ONTAB);
-    }
-
-    #[test]
-    fn jamo_numbering_format() {
-        let chars = ['ㄱ', '.'];
-        assert!(is_jamo_numbering(0, &chars));
-        assert_eq!(determine_prefix(2, 0, &chars, false, not_symbol), ONTAB);
-    }
-
-    #[test]
-    fn non_numbering_two_char() {
-        let chars = ['ㄱ', 'ㄴ'];
-        assert!(!is_jamo_numbering(0, &chars));
-    }
-
-    #[test]
-    fn attached_to_korean_word() {
-        let chars = ['가', 'ㄱ', '나'];
+    /// `determine_prefix` — 자모 단독/이중/문맥별 접두 부호 선택.
+    #[rstest::rstest]
+    #[case::standalone_single_char(vec!['ㄱ'], 0, false, not_symbol as fn(char) -> bool, ONTAB)]
+    #[case::jamo_numbering_format(vec!['ㄱ', '.'], 0, false, not_symbol, ONTAB)]
+    #[case::attached_to_korean_word(vec!['가', 'ㄱ', '나'], 1, true, not_symbol, WORD_ATTACHED_PREFIX)]
+    #[case::bordered_by_symbols_uses_ontab(vec!['(', 'ㄱ', ')'], 1, true, is_sym, ONTAB)]
+    #[case::first_with_ja_uses_ontab(vec!['ㄱ', '자', '도'], 0, true, not_symbol, ONTAB)]
+    fn determine_prefix_paths(
+        #[case] chars: Vec<char>,
+        #[case] index: usize,
+        #[case] is_korean: bool,
+        #[case] sym: fn(char) -> bool,
+        #[case] expected: u8,
+    ) {
         assert_eq!(
-            determine_prefix(3, 1, &chars, true, not_symbol),
-            WORD_ATTACHED_PREFIX
+            determine_prefix(chars.len(), index, &chars, is_korean, sym),
+            expected
         );
     }
 
-    #[test]
-    fn bordered_by_symbols_uses_ontab() {
-        let chars = ['(', 'ㄱ', ')'];
-        assert_eq!(determine_prefix(3, 1, &chars, true, is_sym), ONTAB);
+    /// `is_jamo_numbering` — `'자모.'` 패턴 인식 (`ㄱ.` 등은 true, `ㄱㄴ`은 false).
+    #[rstest::rstest]
+    #[case::jamo_dot(vec!['ㄱ', '.'], true)]
+    #[case::two_jamo_no_dot(vec!['ㄱ', 'ㄴ'], false)]
+    fn is_jamo_numbering_paths(#[case] chars: Vec<char>, #[case] expected: bool) {
+        assert_eq!(is_jamo_numbering(0, &chars), expected);
     }
 
-    #[test]
-    fn first_with_ja_uses_ontab() {
-        let chars = ['ㄱ', '자', '도'];
-        assert_eq!(determine_prefix(3, 0, &chars, true, not_symbol), ONTAB);
-    }
-
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![("ㄱ", "⠿⠁"), ("ㅏ", "⠿⠣")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 8 golden test failed for: {}", input);
-        }
+    /// 제8항 golden test — 단독 자모는 `⠿` 접두 + 자모 점형.
+    #[rstest::rstest]
+    #[case::giyeok_alone("ㄱ", "⠿⠁")]
+    #[case::ah_alone("ㅏ", "⠿⠣")]
+    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
+        let result = crate::encode_to_unicode(input).unwrap();
+        assert_eq!(result, expected, "Rule 8 golden test failed for: {input}");
     }
 
     use rstest::rstest;

@@ -137,41 +137,41 @@ mod tests {
     /// Exercise every Unicode superscript character recognized by
     /// `normalize_superscript`. Each codepoint must parse without error
     /// and produce at least one token.
-    #[test]
-    fn unicode_superscripts_parsed() {
-        let superscripts: &[char] = &[
+    #[rstest::rstest]
+    fn unicode_superscripts_parsed(
+        #[values(
             '\u{2070}', '\u{00B9}', '\u{00B2}', '\u{00B3}', '\u{2074}', '\u{2075}', '\u{2076}',
             '\u{2077}', '\u{2078}', '\u{2079}', '\u{207A}', '\u{207B}', '\u{207D}', '\u{207E}',
             '\u{207F}', '\u{1D43}', '\u{1D47}', '\u{1D9C}', '\u{1D48}', '\u{1D49}', '\u{1DA0}',
             '\u{1D4D}', '\u{02B0}', '\u{2071}', '\u{02B2}', '\u{1D4F}', '\u{02E1}', '\u{1D50}',
             '\u{1D52}', '\u{1D56}', '\u{02B3}', '\u{02E2}', '\u{1D57}', '\u{1D58}', '\u{1D5B}',
-            '\u{02B7}', '\u{02E3}', '\u{02B8}', '\u{1DBB}',
-        ];
-        for &c in superscripts {
-            let input = format!("x{}", c);
-            let result = parse_math_expression(&input);
-            assert!(result.is_ok(), "parse failed for x{:?}", c);
-            assert!(!result.unwrap().is_empty());
-        }
+            '\u{02B7}', '\u{02E3}', '\u{02B8}', '\u{1DBB}'
+        )]
+        c: char,
+    ) {
+        let input = format!("x{c}");
+        let result = parse_math_expression(&input);
+        assert!(result.is_ok(), "parse failed for x{c:?}");
+        assert!(!result.unwrap().is_empty());
     }
 
     /// Exercise every Unicode subscript character recognized by
     /// `normalize_subscript`.
-    #[test]
-    fn unicode_subscripts_parsed() {
-        let subscripts: &[char] = &[
+    #[rstest::rstest]
+    fn unicode_subscripts_parsed(
+        #[values(
             '\u{2080}', '\u{2081}', '\u{2082}', '\u{2083}', '\u{2084}', '\u{2085}', '\u{2086}',
             '\u{2087}', '\u{2088}', '\u{2089}', '\u{208A}', '\u{208B}', '\u{208D}', '\u{208E}',
             '\u{2090}', '\u{2091}', '\u{2092}', '\u{2093}', '\u{2095}', '\u{2096}', '\u{2097}',
             '\u{2098}', '\u{2099}', '\u{209A}', '\u{209B}', '\u{209C}', '\u{1D62}', '\u{1D63}',
-            '\u{1D64}', '\u{1D65}',
-        ];
-        for &c in subscripts {
-            let input = format!("x{}", c);
-            let result = parse_math_expression(&input);
-            assert!(result.is_ok(), "parse failed for x{:?}", c);
-            assert!(!result.unwrap().is_empty());
-        }
+            '\u{1D64}', '\u{1D65}'
+        )]
+        c: char,
+    ) {
+        let input = format!("x{c}");
+        let result = parse_math_expression(&input);
+        assert!(result.is_ok(), "parse failed for x{c:?}");
+        assert!(!result.unwrap().is_empty());
     }
 
     /// Underline-notation fraction normalization paths (lines around 300-330).

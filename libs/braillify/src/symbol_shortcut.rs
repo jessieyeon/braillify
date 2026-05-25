@@ -115,98 +115,53 @@ pub fn is_english_symbol_char(text: char) -> bool {
 mod test {
     use super::*;
 
-    #[test]
-    pub fn test_is_symbol_char() {
-        assert!(is_symbol_char('"'));
-        assert!(is_symbol_char('\''));
-        assert!(is_symbol_char('~'));
-        assert!(is_symbol_char('…'));
-        assert!(is_symbol_char('!'));
-        assert!(is_symbol_char('.'));
-        assert!(is_symbol_char(','));
-        assert!(is_symbol_char('?'));
-        assert!(is_symbol_char(':'));
-        assert!(is_symbol_char(';'));
-        assert!(is_symbol_char('_'));
-        assert!(is_symbol_char('*'));
-        assert!(is_symbol_char('('));
-        assert!(is_symbol_char(')'));
-        assert!(is_symbol_char('{'));
-        assert!(is_symbol_char('}'));
-        assert!(is_symbol_char('①'));
-        assert!(is_symbol_char('ⓐ'));
-        assert!(is_symbol_char('￦'));
+    /// `is_symbol_char` — PHF 사전 등록 기호는 true.
+    #[rstest::rstest]
+    #[case('"')]
+    #[case('\'')]
+    #[case('~')]
+    #[case('…')]
+    #[case('!')]
+    #[case('.')]
+    #[case(',')]
+    #[case('?')]
+    #[case(':')]
+    #[case(';')]
+    #[case('_')]
+    #[case('*')]
+    #[case('(')]
+    #[case(')')]
+    #[case('{')]
+    #[case('}')]
+    #[case('①')]
+    #[case('ⓐ')]
+    #[case('￦')]
+    pub fn test_is_symbol_char(#[case] ch: char) {
+        assert!(is_symbol_char(ch));
     }
 
-    #[test]
-    pub fn test_encode_char_symbol_shortcut() {
+    /// `encode_char_symbol_shortcut` — 기호별 점역 점형 매핑.
+    #[rstest::rstest]
+    #[case::double_quote('"', vec!['⠦'])]
+    #[case::single_quote('\'', vec!['⠠', '⠦'])]
+    #[case::tilde('~', vec!['⠈', '⠔'])]
+    #[case::horizontal_ellipsis('…', vec!['⠠', '⠠', '⠠'])]
+    #[case::midline_ellipsis('⋯', vec!['⠠', '⠠', '⠠'])]
+    #[case::exclamation('!', vec!['⠖'])]
+    #[case::period('.', vec!['⠲'])]
+    #[case::comma(',', vec!['⠐'])]
+    #[case::question('?', vec!['⠦'])]
+    #[case::colon(':', vec!['⠐', '⠂'])]
+    #[case::semicolon(';', vec!['⠰', '⠆'])]
+    #[case::underscore('_', vec!['⠤'])]
+    #[case::asterisk('*', vec!['⠐', '⠔'])]
+    #[case::open_paren('(', vec!['⠦', '⠄'])]
+    #[case::close_paren(')', vec!['⠠', '⠴'])]
+    pub fn test_encode_char_symbol_shortcut(#[case] ch: char, #[case] expected_unicode: Vec<char>) {
+        let expected: Vec<u8> = expected_unicode.into_iter().map(decode_unicode).collect();
         assert_eq!(
-            encode_char_symbol_shortcut('"').unwrap(),
-            &[decode_unicode('⠦')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('\'').unwrap(),
-            &[decode_unicode('⠠'), decode_unicode('⠦')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('~').unwrap(),
-            &[decode_unicode('⠈'), decode_unicode('⠔')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('…').unwrap(),
-            &[
-                decode_unicode('⠠'),
-                decode_unicode('⠠'),
-                decode_unicode('⠠')
-            ]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('⋯').unwrap(),
-            &[
-                decode_unicode('⠠'),
-                decode_unicode('⠠'),
-                decode_unicode('⠠')
-            ]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('!').unwrap(),
-            &[decode_unicode('⠖')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('.').unwrap(),
-            &[decode_unicode('⠲')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut(',').unwrap(),
-            &[decode_unicode('⠐')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('?').unwrap(),
-            &[decode_unicode('⠦')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut(':').unwrap(),
-            &[decode_unicode('⠐'), decode_unicode('⠂')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut(';').unwrap(),
-            &[decode_unicode('⠰'), decode_unicode('⠆')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('_').unwrap(),
-            &[decode_unicode('⠤')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('*').unwrap(),
-            &[decode_unicode('⠐'), decode_unicode('⠔')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut('(').unwrap(),
-            &[decode_unicode('⠦'), decode_unicode('⠄')]
-        );
-        assert_eq!(
-            encode_char_symbol_shortcut(')').unwrap(),
-            &[decode_unicode('⠠'), decode_unicode('⠴')]
+            encode_char_symbol_shortcut(ch).unwrap(),
+            expected.as_slice()
         );
     }
 

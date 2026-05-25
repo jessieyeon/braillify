@@ -166,21 +166,18 @@ mod tests {
         assert_eq!(r.priority(), 50);
     }
 
-    #[test]
-    fn match_year_suffix_paths() {
-        // Valid forms
-        assert!(match_year_suffix("1998a,").is_some());
-        assert!(match_year_suffix("2024z;").is_some());
-        assert!(match_year_suffix("1900b.").is_some());
-        // Wrong length
-        assert!(match_year_suffix("1998a").is_none());
-        assert!(match_year_suffix("1998abc,").is_none());
-        // Non-digit prefix
-        assert!(match_year_suffix("199xa,").is_none());
-        // Uppercase letter
-        assert!(match_year_suffix("1998A,").is_none());
-        // Wrong punctuation
-        assert!(match_year_suffix("1998a!").is_none());
+    /// 제33항 인용 — 연도+소문자+구두점 형식 매칭.
+    #[rstest::rstest]
+    #[case::valid_with_comma("1998a,", true)]
+    #[case::valid_with_semicolon("2024z;", true)]
+    #[case::valid_with_period("1900b.", true)]
+    #[case::missing_punctuation("1998a", false)]
+    #[case::too_many_letters("1998abc,", false)]
+    #[case::non_digit_in_year("199xa,", false)]
+    #[case::uppercase_letter("1998A,", false)]
+    #[case::wrong_punctuation("1998a!", false)]
+    fn match_year_suffix_paths(#[case] input: &str, #[case] is_match: bool) {
+        assert_eq!(match_year_suffix(input).is_some(), is_match);
     }
 
     #[test]

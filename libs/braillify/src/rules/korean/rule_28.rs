@@ -223,42 +223,36 @@ mod tests {
     use super::*;
     use crate::unicode::decode_unicode;
 
-    #[test]
-    fn encodes_lowercase_letters() {
-        assert_eq!(apply('a').unwrap(), decode_unicode('⠁'));
-        assert_eq!(apply('z').unwrap(), decode_unicode('⠵'));
+    /// 제28항 — 영문자 점역. 소문자/대문자 모두 동일 점형으로 인코딩.
+    #[rstest::rstest]
+    #[case::lower_a('a', '⠁')]
+    #[case::lower_z('z', '⠵')]
+    #[case::upper_a_as_lowercase('A', '⠁')]
+    fn encodes_english_letters(#[case] ch: char, #[case] expected: char) {
+        assert_eq!(apply(ch).unwrap(), decode_unicode(expected));
     }
 
-    #[test]
-    fn encodes_uppercase_as_lowercase() {
-        // encode_english lowercases internally
-        assert_eq!(apply('A').unwrap(), decode_unicode('⠁'));
+    /// 영문자가 아닌 입력은 Err.
+    #[rstest::rstest]
+    #[case::digit('1')]
+    #[case::syllable('가')]
+    fn invalid_returns_error(#[case] ch: char) {
+        assert!(apply(ch).is_err());
     }
 
-    #[test]
-    fn invalid_returns_error() {
-        assert!(apply('1').is_err());
-        assert!(apply('가').is_err());
-    }
-
-    #[test]
-    fn uppercase_indicator_single() {
-        assert_eq!(uppercase_indicators(true, false, 0), &[32]);
-    }
-
-    #[test]
-    fn uppercase_indicator_word() {
-        assert_eq!(uppercase_indicators(false, true, 0), &[32, 32]);
-    }
-
-    #[test]
-    fn uppercase_indicator_passage() {
-        assert_eq!(uppercase_indicators(false, true, 3), &[32, 32, 32]);
-    }
-
-    #[test]
-    fn no_indicator_for_lowercase() {
-        assert_eq!(uppercase_indicators(false, false, 0), &[] as &[u8]);
+    /// `uppercase_indicators` — single/word/passage 대문자 지시자 점형.
+    #[rstest::rstest]
+    #[case::single_letter(true, false, 0, &[32u8] as &[u8])]
+    #[case::word_two_letters(false, true, 0, &[32, 32])]
+    #[case::passage_run(false, true, 3, &[32, 32, 32])]
+    #[case::no_indicator_lower(false, false, 0, &[] as &[u8])]
+    fn uppercase_indicator_paths(
+        #[case] single: bool,
+        #[case] is_word: bool,
+        #[case] run: u8,
+        #[case] expected: &[u8],
+    ) {
+        assert_eq!(uppercase_indicators(single, is_word, run), expected);
     }
 
     #[test]

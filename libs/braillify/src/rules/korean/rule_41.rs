@@ -100,36 +100,29 @@ fn get_next_char(ctx: &RuleContext) -> Option<char> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn scan_prefix_finds_digit() {
-        let chars: Vec<char> = "1,000".chars().collect();
-        let (num, ascii) = scan_prefix(&chars, 1);
-        assert!(num);
-        assert!(!ascii);
+    /// `scan_prefix` — 직전 prefix 가 digit 흐름인지 ASCII 흐름인지 식별.
+    #[rstest::rstest]
+    #[case::digit_prefix("1,000", 1, true, false)]
+    #[case::ascii_prefix("A,B", 1, false, true)]
+    fn scan_prefix_paths(
+        #[case] input: &str,
+        #[case] idx: usize,
+        #[case] expect_num: bool,
+        #[case] expect_ascii: bool,
+    ) {
+        let chars: Vec<char> = input.chars().collect();
+        let (num, ascii) = scan_prefix(&chars, idx);
+        assert_eq!(num, expect_num);
+        assert_eq!(ascii, expect_ascii);
     }
 
-    #[test]
-    fn scan_prefix_finds_ascii() {
-        let chars: Vec<char> = "A,B".chars().collect();
-        let (num, ascii) = scan_prefix(&chars, 1);
-        assert!(!num);
-        assert!(ascii);
-    }
-
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![
-            ("1,000", "⠼⠁⠂⠚⠚⠚"), // comma between digits → ⠂
-            ("0.48", "⠼⠚⠲⠙⠓"),   // period between digits (NOT this rule)
-        ];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected,
-                "Rule 41 golden test failed for: {}",
-                input
-            );
-        }
+    /// Rule 41 golden test — testcase JSON 정답과 byte-identical.
+    #[rstest::rstest]
+    #[case::thousand_with_comma("1,000", "⠼⠁⠂⠚⠚⠚")]
+    #[case::decimal_with_period("0.48", "⠼⠚⠲⠙⠓")]
+    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
+        let result = crate::encode_to_unicode(input).unwrap();
+        assert_eq!(result, expected, "Rule 41 golden test failed for: {input}");
     }
 
     #[test]

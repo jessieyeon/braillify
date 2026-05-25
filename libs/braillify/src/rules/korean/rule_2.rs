@@ -81,13 +81,33 @@ impl BrailleRule for Rule2 {
 mod tests {
     use super::*;
 
-    #[test]
-    fn identifies_all_double_consonants() {
-        assert!(is_double_choseong('ㄲ'));
-        assert!(is_double_choseong('ㄸ'));
-        assert!(is_double_choseong('ㅃ'));
-        assert!(is_double_choseong('ㅆ'));
-        assert!(is_double_choseong('ㅉ'));
+    /// `is_double_choseong` — 된소리(ㄲㄸㅃㅆㅉ)는 true, 평음/격음은 false.
+    #[rstest::rstest]
+    #[case::ssang_giyeok('ㄲ', true)]
+    #[case::ssang_digeut('ㄸ', true)]
+    #[case::ssang_bieup('ㅃ', true)]
+    #[case::ssang_siot('ㅆ', true)]
+    #[case::ssang_jieut('ㅉ', true)]
+    #[case::single_giyeok('ㄱ', false)]
+    #[case::single_digeut('ㄷ', false)]
+    #[case::single_bieup('ㅂ', false)]
+    #[case::single_siot('ㅅ', false)]
+    #[case::single_jieut('ㅈ', false)]
+    fn identifies_all_double_consonants(#[case] cho: char, #[case] expected: bool) {
+        assert_eq!(is_double_choseong(cho), expected);
+    }
+
+    /// `decompose` — 된소리는 (된소리표 32, 평음) 으로 분해, 단일자는 None.
+    #[rstest::rstest]
+    #[case::ssang_giyeok('ㄲ', Some((32, 'ㄱ')))]
+    #[case::ssang_digeut('ㄸ', Some((32, 'ㄷ')))]
+    #[case::ssang_bieup('ㅃ', Some((32, 'ㅂ')))]
+    #[case::ssang_siot('ㅆ', Some((32, 'ㅅ')))]
+    #[case::ssang_jieut('ㅉ', Some((32, 'ㅈ')))]
+    #[case::single_giyeok_none('ㄱ', None)]
+    #[case::single_hieut_none('ㅎ', None)]
+    fn decompose_double_consonant(#[case] cho: char, #[case] expected: Option<(u8, char)>) {
+        assert_eq!(decompose(cho), expected);
     }
 
     #[test]
