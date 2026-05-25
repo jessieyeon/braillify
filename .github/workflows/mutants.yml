@@ -15,7 +15,7 @@ on:
       - main
     paths:
       - '.github/workflows/mutants.yml'
-      - 'mutants.toml'
+      - '.cargo/mutants.toml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'libs/braillify/src/rules/math/encoder.rs'

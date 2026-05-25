@@ -241,7 +241,7 @@ jobs:
       - dotnet-test
     steps:
       - uses: actions/checkout@v6
-      - uses: changepacks/action@v0.1.0
+      - uses: changepacks/action@main
         id: changepacks
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
