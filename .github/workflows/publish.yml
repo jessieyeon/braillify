@@ -60,6 +60,7 @@ jobs:
       - name: Lint
         run: bun run lint
       - name: reformat
+        shell: bash
         run: |
           echo 'max_width = 100000' > .rustfmt.toml
           echo 'tab_spaces = 4' >> .rustfmt.toml
@@ -73,6 +74,7 @@ jobs:
       - name: Test
         run: bun run test
       - name: Format Rollback
+        shell: bash
         run: |
           rm -rf .rustfmt.toml
           cargo fmt
