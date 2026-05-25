@@ -39,13 +39,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # parser/parse.rs has ~414 mutants and the cumulative memory pressure
+        # caused the GitHub-hosted runner to be shutdown mid-run. Splitting the
+        # parser shard in half halves the per-job working set, which keeps each
+        # job under the runner's memory budget. encoder/apply are smaller so a
+        # single shard suffices.
         shard:
           - label: encoder
             file: libs/braillify/src/rules/math/encoder.rs
-          - label: parser
+            extra_args: ""
+          - label: parser-0
             file: libs/braillify/src/rules/math/parser/parse.rs
+            extra_args: "--shard 0/2"
+          - label: parser-1
+            file: libs/braillify/src/rules/math/parser/parse.rs
+            extra_args: "--shard 1/2"
           - label: apply
             file: libs/braillify/src/rules/token_rules/math_expression/apply.rs
+            extra_args: ""
 
     steps:
       - uses: actions/checkout@v6
@@ -76,6 +87,7 @@ jobs:
             -p braillify \
             --file "${{ matrix.shard.file }}" \
             --no-shuffle \
+            ${{ matrix.shard.extra_args }} \
             --output "target/mutants-${{ matrix.shard.label }}" \
             --colors never
 
