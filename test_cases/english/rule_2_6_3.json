@@ -1,0 +1,190 @@
+[
+  {
+    "input": "very, very still; rather good.",
+    "internal": "v1 v /2 r gd4",
+    "expected": "39203901260230272550",
+    "unicode": "⠧⠂⠀⠧⠀⠌⠆⠀⠗⠀⠛⠙⠲"
+  },
+  {
+    "input": "d:",
+    "internal": ";d3",
+    "expected": "482518",
+    "unicode": "⠰⠙⠒"
+  },
+  {
+    "input": "this...",
+    "internal": "?444",
+    "expected": "57505050",
+    "unicode": "⠹⠲⠲⠲"
+  },
+  {
+    "input": "rejoice!",
+    "internal": "rjc6",
+    "expected": "2326922",
+    "unicode": "⠗⠚⠉⠖"
+  },
+  {
+    "input": "(q, r)",
+    "internal": "\"<;q1 ;r\">",
+    "expected": "163548312048231628",
+    "unicode": "⠐⠣⠰⠟⠂⠀⠰⠗⠐⠜"
+  },
+  {
+    "input": "[quite, rather]",
+    "internal": ".<q1 r.>",
+    "expected": "40353120234028",
+    "unicode": "⠨⠣⠟⠂⠀⠗⠨⠜"
+  },
+  {
+    "input": "{k-p}",
+    "internal": "_<;k-;p_>",
+    "expected": "56354853648155628",
+    "unicode": "⠸⠣⠰⠅⠤⠰⠏⠸⠜"
+  },
+  {
+    "input": "\"Which go-between?\"",
+    "internal": "8,: g-2t80",
+    "expected": "383249027366303852",
+    "unicode": "⠦⠠⠱⠀⠛⠤⠆⠞⠦⠴"
+  },
+  {
+    "input": "children.”",
+    "internal": "*n40",
+    "expected": "33295052",
+    "unicode": "⠡⠝⠲⠴"
+  },
+  {
+    "input": "t' have–",
+    "internal": ";t' h,-",
+    "expected": "483040193236",
+    "unicode": "⠰⠞⠄⠀⠓⠠⠤"
+  },
+  {
+    "input": "friends' numbers",
+    "internal": "frs' numb]s",
+    "expected": "1123144029371335914",
+    "unicode": "⠋⠗⠎⠄⠀⠝⠥⠍⠃⠻⠎"
+  },
+  {
+    "input": "ALWAYS BE YOURSELF",
+    "internal": ",,,alw 2 yrf,'",
+    "expected": "3232321758060612311324",
+    "unicode": "⠠⠠⠠⠁⠇⠺⠀⠆⠀⠽⠗⠋⠠⠄"
+  },
+  {
+    "input": "The sun kept setting, setting still; No hue of afternoon Upon the village I perceived From house to house 'twas noon",
+    "internal": ",! sun kept sett+1 sett+ /2_ ,no hue ( afn_ ,^u ! village ,i p]cvd_ ,f h\\se to h\\se 'twas noon",
+    "expected": "32460143729051715300141730304420141730304401265603229210193717055011129560322437046039107712717032100155993925560321101951141703021019511417043058114029212129",
+    "unicode": "⠠⠮⠀⠎⠥⠝⠀⠅⠑⠏⠞⠀⠎⠑⠞⠞⠬⠂⠀⠎⠑⠞⠞⠬⠀⠌⠆⠸⠀⠠⠝⠕⠀⠓⠥⠑⠀⠷⠀⠁⠋⠝⠸⠀⠠⠘⠥⠀⠮⠀⠧⠊⠇⠇⠁⠛⠑⠀⠠⠊⠀⠏⠻⠉⠧⠙⠸⠀⠠⠋⠀⠓⠳⠎⠑⠀⠞⠕⠀⠓⠳⠎⠑⠀⠄⠞⠺⠁⠎⠀⠝⠕⠕⠝"
+  },
+  {
+    "input": "X' Y\"",
+    "internal": ";,x' ;,y,7",
+    "expected": "483245404832613254",
+    "unicode": "⠰⠠⠭⠄⠀⠰⠠⠽⠠⠶"
+  },
+  {
+    "input": "t'night",
+    "internal": "t'ni<t",
+    "expected": "30429103530",
+    "unicode": "⠞⠄⠝⠊⠣⠞"
+  },
+  {
+    "input": "word(s)",
+    "internal": "^w\"<s\">",
+    "expected": "24581635141628",
+    "unicode": "⠘⠺⠐⠣⠎⠐⠜"
+  },
+  {
+    "input": "ab/cd",
+    "internal": "ab_/cd",
+    "expected": "135612925",
+    "unicode": "⠁⠃⠸⠌⠉⠙"
+  },
+  {
+    "input": "could/should",
+    "internal": "c\\ld_/%\\ld",
+    "expected": "95172556124151725",
+    "unicode": "⠉⠳⠇⠙⠸⠌⠩⠳⠇⠙"
+  },
+  {
+    "input": "section B²",
+    "note": "위첨자 2",
+    "internal": "sec;n ,b;9#b",
+    "expected": "14179482903234820603",
+    "unicode": "⠎⠑⠉⠰⠝⠀⠠⠃⠰⠔⠼⠃"
+  },
+  {
+    "input": "knowledge.³",
+    "note": "위첨자 3",
+    "internal": "\"kl$ge4;9#c",
+    "expected": "1657432717504820609",
+    "unicode": "⠐⠅⠇⠫⠛⠑⠲⠰⠔⠼⠉"
+  },
+  {
+    "input": "this.)*",
+    "internal": "?is4\">\"9",
+    "expected": "5710145016281620",
+    "unicode": "⠹⠊⠎⠲⠐⠜⠐⠔"
+  },
+  {
+    "input": "<J.Child@children.net>",
+    "internal": "@<,j4,*ild@a*ildr54net@>",
+    "expected": "835322650323310725813310725233450291730828",
+    "unicode": "⠈⠣⠠⠚⠲⠠⠡⠊⠇⠙⠈⠁⠡⠊⠇⠙⠗⠢⠲⠝⠑⠞⠈⠜"
+  },
+  {
+    "input": "just_for_good.org",
+    "internal": "ju/.-=.-good4org",
+    "expected": "26371240366340362721212550212327",
+    "unicode": "⠚⠥⠌⠨⠤⠿⠨⠤⠛⠕⠕⠙⠲⠕⠗⠛"
+  },
+  {
+    "input": "l_ _f",
+    "internal": "l.-.-f",
+    "expected": "74036403611",
+    "unicode": "⠇⠨⠤⠨⠤⠋"
+  },
+  {
+    "input": "ch...f",
+    "internal": "*444f",
+    "expected": "3350505011",
+    "unicode": "⠡⠲⠲⠲⠋"
+  },
+  {
+    "input": "a:b :: x:y",
+    "internal": "a;3b 33 x;3y",
+    "expected": "14818301818045481861",
+    "unicode": "⠁⠰⠒⠃⠀⠒⠒⠀⠭⠰⠒⠽"
+  },
+  {
+    "input": "X%",
+    "internal": ",x.0",
+    "expected": "32454052",
+    "unicode": "⠠⠭⠨⠴"
+  },
+  {
+    "input": "Braillex®",
+    "internal": ",braillex^r",
+    "expected": "323231107717452423",
+    "unicode": "⠠⠃⠗⠁⠊⠇⠇⠑⠭⠘⠗"
+  },
+  {
+    "input": "Braille4All",
+    "internal": ",braille#d,all",
+    "expected": "323231107717602532177",
+    "unicode": "⠠⠃⠗⠁⠊⠇⠇⠑⠼⠙⠠⠁⠇⠇"
+  },
+  {
+    "input": "X′ Y″",
+    "internal": ",x7 ,y77",
+    "expected": "324554032615454",
+    "unicode": "⠠⠭⠶⠀⠠⠽⠶⠶"
+  },
+  {
+    "input": "Himself or herself?―Neither",
+    "internal": ".7,hmf or h]f8,-,nei6.'",
+    "expected": "4054321913110212301959113832363229171022404",
+    "unicode": "⠨⠶⠠⠓⠍⠋⠀⠕⠗⠀⠓⠻⠋⠦⠠⠤⠠⠝⠑⠊⠖⠨⠄"
+  }
+]
