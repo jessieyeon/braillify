@@ -1,0 +1,8 @@
+[
+  {
+    "input": "$\\left.\\begin{array}{l}\\text{I We} \\\\ \\text{You} \\\\ \\text{They}\\end{array}\\right\\}\\text{run fast.}$",
+    "internal": ",i ,we,_> run fa/4 ,y ,_> ,!y ,_>",
+    "expected": "3210032581732562802337290111125003261032562803246610325628",
+    "unicode": "⠠⠊⠀⠠⠺⠑⠠⠸⠜⠀⠗⠥⠝⠀⠋⠁⠌⠲\n⠠⠽⠀⠠⠸⠜\n⠠⠮⠽⠀⠠⠸⠜"
+  }
+]

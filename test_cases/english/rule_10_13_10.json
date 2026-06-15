@@ -1,0 +1,26 @@
+[
+  {
+    "input": "eggnog",
+    "internal": "egg-  nog",
+    "expected": "1727273600292127",
+    "unicode": "⠑⠛⠛⠤⠀⠀⠝⠕⠛"
+  },
+  {
+    "input": "motheaten",
+    "internal": "mo?-  eat5",
+    "expected": "13215736001713034",
+    "unicode": "⠍⠕⠹⠤⠀⠀⠑⠁⠞⠢"
+  },
+  {
+    "input": "peanut",
+    "internal": "pea-  nut",
+    "expected": "151713600293730",
+    "unicode": "⠏⠑⠁⠤⠀⠀⠝⠥⠞"
+  },
+  {
+    "input": "stiffly",
+    "internal": "/iff-  ly",
+    "expected": "121011113600761",
+    "unicode": "⠌⠊⠋⠋⠤⠀⠀⠇⠽"
+  }
+]

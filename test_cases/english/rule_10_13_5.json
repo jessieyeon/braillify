@@ -1,0 +1,38 @@
+[
+  {
+    "input": "\"Comin'?\"",
+    "internal": "8,com-  in'80",
+    "expected": "3832921133600102943852",
+    "unicode": "⠦⠠⠉⠕⠍⠤⠀⠀⠊⠝⠄⠦⠴"
+  },
+  {
+    "input": "(Disentangle",
+    "internal": "\"<,45-  tan gle",
+    "expected": "1635325034360030129027717",
+    "unicode": "⠐⠣⠠⠲⠢⠤⠀⠀⠞⠁⠝⠀⠛⠇⠑"
+  },
+  {
+    "input": "disinherit",
+    "internal": "4in-  h]it",
+    "expected": "501029360019591030",
+    "unicode": "⠲⠊⠝⠤⠀⠀⠓⠻⠊⠞"
+  },
+  {
+    "input": "enjoy",
+    "internal": "en-  joy",
+    "expected": "17293600262161",
+    "unicode": "⠑⠝⠤⠀⠀⠚⠕⠽"
+  },
+  {
+    "input": "linen...",
+    "internal": "l9-  en444",
+    "expected": "72036001729505050",
+    "unicode": "⠇⠔⠤⠀⠀⠑⠝⠲⠲⠲"
+  },
+  {
+    "input": "shortenin'",
+    "internal": "%ort-  5in'",
+    "expected": "4121233036003410294",
+    "unicode": "⠩⠕⠗⠞⠤⠀⠀⠢⠊⠝⠄"
+  }
+]

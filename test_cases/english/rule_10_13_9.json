@@ -1,0 +1,56 @@
+[
+  {
+    "input": "bacon",
+    "internal": "ba-  con",
+    "expected": "31360092129",
+    "unicode": "⠃⠁⠤⠀⠀⠉⠕⠝"
+  },
+  {
+    "input": "\"Disgusting!\"",
+    "internal": "8,dis-  gu/+60",
+    "expected": "38322510143600273712442252",
+    "unicode": "⠦⠠⠙⠊⠎⠤⠀⠀⠛⠥⠌⠬⠖⠴"
+  },
+  {
+    "input": "disobedient",
+    "internal": "4o-  b$i5t",
+    "expected": "50213600343103430",
+    "unicode": "⠲⠕⠤⠀⠀⠃⠫⠊⠢⠞"
+  },
+  {
+    "input": "howbeit",
+    "internal": "h[-  beit",
+    "expected": "194236003171030",
+    "unicode": "⠓⠪⠤⠀⠀⠃⠑⠊⠞"
+  },
+  {
+    "input": "inconvenient",
+    "internal": "in-  conv5i5t",
+    "expected": "10293600921293934103430",
+    "unicode": "⠊⠝⠤⠀⠀⠉⠕⠝⠧⠢⠊⠢⠞"
+  },
+  {
+    "input": "indistinct",
+    "internal": "9dis-  t9ct",
+    "expected": "2025101436003020930",
+    "unicode": "⠔⠙⠊⠎⠤⠀⠀⠞⠔⠉⠞"
+  },
+  {
+    "input": "(redistribute",
+    "internal": "\"<re-  di/ribute",
+    "expected": "16352317360025101223103373017",
+    "unicode": "⠐⠣⠗⠑⠤⠀⠀⠙⠊⠌⠗⠊⠃⠥⠞⠑"
+  },
+  {
+    "input": "unbecoming",
+    "internal": "un-  becom+",
+    "expected": "372936003179211344",
+    "unicode": "⠥⠝⠤⠀⠀⠃⠑⠉⠕⠍⠬"
+  },
+  {
+    "input": "unconcerned",
+    "internal": "uncon-  c]n$",
+    "expected": "37299212936009592943",
+    "unicode": "⠥⠝⠉⠕⠝⠤⠀⠀⠉⠻⠝⠫"
+  }
+]

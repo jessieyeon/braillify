@@ -1,0 +1,26 @@
+[
+  {
+    "input": "meningitis",
+    "internal": "m5-  9gitis",
+    "expected": "13343600202710301014",
+    "unicode": "⠍⠢⠤⠀⠀⠔⠛⠊⠞⠊⠎"
+  },
+  {
+    "input": "nightingale",
+    "internal": "ni<t-  9gale",
+    "expected": "29103530360020271717",
+    "unicode": "⠝⠊⠣⠞⠤⠀⠀⠔⠛⠁⠇⠑"
+  },
+  {
+    "input": "showering.)",
+    "internal": "%[]-  9g4\">",
+    "expected": "41425936002027501628",
+    "unicode": "⠩⠪⠻⠤⠀⠀⠔⠛⠲⠐⠜"
+  },
+  {
+    "input": "SmithInge",
+    "internal": ",smi?-  ,9ge",
+    "expected": "3214131057360032202717",
+    "unicode": "⠠⠎⠍⠊⠹⠤⠀⠀⠠⠔⠛⠑"
+  }
+]

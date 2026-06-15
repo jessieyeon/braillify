@@ -1,0 +1,44 @@
+[
+  {
+    "input": "anteroom",
+    "internal": "ante-  room",
+    "expected": "1293017360023212113",
+    "unicode": "⠁⠝⠞⠑⠤⠀⠀⠗⠕⠕⠍"
+  },
+  {
+    "input": "bandanna",
+    "internal": "ban-  danna",
+    "expected": "3129360025129291",
+    "unicode": "⠃⠁⠝⠤⠀⠀⠙⠁⠝⠝⠁"
+  },
+  {
+    "input": "Catherine",
+    "internal": ",ca?-  ]9e",
+    "expected": "3291573600592017",
+    "unicode": "⠠⠉⠁⠹⠤⠀⠀⠻⠔⠑"
+  },
+  {
+    "input": "\"Freedom!\"",
+    "internal": "8,free-  dom60",
+    "expected": "38321123171736002521132252",
+    "unicode": "⠦⠠⠋⠗⠑⠑⠤⠀⠀⠙⠕⠍⠖⠴"
+  },
+  {
+    "input": "history",
+    "internal": "his-  tory",
+    "expected": "191014360030212361",
+    "unicode": "⠓⠊⠎⠤⠀⠀⠞⠕⠗⠽"
+  },
+  {
+    "input": "nightingale",
+    "internal": "ni<t9-  gale",
+    "expected": "29103530203600271717",
+    "unicode": "⠝⠊⠣⠞⠔⠤⠀⠀⠛⠁⠇⠑"
+  },
+  {
+    "input": "profound.)",
+    "internal": "pro-  f.d4\">",
+    "expected": "1523213600114025501628",
+    "unicode": "⠏⠗⠕⠤⠀⠀⠋⠨⠙⠲⠐⠜"
+  }
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "input": "about-face",
+    "internal": "ab-  face",
+    "expected": "133600111917",
+    "unicode": "⠁⠃⠤⠀⠀⠋⠁⠉⠑"
+  },
+  {
+    "input": "air-conditioned",
+    "internal": "air-  3di;n$",
+    "expected": "110233600182510482943",
+    "unicode": "⠁⠊⠗⠤⠀⠀⠒⠙⠊⠰⠝⠫"
+  },
+  {
+    "input": "Aix-en-Provence",
+    "internal": ",aix-en-  ,prov;e",
+    "expected": "3211045361729360032152321394817",
+    "unicode": "⠠⠁⠊⠭⠤⠑⠝⠤⠀⠀⠠⠏⠗⠕⠧⠰⠑"
+  },
+  {
+    "input": "Al-Azar",
+    "internal": ";,al-  ,az>",
+    "expected": "48321736003215328",
+    "unicode": "⠰⠠⠁⠇⠤⠀⠀⠠⠁⠵⠜"
+  },
+  {
+    "input": "channel-less",
+    "internal": "*annel-  less",
+    "expected": "331292917736007171414",
+    "unicode": "⠡⠁⠝⠝⠑⠇⠤⠀⠀⠇⠑⠎⠎"
+  },
+  {
+    "input": "CHILD-LIKE",
+    "internal": ",,*-  ,,l",
+    "expected": "323233360032327",
+    "unicode": "⠠⠠⠡⠤⠀⠀⠠⠠⠇"
+  },
+  {
+    "input": "ebb-tide",
+    "internal": "ebb-  tide",
+    "expected": "1733360030102517",
+    "unicode": "⠑⠃⠃⠤⠀⠀⠞⠊⠙⠑"
+  },
+  {
+    "input": "father-in-law",
+    "internal": "\"f-  9-law",
+    "expected": "1611360020367158",
+    "unicode": "⠐⠋⠤⠀⠀⠔⠤⠇⠁⠺"
+  },
+  {
+    "input": "first-begotten",
+    "internal": "f/-  2gott5",
+    "expected": "1112360062721303034",
+    "unicode": "⠋⠌⠤⠀⠀⠆⠛⠕⠞⠞⠢"
+  },
+  {
+    "input": "𝑓𝑜𝑟 𝑡ℎ𝑒 𝑡𝑒𝑎𝑐ℎ-𝑖𝑛.",
+    "internal": ".7= ! t1*-  94.'",
+    "expected": "40546304603023336002050404",
+    "unicode": "⠨⠶⠿⠀⠮⠀⠞⠂⠡⠤⠀⠀⠔⠲⠨⠄"
+  },
+  {
+    "input": "go-between",
+    "internal": "g-  2t",
+    "expected": "273600630",
+    "unicode": "⠛⠤⠀⠀⠆⠞"
+  },
+  {
+    "input": "had-enough mood",
+    "internal": "_h-  5 mood",
+    "expected": "5619360034013212125",
+    "unicode": "⠸⠓⠤⠀⠀⠢⠀⠍⠕⠕⠙"
+  },
+  {
+    "input": "his-and-hers",
+    "internal": "his-  &-h]s",
+    "expected": "19101436004736195914",
+    "unicode": "⠓⠊⠎⠤⠀⠀⠯⠤⠓⠻⠎"
+  },
+  {
+    "input": "(in-depth)",
+    "internal": "\"<9-  dep?\">",
+    "expected": "1635203600251715571628",
+    "unicode": "⠐⠣⠔⠤⠀⠀⠙⠑⠏⠹⠐⠜"
+  },
+  {
+    "input": "𝑖𝑛-𝑑𝑒𝑝𝑡ℎ",
+    "internal": ".19-  dep?",
+    "expected": "40220360025171557",
+    "unicode": "⠨⠂⠔⠤⠀⠀⠙⠑⠏⠹"
+  },
+  {
+    "input": "man-eater",
+    "internal": "man-  eat]",
+    "expected": "1312936001713059",
+    "unicode": "⠍⠁⠝⠤⠀⠀⠑⠁⠞⠻"
+  },
+  {
+    "input": "mother-in-law",
+    "internal": "\"m-9-  law",
+    "expected": "1613362036007158",
+    "unicode": "⠐⠍⠤⠔⠤⠀⠀⠇⠁⠺"
+  },
+  {
+    "input": "out-of-the-way",
+    "internal": "\\-(-  !-way",
+    "expected": "5136553600463658161",
+    "unicode": "⠳⠤⠷⠤⠀⠀⠮⠤⠺⠁⠽"
+  },
+  {
+    "input": "part-time",
+    "internal": "\"p-  \"t",
+    "expected": "161536001630",
+    "unicode": "⠐⠏⠤⠀⠀⠐⠞"
+  },
+  {
+    "input": "self-control",
+    "internal": "self-  3trol",
+    "expected": "14177113600183023217",
+    "unicode": "⠎⠑⠇⠋⠤⠀⠀⠒⠞⠗⠕⠇"
+  },
+  {
+    "input": "shut-ins",
+    "internal": "%ut-  9s",
+    "expected": "41373036002014",
+    "unicode": "⠩⠥⠞⠤⠀⠀⠔⠎"
+  },
+  {
+    "input": "teach-in.)",
+    "internal": "t1*-  94\">",
+    "expected": "30233360020501628",
+    "unicode": "⠞⠂⠡⠤⠀⠀⠔⠲⠐⠜"
+  },
+  {
+    "input": "\"to-ing and fro-ing\"",
+    "internal": "8to-9g & fro-  9g0",
+    "expected": "38302136202704701123213600202752",
+    "unicode": "⠦⠞⠕⠤⠔⠛⠀⠯⠀⠋⠗⠕⠤⠀⠀⠔⠛⠴"
+  },
+  {
+    "input": "word-for-word",
+    "internal": "^w-  =-^w",
+    "expected": "2458360063362458",
+    "unicode": "⠘⠺⠤⠀⠀⠿⠤⠘⠺"
+  },
+  {
+    "input": "would-be",
+    "internal": "wd-  be",
+    "expected": "58253600317",
+    "unicode": "⠺⠙⠤⠀⠀⠃⠑"
+  },
+  {
+    "input": "\"had-enough\" mood",
+    "internal": "8_h-  5\\<0 mood",
+    "expected": "385619360034513552013212125",
+    "unicode": "⠦⠸⠓⠤⠀⠀⠢⠳⠣⠴⠀⠍⠕⠕⠙"
+  },
+  {
+    "input": "\"In-depth",
+    "internal": "8,in-  dep?",
+    "expected": "38321029360025171557",
+    "unicode": "⠦⠠⠊⠝⠤⠀⠀⠙⠑⠏⠹"
+  },
+  {
+    "input": "teach-in.",
+    "internal": "t1*-  in4",
+    "expected": "302333600102950",
+    "unicode": "⠞⠂⠡⠤⠀⠀⠊⠝⠲"
+  }
+]

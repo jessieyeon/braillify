@@ -1,0 +1,50 @@
+[
+  {
+    "input": "carefully",
+    "internal": "c>e-  fully",
+    "expected": "92817360011377761",
+    "unicode": "⠉⠜⠑⠤⠀⠀⠋⠥⠇⠇⠽"
+  },
+  {
+    "input": "CEMENT.)",
+    "internal": ",,ce-  m5t4\">",
+    "expected": "32329173600133430501628",
+    "unicode": "⠠⠠⠉⠑⠤⠀⠀⠍⠢⠞⠲⠐⠜"
+  },
+  {
+    "input": "confusion?",
+    "internal": "3fu-  sion8",
+    "expected": "18113736001410212938",
+    "unicode": "⠒⠋⠥⠤⠀⠀⠎⠊⠕⠝⠦"
+  },
+  {
+    "input": "expressionless",
+    "internal": "expres-  sion.s",
+    "expected": "1745152317143600141021294014",
+    "unicode": "⠑⠭⠏⠗⠑⠎⠤⠀⠀⠎⠊⠕⠝⠨⠎"
+  },
+  {
+    "input": "fundamentally",
+    "internal": "funda-  m5tally",
+    "expected": "113729251360013343017761",
+    "unicode": "⠋⠥⠝⠙⠁⠤⠀⠀⠍⠢⠞⠁⠇⠇⠽"
+  },
+  {
+    "input": "reliance",
+    "internal": "reli-  ance",
+    "expected": "23177103600129917",
+    "unicode": "⠗⠑⠇⠊⠤⠀⠀⠁⠝⠉⠑"
+  },
+  {
+    "input": "rotations",
+    "internal": "rota-  tions",
+    "expected": "232130136003010212914",
+    "unicode": "⠗⠕⠞⠁⠤⠀⠀⠞⠊⠕⠝⠎"
+  },
+  {
+    "input": "vitality",
+    "internal": "vital-  ity",
+    "expected": "391030173600103061",
+    "unicode": "⠧⠊⠞⠁⠇⠤⠀⠀⠊⠞⠽"
+  }
+]

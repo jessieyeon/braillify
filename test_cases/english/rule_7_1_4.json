@@ -1,0 +1,26 @@
+[
+  {
+    "input": "—\"",
+    "internal": ",-0",
+    "expected": "323652",
+    "unicode": "⠠⠤⠴"
+  },
+  {
+    "input": "...?\"",
+    "internal": "44480",
+    "expected": "5050503852",
+    "unicode": "⠲⠲⠲⠦⠴"
+  },
+  {
+    "input": "\"...",
+    "internal": "8444",
+    "expected": "38505050",
+    "unicode": "⠦⠲⠲⠲"
+  },
+  {
+    "input": "\":\"",
+    "internal": "830",
+    "expected": "381852",
+    "unicode": "⠦⠒⠴"
+  }
+]

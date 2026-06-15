@@ -1,0 +1,14 @@
+[
+  {
+    "input": "always—except",
+    "internal": "alw  ,-except",
+    "expected": "175800323617459171530",
+    "unicode": "⠁⠇⠺⠀⠀⠠⠤⠑⠭⠉⠑⠏⠞"
+  },
+  {
+    "input": "always—except",
+    "internal": "alw,-  except",
+    "expected": "175832360017459171530",
+    "unicode": "⠁⠇⠺⠠⠤⠀⠀⠑⠭⠉⠑⠏⠞"
+  }
+]

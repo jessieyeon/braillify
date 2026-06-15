@@ -1,0 +1,14 @@
+[
+  {
+    "input": "not his—my name",
+    "internal": "n his  ,-my \"n",
+    "expected": "290191014003236136101629",
+    "unicode": "⠝⠀⠓⠊⠎⠀⠀⠠⠤⠍⠽⠀⠐⠝"
+  },
+  {
+    "input": "not his—my name",
+    "internal": "n his,-  my \"n",
+    "expected": "290191014323600136101629",
+    "unicode": "⠝⠀⠓⠊⠎⠠⠤⠀⠀⠍⠽⠀⠐⠝"
+  }
+]

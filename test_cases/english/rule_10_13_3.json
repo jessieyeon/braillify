@@ -1,0 +1,38 @@
+[
+  {
+    "input": "childlike",
+    "internal": "*ild-  like",
+    "expected": "33107253600710517",
+    "unicode": "⠡⠊⠇⠙⠤⠀⠀⠇⠊⠅⠑"
+  },
+  {
+    "input": "everything",
+    "internal": "\"ey-  ?+",
+    "expected": "16176136005744",
+    "unicode": "⠐⠑⠽⠤⠀⠀⠹⠬"
+  },
+  {
+    "input": "furthermore",
+    "internal": "fur!r-  more",
+    "expected": "1137234623360013212317",
+    "unicode": "⠋⠥⠗⠮⠗⠤⠀⠀⠍⠕⠗⠑"
+  },
+  {
+    "input": "outcome",
+    "internal": "\\t-  come",
+    "expected": "513036009211317",
+    "unicode": "⠳⠞⠤⠀⠀⠉⠕⠍⠑"
+  },
+  {
+    "input": "standstill",
+    "internal": "/&-  /ill",
+    "expected": "12473600121077",
+    "unicode": "⠌⠯⠤⠀⠀⠌⠊⠇⠇"
+  },
+  {
+    "input": "whichever",
+    "internal": ":i*-  \"e",
+    "expected": "49103336001617",
+    "unicode": "⠱⠊⠡⠤⠀⠀⠐⠑"
+  }
+]

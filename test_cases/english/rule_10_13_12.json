@@ -1,0 +1,110 @@
+[
+  {
+    "input": "aboveground",
+    "internal": "abv-  gr.d",
+    "expected": "1339360027234025",
+    "unicode": "⠁⠃⠧⠤⠀⠀⠛⠗⠨⠙"
+  },
+  {
+    "input": "afterimage",
+    "internal": "aft]-  image",
+    "expected": "11130593600101312717",
+    "unicode": "⠁⠋⠞⠻⠤⠀⠀⠊⠍⠁⠛⠑"
+  },
+  {
+    "input": "befriending.\"",
+    "internal": "2fri5d-  9g40",
+    "expected": "61123103425360020275052",
+    "unicode": "⠆⠋⠗⠊⠢⠙⠤⠀⠀⠔⠛⠲⠴"
+  },
+  {
+    "input": "blinded?)",
+    "internal": "bl9d-  $8\">",
+    "expected": "372025360043381628",
+    "unicode": "⠃⠇⠔⠙⠤⠀⠀⠫⠦⠐⠜"
+  },
+  {
+    "input": "blindness",
+    "internal": "bl-  ness",
+    "expected": "37360029171414",
+    "unicode": "⠃⠇⠤⠀⠀⠝⠑⠎⠎"
+  },
+  {
+    "input": "friendliness",
+    "internal": "fr-  li;s",
+    "expected": "112336007104814",
+    "unicode": "⠋⠗⠤⠀⠀⠇⠊⠰⠎"
+  },
+  {
+    "input": "girlfriend",
+    "internal": "girl-  fr",
+    "expected": "271023736001123",
+    "unicode": "⠛⠊⠗⠇⠤⠀⠀⠋⠗"
+  },
+  {
+    "input": "Goodall",
+    "internal": ",good-  all",
+    "expected": "32272121253600177",
+    "unicode": "⠠⠛⠕⠕⠙⠤⠀⠀⠁⠇⠇"
+  },
+  {
+    "input": "Goodwood",
+    "internal": ",gd-  wood",
+    "expected": "322725360058212125",
+    "unicode": "⠠⠛⠙⠤⠀⠀⠺⠕⠕⠙"
+  },
+  {
+    "input": "grandchildren",
+    "internal": "gr&-  *n",
+    "expected": "27234736003329",
+    "unicode": "⠛⠗⠯⠤⠀⠀⠡⠝"
+  },
+  {
+    "input": "Hapgood",
+    "internal": ",hap-  good",
+    "expected": "3219115360027212125",
+    "unicode": "⠠⠓⠁⠏⠤⠀⠀⠛⠕⠕⠙"
+  },
+  {
+    "input": "hereinafter",
+    "internal": "\"h9-  af",
+    "expected": "1619203600111",
+    "unicode": "⠐⠓⠔⠤⠀⠀⠁⠋"
+  },
+  {
+    "input": "hereinbelow",
+    "internal": "\"h9-  bel[",
+    "expected": "1619203600317742",
+    "unicode": "⠐⠓⠔⠤⠀⠀⠃⠑⠇⠪"
+  },
+  {
+    "input": "immediately",
+    "internal": "imm-  ly",
+    "expected": "1013133600761",
+    "unicode": "⠊⠍⠍⠤⠀⠀⠇⠽"
+  },
+  {
+    "input": "Letterman",
+    "internal": ",lr-  man",
+    "expected": "32723360013129",
+    "unicode": "⠠⠇⠗⠤⠀⠀⠍⠁⠝"
+  },
+  {
+    "input": "Linkletter",
+    "internal": ",l9k-  lett]",
+    "expected": "3272053600717303059",
+    "unicode": "⠠⠇⠔⠅⠤⠀⠀⠇⠑⠞⠞⠻"
+  },
+  {
+    "input": "preconceived",
+    "internal": "pre-  conceiv$",
+    "expected": "152317360092129917103943",
+    "unicode": "⠏⠗⠑⠤⠀⠀⠉⠕⠝⠉⠑⠊⠧⠫"
+  },
+  {
+    "input": "unnecessary",
+    "internal": "un-  nec",
+    "expected": "3729360029179",
+    "unicode": "⠥⠝⠤⠀⠀⠝⠑⠉"
+  }
+]

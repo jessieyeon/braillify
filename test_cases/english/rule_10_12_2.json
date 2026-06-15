@@ -1,0 +1,332 @@
+[
+  {
+    "input": "S. Da.",
+    "internal": ";,s4 ,da4",
+    "expected": "4832145003225150",
+    "unicode": "⠰⠠⠎⠲⠀⠠⠙⠁⠲"
+  },
+  {
+    "input": "N S",
+    "internal": ";,n ;,s",
+    "expected": "4832290483214",
+    "unicode": "⠰⠠⠝⠀⠰⠠⠎"
+  },
+  {
+    "input": "Xft.",
+    "internal": ",xft4",
+    "expected": "3245113050",
+    "unicode": "⠠⠭⠋⠞⠲"
+  },
+  {
+    "input": "G.B.S.",
+    "internal": ",g4,b4,s4",
+    "expected": "32275032350321450",
+    "unicode": "⠠⠛⠲⠠⠃⠲⠠⠎⠲"
+  },
+  {
+    "input": "C. P. E. Bach",
+    "internal": ";,c4 ;,p4 ;,e4 ,ba*",
+    "expected": "48329500483215500483217500323133",
+    "unicode": "⠰⠠⠉⠲⠀⠰⠠⠏⠲⠀⠰⠠⠑⠲⠀⠠⠃⠁⠡"
+  },
+  {
+    "input": "J-P. Sartre",
+    "internal": ";;,j-,p4 ,s>tre",
+    "expected": "48483226363215500321428302317",
+    "unicode": "⠰⠰⠠⠚⠤⠠⠏⠲⠀⠠⠎⠜⠞⠗⠑"
+  },
+  {
+    "input": "V & A",
+    "internal": ";,v @& ,a",
+    "expected": "48323908470321",
+    "unicode": "⠰⠠⠧⠀⠈⠯⠀⠠⠁"
+  },
+  {
+    "input": "p. 15",
+    "internal": ";p4 #ae",
+    "expected": "481550060117",
+    "unicode": "⠰⠏⠲⠀⠼⠁⠑"
+  },
+  {
+    "input": "c 1600",
+    "internal": ";c #afjj",
+    "expected": "4890601112626",
+    "unicode": "⠰⠉⠀⠼⠁⠋⠚⠚"
+  },
+  {
+    "input": "7 L",
+    "internal": "#g ;,l",
+    "expected": "6027048327",
+    "unicode": "⠼⠛⠀⠰⠠⠇"
+  },
+  {
+    "input": "3 N m",
+    "internal": "#c ;,n ;m",
+    "expected": "609048322904813",
+    "unicode": "⠼⠉⠀⠰⠠⠝⠀⠰⠍"
+  },
+  {
+    "input": "Macbeth V i 8 or V.i.8",
+    "internal": ",macbe? ;,v i #h or ,v4i4#h",
+    "expected": "3213193175704832390100601902123032395010506019",
+    "unicode": "⠠⠍⠁⠉⠃⠑⠹⠀⠰⠠⠧⠀⠊⠀⠼⠓⠀⠕⠗⠀⠠⠧⠲⠊⠲⠼⠓"
+  },
+  {
+    "input": "U. of K.",
+    "internal": ";,u4 ( ;,k4",
+    "expected": "4832375005504832550",
+    "unicode": "⠰⠠⠥⠲⠀⠷⠀⠰⠠⠅⠲"
+  },
+  {
+    "input": "Can",
+    "internal": ",c",
+    "expected": "329",
+    "unicode": "⠠⠉"
+  },
+  {
+    "input": "It.",
+    "internal": ",x4",
+    "expected": "324550",
+    "unicode": "⠠⠭⠲"
+  },
+  {
+    "input": "FORTRAN",
+    "internal": ",,=tran",
+    "expected": "3232633023129",
+    "unicode": "⠠⠠⠿⠞⠗⠁⠝"
+  },
+  {
+    "input": "AFofL",
+    "internal": ",a,f(,l",
+    "expected": "321321155327",
+    "unicode": "⠠⠁⠠⠋⠷⠠⠇"
+  },
+  {
+    "input": "prof",
+    "internal": "pr(",
+    "expected": "152355",
+    "unicode": "⠏⠗⠷"
+  },
+  {
+    "input": "CANDU reactor",
+    "internal": ",,c&u reactor",
+    "expected": "3232947370231719302123",
+    "unicode": "⠠⠠⠉⠯⠥⠀⠗⠑⠁⠉⠞⠕⠗"
+  },
+  {
+    "input": "ch. 7",
+    "internal": "ch4 #g",
+    "expected": "9195006027",
+    "unicode": "⠉⠓⠲⠀⠼⠛"
+  },
+  {
+    "input": "ch.7",
+    "internal": "*4#g",
+    "expected": "33506027",
+    "unicode": "⠡⠲⠼⠛"
+  },
+  {
+    "input": "par3",
+    "internal": "p>#c",
+    "expected": "1528609",
+    "unicode": "⠏⠜⠼⠉"
+  },
+  {
+    "input": "4-Hers",
+    "internal": "#d-,h]s",
+    "expected": "60253632195914",
+    "unicode": "⠼⠙⠤⠠⠓⠻⠎"
+  },
+  {
+    "input": "qwerty",
+    "internal": "qw]ty",
+    "expected": "3158593061",
+    "unicode": "⠟⠺⠻⠞⠽"
+  },
+  {
+    "input": "radar",
+    "internal": "rad>",
+    "expected": "2312528",
+    "unicode": "⠗⠁⠙⠜"
+  },
+  {
+    "input": "BEd",
+    "internal": ",b,$",
+    "expected": "3233243",
+    "unicode": "⠠⠃⠠⠫"
+  },
+  {
+    "input": "ed.",
+    "internal": "$4",
+    "expected": "4350",
+    "unicode": "⠫⠲"
+  },
+  {
+    "input": "NOW",
+    "internal": ",,n[",
+    "expected": "32322942",
+    "unicode": "⠠⠠⠝⠪"
+  },
+  {
+    "input": "Ariz",
+    "internal": ",>iz",
+    "expected": "32281053",
+    "unicode": "⠠⠜⠊⠵"
+  },
+  {
+    "input": "BCer",
+    "internal": ",b,c]",
+    "expected": "32332959",
+    "unicode": "⠠⠃⠠⠉⠻"
+  },
+  {
+    "input": "St",
+    "internal": ",st",
+    "expected": "321430",
+    "unicode": "⠠⠎⠞"
+  },
+  {
+    "input": "St.",
+    "internal": ",st4",
+    "expected": "32143050",
+    "unicode": "⠠⠎⠞⠲"
+  },
+  {
+    "input": "CHUM Radio",
+    "internal": ",,*um ,radio",
+    "expected": "3232333713032231251021",
+    "unicode": "⠠⠠⠡⠥⠍⠀⠠⠗⠁⠙⠊⠕"
+  },
+  {
+    "input": "START",
+    "internal": ",,/>t",
+    "expected": "3232122830",
+    "unicode": "⠠⠠⠌⠜⠞"
+  },
+  {
+    "input": "Sh$40",
+    "internal": ",%@s#dj",
+    "expected": "3241814602526",
+    "unicode": "⠠⠩⠈⠎⠼⠙⠚"
+  },
+  {
+    "input": "1 in.",
+    "internal": "#a in4",
+    "expected": "6010102950",
+    "unicode": "⠼⠁⠀⠊⠝⠲"
+  },
+  {
+    "input": "9-in dia.",
+    "internal": "#i-9 dia4",
+    "expected": "6010362002510150",
+    "unicode": "⠼⠊⠤⠔⠀⠙⠊⠁⠲"
+  },
+  {
+    "input": "Belg.",
+    "internal": ",belg4",
+    "expected": "3231772750",
+    "unicode": "⠠⠃⠑⠇⠛⠲"
+  },
+  {
+    "input": "cont.",
+    "internal": "3t4",
+    "expected": "183050",
+    "unicode": "⠒⠞⠲"
+  },
+  {
+    "input": "Dist.",
+    "internal": ",4t4",
+    "expected": "32503050",
+    "unicode": "⠠⠲⠞⠲"
+  },
+  {
+    "input": "nem. con.",
+    "internal": "nem4 con4",
+    "expected": "2917135009212950",
+    "unicode": "⠝⠑⠍⠲⠀⠉⠕⠝⠲"
+  },
+  {
+    "input": "ASEAN",
+    "internal": ",,as1n",
+    "expected": "3232114229",
+    "unicode": "⠠⠠⠁⠎⠂⠝"
+  },
+  {
+    "input": "SEATO",
+    "internal": ",,s1to",
+    "expected": "32321423021",
+    "unicode": "⠠⠠⠎⠂⠞⠕"
+  },
+  {
+    "input": "7 ins",
+    "internal": "#g 9s",
+    "expected": "602702014",
+    "unicode": "⠼⠛⠀⠔⠎"
+  },
+  {
+    "input": "7ins",
+    "internal": "#g;ins",
+    "expected": "602748102914",
+    "unicode": "⠼⠛⠰⠊⠝⠎"
+  },
+  {
+    "input": "Inc.",
+    "internal": ",9c4",
+    "expected": "3220950",
+    "unicode": "⠠⠔⠉⠲"
+  },
+  {
+    "input": "Gov. Gen.",
+    "internal": ",gov4 ,g54",
+    "expected": "3227213950032273450",
+    "unicode": "⠠⠛⠕⠧⠲⠀⠠⠛⠢⠲"
+  },
+  {
+    "input": "Minn.",
+    "internal": ",m9n4",
+    "expected": "3213202950",
+    "unicode": "⠠⠍⠔⠝⠲"
+  },
+  {
+    "input": "MiniPC",
+    "internal": ",m9i,,pc",
+    "expected": "321320103232159",
+    "unicode": "⠠⠍⠔⠊⠠⠠⠏⠉"
+  },
+  {
+    "input": "MInstP",
+    "internal": ",m,9/,p",
+    "expected": "32133220123215",
+    "unicode": "⠠⠍⠠⠔⠌⠠⠏"
+  },
+  {
+    "input": "INXS",
+    "internal": ",,9xs",
+    "expected": "3232204514",
+    "unicode": "⠠⠠⠔⠭⠎"
+  },
+  {
+    "input": "1-800-INFO",
+    "internal": "#a-#hjj-,,9fo",
+    "expected": "6013660192626363232201121",
+    "unicode": "⠼⠁⠤⠼⠓⠚⠚⠤⠠⠠⠔⠋⠕"
+  },
+  {
+    "input": "CD",
+    "internal": ";,,cd",
+    "expected": "483232925",
+    "unicode": "⠰⠠⠠⠉⠙"
+  },
+  {
+    "input": "FRS",
+    "internal": ";,,frs",
+    "expected": "483232112314",
+    "unicode": "⠰⠠⠠⠋⠗⠎"
+  },
+  {
+    "input": "3 yrs 6 mths",
+    "internal": "#c ;yrs #f m?s",
+    "expected": "609048612314060110135714",
+    "unicode": "⠼⠉⠀⠰⠽⠗⠎⠀⠼⠋⠀⠍⠹⠎"
+  }
+]
