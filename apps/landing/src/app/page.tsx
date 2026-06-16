@@ -1,5 +1,6 @@
 import { Box, Center, Flex, Image, Text, VStack } from '@devup-ui/react'
 
+import HomePopup from '@/components/home/HomePopup'
 import PillButton from '@/components/home/PillButton'
 import IconDiscord from '@/components/icons/IconDiscord'
 import IconKakao from '@/components/icons/IconKakao'
@@ -27,6 +28,7 @@ const DESCRIPTIONS = [
 export default function HomePage() {
   return (
     <VStack alignItems="center" bg="$background" position="relative">
+      <HomePopup />
       <Box
         px={['16px', null, '30px', '80px']}
         py={['40px', null, null, '100px']}
