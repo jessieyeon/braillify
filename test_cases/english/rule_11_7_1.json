@@ -1,0 +1,26 @@
+[
+  {
+    "input": "△ ABC",
+    "internal": ";$#c ,,abc",
+    "expected": "484360903232139",
+    "unicode": "⠰⠫⠼⠉⠀⠠⠠⠁⠃⠉"
+  },
+  {
+    "input": "△ABC",
+    "internal": ";$#c:,,abc",
+    "expected": "4843609493232139",
+    "unicode": "⠰⠫⠼⠉⠱⠠⠠⠁⠃⠉"
+  },
+  {
+    "input": "☺",
+    "internal": "@$sf",
+    "expected": "8431411",
+    "unicode": "⠈⠫⠎⠋"
+  },
+  {
+    "input": "⊕",
+    "internal": ";$=[\"6",
+    "expected": "484363421622",
+    "unicode": "⠰⠫⠿⠪⠐⠖"
+  }
+]
