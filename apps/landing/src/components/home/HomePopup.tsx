@@ -49,8 +49,8 @@ export default function HomePopup() {
       >
         <Box
           aria-label="이용자 설문조사 참여하기"
-          aspectRatio="3 / 4"
           as="a"
+          aspectRatio="3 / 4"
           cursor="pointer"
           display="block"
           href={SURVEY_URL}
