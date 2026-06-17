@@ -3,14 +3,15 @@
 import { Box, Flex, Image, Text, VStack } from '@devup-ui/react'
 import { useEffect, useState } from 'react'
 
+import { isSurveyActive, SURVEY_URL } from '@/constants/survey'
+
 const POPUP_STORAGE_KEY = 'braillify-popup-hide-until'
-const SURVEY_URL =
-  'https://docs.google.com/forms/d/e/1FAIpQLSdXdiajD92xptfYMhFT9Xsu2hWgrCA21DMSnUlCUsB-X0lZLw/viewform'
 
 export default function HomePopup() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    if (!isSurveyActive()) return
     const hideUntil = localStorage.getItem(POPUP_STORAGE_KEY)
     if (hideUntil && Date.now() < Number(hideUntil)) return
     setOpen(true)
