@@ -37,9 +37,47 @@ import {
 import { TestStatusMap } from '@/types'
 
 export const metadata: Metadata = {
+  title: '테스트 케이스 - 2024 개정 한국 점자 규정 검증',
+  description:
+    'Braillify의 한국 점자 변환 테스트 케이스를 항(規定 條項)별로 확인하세요. 2024 개정 한국 점자 규정을 기준으로 점역기, 점사랑, World 점역 결과를 비교 검증합니다.',
   alternates: {
     canonical: '/test-case',
   },
+  // Next.js does not deep-merge openGraph from the parent layout, so the
+  // shared fields (siteName, locale, image) must be repeated to keep
+  // social previews consistent across pages.
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: 'https://braillify.kr/test-case',
+    siteName: 'Braillify',
+    title: '테스트 케이스 | Braillify',
+    description:
+      '2024 개정 한국 점자 규정에 따른 Braillify 점역 테스트 케이스. 점역기 정확도를 항별로 검증합니다.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Braillify - 한국어 점자 변환 라이브러리',
+        type: 'image/png',
+      },
+    ],
+  },
+  keywords: [
+    '한국 점자 테스트',
+    '점역 정확도',
+    '점자 변환 테스트',
+    '점역 검증',
+    '2024 개정 한국 점자 규정',
+    'braillify 테스트',
+    '점자 비교',
+    '점사랑 비교',
+    'World 점역 비교',
+    'Braillify',
+    '한국어 점자 변환',
+    '한글 점역',
+  ],
 }
 
 export default async function TestCasePage() {
@@ -172,7 +210,7 @@ export default async function TestCasePage() {
               flexDir={[null, null, null, 'row']}
               gap={['10px', null, null, '20px']}
             >
-              <Text color="$title" typography="title">
+              <Text as="h1" color="$title" m="0" typography="title">
                 테스트 케이스
               </Text>
               <TestCaseStat
