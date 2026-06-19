@@ -467,6 +467,16 @@ jobs:
           # bun install -g @napi-rs/cli
           bun run build
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+          # package.json 의 현재 버전이 이미 npm 에 publish 되어 있으면 nothing to do.
+          # (버전을 bump 하면 새 버전은 아직 존재하지 않으므로 정상 publish 됨)
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if npm view "$PKG_NAME@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "::notice::$PKG_NAME@$PKG_VERSION is already on npm. Nothing to publish (bump version to release a new one)."
+            exit 0
+          fi
+
           npm publish --access public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -507,6 +517,23 @@ jobs:
           args: --non-interactive --skip-existing wheels-*/*
       - name: List wheels
         run: ls -R .
+      - name: Delete existing release assets (idempotent re-run)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ fromJson(needs.changepacks.outputs.release_assets_urls)['packages/python/pyproject.toml'] }}
+        run: |
+          # upload_url 형태: https://uploads.github.com/repos/OWNER/REPO/releases/RELEASE_ID/assets{?name,label}
+          RELEASE_ID=$(echo "$UPLOAD_URL" | sed -E 's#.*/releases/([0-9]+)/assets.*#\1#')
+          REPO="${GITHUB_REPOSITORY}"
+          for WHEEL in $(find . -name '*.whl' -type f); do
+            NAME=$(basename "$WHEEL")
+            ASSET_ID=$(gh api "repos/$REPO/releases/$RELEASE_ID/assets" \
+              --paginate --jq ".[] | select(.name == \"$NAME\") | .id" || true)
+            if [ -n "$ASSET_ID" ]; then
+              echo "deleting existing asset $NAME (id=$ASSET_ID)"
+              gh api -X DELETE "repos/$REPO/releases/assets/$ASSET_ID" || true
+            fi
+          done
       - name: Upload Asset
         uses: owjs3901/upload-github-release-asset@main
         with:
@@ -557,6 +584,21 @@ jobs:
       - name: Rename binary
         run: mv target/${{ matrix.target }}/release/braillify${{ matrix.os == 'windows' && '.exe' || '' }} ${{ matrix.binary_name }}
 
+      - name: Delete existing release asset (idempotent re-run)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ fromJson(needs.changepacks.outputs.release_assets_urls)['libs/braillify/Cargo.toml'] }}
+          NAME: ${{ matrix.binary_name }}
+        shell: bash
+        run: |
+          RELEASE_ID=$(echo "$UPLOAD_URL" | sed -E 's#.*/releases/([0-9]+)/assets.*#\1#')
+          REPO="${GITHUB_REPOSITORY}"
+          ASSET_ID=$(gh api "repos/$REPO/releases/$RELEASE_ID/assets" \
+            --paginate --jq ".[] | select(.name == \"$NAME\") | .id" || true)
+          if [ -n "$ASSET_ID" ]; then
+            echo "deleting existing asset $NAME (id=$ASSET_ID)"
+            gh api -X DELETE "repos/$REPO/releases/assets/$ASSET_ID" || true
+          fi
       - name: Upload Asset
         uses: owjs3901/upload-github-release-asset@main
         with:
@@ -572,7 +614,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Publish to Cargo
-        run: cargo publish -p braillify
+        run: |
+          # Cargo.toml 의 현재 버전이 이미 crates.io 에 publish 되어 있으면 nothing to do.
+          # (버전을 bump 하면 새 버전은 아직 존재하지 않으므로 정상 publish 됨)
+          VERSION=$(cargo pkgid -p braillify | sed -E 's/.*[#@]([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          if curl -fsSL "https://crates.io/api/v1/crates/braillify/$VERSION" \
+               -H "User-Agent: braillify-ci" >/dev/null 2>&1; then
+            echo "::notice::braillify@$VERSION is already on crates.io. Nothing to publish (bump version to release a new one)."
+            exit 0
+          fi
+          cargo publish -p braillify
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -597,7 +648,9 @@ jobs:
         run: |
           echo "version=$(cargo pkgid -p braillify | sed -E 's/.*#([0-9]+\.[0-9]+\.[0-9]+).*/\1/')" >> $GITHUB_OUTPUT
         id: version
-      - uses: vedantmgoyal9/winget-releaser@v2
+      - name: Winget Publish
+        uses: vedantmgoyal9/winget-releaser@v2
+        continue-on-error: true
         with:
           identifier: Braillify.Braillify
           installers-regex: '\.exe$' # Only .exe files
