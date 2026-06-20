@@ -58,6 +58,12 @@ pub fn try_encode(text: &str) -> Option<Vec<u8>> {
 /// take. Hyphenated or multi-word English (`child-ish-ly`, `9-in dia.`) is left
 /// to UEB.
 pub fn is_math_owned(text: &str) -> bool {
+    // (0) a balanced `$…$` span is LaTeX math, owned by the math engine. A lone
+    // or trailing `$` (currency: `$6`, `US$`) is NOT, and is handled by §3.10.
+    if text.len() >= 2 && text.starts_with('$') && text.ends_with('$') {
+        return true;
+    }
+
     // (1) function-name expression: a trig/log name, optionally with a leading
     // coefficient (`2cosx`), where the name is NOT merely the prefix of a longer
     // English word (`singe` starts with `sin`, `arccosine` with `arccos`). The

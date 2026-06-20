@@ -17,10 +17,10 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '%' => vec![decode_unicode('⠨'), decode_unicode('⠴')], // §3.21
         '&' => vec![decode_unicode('⠈'), decode_unicode('⠯')], // §3.1
         '*' => vec![decode_unicode('⠐'), decode_unicode('⠔')], // §3.3
-        // §3.10 currency signs: ⠈ + the unit letter. (`$` is deliberately omitted
-        // here — it collides with the LaTeX `$` math delimiter and would make the
-        // WIP UEB dispatch over-intercept math; revisit when Phase 7 orders the
-        // dispatch after math/LaTeX detection.)
+        // §3.10 currency signs: ⠈ + the unit letter. A balanced `$…$` LaTeX math
+        // span is kept out of the UEB path by `is_math_owned`, so a `$` reaching
+        // here is the currency sign.
+        '$' => vec![CURRENCY, decode_unicode('⠎')],
         '¢' => vec![CURRENCY, decode_unicode('⠉')],
         '€' => vec![CURRENCY, decode_unicode('⠑')],
         '£' => vec![CURRENCY, decode_unicode('⠇')],
@@ -39,6 +39,7 @@ mod tests {
     #[case::percent('%', vec![decode_unicode('⠨'), decode_unicode('⠴')])]
     #[case::ampersand('&', vec![decode_unicode('⠈'), decode_unicode('⠯')])]
     #[case::asterisk('*', vec![decode_unicode('⠐'), decode_unicode('⠔')])]
+    #[case::dollar('$', vec![decode_unicode('⠈'), decode_unicode('⠎')])]
     #[case::cent('¢', vec![decode_unicode('⠈'), decode_unicode('⠉')])]
     #[case::euro('€', vec![decode_unicode('⠈'), decode_unicode('⠑')])]
     #[case::pound('£', vec![decode_unicode('⠈'), decode_unicode('⠇')])]
