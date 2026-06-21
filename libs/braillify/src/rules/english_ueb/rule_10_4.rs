@@ -28,10 +28,6 @@ static GROUPSIGNS: phf::Map<&'static str, u8> = phf_map! {
 pub struct StrongGroupsignRule;
 
 impl ContractionRule for StrongGroupsignRule {
-    fn name(&self) -> &'static str {
-        "10.4 strong groupsigns"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         match_longest(word, pos, &GROUPSIGNS, 60)
     }

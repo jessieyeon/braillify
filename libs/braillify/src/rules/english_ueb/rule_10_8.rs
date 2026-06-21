@@ -29,14 +29,15 @@ static FINAL_GROUPSIGNS: phf::Map<&'static str, [u8; 2]> = phf_map! {
     "ity"  => [decode_unicode('⠰'), decode_unicode('⠽')],
 };
 
+/// Return the cells for a final-letter groupsign cluster.
+pub(crate) fn final_groupsign_cells(cluster: &str) -> Option<[u8; 2]> {
+    FINAL_GROUPSIGNS.get(cluster).copied()
+}
+
 /// §10.8 final-letter groupsign rule.
 pub struct FinalGroupsignRule;
 
 impl ContractionRule for FinalGroupsignRule {
-    fn name(&self) -> &'static str {
-        "10.8 final-letter groupsigns"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         // §10.8: never used at the start of a word.
         if pos == 0 {
@@ -46,7 +47,10 @@ impl ContractionRule for FinalGroupsignRule {
         for (key, &cells) in FINAL_GROUPSIGNS.entries() {
             let klen = key.chars().count();
             if pos + klen <= word.len()
-                && key.chars().zip(&word[pos..pos + klen]).all(|(k, w)| k == *w)
+                && key
+                    .chars()
+                    .zip(&word[pos..pos + klen])
+                    .all(|(k, w)| k == *w)
                 && best.is_none_or(|(bl, _)| klen > bl)
             {
                 best = Some((klen, cells));

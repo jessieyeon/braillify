@@ -1,4 +1,4 @@
-//! Unified English Braille (UEB) Grade-2 encoder — WIP, feature `english_ueb`.
+//! Unified English Braille (UEB) Grade-2 encoder.
 //!
 //! Mirrors the Math token-engine architecture: a parser produces a token
 //! stream ([`parser`]), a document engine ([`engine`]) manages modes and
@@ -14,6 +14,7 @@
 
 pub mod contraction;
 pub mod engine;
+pub(crate) mod korean_context;
 pub mod parser;
 #[cfg(feature = "english_ueb_cmudict")]
 pub mod pronunciation;
@@ -27,6 +28,7 @@ pub mod rule_10_6;
 pub mod rule_10_6_restricted;
 pub mod rule_10_7;
 pub mod rule_10_8;
+pub mod rule_10_9;
 pub mod rule_3;
 pub mod rule_4;
 pub mod rule_6;
@@ -40,7 +42,20 @@ use engine::EnglishUebEngine;
 /// input is empty or contains a construct the engine does not yet support, so
 /// the caller can fall back to the legacy encoding path.
 pub fn try_encode(text: &str) -> Option<Vec<u8>> {
-    let tokens = parser::parse_english(text);
+    // The math pipeline NFD-decomposes accented Latin (제65항 combining marks),
+    // turning `é` into `e`+◌́. UEB owns accents as precomposed letters (§4.2,
+    // [`rule_4`]), so recompose (NFC) here to undo that split for the English
+    // path only. Pure ASCII is NFC-stable, so non-accented inputs are unchanged.
+    use unicode_normalization::UnicodeNormalization;
+    let composed: String = text.nfc().collect();
+    // A lone accented letter with no ASCII letter (e.g. `ã`, `ä`) is an ambiguous
+    // standalone diacritic-marked symbol that the legacy/math path owns (수학
+    // 제65항). UEB §4.2 accents only arise *inside* an alphabetic word (`café`,
+    // `Étienne`), which always contains an ASCII letter, so require one here.
+    if !composed.chars().any(|c| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    let tokens = parser::parse_english(&composed);
     if tokens.is_empty() {
         return None;
     }
@@ -64,6 +79,20 @@ pub fn is_math_owned(text: &str) -> bool {
         return true;
     }
 
+    // (0b) a comparison/equation operator (`=`, `<`, `>`) bound *tightly* to an
+    // operand — no space on at least one side — is a math relation the legacy
+    // math pipeline owns (`ax=b`, `a>b`, `x<0`, `y=f(x)`, `A={2, 4, …}`). English
+    // prose always spaces these operators (`2 + 2 = 4`, `positron < posi`), so a
+    // space on *both* sides leaves the input to the UEB §3.17 signs of comparison.
+    let cells: Vec<char> = text.chars().collect();
+    if cells.iter().enumerate().any(|(i, &c)| {
+        matches!(c, '=' | '<' | '>')
+            && (i.checked_sub(1).is_some_and(|j| cells[j] != ' ')
+                || cells.get(i + 1).is_some_and(|&n| n != ' '))
+    }) {
+        return true;
+    }
+
     // (1) function-name expression: a trig/log name, optionally with a leading
     // coefficient (`2cosx`), where the name is NOT merely the prefix of a longer
     // English word (`singe` starts with `sin`, `arccosine` with `arccos`). The
@@ -79,9 +108,10 @@ pub fn is_math_owned(text: &str) -> bool {
         // vowel in its continuation, so it is left to UEB.
         let rest_is_math_arg = rest.is_empty()
             || !rest.starts_with(|c: char| c.is_ascii_alphabetic())
-            || rest
-                .chars()
-                .all(|c| c.is_ascii_alphabetic() && !matches!(c.to_ascii_lowercase(), 'a' | 'e' | 'i' | 'o' | 'u'));
+            || rest.chars().all(|c| {
+                c.is_ascii_alphabetic()
+                    && !matches!(c.to_ascii_lowercase(), 'a' | 'e' | 'i' | 'o' | 'u')
+            });
         if rest_is_math_arg {
             return true;
         }
@@ -107,16 +137,16 @@ pub fn is_math_owned(text: &str) -> bool {
         return false;
     }
     let lower = text.to_ascii_lowercase();
-    let is_ordinal = ["st", "nd", "rd", "th"]
-        .iter()
-        .any(|suf| lower.ends_with(suf) && lower[..lower.len() - 2].chars().all(|c| c.is_ascii_digit()));
+    let is_ordinal = ["st", "nd", "rd", "th"].iter().any(|suf| {
+        lower.ends_with(suf) && lower[..lower.len() - 2].chars().all(|c| c.is_ascii_digit())
+    });
     if is_ordinal {
         return false;
     }
     let chars: Vec<char> = text.chars().collect();
-    chars.windows(3).any(|w| {
-        w[0].is_ascii_digit() && w[1].is_ascii_alphabetic() && w[2].is_ascii_alphabetic()
-    })
+    chars
+        .windows(3)
+        .any(|w| w[0].is_ascii_digit() && w[1].is_ascii_alphabetic() && w[2].is_ascii_alphabetic())
 }
 
 #[cfg(test)]
@@ -136,6 +166,14 @@ mod is_math_owned_tests {
     #[case::three_ab("3ab")] // digit + 2 variables (implied product)
     #[case::f_paren("f(x-1)")] // digit inside parentheses
     #[case::factorial("(3n)!")]
+    // §3.17: a comparison/equation operator bound tightly (no surrounding space)
+    // is a math relation, not English prose.
+    #[case::eq_relation("ax=b")]
+    #[case::gt_relation("a>b")]
+    #[case::lt_relation("x<0")]
+    #[case::eq_func("y=f(x)")]
+    #[case::set_eq("A={2, 4, 6, ...}")] // tight `=` even though spaces follow
+    #[case::interval("-1<x<3")]
     fn math_owned_inputs_are_blocked(#[case] text: &str) {
         assert!(is_math_owned(text), "{text:?} should be math-owned");
     }
@@ -152,6 +190,11 @@ mod is_math_owned_tests {
     #[case::hyphenated("child-ish-ly")]
     #[case::sentence("That is quite fair.")]
     #[case::plain_word("cat")]
+    // §3.17 prose: operators with a space on BOTH sides are English signs of
+    // comparison, not a math relation (`2 + 2 = 4`, `positron < posi`).
+    #[case::spaced_eq("a = b")]
+    #[case::spaced_lt("positron < posi")]
+    #[case::spaced_sum("as easy as 2 + 2 = 4")]
     fn english_inputs_are_not_blocked(#[case] text: &str) {
         assert!(!is_math_owned(text), "{text:?} should NOT be math-owned");
     }

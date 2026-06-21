@@ -23,13 +23,42 @@ static LOWER_GROUPSIGNS: phf::Map<&'static str, u8> = phf_map! {
 pub struct LowerGroupsignRule;
 
 impl ContractionRule for LowerGroupsignRule {
-    fn name(&self) -> &'static str {
-        "10.6 lower groupsigns (en, in)"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         match_longest(word, pos, &LOWER_GROUPSIGNS, 70)
     }
+}
+
+/// §10.6.5 middle lower groupsigns `ea bb cc ff gg`. One-cell signs usable only
+/// when a letter immediately **precedes and follows** them within the word
+/// (the structural lower-sign rule). The pure-English engine defers these
+/// because the morphology exceptions (`hideaway`, `react`) need a dictionary, so
+/// they are NOT registered in the default contraction engine; this helper lets
+/// contexts that apply the structural rule directly reuse one definition
+/// (e.g. digital-notation 제74항 URL/email runs).
+pub(crate) static MIDDLE_LOWER_GROUPSIGNS: phf::Map<&'static str, u8> = phf_map! {
+    "ea" => decode_unicode('⠂'),
+    "bb" => decode_unicode('⠆'),
+    "cc" => decode_unicode('⠒'),
+    "ff" => decode_unicode('⠖'),
+    "gg" => decode_unicode('⠶'),
+};
+
+/// Match a §10.6.5 middle lower groupsign at `pos`, or `None`. Requires an
+/// alphabetic neighbour on both sides (so word-initial/final pairs spell out).
+pub(crate) fn middle_lower_groupsign(word: &[char], pos: usize) -> Option<ContractionMatch> {
+    if pos == 0 || !word[pos - 1].is_ascii_alphabetic() {
+        return None;
+    }
+    let key: String = word.get(pos..pos + 2)?.iter().collect();
+    let &cell = MIDDLE_LOWER_GROUPSIGNS.get(key.as_str())?;
+    if !word.get(pos + 2).is_some_and(|c| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    Some(ContractionMatch {
+        cells: vec![cell],
+        consumed: 2,
+        priority: 70,
+    })
 }
 
 #[cfg(test)]

@@ -2,6 +2,7 @@
 //!
 //! PDF 제38항 — IPA 점자 표기. [...], /.../ 묶음 안 음운 기호를 점역한다.
 
+use crate::rules::context::EncodingMode;
 use crate::{encode, english, utils, with_encoder};
 
 pub(crate) fn is_ipa_phonetic_symbol(c: char) -> bool {
@@ -101,6 +102,7 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
             let enc = if has_korean_anywhere {
                 with_encoder(true, |encoder| {
                     let mut result = Vec::new();
+                    encoder.set_default_mode(EncodingMode::Korean);
                     encoder.encode(buf.as_str(), &mut result)?;
                     Ok::<Vec<u8>, String>(result)
                 })?

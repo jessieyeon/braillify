@@ -82,11 +82,7 @@ mod tests {
 
     #[test]
     fn unknown_word_yields_empty() {
-        assert!(
-            CmuDictProvider::new()
-                .pronunciations("zzqxwv")
-                .is_empty()
-        );
+        assert!(CmuDictProvider::new().pronunciations("zzqxwv").is_empty());
     }
 
     /// Variant headwords (`word(2)`) collapse onto the base key.

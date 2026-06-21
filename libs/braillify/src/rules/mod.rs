@@ -31,10 +31,9 @@ pub mod token_rules;
 pub mod traits;
 
 // ── Rule domains ────────────────────────────────────────
-#[cfg(feature = "english_ueb")]
-pub mod english_ueb;
+pub mod english_ueb; // 통일영어점자 규정 (Unified English Braille)
 pub mod korean; // 한글 점자 규정 (Korean Braille rules)
-pub mod math; // 수학 점자 규정 (Math Braille rules) // 통일영어점자 규정 (Unified English Braille — WIP, feature-gated)
+pub mod math; // 수학 점자 규정 (Math Braille rules)
 
 /// Metadata identifying a braille rule and its source in the standard.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

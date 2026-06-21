@@ -16,7 +16,6 @@ mod math_symbol_shortcut;
 mod moeum;
 pub(crate) mod number;
 mod rule;
-mod rule_en;
 pub(crate) mod rules;
 mod split;
 pub(crate) mod symbol_shortcut;
@@ -603,6 +602,25 @@ fn decompose_accented_latin<'a>(text: Cow<'a, str>) -> Cow<'a, str> {
     Cow::Owned(out)
 }
 
+/// 제37항 — 입력이 (공백을 제외하고) 전부 ASCII 로마자(알파벳)로만 이루어진
+/// "고립된 로마자 구간"인지 판별한다. 이런 입력은 국어 점자 문맥(context:korean)에서
+/// 로마자표 ⠴ … 종료표 ⠲로 감싼다. `%p`(제69항 단위표)처럼 비알파벳 기호가 섞인
+/// 입력은 로마자 구간이 아니므로 제외된다.
+fn is_isolated_roman_section(text: &str) -> bool {
+    let mut has_letter = false;
+    for ch in text.chars() {
+        if ch == ' ' {
+            continue;
+        }
+        if ch.is_ascii_alphabetic() {
+            has_letter = true;
+        } else {
+            return false;
+        }
+    }
+    has_letter
+}
+
 /// Encode text to braille with explicit options.
 pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8>, String> {
     use crate::rules::context::EncodingMode;
@@ -801,14 +819,23 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
         encoder.set_matrix_context_active(matrix_context);
         encoder.set_math_mode_active(math_mode);
 
-        if let Some(mode) = options.default_mode
-            && mode != EncodingMode::Korean
-        {
+        if let Some(mode) = options.default_mode {
             encoder.set_default_mode(mode);
         }
 
         let mut result = Vec::new();
         encoder.encode(text, &mut result)?;
+        // 제37항 — 국어 점자 문맥(context:korean) 안의 "고립된 로마자 구간"(공백 제외
+        // 전부 ASCII 알파벳)은 로마자표 ⠴(52) … 종료표 ⠲(50)로 감싼다. 단독
+        // `EncodingMode::English` 입력도 동일한 로마자 구간이므로 같은 처리를 받는다.
+        // `%p`(제69항 단위표)처럼 비알파벳이 섞인 입력은 제외된다.
+        let wrap_roman_section = matches!(options.default_mode, Some(EncodingMode::English))
+            || (matches!(options.default_mode, Some(EncodingMode::Korean))
+                && is_isolated_roman_section(text));
+        if wrap_roman_section && !result.is_empty() {
+            result.insert(0, 52);
+            result.push(50);
+        }
         Ok(result)
     })
 }
@@ -906,9 +933,11 @@ mod test {
     #[case::che_jil_bmi("체질량 지수(BMI)", "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
     #[case::roma_bracket("Roma [ㄹㄹ로마]", "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴")]
     #[case::ye_quoted("‘ㅖ’로 적는다.", "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲")]
-    // English mode
-    #[case::contents("Contents", "⠠⠒⠞⠢⠞⠎")]
-    #[case::table_of_contents("Table of Contents", "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎")]
+    // English mode (standalone English → UEB; the §10.6 restricted `con` groupsign
+    // ⠒ exists only with pronunciation data, so without `english_ueb_cmudict` the
+    // letters spell out as `c o n`).
+    #[case::contents("Contents", if cfg!(feature = "english_ueb_cmudict") { "⠠⠒⠞⠢⠞⠎" } else { "⠠⠉⠕⠝⠞⠢⠞⠎" })]
+    #[case::table_of_contents("Table of Contents", if cfg!(feature = "english_ueb_cmudict") { "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎" } else { "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠉⠕⠝⠞⠢⠞⠎" })]
     #[case::bonjour("bonjour", "⠃⠕⠝⠚⠳⠗")]
     // Korean jamo names
     #[case::triangle_jamo("삼각형 ㄱㄴㄷ", "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔")]
@@ -917,7 +946,7 @@ mod test {
     #[case::geot("겄", "⠈⠎⠌")]
     // Unit symbols
     #[case::kg("kg", "⠅⠛")]
-    #[case::kg_paren("(kg)", "⠦⠄⠅⠛⠠⠴")]
+    #[case::kg_paren("(kg)", "⠐⠣⠅⠛⠐⠜")]
     // Mixed arithmetic
     #[case::naru_plus_bae("나루 + 배 = 나룻배", "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗")]
     // Phone number
@@ -1459,15 +1488,24 @@ mod test {
             let result = encode(&s);
             let _encoded = match result {
                 Ok(encoded) => {
-                    // Empty result is valid for strings that contain only spaces
-                    let is_only_spaces = s.chars().all(|c| c == ' ');
-                    assert!(!encoded.is_empty() || s.is_empty() || is_only_spaces);
+                    // Empty result is valid for input that emits no braille: spaces,
+                    // or standalone combining marks (제56항/제64항 — a combining mark
+                    // with no base character is consumed to nothing / no-op, as
+                    // asserted by `rule_64::lone_combining_square_is_no_op`).
+                    let is_only_nonemitting = s.chars().all(|c| {
+                        c == ' '
+                            || matches!(
+                                crate::char_struct::CharType::new(c),
+                                Ok(crate::char_struct::CharType::CombiningMark)
+                            )
+                    });
+                    assert!(!encoded.is_empty() || s.is_empty() || is_only_nonemitting);
 
                     let unicode_result = encode_to_unicode(&s);
                     assert!(unicode_result.is_ok());
 
                     let unicode_string = unicode_result.unwrap();
-                    assert!(!unicode_string.is_empty() || s.is_empty() || is_only_spaces);
+                    assert!(!unicode_string.is_empty() || s.is_empty() || is_only_nonemitting);
 
                     encoded
                 }
@@ -1756,6 +1794,43 @@ mod coverage_targeted_tests {
         };
         let result = encode_with_options("hello", &opts);
         assert!(result.is_ok());
+    }
+
+    /// 제37항 — 국어 점자 문맥(Korean mode)에서 고립된 로마자 단어/구절은 로마자표
+    /// ⠴(52)로 시작하고 종료표 ⠲(50)로 끝난다. 반면 제69항 단위표 `%p`는 로마자
+    /// 구간이 아니므로 종료표로 감싸지 않는다.
+    #[test]
+    fn korean_context_wraps_isolated_roman_section() {
+        let opts = EncodeOptions {
+            default_mode: Some(EncodingMode::Korean),
+        };
+        let wrapped = encode_with_options("but", &opts).unwrap();
+        assert_eq!(
+            wrapped.first(),
+            Some(&52),
+            "고립 로마자는 로마자표 ⠴로 시작"
+        );
+        assert_eq!(wrapped.last(), Some(&50), "고립 로마자는 종료표 ⠲로 끝남");
+
+        let phrase = encode_with_options("Table of Contents", &opts).unwrap();
+        assert_eq!(phrase.first(), Some(&52));
+        assert_eq!(phrase.last(), Some(&50));
+
+        let unit = encode_with_options("%p", &opts).unwrap();
+        assert_ne!(unit.last(), Some(&50), "%p(제69항)는 종료표로 감싸지 않음");
+    }
+
+    /// `is_isolated_roman_section` — 공백 제외 전부 알파벳이면 true,
+    /// 비알파벳 혼입/빈 입력/공백만은 false.
+    #[rstest::rstest]
+    #[case::word("but", true)]
+    #[case::phrase_with_spaces("Table of Contents", true)]
+    #[case::percent_unit("%p", false)]
+    #[case::has_digit("abc123", false)]
+    #[case::empty("", false)]
+    #[case::only_space(" ", false)]
+    fn is_isolated_roman_section_paths(#[case] input: &str, #[case] expected: bool) {
+        assert_eq!(is_isolated_roman_section(input), expected);
     }
 
     /// `encode_with_formatting` with empty spans delegates to plain `encode`.

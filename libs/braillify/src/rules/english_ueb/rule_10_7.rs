@@ -44,16 +44,15 @@ static INITIAL_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {
 pub struct InitialContractionRule;
 
 impl ContractionRule for InitialContractionRule {
-    fn name(&self) -> &'static str {
-        "10.7 initial-letter contractions"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         let mut best: Option<(usize, [u8; 2])> = None;
         for (key, &cells) in INITIAL_CONTRACTIONS.entries() {
             let klen = key.chars().count();
             if pos + klen <= word.len()
-                && key.chars().zip(&word[pos..pos + klen]).all(|(k, w)| k == *w)
+                && key
+                    .chars()
+                    .zip(&word[pos..pos + klen])
+                    .all(|(k, w)| k == *w)
                 && best.is_none_or(|(bl, _)| klen > bl)
             {
                 best = Some((klen, cells));

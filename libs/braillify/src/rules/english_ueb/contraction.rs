@@ -19,8 +19,6 @@ pub struct ContractionMatch {
 
 /// One UEB contraction rule (§10.x). `word` is the lowercased letter slice.
 pub trait ContractionRule: Send + Sync {
-    /// Rule name (for debugging / tracing).
-    fn name(&self) -> &'static str;
     /// Offer a match starting at `pos`, or `None`.
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch>;
 }
@@ -64,26 +62,22 @@ impl ContractionEngine {
         self.rules.push(rule);
     }
 
+    /// Encode the best contraction at `pos`, or the single fallback letter.
+    pub fn encode_at(&self, word: &[char], pos: usize) -> Option<(Vec<u8>, usize)> {
+        self.best_match(word, pos)
+            .map(|matched| (matched.cells, matched.consumed))
+            .or_else(|| super::rule_4::accent_cells(word[pos]).map(|cells| (cells, 1)))
+            .or_else(|| encode_english(word[pos]).ok().map(|cell| (vec![cell], 1)))
+    }
+
     /// Encode a lowercased letter slice to braille cells.
     /// Returns `None` if a character cannot be encoded as an English letter.
+    #[cfg(test)]
     pub fn encode_word(&self, word: &[char]) -> Option<Vec<u8>> {
         let mut out = Vec::with_capacity(word.len());
         let mut pos = 0;
         while pos < word.len() {
-            let mut best: Option<ContractionMatch> = None;
-            for rule in &self.rules {
-                let _ = rule.name();
-                if let Some(m) = rule.try_match(word, pos) {
-                    let better = best.as_ref().is_none_or(|b| {
-                        m.consumed > b.consumed
-                            || (m.consumed == b.consumed && m.priority < b.priority)
-                    });
-                    if better {
-                        best = Some(m);
-                    }
-                }
-            }
-            match best {
+            match self.best_match(word, pos) {
                 Some(m) => {
                     out.extend(m.cells);
                     pos += m.consumed;
@@ -101,6 +95,21 @@ impl ContractionEngine {
             }
         }
         Some(out)
+    }
+
+    fn best_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
+        let mut best: Option<ContractionMatch> = None;
+        for rule in &self.rules {
+            if let Some(m) = rule.try_match(word, pos) {
+                let better = best.as_ref().is_none_or(|b| {
+                    m.consumed > b.consumed || (m.consumed == b.consumed && m.priority < b.priority)
+                });
+                if better {
+                    best = Some(m);
+                }
+            }
+        }
+        best
     }
 }
 

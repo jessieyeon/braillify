@@ -262,7 +262,7 @@ mod tests {
     /// We verify via `crate::encode` to avoid reverse-engineering helper internals.
     #[test]
     fn rule29_prev_word_numeric_drives_roman_indicator() {
-        let out = crate::encode("1,234 km").expect("must encode");
+        let out = crate::encode("1,234 km는").expect("must encode");
         assert!(!out.is_empty());
         assert!(out.contains(&ROMAN_INDICATOR));
     }

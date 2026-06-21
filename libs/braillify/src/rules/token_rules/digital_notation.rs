@@ -1,6 +1,10 @@
 use crate::english::encode_english;
 use crate::number::encode_number;
 use crate::rules::context::EncoderState;
+use crate::rules::english_ueb::contraction::{ContractionMatch, ContractionRule};
+use crate::rules::english_ueb::rule_10_4::StrongGroupsignRule;
+use crate::rules::english_ueb::rule_10_6::{LowerGroupsignRule, middle_lower_groupsign};
+use crate::rules::english_ueb::rule_10_8::FinalGroupsignRule;
 use crate::rules::token::Token;
 use crate::rules::token_rule::{TokenAction, TokenPhase, TokenRule};
 use crate::unicode::decode_unicode;
@@ -141,63 +145,34 @@ fn encode_digital_word(text: &str) -> Result<Vec<u8>, String> {
     Ok(result)
 }
 
+/// Best UEB groupsign at `pos` for digital-notation English, reusing the shared
+/// contraction rules — §10.4 strong (ch/sh/th/wh/gh/ed/er/ou/ow/st/ar/ing),
+/// §10.8 final (ment/tion/…), §10.6 unrestricted lower (en/in), and §10.6.5
+/// middle lower (ea/bb/cc/ff/gg). Longest match wins, ties by lower priority
+/// (§10.10). No local cell table — digital English now contracts identically to
+/// the rest of the engine. (`con`/`be` are the restricted lower signs needing
+/// first-syllable pronunciation, deferred like the default engine.)
+fn best_digital_groupsign(chars: &[char], pos: usize) -> Option<ContractionMatch> {
+    [
+        StrongGroupsignRule.try_match(chars, pos),
+        FinalGroupsignRule.try_match(chars, pos),
+        LowerGroupsignRule.try_match(chars, pos),
+        middle_lower_groupsign(chars, pos),
+    ]
+    .into_iter()
+    .flatten()
+    .max_by_key(|m| (m.consumed, u16::MAX - m.priority))
+}
+
 fn encode_digital_english_segment(chars: &[char], result: &mut Vec<u8>) -> Result<(), String> {
     let mut i = 0usize;
     while i < chars.len() {
-        let rest: String = chars[i..].iter().collect();
-        if rest.starts_with("ment") {
-            result.push(decode_unicode('⠰'));
-            result.push(decode_unicode('⠞'));
-            i += 4;
+        if let Some(m) = best_digital_groupsign(chars, i) {
+            result.extend_from_slice(&m.cells);
+            i += m.consumed;
             continue;
         }
-        if rest.starts_with("ing") {
-            result.push(decode_unicode('⠬'));
-            i += 3;
-            continue;
-        }
-        if rest.starts_with("con") {
-            result.push(decode_unicode('⠒'));
-            i += 3;
-            continue;
-        }
-        if rest.starts_with("ea") && chars.get(i + 2).is_some_and(|ch| ch.is_ascii_alphabetic()) {
-            result.push(decode_unicode('⠂'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("en") {
-            result.push(decode_unicode('⠢'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("ar") {
-            result.push(decode_unicode('⠜'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("er") {
-            result.push(decode_unicode('⠻'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("ou") {
-            result.push(decode_unicode('⠳'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("ow") {
-            result.push(decode_unicode('⠪'));
-            i += 2;
-            continue;
-        }
-        if rest.starts_with("th") {
-            result.push(decode_unicode('⠹'));
-            i += 2;
-            continue;
-        }
-        let encoded_letter = encode_english(chars[i])?;
-        result.push(encoded_letter);
+        result.push(encode_english(chars[i])?);
         i += 1;
     }
     Ok(())

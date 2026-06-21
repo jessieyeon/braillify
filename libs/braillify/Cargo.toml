@@ -41,17 +41,11 @@ default = ["cli"]
 cli = ["clap", "anyhow", "rustyline"]
 wasm = []
 dhat-heap = ["dep:dhat"]
-# WIP: Unified English Braille (UEB) Grade-2 encoder. Off by default so the
-# stable Korean/Math pipeline (1527+892 cases) is never affected while the
-# English path is built out rule-by-rule. Run `cargo test --features english_ueb`
-# to exercise it. Flipped on by default once it reaches 100% on the english/* suite.
-english_ueb = []
 # Adds the CMU Pronouncing Dictionary (Simplified BSD) to resolve §10.6 restricted
 # lower groupsigns (be/con), whose use depends on the syllable boundary and is
 # undecidable from spelling alone (become/beckon, benefit/beneficent). The ~3.5 MB
-# table is embedded only when this feature is enabled, so default and wasm builds
-# carry no extra weight. Implies `english_ueb`.
-english_ueb_cmudict = ["english_ueb"]
+# table is embedded only when this feature is enabled.
+english_ueb_cmudict = []
 
 [[bin]]
 name = "braillify"

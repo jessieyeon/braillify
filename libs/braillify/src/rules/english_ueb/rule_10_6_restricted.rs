@@ -25,10 +25,6 @@ impl RestrictedLowerGroupsignRule {
 }
 
 impl ContractionRule for RestrictedLowerGroupsignRule {
-    fn name(&self) -> &'static str {
-        "10.6 restricted lower groupsigns (be, con)"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         // Restricted groupsigns are word-initial only (§10.6.2).
         if pos != 0 {
@@ -75,10 +71,7 @@ mod tests {
     #[case::beckon("beckon", None)]
     #[case::cone("cone", None)]
     #[case::plain_word("cat", None)]
-    fn matches_restricted_groupsigns(
-        #[case] word: &str,
-        #[case] expected: Option<(u8, usize)>,
-    ) {
+    fn matches_restricted_groupsigns(#[case] word: &str, #[case] expected: Option<(u8, usize)>) {
         let got = rule()
             .try_match(&chars(word), 0)
             .map(|m| (m.cells[0], m.consumed));

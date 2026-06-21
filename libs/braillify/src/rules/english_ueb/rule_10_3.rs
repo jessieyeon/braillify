@@ -21,10 +21,6 @@ static STRONG: phf::Map<&'static str, u8> = phf_map! {
 pub struct StrongContractionRule;
 
 impl ContractionRule for StrongContractionRule {
-    fn name(&self) -> &'static str {
-        "10.3 strong contractions"
-    }
-
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         match_longest(word, pos, &STRONG, 50)
     }

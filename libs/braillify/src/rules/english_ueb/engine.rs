@@ -201,6 +201,8 @@ impl EnglishUebEngine {
                     let prev = i.checked_sub(1).map(|p| &tokens[p]);
                     let next = tokens.get(i + 1);
                     let standing_alone = is_standing_alone(prev, next);
+                    let shortform_usable =
+                        standing_alone && !matches!(next, Some(EnglishToken::Symbol('@' | '/')));
                     // §10.5 lower wordsigns need a stricter boundary than §10.1/§10.2.
                     let mut lower_usable = standing_alone && lower_wordsign_usable(prev, next);
                     // §10.5.2: "enough's" keeps the wordsign (its interior apostrophe is
@@ -217,7 +219,14 @@ impl EnglishUebEngine {
                     {
                         lower_usable = true;
                     }
-                    self.encode_word(chars, standing_alone, lower_usable, in_passage[i], &mut out)?;
+                    self.encode_word(
+                        chars,
+                        standing_alone,
+                        shortform_usable,
+                        lower_usable,
+                        in_passage[i],
+                        &mut out,
+                    )?;
                     prev_was_number = false;
                     numeric_mode = false;
                 }
@@ -255,10 +264,16 @@ impl EnglishUebEngine {
         &self,
         chars: &[char],
         standing_alone: bool,
+        shortform_usable: bool,
         lower_usable: bool,
         suppress_caps: bool,
         out: &mut Vec<u8>,
     ) -> Option<()> {
+        let lower: Vec<char> = chars.iter().map(char::to_ascii_lowercase).collect();
+        let word: String = lower.iter().collect();
+        if shortform_usable && super::rule_10_9::is_pure_shortform_abbreviation(&word) {
+            out.push(GRADE1);
+        }
         // `classify_caps(...)?` still guards mixed-case words (→ legacy fallback)
         // even inside a §8.4 passage, where the ⠠⠠⠠ … ⠠⠄ carry the capitalisation.
         match classify_caps(chars)? {
@@ -274,9 +289,10 @@ impl EnglishUebEngine {
                 // is attached to other context (after a number, apostrophe, or
                 // closing bracket) the shortform reading does not arise, so the
                 // indicator is not needed (e.g. `N12 7BT`, `SHE'LL`, `(R)AC`).
-                let word: String = chars.iter().collect();
+                let uppercase_word: String = chars.iter().collect();
                 if standing_alone
-                    && crate::rules::english_shortform::requires_grade1_indicator(&word)
+                    && !super::rule_10_9::is_pure_shortform_abbreviation(&word)
+                    && crate::rules::english_shortform::requires_grade1_indicator(&uppercase_word)
                 {
                     out.push(GRADE1);
                 }
@@ -284,13 +300,11 @@ impl EnglishUebEngine {
                 out.push(CAPITAL);
             }
         }
-        let lower: Vec<char> = chars.iter().map(char::to_ascii_lowercase).collect();
         // §10.1/§10.2 (upper) and §10.5 (lower) wordsigns: a whole word that
         // stands alone (§2.6) becomes its wordsign. Lower wordsigns additionally
         // require the stricter `lower_usable` boundary. All are suppressed inside
         // Korean text via `standing_alone = false` (한국 점자 제37항).
         if standing_alone {
-            let word: String = lower.iter().collect();
             let cell = super::rule_10_1::wordsign(&word)
                 .or_else(|| super::rule_10_2::wordsign(&word))
                 .or_else(|| {
@@ -302,8 +316,15 @@ impl EnglishUebEngine {
                 out.push(cell);
                 return Some(());
             }
+            if shortform_usable && let Some(cells) = super::rule_10_9::whole_word_cells(&word) {
+                out.extend(cells);
+                return Some(());
+            }
         }
-        out.extend(self.contractions.encode_word(&lower)?);
+        out.extend(super::rule_10_9::encode_with_longer_shortforms(
+            &lower,
+            &self.contractions,
+        )?);
         Some(())
     }
 }
@@ -391,6 +412,17 @@ mod tests {
     #[case::it_apostrophe_s("it's", vec![decode_unicode('⠭'), decode_unicode('⠄'), decode_unicode('⠎')])]
     fn encodes_wordsigns(#[case] text: &str, #[case] expected: Vec<u8>) {
         assert_eq!(enc(text), Some(expected));
+    }
+
+    /// §10.9 shortforms: whole shortform words contract only in standalone
+    /// pure-English UEB, while a literal abbreviation gets a grade-1 guard.
+    #[rstest::rstest]
+    #[case::good("good", "⠛⠙")]
+    #[case::would("would", "⠺⠙")]
+    #[case::rejoice("rejoice", "⠗⠚⠉")]
+    #[case::literal_gd("gd", "⠰⠛⠙")]
+    fn encodes_shortforms(#[case] text: &str, #[case] expected: &str) {
+        assert_eq!(enc(text), Some(cells(expected)));
     }
 
     /// §10.5 lower wordsigns: used between anchoring boundaries (space/edge/

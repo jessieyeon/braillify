@@ -9,9 +9,9 @@
 
 use crate::char_struct::CharType;
 use crate::english;
-use crate::rule_en::{rule_en_10_4, rule_en_10_5_whole_word, rule_en_10_6, rule_en_multi_cell};
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
+use crate::rules::english_ueb::korean_context::{KoreanPrefixInput, match_korean_prefix};
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META: RuleMeta = RuleMeta {
@@ -116,16 +116,6 @@ impl BrailleRule for Rule28 {
             .collect();
         let is_whole_lowercase_word =
             ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
-        let be_boundary_non_alpha = remaining.starts_with("be")
-            && remaining
-                .chars()
-                .nth(2)
-                .is_none_or(|ch| !ch.is_ascii_alphabetic());
-        let in_boundary_non_alpha = remaining.starts_with("in")
-            && remaining
-                .chars()
-                .nth(2)
-                .is_none_or(|ch| !ch.is_ascii_alphabetic());
         let prev_is_ascii_word =
             !ctx.prev_word.is_empty() && ctx.prev_word.chars().all(|ch| ch.is_ascii_alphabetic());
         let next_is_ascii_word = ctx
@@ -141,72 +131,15 @@ impl BrailleRule for Rule28 {
             ctx.state.needs_english_continuation = false;
             return Ok(RuleResult::Consumed);
         }
-        // Title case word ("Part", "Every") 도 whole-word contraction을 적용한다.
-        // 모두 소문자 → contraction만 emit; 첫 대문자 + 나머지 소문자 → ⠠(대문자 표시) + contraction.
-        // 모두 대문자(CD, KBS 등)는 약자 자체이므로 contraction 적용 안 함.
-        let is_title_case_word = ctx.index == 0
-            && !ctx.is_all_uppercase
-            && ctx
-                .word_chars
-                .first()
-                .is_some_and(|ch| ch.is_ascii_uppercase())
-            && ctx
-                .word_chars
-                .iter()
-                .skip(1)
-                .all(|ch| ch.is_ascii_lowercase())
-            && ctx.word_chars.len() >= 2;
-        if ctx.index == 0
-            && !ctx.is_all_uppercase
-            && (is_whole_lowercase_word || is_title_case_word)
-            && let Some(cells) = rule_en_10_5_whole_word(&remaining)
-        {
-            ctx.emit_slice(cells);
-            *ctx.skip_count = ctx.word_len().saturating_sub(1);
-            ctx.state.is_english = true;
-            ctx.state.needs_english_continuation = false;
-            return Ok(RuleResult::Consumed);
-        }
-
-        // 제39항 영-한 wrap 활성 컨텍스트에서는 단독 단어 "in", "be"도
-        // UEB 약자를 적용한다 (예: "What is 김치 in English?"의 "in" → ⠔).
-        let wrap_active = ctx.state.english_dominant_wrap_active;
-        let allow_10_6 = !(ctx.is_all_uppercase
-            || (!wrap_active && be_boundary_non_alpha)
-            || (!wrap_active && in_boundary_non_alpha)
-            || (!wrap_active
-                && is_whole_lowercase_word
-                && matches!(remaining.as_str(), "be" | "in")));
-        let allow_10_4_entry = !(ctx.is_all_uppercase
-            || (!wrap_active && in_boundary_non_alpha)
-            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
-        let allow_10_4_cont = !((!wrap_active && in_boundary_non_alpha)
-            || (!wrap_active && is_whole_lowercase_word && remaining == "in"));
-
-        // multi-cell 약자 (예: 'ong' → ⠰⠛)는 영어 모드 진입 위치 및 word middle 모두에서 적용한다.
-        // 제39항 영-한 wrap context에서는 word middle에서도 1급 점자 기호표 하위 약자(10.6: ea, be, con, en, in)를 적용한다. 예: "Korean"의 'ea' → ⠂.
-        let at_entry = !ctx.state.is_english || ctx.index == 0;
-        let try_10_6_entry = at_entry && allow_10_6;
-        let try_10_6_middle = !at_entry && wrap_active && allow_10_6;
-        let try_10_4 = if at_entry {
-            allow_10_4_entry
-        } else {
-            allow_10_4_cont
-        };
-        let try_multi_cell = true;
-
-        if try_10_6_entry && let Some((code, len)) = rule_en_10_6(&remaining) {
-            ctx.emit(code);
-            *ctx.skip_count = len;
-        } else if try_10_4 && let Some((code, len)) = rule_en_10_4(&remaining) {
-            ctx.emit(code);
-            *ctx.skip_count = len;
-        } else if try_multi_cell && let Some((cells, len)) = rule_en_multi_cell(&remaining) {
-            ctx.emit_slice(cells);
-            *ctx.skip_count = len;
-        } else if try_10_6_middle && let Some((code, len)) = rule_en_10_6(&remaining) {
-            ctx.emit(code);
-            *ctx.skip_count = len;
+        if let Some(matched) = match_korean_prefix(KoreanPrefixInput {
+            word: ctx.word_chars,
+            pos: ctx.index,
+            wrap_active: ctx.state.english_dominant_wrap_active,
+            is_all_uppercase: ctx.is_all_uppercase,
+            at_entry: !ctx.state.is_english || ctx.index == 0,
+        }) {
+            ctx.emit_slice(&matched.cells);
+            *ctx.skip_count = matched.consumed.saturating_sub(1);
         } else {
             ctx.emit(english::encode_english(*c)?);
         }
