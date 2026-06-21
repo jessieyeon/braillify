@@ -33,6 +33,7 @@ pub mod rule_3;
 pub mod rule_4;
 pub mod rule_6;
 pub mod rule_7;
+pub mod span;
 pub mod standing_alone;
 pub mod token;
 

@@ -24,6 +24,7 @@ pub mod context;
 pub mod emit;
 pub mod engine;
 pub mod english_shortform;
+pub(crate) mod roman_mode;
 pub mod token;
 pub mod token_engine;
 pub mod token_rule;

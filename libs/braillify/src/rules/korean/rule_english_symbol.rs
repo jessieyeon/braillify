@@ -89,7 +89,7 @@ impl BrailleRule for RuleEnglishSymbol {
                 ctx.state.needs_english_continuation = false;
             }
             if let Some(encoded) = symbol_shortcut::encode_english_char_symbol_shortcut(*sym) {
-                ctx.emit_slice(encoded);
+                ctx.emit_slice(&encoded);
                 if *sym == '-' && ctx.state.is_english {
                     // 다음 글자가 숫자이면 수표(⠼)가 emit되므로 연속표(⠰)는
                     // 불필요하다 (제35항 D-100 같은 영문-숫자 인접 패턴).

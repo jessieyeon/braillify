@@ -11,7 +11,8 @@ use crate::char_struct::CharType;
 use crate::english;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
-use crate::rules::english_ueb::korean_context::{KoreanPrefixInput, match_korean_prefix};
+use crate::rules::english_ueb::korean_context::KoreanPrefixInput;
+use crate::rules::english_ueb::span::encode_korean_unit;
 use crate::rules::traits::{BrailleRule, Phase, RuleResult};
 
 pub static META: RuleMeta = RuleMeta {
@@ -51,9 +52,10 @@ fn uppercase_indicators(
 
 /// Plugin struct for the rule engine.
 ///
-/// Handles basic English letter encoding (제28항).
-/// Uppercase indicators and English abbreviations are separate concerns
-/// handled during ModeManagement and by rule_en rules.
+/// Handles 제28항 English-in-Korean encoding: 로마자표/연속표 entry and uppercase
+/// indicators. Letter/contraction cell production is delegated to
+/// [`crate::rules::english_ueb::span`]; 종료표/exit orchestration lives in
+/// [`crate::rules::emit`].
 pub struct Rule28;
 
 impl BrailleRule for Rule28 {
@@ -131,17 +133,16 @@ impl BrailleRule for Rule28 {
             ctx.state.needs_english_continuation = false;
             return Ok(RuleResult::Consumed);
         }
-        if let Some(matched) = match_korean_prefix(KoreanPrefixInput {
+        let unit = encode_korean_unit(KoreanPrefixInput {
             word: ctx.word_chars,
             pos: ctx.index,
             wrap_active: ctx.state.english_dominant_wrap_active,
             is_all_uppercase: ctx.is_all_uppercase,
             at_entry: !ctx.state.is_english || ctx.index == 0,
-        }) {
-            ctx.emit_slice(&matched.cells);
-            *ctx.skip_count = matched.consumed.saturating_sub(1);
-        } else {
-            ctx.emit(english::encode_english(*c)?);
+        })?;
+        ctx.emit_slice(&unit.cells);
+        if unit.contracted {
+            *ctx.skip_count = unit.consumed.saturating_sub(1);
         }
 
         ctx.state.is_english = true;

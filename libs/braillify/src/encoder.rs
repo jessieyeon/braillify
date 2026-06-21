@@ -45,9 +45,6 @@ impl Encoder {
         // ── WordShortcut ─────────────────────────────────
         rule_engine.register(Box::new(rules::korean::rule_18::Rule18));
 
-        // ── ModeManagement ───────────────────────────────
-        rule_engine.register(Box::new(rules::korean::rule_29::Rule29));
-
         // ── CoreEncoding ─────────────────────────────────
         rule_engine.register(Box::new(rules::korean::rule_44::Rule44));
         rule_engine.register(Box::new(rules::korean::rule_66::Rule66));
