@@ -16,23 +16,26 @@ pub mod contraction;
 pub mod engine;
 pub(crate) mod korean_context;
 pub mod parser;
-#[cfg(feature = "english_ueb_cmudict")]
 pub mod pronunciation;
 pub mod rule_10_1;
+pub mod rule_10_11;
 pub mod rule_10_2;
 pub mod rule_10_3;
 pub mod rule_10_4;
 pub mod rule_10_5;
 pub mod rule_10_6;
-#[cfg(feature = "english_ueb_cmudict")]
+pub mod rule_10_6_middle;
 pub mod rule_10_6_restricted;
 pub mod rule_10_7;
+pub mod rule_10_7_pron;
 pub mod rule_10_8;
 pub mod rule_10_9;
 pub mod rule_3;
 pub mod rule_4;
+pub mod rule_5_7;
 pub mod rule_6;
 pub mod rule_7;
+pub mod rule_9;
 pub mod span;
 pub mod standing_alone;
 pub mod token;
@@ -49,11 +52,7 @@ pub fn try_encode(text: &str) -> Option<Vec<u8>> {
     // path only. Pure ASCII is NFC-stable, so non-accented inputs are unchanged.
     use unicode_normalization::UnicodeNormalization;
     let composed: String = text.nfc().collect();
-    // A lone accented letter with no ASCII letter (e.g. `ã`, `ä`) is an ambiguous
-    // standalone diacritic-marked symbol that the legacy/math path owns (수학
-    // 제65항). UEB §4.2 accents only arise *inside* an alphabetic word (`café`,
-    // `Étienne`), which always contains an ASCII letter, so require one here.
-    if !composed.chars().any(|c| c.is_ascii_alphabetic()) {
+    if !is_ueb_eligible(&composed) {
         return None;
     }
     let tokens = parser::parse_english(&composed);
@@ -61,6 +60,21 @@ pub fn try_encode(text: &str) -> Option<Vec<u8>> {
         return None;
     }
     EnglishUebEngine::new().encode(&tokens)
+}
+
+/// Whether `text` carries content the UEB path may own. The legacy/math path
+/// keeps every input with no such signal — in particular a lone accented letter
+/// (`ã`, `ä`) is an ambiguous standalone diacritic owned by 수학 제65항, and a
+/// pure number/symbol run (`7:30`, `9-10`) is legacy numeric.
+///
+/// Two signals qualify: (1) an ASCII letter — UEB §4.2 accents only arise inside
+/// an alphabetic word (`café`), which always has one; and (2) a §9 typeform
+/// signal — a Mathematical-Alphanumeric styled char or a combining underline
+/// (U+0332) — so a *letterless* but emphasised input (`3̲4̲`, `27.̲9`, `83%̲`) is
+/// still UEB's. Korean is excluded by the callers' own `is_korean_char` guard.
+pub fn is_ueb_eligible(text: &str) -> bool {
+    text.chars()
+        .any(|c| c.is_ascii_alphabetic() || c == '\u{0332}' || rule_9::decode_styled(c).is_some())
 }
 
 /// Whether `text` is *unambiguously* a math expression the legacy math pipeline
@@ -103,12 +117,15 @@ pub fn is_math_owned(text: &str) -> bool {
     if let Some((name, _)) = crate::rules::math::function::match_function_prefix(after_coeff) {
         let rest = &after_coeff[name.len()..];
         // The remainder is a math argument — never an English word continuation —
-        // when it is empty, begins with a non-letter (`sin3x`, `f(`), or is a
-        // run of *vowel-free* letters (math variables `x`, `xy`). An English word
+        // when it is empty, begins with a non-letter (`sin3x`, `f(`), begins with
+        // an *uppercase* letter (a math variable, `arcsinA`, `cosX` — an English
+        // word never has a mid-word capital after a function prefix), or is a run
+        // of *vowel-free* letters (math variables `x`, `xy`). An English word
         // sharing the prefix (`singe`=sin+ge, `arccosine`=arccos+ine) always has a
-        // vowel in its continuation, so it is left to UEB.
+        // lowercase, vowel-bearing continuation, so it is left to UEB.
         let rest_is_math_arg = rest.is_empty()
             || !rest.starts_with(|c: char| c.is_ascii_alphabetic())
+            || rest.starts_with(|c: char| c.is_ascii_uppercase())
             || rest.chars().all(|c| {
                 c.is_ascii_alphabetic()
                     && !matches!(c.to_ascii_lowercase(), 'a' | 'e' | 'i' | 'o' | 'u')

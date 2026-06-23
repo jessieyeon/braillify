@@ -9,23 +9,37 @@
 use crate::english::encode_english;
 use crate::unicode::decode_unicode;
 
-const GRAVE: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠡')];
-const ACUTE: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠌')];
-const CIRCUMFLEX: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠩')];
-const DIAERESIS: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠒')];
-const CARON: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠬')];
-const RING: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠫')];
-const CEDILLA: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠯')];
-const TILDE: [u8; 2] = [decode_unicode('⠘'), decode_unicode('⠻')];
-const STROKE: [u8; 2] = [decode_unicode('⠈'), decode_unicode('⠡')];
-const MACRON: [u8; 2] = [decode_unicode('⠈'), decode_unicode('⠤')];
-const BREVE: [u8; 2] = [decode_unicode('⠈'), decode_unicode('⠬')];
+const GRAVE: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠡')];
+const ACUTE: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠌')];
+const CIRCUMFLEX: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠩')];
+const DIAERESIS: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠒')];
+const CARON: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠬')];
+const RING: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠫')];
+const CEDILLA: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠯')];
+const TILDE: &[u8] = &[decode_unicode('⠘'), decode_unicode('⠻')];
+const STROKE: &[u8] = &[decode_unicode('⠈'), decode_unicode('⠡')];
+const MACRON: &[u8] = &[decode_unicode('⠈'), decode_unicode('⠤')];
+const BREVE: &[u8] = &[decode_unicode('⠈'), decode_unicode('⠬')];
+/// §4.2 comma-below (Romanian `ț`, `ș`) — a three-cell indicator.
+const COMMA_BELOW: &[u8] = &[
+    decode_unicode('⠘'),
+    decode_unicode('⠸'),
+    decode_unicode('⠂'),
+];
+/// §4.2 letter stroke through H (Maltese `Ħ`, `ħ`).
+const H_STROKE: &[u8] = &[decode_unicode('⠈'), decode_unicode('⠒')];
+/// §4.2 dot above (Maltese `Ġ`, `ġ`) — a three-cell indicator.
+const DOT_ABOVE: &[u8] = &[
+    decode_unicode('⠘'),
+    decode_unicode('⠸'),
+    decode_unicode('⠆'),
+];
 
 /// Map an accented letter to (accent indicator cells, base ASCII letter).
 /// Matches on the lowercased character so an uppercase accented letter (`É`,
 /// `Ö`) maps to the same indicator + base; the §8 capital is added by
 /// [`accent_cells`].
-fn accent_of(c: char) -> Option<([u8; 2], char)> {
+fn accent_of(c: char) -> Option<(&'static [u8], char)> {
     let m = match c.to_lowercase().next()? {
         'à' => (GRAVE, 'a'),
         'è' => (GRAVE, 'e'),
@@ -71,30 +85,51 @@ fn accent_of(c: char) -> Option<([u8; 2], char)> {
         'ŏ' => (BREVE, 'o'),
         'ŭ' => (BREVE, 'u'),
         'ł' => (STROKE, 'l'),
+        'ț' => (COMMA_BELOW, 't'),
+        'ș' => (COMMA_BELOW, 's'),
+        'ħ' => (H_STROKE, 'h'),
+        'ġ' => (DOT_ABOVE, 'g'),
         _ => return None,
     };
     Some(m)
 }
 
 /// §4.2 ligatured letters: the two base letters joined by the ligature sign ⠘⠖
-/// (`æ` → ⠁⠘⠖⠑). Returns the (first, second) ASCII base letters.
+/// (`æ` → ⠁⠘⠖⠑, `œ` → ⠕⠘⠖⠑). Returns the (first, second) ASCII base letters.
 fn ligature_bases(c: char) -> Option<(char, char)> {
     match c {
         'æ' | 'Æ' => Some(('a', 'e')),
+        'œ' | 'Œ' => Some(('o', 'e')),
         _ => None,
     }
+}
+
+/// §4.6 the German eszett (sharp s) `ß`/`ẞ` → ⠨⠮, a fixed two-cell sign with no
+/// base letter; the uppercase form carries the §8 capital indicator.
+fn eszett_cells(c: char) -> Option<Vec<u8>> {
+    matches!(c, 'ß' | 'ẞ').then(|| {
+        let mut cells = Vec::with_capacity(3);
+        if c.is_uppercase() {
+            cells.push(decode_unicode('⠠'));
+        }
+        cells.extend([decode_unicode('⠨'), decode_unicode('⠮')]);
+        cells
+    })
 }
 
 /// Whether `c` is a supported accented or ligatured letter (so the parser keeps
 /// it in a word).
 pub fn is_accented(c: char) -> bool {
-    accent_of(c).is_some() || ligature_bases(c).is_some()
+    accent_of(c).is_some() || ligature_bases(c).is_some() || matches!(c, 'ß' | 'ẞ')
 }
 
 /// Braille cells for an accented or ligatured letter — `[§8 capital] + …`.
 /// An uppercase letter (`É`, `Æ`) carries the capital indicator ⠠ first. `None`
 /// if `c` is not a supported accented/ligatured letter.
 pub fn accent_cells(c: char) -> Option<Vec<u8>> {
+    if let Some(cells) = eszett_cells(c) {
+        return Some(cells);
+    }
     if let Some((first, second)) = ligature_bases(c) {
         let mut cells = Vec::with_capacity(5);
         if c.is_uppercase() {
@@ -106,11 +141,11 @@ pub fn accent_cells(c: char) -> Option<Vec<u8>> {
         return Some(cells);
     }
     let (indicator, base) = accent_of(c)?;
-    let mut cells = Vec::with_capacity(4);
+    let mut cells = Vec::with_capacity(indicator.len() + 2);
     if c.is_uppercase() {
         cells.push(decode_unicode('⠠'));
     }
-    cells.extend(indicator);
+    cells.extend_from_slice(indicator);
     cells.push(encode_english(base).ok()?);
     Some(cells)
 }
@@ -133,9 +168,21 @@ mod tests {
     #[case::e_acute_upper('É', "⠠⠘⠌⠑")]
     #[case::o_diaeresis_upper('Ö', "⠠⠘⠒⠕")]
     #[case::u_circumflex_upper('Û', "⠠⠘⠩⠥")]
-    // §4.2 ligature æ/Æ → base a + ligature sign ⠘⠖ + base e.
+    // §4.2 ligatures æ/Æ and œ/Œ → first base + ligature sign ⠘⠖ + second base.
     #[case::ae_ligature('æ', "⠁⠘⠖⠑")]
     #[case::ae_ligature_upper('Æ', "⠠⠁⠘⠖⠑")]
+    #[case::oe_ligature('œ', "⠕⠘⠖⠑")]
+    #[case::oe_ligature_upper('Œ', "⠠⠕⠘⠖⠑")]
+    // §4.6 the German eszett ß/ẞ → ⠨⠮ (uppercase form carries the §8 capital).
+    #[case::eszett('ß', "⠨⠮")]
+    #[case::eszett_upper('ẞ', "⠠⠨⠮")]
+    // §4.2 three-cell indicators: comma-below (`ț`/`ș`), dot-above (`ġ`), and the
+    // two-cell H-stroke (`ħ`/`Ħ`).
+    #[case::t_comma_below('ț', "⠘⠸⠂⠞")]
+    #[case::s_comma_below('ș', "⠘⠸⠂⠎")]
+    #[case::h_stroke('ħ', "⠈⠒⠓")]
+    #[case::h_stroke_upper('Ħ', "⠠⠈⠒⠓")]
+    #[case::g_dot_above('ġ', "⠘⠸⠆⠛")]
     fn accent_cells_match_indicator_plus_base(#[case] c: char, #[case] expected: &str) {
         let want: Vec<u8> = expected.chars().map(decode_unicode).collect();
         assert_eq!(accent_cells(c), Some(want));

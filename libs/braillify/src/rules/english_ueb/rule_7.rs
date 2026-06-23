@@ -21,6 +21,14 @@ pub fn encode_punctuation(c: char) -> Option<Vec<u8>> {
         // §7 en/em dash → ⠠⠤.
         '\u{2013}' | '\u{2014}' => vec![decode_unicode('⠠'), decode_unicode('⠤')],
         '\'' => vec![decode_unicode('⠄')],
+        // §7.6 curly double quotation marks — directional, so (unlike the straight
+        // `"` toggled by the engine) each maps to a fixed open/close cell.
+        '\u{201C}' => vec![decode_unicode('⠦')],
+        '\u{201D}' => vec![decode_unicode('⠴')],
+        // §7.6 curly opening single quote → ⠠⠦ (a left single quote is never an
+        // apostrophe). The right single quote (U+2019) is context-dependent
+        // (apostrophe vs closing single quote) and is handled by the engine.
+        '\u{2018}' => vec![decode_unicode('⠠'), decode_unicode('⠦')],
         '(' => vec![decode_unicode('⠐'), decode_unicode('⠣')],
         ')' => vec![decode_unicode('⠐'), decode_unicode('⠜')],
         '[' => vec![decode_unicode('⠨'), decode_unicode('⠣')],
@@ -30,6 +38,15 @@ pub fn encode_punctuation(c: char) -> Option<Vec<u8>> {
         '/' => vec![decode_unicode('⠸'), decode_unicode('⠌')], // §7 slash
         '\\' => vec![decode_unicode('⠸'), decode_unicode('⠡')], // §7 backslash
         '@' => vec![decode_unicode('⠈'), decode_unicode('⠁')], // §7 at sign
+        // §7.6 angled (guillemet) quotation marks — fixed open/close cells.
+        '\u{00AB}' => vec![decode_unicode('⠸'), decode_unicode('⠦')], // «
+        '\u{00BB}' => vec![decode_unicode('⠸'), decode_unicode('⠴')], // »
+        // §7 ellipsis: the single-character form is three full stops.
+        '\u{2026}' => vec![
+            decode_unicode('⠲'),
+            decode_unicode('⠲'),
+            decode_unicode('⠲'),
+        ], // …
         _ => return None,
     })
 }
@@ -51,6 +68,12 @@ mod tests {
     #[case::at_sign('@', vec![decode_unicode('⠈'), decode_unicode('⠁')])]
     #[case::en_dash('\u{2013}', vec![decode_unicode('⠠'), decode_unicode('⠤')])]
     #[case::em_dash('\u{2014}', vec![decode_unicode('⠠'), decode_unicode('⠤')])]
+    #[case::curly_open_dquote('\u{201C}', vec![decode_unicode('⠦')])]
+    #[case::curly_close_dquote('\u{201D}', vec![decode_unicode('⠴')])]
+    #[case::curly_open_squote('\u{2018}', vec![decode_unicode('⠠'), decode_unicode('⠦')])]
+    #[case::guillemet_open('\u{00AB}', vec![decode_unicode('⠸'), decode_unicode('⠦')])]
+    #[case::guillemet_close('\u{00BB}', vec![decode_unicode('⠸'), decode_unicode('⠴')])]
+    #[case::ellipsis('\u{2026}', vec![decode_unicode('⠲'), decode_unicode('⠲'), decode_unicode('⠲')])]
     fn encodes_known_punctuation(#[case] c: char, #[case] expected: Vec<u8>) {
         assert_eq!(encode_punctuation(c), Some(expected));
     }

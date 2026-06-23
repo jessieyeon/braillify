@@ -635,6 +635,21 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // N개 한글 음절을 cross-word 묶음으로 wrap. sentinel은 symbol_shortcut에서
     // braille marker (⠠⠤/⠤⠄)로 emit된다.
     let normalization_triggers = NormalizationTriggers::scan(text);
+    // §9 typeform: a styled letter (math-alphanumeric, e.g. `𝑝`) carries an
+    // italic/bold emphasis that the math-alphanumeric normalization below erases
+    // by folding `𝑝`→`p` (the Korean math path writes no font variation). For
+    // english-dominant prose the UEB engine instead emits a typeform indicator,
+    // so try it on the ORIGINAL text first; math/Korean inputs (no ASCII letter,
+    // or math-owned) fall through to the normalization as before.
+    if options.default_mode.is_none()
+        && normalization_triggers.has_math_alphanumeric
+        && !text.chars().any(crate::utils::is_korean_char)
+        && text.chars().any(|c| c.is_ascii_alphabetic())
+        && !crate::rules::english_ueb::is_math_owned(text)
+        && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
+    {
+        return Ok(bytes);
+    }
     let normalized_text = if normalization_triggers.has_math_alphanumeric {
         normalize_math_alphanumeric_string(text)
     } else {
@@ -933,11 +948,10 @@ mod test {
     #[case::che_jil_bmi("체질량 지수(BMI)", "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
     #[case::roma_bracket("Roma [ㄹㄹ로마]", "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴")]
     #[case::ye_quoted("‘ㅖ’로 적는다.", "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲")]
-    // English mode (standalone English → UEB; the §10.6 restricted `con` groupsign
-    // ⠒ exists only with pronunciation data, so without `english_ueb_cmudict` the
-    // letters spell out as `c o n`).
-    #[case::contents("Contents", if cfg!(feature = "english_ueb_cmudict") { "⠠⠒⠞⠢⠞⠎" } else { "⠠⠉⠕⠝⠞⠢⠞⠎" })]
-    #[case::table_of_contents("Table of Contents", if cfg!(feature = "english_ueb_cmudict") { "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎" } else { "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠉⠕⠝⠞⠢⠞⠎" })]
+    // English mode (standalone English → UEB). The §10.6 restricted `con`
+    // groupsign ⠒ contracts via the always-embedded pronunciation dictionary.
+    #[case::contents("Contents", "⠠⠒⠞⠢⠞⠎")]
+    #[case::table_of_contents("Table of Contents", "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎")]
     #[case::bonjour("bonjour", "⠃⠕⠝⠚⠳⠗")]
     // Korean jamo names
     #[case::triangle_jamo("삼각형 ㄱㄴㄷ", "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔")]
@@ -1439,16 +1453,21 @@ mod test {
             println!("총 Skip: {}건", skipped_cases.len());
         }
 
-        // write test_status to file
-        serde_json::to_writer_pretty(
-            File::create(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/../../test_status.json"
-            ))
-            .unwrap(),
-            &file_stats,
-        )
-        .unwrap();
+        // Write per-file stats to the workspace-root status file.
+        let status_path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../test_status.json");
+        serde_json::to_writer_pretty(File::create(status_path).unwrap(), &file_stats).unwrap();
+
+        // Per-category (korean/math/english) totals — aggregated here because the
+        // per-file loop below consumes `file_stats`. Keys are owned so the summary
+        // can print after that loop.
+        let mut category_stats: std::collections::BTreeMap<String, (usize, usize)> =
+            std::collections::BTreeMap::new();
+        for (key, value) in &file_stats {
+            let category = key.split('/').next().unwrap_or(key.as_str()).to_string();
+            let entry = category_stats.entry(category).or_insert((0, 0));
+            entry.0 += value.0;
+            entry.1 += value.1;
+        }
 
         println!("\n파일별 테스트 결과:");
         println!("=================");
@@ -1469,6 +1488,16 @@ mod test {
                 file_total - file_failed,
                 color,
                 success_rate
+            );
+        }
+        println!("\n카테고리별 결과:");
+        println!("=================");
+        for (category, (cat_total, cat_failed)) in &category_stats {
+            println!(
+                "{}: {}/{} 성공",
+                category,
+                cat_total - cat_failed,
+                cat_total
             );
         }
         println!("\n전체 테스트 결과 요약:");

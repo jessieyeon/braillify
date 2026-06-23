@@ -14,6 +14,8 @@ pub enum Prefix {
     Be,
     /// `con` lower groupsign (⠒).
     Con,
+    /// `dis` lower groupsign (⠲).
+    Dis,
 }
 
 /// The classifier's verdict.
@@ -32,6 +34,7 @@ pub fn classify(word: &[char], prefix: Prefix, provider: &dyn PronunciationProvi
     match prefix {
         Prefix::Be => classify_be(word, provider),
         Prefix::Con => classify_con(word, provider),
+        Prefix::Dis => classify_dis(word, provider),
     }
 }
 
@@ -93,6 +96,27 @@ fn con_pron_uses(p: &[Phoneme]) -> bool {
     p.len() >= 4 && p[0].base == "K" && p[1].is_vowel() && p[2].base == "N" && !p[3].is_vowel()
 }
 
+/// `dis`: the prefix forms the first syllable when (1) the remainder after `dis`
+/// is itself a standalone word — a spelling test prefixing cannot misjudge
+/// (`dis·like`, `dis·honest`, `dis·play`), which settles the S-coda cases the
+/// pronunciation alone cannot (`dis·like` vs `di·spirited`); or (2) the
+/// pronunciation is `D IH S` then a vowel — the closed first syllable
+/// (`dis·aster`, `dis·cipline`). Requiring the first vowel be `IH` excludes the
+/// `di-` words (`di·sulphide` = D AY S …), and requiring a vowel after the `S`
+/// excludes `di·spirited`/`disc`.
+fn classify_dis(word: &[char], provider: &dyn PronunciationProvider) -> Decision {
+    // A ≥2-letter remainder rules out 1-letter codas (`disc`→`c`, `dish`→`h`)
+    // that some single-letter dictionary entries would otherwise match.
+    if word.len() > 4 && !provider.pronunciations(&word_string(&word[3..])).is_empty() {
+        return Decision::Use;
+    }
+    decide_all(&provider.pronunciations(&word_string(word)), dis_pron_uses)
+}
+
+fn dis_pron_uses(p: &[Phoneme]) -> bool {
+    p.len() >= 4 && p[0].base == "D" && p[1].base == "IH" && p[2].base == "S" && p[3].is_vowel()
+}
+
 /// Every pronunciation must agree for a definite `Use`/`SpellOut`; disagreement
 /// or no data yields `Unknown`.
 fn decide_all(prons: &[Vec<Phoneme>], uses: fn(&[Phoneme]) -> bool) -> Decision {
@@ -149,6 +173,12 @@ mod tests {
             ("control", vec!["K AH0 N T R OW1 L"]),
             ("cone", vec!["K OW1 N"]),
             ("coney", vec!["K OW1 N IY0"]),
+            ("dislike", vec!["D IH0 S L AY1 K"]),
+            ("like", vec!["L AY1 K"]),
+            ("discipline", vec!["D IH1 S AH0 P L IH0 N"]),
+            ("dispirited", vec!["D IH0 S P IH1 R IH0 T IH0 D"]),
+            ("disulphide", vec!["D AY0 S AH1 L F AY2 D"]),
+            ("disc", vec!["D IH1 S K"]),
         ]))
     }
 
@@ -175,6 +205,14 @@ mod tests {
     #[case::control("control", Prefix::Con, Decision::Use)]
     #[case::cone("cone", Prefix::Con, Decision::SpellOut)]
     #[case::coney("coney", Prefix::Con, Decision::SpellOut)]
+    // `dis`: rest-is-word (dis·like) and `D IH S`+vowel (dis·cipline) use it;
+    // di·spirited (S+consonant), di·sulphide (first vowel AY), and disc
+    // (monosyllable) spell out.
+    #[case::dislike_rest_word("dislike", Prefix::Dis, Decision::Use)]
+    #[case::discipline_pron("discipline", Prefix::Dis, Decision::Use)]
+    #[case::dispirited("dispirited", Prefix::Dis, Decision::SpellOut)]
+    #[case::disulphide("disulphide", Prefix::Dis, Decision::SpellOut)]
+    #[case::disc_monosyllable("disc", Prefix::Dis, Decision::SpellOut)]
     fn classifies_restricted_prefixes(
         #[case] word: &str,
         #[case] prefix: Prefix,

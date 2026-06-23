@@ -32,13 +32,13 @@ pub fn is_standing_alone(prev: Option<&EnglishToken>, next: Option<&EnglishToken
         // Sentence-internal marks (ellipsis/period/comma) and a preceding
         // apostrophe (contraction suffix, `don't`) do NOT permit standing alone.
         Some(EnglishToken::Symbol(_)) => false,
-        Some(EnglishToken::Word(_) | EnglishToken::Number(_)) => false,
+        Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..)) => false,
     };
     // §2.6.3: a wide set of *following* punctuation still permits standing alone
     // (period, ellipsis, comma, `?`, `!`, closing brackets/quotes, apostrophe …).
     let next_ok = match next {
         None | Some(EnglishToken::Space | EnglishToken::Symbol(_)) => true,
-        Some(EnglishToken::Word(_) | EnglishToken::Number(_)) => false,
+        Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..)) => false,
     };
     prev_ok && next_ok
 }

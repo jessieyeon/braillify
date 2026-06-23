@@ -39,6 +39,27 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '¥' => vec![CURRENCY, decode_unicode('⠽')],
         '₣' => vec![CURRENCY, decode_unicode('⠋')],
         '₦' => vec![CURRENCY, decode_unicode('⠝')],
+        // §3.18 musical signs: ⠼ prefix + the sign's letter.
+        '\u{266D}' => vec![decode_unicode('⠼'), decode_unicode('⠣')], // ♭ flat
+        '\u{266F}' => vec![decode_unicode('⠼'), decode_unicode('⠩')], // ♯ sharp
+        '\u{266E}' => vec![decode_unicode('⠼'), decode_unicode('⠡')], // ♮ natural
+        // §3.3 reference marks: dagger / double dagger (⠈⠠ prefix).
+        '\u{2020}' => vec![
+            decode_unicode('⠈'),
+            decode_unicode('⠠'),
+            decode_unicode('⠹'),
+        ], // †
+        '\u{2021}' => vec![
+            decode_unicode('⠈'),
+            decode_unicode('⠠'),
+            decode_unicode('⠻'),
+        ], // ‡
+        // §3.16 gender signs (⠘ prefix).
+        '\u{2640}' => vec![decode_unicode('⠘'), decode_unicode('⠭')], // ♀ female
+        '\u{2642}' => vec![decode_unicode('⠘'), decode_unicode('⠽')], // ♂ male
+        '\u{2022}' => vec![decode_unicode('⠸'), decode_unicode('⠲')], // • bullet (§3.22)
+        // §3.28 check mark: a fixed UEB symbol ⠈⠩ (dot-4 prefix + dots-146).
+        '\u{2713}' => vec![decode_unicode('⠈'), decode_unicode('⠩')], // ✓
         _ => return None,
     })
 }
@@ -65,6 +86,17 @@ mod tests {
     #[case::euro('€', vec![decode_unicode('⠈'), decode_unicode('⠑')])]
     #[case::pound('£', vec![decode_unicode('⠈'), decode_unicode('⠇')])]
     #[case::yen('¥', vec![decode_unicode('⠈'), decode_unicode('⠽')])]
+    // §3.18 musical signs.
+    #[case::flat('\u{266D}', vec![decode_unicode('⠼'), decode_unicode('⠣')])]
+    #[case::sharp('\u{266F}', vec![decode_unicode('⠼'), decode_unicode('⠩')])]
+    #[case::natural('\u{266E}', vec![decode_unicode('⠼'), decode_unicode('⠡')])]
+    // §3.3 reference marks and §3.16 gender signs.
+    #[case::dagger('\u{2020}', vec![decode_unicode('⠈'), decode_unicode('⠠'), decode_unicode('⠹')])]
+    #[case::double_dagger('\u{2021}', vec![decode_unicode('⠈'), decode_unicode('⠠'), decode_unicode('⠻')])]
+    #[case::female('\u{2640}', vec![decode_unicode('⠘'), decode_unicode('⠭')])]
+    #[case::male('\u{2642}', vec![decode_unicode('⠘'), decode_unicode('⠽')])]
+    #[case::bullet('\u{2022}', vec![decode_unicode('⠸'), decode_unicode('⠲')])]
+    #[case::check_mark('\u{2713}', vec![decode_unicode('⠈'), decode_unicode('⠩')])]
     fn encodes_known_symbols(#[case] c: char, #[case] expected: Vec<u8>) {
         assert_eq!(encode_symbol(c), Some(expected));
     }

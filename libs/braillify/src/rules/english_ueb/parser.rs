@@ -1,6 +1,6 @@
 //! Parse English source text into a flat `EnglishToken` stream.
 
-use super::token::EnglishToken;
+use super::token::{EnglishToken, Typeform};
 
 /// A word letter: ASCII alphabetic or a supported accented letter (§4.2), so
 /// `crème` tokenizes as one word rather than `cr` + `è` + `me`.
@@ -16,9 +16,31 @@ pub fn parse_english(text: &str) -> Vec<EnglishToken> {
     let mut i = 0;
     while i < chars.len() {
         let c = chars[i];
+        // §9: a Mathematical-Alphanumeric styled letter is its own token.
+        if let Some((base, form)) = super::rule_9::decode_styled(c) {
+            tokens.push(EnglishToken::Styled(base, form));
+            i += 1;
+            continue;
+        }
+        // §9: any character (letter, digit, or symbol) immediately followed by a
+        // combining low line (U+0332) is underlined → a Styled token that also
+        // ends any current word. A space is excluded (an underlined space opens a
+        // §9.x passage, handled separately) as is a lone combining mark, so a
+        // styled digit (`3̲4̲`) or symbol (`.̲`, `%̲`) is captured alongside letters.
+        if c != ' ' && c != '\u{0332}' && chars.get(i + 1) == Some(&'\u{0332}') {
+            tokens.push(EnglishToken::Styled(c, Typeform::Underline));
+            i += 2;
+            continue;
+        }
         if is_word_letter(c) {
             let start = i;
-            while i < chars.len() && is_word_letter(chars[i]) {
+            // A styled letter is not a word letter (so it stops the run on its
+            // own); stop one early before a letter that an upcoming U+0332 will
+            // underline so it becomes its own Styled token.
+            while i < chars.len()
+                && is_word_letter(chars[i])
+                && chars.get(i + 1) != Some(&'\u{0332}')
+            {
                 i += 1;
             }
             tokens.push(EnglishToken::Word(chars[start..i].to_vec()));

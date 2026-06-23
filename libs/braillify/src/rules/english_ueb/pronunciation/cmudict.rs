@@ -1,9 +1,9 @@
-//! CMUdict-backed pronunciation provider (feature `english_ueb_cmudict`).
+//! CMUdict-backed pronunciation provider.
 //!
 //! Embeds the CMU Pronouncing Dictionary (Simplified BSD, © 1993-2014 Carnegie
-//! Mellon University) and exposes ARPABET pronunciations to the §10.6
-//! classifier. The ~3.5 MB table is compiled in only under this feature, so
-//! default and wasm builds are unaffected.
+//! Mellon University) and exposes ARPABET pronunciations to the §10.6/§10.7
+//! classifiers. UEB Grade-2 is base behaviour, so the ~3.5 MB table is compiled
+//! into every build.
 
 use std::collections::HashMap;
 use std::sync::LazyLock;

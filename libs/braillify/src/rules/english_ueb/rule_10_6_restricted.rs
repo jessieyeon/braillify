@@ -1,8 +1,8 @@
-//! §10.6 restricted lower groupsigns `be` (⠆) and `con` (⠒).
+//! §10.6 restricted lower groupsigns `be` (⠆), `con` (⠒) and `dis` (⠲).
 //!
 //! Unlike the unrestricted `en`/`in` ([`super::rule_10_6`]), these may be used
 //! only when the prefix forms the first *syllable* of the word — a
-//! pronunciation-dependent decision delegated to
+//! pronunciation/word-structure decision delegated to
 //! [`super::pronunciation::classifier`]. The rule fires only at word start and
 //! only on a [`Decision::Use`] verdict; `SpellOut` and `Unknown` leave the
 //! letters to be spelled by the fallback path.
@@ -34,6 +34,8 @@ impl ContractionRule for RestrictedLowerGroupsignRule {
             (Prefix::Be, 2, decode_unicode('⠆'))
         } else if word.starts_with(&['c', 'o', 'n']) {
             (Prefix::Con, 3, decode_unicode('⠒'))
+        } else if word.starts_with(&['d', 'i', 's']) {
+            (Prefix::Dis, 3, decode_unicode('⠲'))
         } else {
             return None;
         };
@@ -63,13 +65,18 @@ mod tests {
         RestrictedLowerGroupsignRule::new(Box::new(CmuDictProvider::new()))
     }
 
-    /// `become` → ⠆ consuming the two `be` letters; `concept` → ⠒ consuming
-    /// three; `beckon`/`cone` produce no match (spelled out).
+    /// `become` → ⠆ (2 letters); `concept` → ⠒ (3); `dislike`/`dishonest` → ⠲
+    /// (3, remainder is a word); `beckon`/`cone`/`dispirited`/`disc` produce no
+    /// match (spelled out).
     #[rstest::rstest]
     #[case::become_word("become", Some((decode_unicode('⠆'), 2)))]
     #[case::concept("concept", Some((decode_unicode('⠒'), 3)))]
+    #[case::dislike_rest_word("dislike", Some((decode_unicode('⠲'), 3)))]
+    #[case::dishonest_rest_word("dishonest", Some((decode_unicode('⠲'), 3)))]
     #[case::beckon("beckon", None)]
     #[case::cone("cone", None)]
+    #[case::dispirited("dispirited", None)]
+    #[case::disc_monosyllable("disc", None)]
     #[case::plain_word("cat", None)]
     fn matches_restricted_groupsigns(#[case] word: &str, #[case] expected: Option<(u8, usize)>) {
         let got = rule()
