@@ -37,7 +37,11 @@ pub fn is_standing_alone(prev: Option<&EnglishToken>, next: Option<&EnglishToken
     // §2.6.3: a wide set of *following* punctuation still permits standing alone
     // (period, ellipsis, comma, `?`, `!`, closing brackets/quotes, apostrophe …).
     let next_ok = match next {
-        None | Some(EnglishToken::Space | EnglishToken::Symbol(_)) => true,
+        None | Some(EnglishToken::Space) => true,
+        // §3.10: a directly-following currency sign attaches to the word like a
+        // unit or number (`US$` spells out "US"; it is not the `us` wordsign), so
+        // it breaks isolation just as an adjacent number does.
+        Some(EnglishToken::Symbol(s)) => !matches!(s, '$' | '¢' | '£' | '¥' | '€' | '₣' | '₦'),
         Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..)) => false,
     };
     prev_ok && next_ok
@@ -96,6 +100,23 @@ mod tests {
     fn after_apostrophe_does_not_stand_alone() {
         // `don't` — the `t` after the apostrophe is a contraction suffix.
         assert!(!is_standing_alone(Some(&EnglishToken::Symbol('\'')), None));
+    }
+
+    /// §3.10: a directly-following currency sign attaches like a unit (`US$`
+    /// spells out "US"), so it breaks standing alone — but ordinary following
+    /// punctuation (a period) still permits it.
+    #[rstest::rstest]
+    #[case::dollar(EnglishToken::Symbol('$'), false)]
+    #[case::pound(EnglishToken::Symbol('£'), false)]
+    #[case::yen(EnglishToken::Symbol('¥'), false)]
+    #[case::euro(EnglishToken::Symbol('€'), false)]
+    #[case::period(EnglishToken::Symbol('.'), true)]
+    #[case::question(EnglishToken::Symbol('?'), true)]
+    fn following_currency_breaks_standing_alone(
+        #[case] next: EnglishToken,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(is_standing_alone(None, Some(&next)), expected);
     }
 
     #[test]

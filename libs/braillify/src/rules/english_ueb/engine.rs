@@ -7,7 +7,6 @@
 
 use super::contraction::ContractionEngine;
 use super::rule_10_3::StrongContractionRule;
-use super::rule_10_6::LowerGroupsignRule;
 use super::standing_alone::{is_standing_alone, lower_wordsign_usable};
 use super::token::EnglishToken;
 use crate::unicode::decode_unicode;
@@ -313,6 +312,33 @@ fn single_quote_roles(tokens: &[EnglishToken]) -> Vec<SingleQuote> {
     roles
 }
 
+/// §3.27: detect a transcriber's-note marker `[open tn]` / `[close tn]` starting
+/// at `i`. The print convention spells the boundary as those bracketed words; in
+/// braille it is a single note indicator — `⠈⠨⠣` to open, `⠈⠨⠜` to close (the
+/// square-bracket signs `⠨⠣`/`⠨⠜` under a dot-4 prefix). Returns `(is_open,
+/// next_index)` on a match so the five marker tokens are replaced as a unit.
+fn transcriber_note_at(tokens: &[EnglishToken], i: usize) -> Option<(bool, usize)> {
+    let word_is = |t: Option<&EnglishToken>, s: &str| matches!(t, Some(EnglishToken::Word(w)) if w.iter().collect::<String>() == s);
+    if !matches!(tokens.get(i), Some(EnglishToken::Symbol('['))) {
+        return None;
+    }
+    let is_open = if word_is(tokens.get(i + 1), "open") {
+        true
+    } else if word_is(tokens.get(i + 1), "close") {
+        false
+    } else {
+        return None;
+    };
+    if matches!(tokens.get(i + 2), Some(EnglishToken::Space))
+        && word_is(tokens.get(i + 3), "tn")
+        && matches!(tokens.get(i + 4), Some(EnglishToken::Symbol(']')))
+    {
+        Some((is_open, i + 5))
+    } else {
+        None
+    }
+}
+
 /// Document-level UEB Grade-2 encoder.
 pub struct EnglishUebEngine {
     contractions: ContractionEngine,
@@ -332,7 +358,12 @@ impl EnglishUebEngine {
         // §10.11: the bridge-aware strong groupsign suppresses `th`/`wh`/`sh`
         // that cross a compound boundary (hyphenation-detected).
         contractions.register(Box::new(super::rule_10_11::BridgeAwareStrongGroupsignRule));
-        contractions.register(Box::new(LowerGroupsignRule));
+        // §10.6.8: `en`/`in` are pronunciation-gated — suppressed where they
+        // overlap a word-final `ness` whose `n` onsets the syllable (`busi·ness`,
+        // `fi·ness·e`), kept where the `n` closes it (`citi·zen·ess`).
+        contractions.register(Box::new(super::rule_10_6_8::EnInBeforeNessRule::new(
+            Box::new(super::pronunciation::cmudict::CmuDictProvider::new()),
+        )));
         contractions.register(Box::new(super::rule_10_7::InitialContractionRule));
         contractions.register(Box::new(super::rule_10_8::FinalGroupsignRule));
         // §10.6 restricted groupsigns (be/con/dis) judge the first syllable from
@@ -500,6 +531,67 @@ impl EnglishUebEngine {
                         }
                         SingleQuote::Apostrophe => out.push(decode_unicode('⠄')),
                     }
+                    prev_was_number = false;
+                    numeric_mode = false;
+                }
+                EnglishToken::Symbol('[') if transcriber_note_at(tokens, i).is_some() => {
+                    // §3.27: a `[open tn]` / `[close tn]` print marker becomes a
+                    // single note indicator — `⠈⠨⠣` open, `⠈⠨⠜` close — replacing
+                    // the five bracketed tokens.
+                    let (is_open, end) = transcriber_note_at(tokens, i)?;
+                    out.push(decode_unicode('⠈'));
+                    out.push(decode_unicode('⠨'));
+                    out.push(decode_unicode(if is_open { '⠣' } else { '⠜' }));
+                    skip_to = end;
+                    prev_was_number = false;
+                    numeric_mode = false;
+                }
+                EnglishToken::Symbol(c) if super::rule_3_24::is_script_char(*c) => {
+                    // §3.24 super/subscript: a digit run following a base takes the
+                    // level indicator (`⠔`/`⠢`). The grade-1 indicator `⠰` is added
+                    // for a letter base (`B₁₂`, `clarion¹`) but not after a number,
+                    // whose numeric mode already covers it (`1682.³`). A *leading*
+                    // script (no base, e.g. `¹ clarion` or combinatorics `₇𝑃₂`) or a
+                    // non-digit script (`ᵐ`, `⁺`) fails the whole UEB attempt so the
+                    // legacy/math path (제18/19항) keeps ownership.
+                    let (kind, first) = super::rule_3_24::script_digit(*c)?;
+                    let base_is_number = match i.checked_sub(1).map(|p| &tokens[p]) {
+                        Some(EnglishToken::Word(_)) => false,
+                        Some(EnglishToken::Number(_)) => true,
+                        // A base reached across a single period (`1682.³`, `knowledge.³`).
+                        Some(EnglishToken::Symbol('.')) => {
+                            match i.checked_sub(2).map(|p| &tokens[p]) {
+                                Some(EnglishToken::Word(_)) => false,
+                                Some(EnglishToken::Number(_)) => true,
+                                _ => return None,
+                            }
+                        }
+                        _ => return None,
+                    };
+                    let mut digits = vec![first];
+                    let mut j = i + 1;
+                    while let Some(EnglishToken::Symbol(sc)) = tokens.get(j) {
+                        if !super::rule_3_24::is_script_char(*sc) {
+                            break;
+                        }
+                        match super::rule_3_24::script_digit(*sc) {
+                            Some((k, d)) if k == kind => {
+                                digits.push(d);
+                                j += 1;
+                            }
+                            // a mixed-kind or non-digit script char is unsupported.
+                            _ => return None,
+                        }
+                    }
+                    if !base_is_number {
+                        out.push(GRADE1);
+                    }
+                    out.push(kind.indicator());
+                    out.push(decode_unicode('⠼'));
+                    for d in &digits {
+                        out.push(super::rule_6::digit_cell(*d)?);
+                    }
+                    skip_to = j;
                     prev_was_number = false;
                     numeric_mode = false;
                 }
@@ -811,7 +903,17 @@ impl EnglishUebEngine {
 
         let mut bounds = vec![0usize];
         for i in 1..chars.len() {
-            if chars[i].is_ascii_uppercase() && chars[i - 1].is_ascii_lowercase() {
+            // §8.2: a new Title-case / all-caps part begins at each lower→upper.
+            let low_to_up = chars[i - 1].is_ascii_lowercase() && chars[i].is_ascii_uppercase();
+            // §8.6.3: split a *caps word* (≥2 capitals) from a following lowercase
+            // run so its `⠠⠄` terminator can be emitted (`ABCs`, `unSELFish`). A lone
+            // Title-case capital keeps its lowercase tail, so contractions there keep
+            // their context (`Deaf`'s `ea`, `Perfect`'s `er`).
+            let capsword_to_low = chars[i].is_ascii_lowercase()
+                && chars[i - 1].is_ascii_uppercase()
+                && i >= 2
+                && chars[i - 2].is_ascii_uppercase();
+            if low_to_up || capsword_to_low {
                 bounds.push(i);
             }
         }
@@ -819,12 +921,20 @@ impl EnglishUebEngine {
 
         let mut buf = Vec::new();
         let mut concat = Vec::new();
+        let mut prev_caps_word = false;
         for w in bounds.windows(2) {
             let seg = &chars[w[0]..w[1]];
             let seg_lower: Vec<char> = seg.iter().flat_map(|c| c.to_lowercase()).collect();
             let cells =
                 super::rule_10_9::encode_with_longer_shortforms(&seg_lower, &self.contractions)?;
-            match classify_caps(seg)? {
+            let caps = classify_caps(seg)?;
+            // §8.6.3: a §8.4 caps word (`⠠⠠`) is terminated by `⠠⠄` before lowercase
+            // letters that continue the same word (`ABCs`, `WALKing`, `unSELFish`).
+            if prev_caps_word && matches!(caps, Caps::None) {
+                buf.push(CAPITAL);
+                buf.push(decode_unicode('⠄'));
+            }
+            match caps {
                 Caps::None => {}
                 Caps::Single => buf.push(CAPITAL),
                 Caps::Word => {
@@ -834,6 +944,7 @@ impl EnglishUebEngine {
             }
             buf.extend(&cells);
             concat.extend(cells);
+            prev_caps_word = matches!(caps, Caps::Word);
         }
         // The split must reproduce the whole-word contractions exactly; otherwise a
         // boundary changed them (e.g. a position-sensitive groupsign), so defer to
@@ -895,6 +1006,50 @@ mod tests {
     #[case::trailing_single_cap("verY", "⠧⠻⠠⠽")]
     #[case::trailing_caps_word("grandEST", "⠛⠗⠯⠠⠠⠑⠌")]
     fn encodes_mixed_case_words_8_2(#[case] text: &str, #[case] expected: &str) {
+        assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    /// §8.6.3: a §8.4 caps word (`⠠⠠`) followed by lowercase letters continuing the
+    /// same word takes the capitals terminator `⠠⠄` before the lowercase part
+    /// (`ABCs`, `WALKing`, `unSELFish`, `OKd`); a lone Title-case capital does not
+    /// (covered by `verY`/`CliffEdge` above, which keep their lowercase context).
+    #[rstest::rstest]
+    #[case::abcs("ABCs", "⠠⠠⠁⠃⠉⠠⠄⠎")]
+    #[case::walking("WALKing", "⠠⠠⠺⠁⠇⠅⠠⠄⠬")]
+    #[case::un_self_ish("unSELFish", "⠥⠝⠠⠠⠎⠑⠇⠋⠠⠄⠊⠩")]
+    #[case::okd("OKd", "⠠⠠⠕⠅⠠⠄⠙")]
+    fn encodes_caps_word_terminator_8_6_3(#[case] text: &str, #[case] expected: &str) {
+        assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    /// §3.24: a digit super/subscript following a base takes the level indicator
+    /// (`⠔`/`⠢`). The grade-1 `⠰` precedes it after a letter base (`yd³`, `B₁₂`,
+    /// `clarion¹`) but not after a number (`1682.³`), whose numeric mode covers it.
+    #[rstest::rstest]
+    #[case::super_after_word("3 yd\u{00B3}", "⠼⠉⠀⠽⠙⠰⠔⠼⠉")]
+    #[case::sub_after_letter("vitamin B\u{2081}\u{2082}", "⠧⠊⠞⠁⠍⠔⠀⠠⠃⠰⠢⠼⠁⠃")]
+    #[case::super_after_number("born in 1682.\u{00B3}", "⠃⠕⠗⠝⠀⠔⠀⠼⠁⠋⠓⠃⠲⠔⠼⠉")]
+    #[case::super_after_word_inline("the clarion\u{00B9} horn", "⠮⠀⠉⠇⠜⠊⠕⠝⠰⠔⠼⠁⠀⠓⠕⠗⠝")]
+    fn encodes_script_3_24(#[case] text: &str, #[case] expected: &str) {
+        assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    /// §3.24 boundary: a *leading* super/subscript (no base before it) fails the
+    /// whole UEB attempt so the legacy/math path keeps ownership — this is what
+    /// protects combinatorics like `₇𝑃₂` (제18/19항) from being misread as §3.24.
+    #[rstest::rstest]
+    #[case::leading_superscript("\u{00B9} clarion")]
+    #[case::leading_subscript_combinatorics("2 \u{2087}\u{1D443}\u{2082}")]
+    fn leading_script_delegates_to_legacy(#[case] text: &str) {
+        assert_eq!(enc(text), None);
+    }
+
+    /// §3.27: `[open tn]` / `[close tn]` markers become the note indicators
+    /// `⠈⠨⠣` / `⠈⠨⠜`; a plain bracket that is not the marker keeps its sign.
+    #[rstest::rstest]
+    #[case::wrapped_note("[open tn]cat[close tn]", "⠈⠨⠣⠉⠁⠞⠈⠨⠜")]
+    #[case::plain_bracket_unchanged("[cat]", "⠨⠣⠉⠁⠞⠨⠜")]
+    fn encodes_transcriber_notes_3_27(#[case] text: &str, #[case] expected: &str) {
         assert_eq!(enc(text), Some(cells(expected)));
     }
 

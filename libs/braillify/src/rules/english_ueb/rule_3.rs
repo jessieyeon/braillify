@@ -60,6 +60,19 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '\u{2022}' => vec![decode_unicode('⠸'), decode_unicode('⠲')], // • bullet (§3.22)
         // §3.28 check mark: a fixed UEB symbol ⠈⠩ (dot-4 prefix + dots-146).
         '\u{2713}' => vec![decode_unicode('⠈'), decode_unicode('⠩')], // ✓
+        // §3.11 degree sign and §3.20 reference signs: ⠘ (dots 4-5) prefix + letter.
+        '\u{00B0}' => vec![decode_unicode('⠘'), decode_unicode('⠚')], // ° degree
+        '\u{00B6}' => vec![decode_unicode('⠘'), decode_unicode('⠏')], // ¶ pilcrow
+        '\u{00A7}' => vec![decode_unicode('⠘'), decode_unicode('⠎')], // § section
+        // §3.26 transcriber-defined symbols (the `⠹` shape). The shared per-mille
+        // `‰` is excluded — Korean 제65항 owns that code point — but these two are
+        // English-exclusive. ฿ = ⠼⠹, ❀ = ⠈⠼⠹.
+        '\u{0E3F}' => vec![decode_unicode('⠼'), decode_unicode('⠹')], // ฿ baht
+        '\u{2740}' => vec![
+            decode_unicode('⠈'),
+            decode_unicode('⠼'),
+            decode_unicode('⠹'),
+        ], // ❀
         _ => return None,
     })
 }
@@ -97,6 +110,13 @@ mod tests {
     #[case::male('\u{2642}', vec![decode_unicode('⠘'), decode_unicode('⠽')])]
     #[case::bullet('\u{2022}', vec![decode_unicode('⠸'), decode_unicode('⠲')])]
     #[case::check_mark('\u{2713}', vec![decode_unicode('⠈'), decode_unicode('⠩')])]
+    // §3.11 degree and §3.20 reference signs.
+    #[case::degree('\u{00B0}', vec![decode_unicode('⠘'), decode_unicode('⠚')])]
+    #[case::pilcrow('\u{00B6}', vec![decode_unicode('⠘'), decode_unicode('⠏')])]
+    #[case::section('\u{00A7}', vec![decode_unicode('⠘'), decode_unicode('⠎')])]
+    // §3.26 transcriber-defined symbols.
+    #[case::baht('\u{0E3F}', vec![decode_unicode('⠼'), decode_unicode('⠹')])]
+    #[case::floral('\u{2740}', vec![decode_unicode('⠈'), decode_unicode('⠼'), decode_unicode('⠹')])]
     fn encodes_known_symbols(#[case] c: char, #[case] expected: Vec<u8>) {
         assert_eq!(encode_symbol(c), Some(expected));
     }

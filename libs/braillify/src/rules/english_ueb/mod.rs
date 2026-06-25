@@ -24,6 +24,7 @@ pub mod rule_10_3;
 pub mod rule_10_4;
 pub mod rule_10_5;
 pub mod rule_10_6;
+pub mod rule_10_6_8;
 pub mod rule_10_6_middle;
 pub mod rule_10_6_restricted;
 pub mod rule_10_7;
@@ -31,6 +32,7 @@ pub mod rule_10_7_pron;
 pub mod rule_10_8;
 pub mod rule_10_9;
 pub mod rule_3;
+pub mod rule_3_24;
 pub mod rule_4;
 pub mod rule_5_7;
 pub mod rule_6;
@@ -73,8 +75,19 @@ pub fn try_encode(text: &str) -> Option<Vec<u8>> {
 /// (U+0332) — so a *letterless* but emphasised input (`3̲4̲`, `27.̲9`, `83%̲`) is
 /// still UEB's. Korean is excluded by the callers' own `is_korean_char` guard.
 pub fn is_ueb_eligible(text: &str) -> bool {
-    text.chars()
-        .any(|c| c.is_ascii_alphabetic() || c == '\u{0332}' || rule_9::decode_styled(c).is_some())
+    text.chars().any(|c| {
+        c.is_ascii_alphabetic()
+            || c == '\u{0332}'
+            || rule_9::decode_styled(c).is_some()
+            // §3.10 currency: the regular-width cent/pound/yen signs are UEB's. The
+            // Korean 제65항 currency rule owns the *fullwidth* forms (`￠`/`￡`/`￥`)
+            // and the shared `$`/`€`/`₣`, so only these three regular code points
+            // are unambiguously English and safe to route here.
+            || matches!(c, '\u{00A2}' | '\u{00A3}' | '\u{00A5}')
+            // §3.26 transcriber-defined symbols `฿`/`❀`. These are English-exclusive
+            // (Korean 제65항 owns the shared per-mille `‰`, which is excluded).
+            || matches!(c, '\u{0E3F}' | '\u{2740}')
+    })
 }
 
 /// Whether `text` is *unambiguously* a math expression the legacy math pipeline
@@ -108,6 +121,14 @@ pub fn is_math_owned(text: &str) -> bool {
         return true;
     }
 
+    // (0c) §3.24: a single space-free token carrying a Unicode super/subscript is a
+    // math expression (`c²`, `x₂`, `³√x`, `log₂(x+1)`) — the same code points take
+    // the 제18/19항 point shape there, not the UEB §3.24 indicator. Only a
+    // multi-word English prose usage (`vitamin B₁₂`, `3 yd³`) reaches the UEB path.
+    if !text.contains(' ') && text.chars().any(rule_3_24::is_script_char) {
+        return true;
+    }
+
     // (1) function-name expression: a trig/log name, optionally with a leading
     // coefficient (`2cosx`), where the name is NOT merely the prefix of a longer
     // English word (`singe` starts with `sin`, `arccosine` with `arccos`). The
@@ -135,13 +156,16 @@ pub fn is_math_owned(text: &str) -> bool {
         }
     }
 
-    // (1b) a digit enclosed in parentheses — `f(x-1)`, `(3n)!`. No passing
-    // English test case has a digit inside `(...)`, so this is collision-free
-    // while it captures bracketed math the legacy engine owns.
+    // (1b) a digit enclosed in parentheses — `f(x-1)`, `(3n)!` — is bracketed math
+    // the legacy engine owns, but ONLY when the content is a single space-free
+    // token. A parenthetical *phrase* that contains spaces is English prose, not a
+    // math argument (`(2 billion dollars)`, `(20 escudos)`, `(3 million pounds)`),
+    // so it is left to UEB §3.10 currency handling.
     if let Some(open) = text.find('(') {
         let inner = &text[open + 1..];
         let close = inner.find(')').unwrap_or(inner.len());
-        if inner[..close].chars().any(|c| c.is_ascii_digit()) {
+        let bracketed = &inner[..close];
+        if bracketed.chars().any(|c| c.is_ascii_digit()) && !bracketed.contains(' ') {
             return true;
         }
     }
@@ -192,6 +216,11 @@ mod is_math_owned_tests {
     #[case::eq_func("y=f(x)")]
     #[case::set_eq("A={2, 4, 6, ...}")] // tight `=` even though spaces follow
     #[case::interval("-1<x<3")]
+    // §3.24: a single space-free token with a Unicode super/subscript is math.
+    #[case::script_c_squared("c\u{00B2}")]
+    #[case::script_x_sub2("x\u{2082}")]
+    #[case::script_cube_root("\u{00B3}\u{221A}x\u{00B3}")]
+    #[case::script_log_sub2("log\u{2082}(x+1)")]
     fn math_owned_inputs_are_blocked(#[case] text: &str) {
         assert!(is_math_owned(text), "{text:?} should be math-owned");
     }
@@ -213,7 +242,48 @@ mod is_math_owned_tests {
     #[case::spaced_eq("a = b")]
     #[case::spaced_lt("positron < posi")]
     #[case::spaced_sum("as easy as 2 + 2 = 4")]
+    // §3.10: a parenthetical *phrase* (spaces inside `(...)`) is prose, even with a
+    // digit — not a bracketed math argument. Currency amounts gloss this way.
+    #[case::paren_phrase_billion("$2bn (2 billion dollars)")]
+    #[case::paren_phrase_escudos("20$00 (20 escudos)")]
+    #[case::paren_phrase_pounds("\u{00A3}3m (3 million pounds)")]
+    #[case::paren_phrase_enough("Buy meat (enough for 2).")]
     fn english_inputs_are_not_blocked(#[case] text: &str) {
         assert!(!is_math_owned(text), "{text:?} should NOT be math-owned");
+    }
+}
+
+#[cfg(test)]
+mod is_ueb_eligible_tests {
+    use super::is_ueb_eligible;
+
+    /// §3.10: regular-width cent/pound/yen are English-exclusive (Korean 제65항
+    /// owns the fullwidth forms), so a letterless currency run routes to UEB.
+    #[rstest::rstest]
+    #[case::cent_amount("10\u{00A2}")]
+    #[case::pound_amount("\u{00A3}24")]
+    #[case::yen_amount("\u{00A5}360")]
+    #[case::ascii_letter("cat")]
+    #[case::styled_digit("3\u{0332}4")] // §9 combining-underline typeform
+    fn ueb_owned_inputs_are_eligible(#[case] text: &str) {
+        assert!(is_ueb_eligible(text), "{text:?} should be UEB-eligible");
+    }
+
+    /// The shared `$`/`€`/`₣` and the *fullwidth* `￠`/`￡`/`￥`/`￦` are owned by
+    /// Korean 제65항 (`⠴⠈ + letter`); a letterless run of them must stay in the
+    /// legacy path, so it must NOT become UEB-eligible.
+    #[rstest::rstest]
+    #[case::dollar("$50")]
+    #[case::euro("\u{20AC}75")]
+    #[case::franc("\u{20A3}1")]
+    #[case::fullwidth_cent("25\u{FFE0}")]
+    #[case::fullwidth_pound("\u{FFE1}88")]
+    #[case::fullwidth_yen("\u{FFE5}1")]
+    #[case::fullwidth_won("\u{FFE6}100")]
+    fn korean_owned_currency_is_not_eligible(#[case] text: &str) {
+        assert!(
+            !is_ueb_eligible(text),
+            "{text:?} must stay in the legacy path"
+        );
     }
 }
