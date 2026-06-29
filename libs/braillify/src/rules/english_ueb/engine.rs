@@ -534,6 +534,40 @@ impl EnglishUebEngine {
                     prev_was_number = false;
                     numeric_mode = false;
                 }
+                EnglishToken::Symbol(c)
+                    if super::rule_16::is_line_char(*c)
+                        && (i.checked_sub(1).is_some_and(|p| {
+                            matches!(&tokens[p], EnglishToken::Symbol(s) if super::rule_16::is_line_char(*s))
+                        }) || matches!(tokens.get(i + 1), Some(EnglishToken::Symbol(s)) if super::rule_16::is_line_char(*s))) =>
+                {
+                    // §16.2 horizontal line mode: a run of two or more box-drawing
+                    // characters opens with the indicator `⠐⠒` (whose `⠒` is the
+                    // first solid segment, so a leading `─` folds into it); each
+                    // further char maps to its segment/corner/crossing cell. A lone
+                    // box char never reaches here (the guard requires a neighbour),
+                    // so a mathematical `≡`/`─` keeps its legacy meaning.
+                    let prev_is_line = i.checked_sub(1).is_some_and(|p| {
+                        matches!(&tokens[p], EnglishToken::Symbol(s) if super::rule_16::is_line_char(*s))
+                    });
+                    if prev_is_line {
+                        out.push(super::rule_16::line_segment(*c)?);
+                    } else {
+                        out.push(decode_unicode('⠐'));
+                        out.push(decode_unicode('⠒'));
+                        if *c != super::rule_16::SIMPLE_SEGMENT {
+                            out.push(super::rule_16::line_segment(*c)?);
+                        }
+                    }
+                    // §16.2.5: a horizontal line interrupted by text mid-line takes
+                    // the line mode terminator `⠄` before the text (a following space
+                    // ends the line naturally, needing none). The next box run
+                    // re-opens with its own `⠐⠒` indicator (§16.4.2).
+                    if matches!(tokens.get(i + 1), Some(EnglishToken::Word(_))) {
+                        out.push(decode_unicode('⠄'));
+                    }
+                    prev_was_number = false;
+                    numeric_mode = false;
+                }
                 EnglishToken::Symbol('[') if transcriber_note_at(tokens, i).is_some() => {
                     // §3.27: a `[open tn]` / `[close tn]` print marker becomes a
                     // single note indicator — `⠈⠨⠣` open, `⠈⠨⠜` close — replacing
@@ -1051,6 +1085,35 @@ mod tests {
     #[case::plain_bracket_unchanged("[cat]", "⠨⠣⠉⠁⠞⠨⠜")]
     fn encodes_transcriber_notes_3_27(#[case] text: &str, #[case] expected: &str) {
         assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    /// §16.2 horizontal line mode: a run of box-drawing characters opens with
+    /// `⠐⠒` (a leading `─` folding into the indicator's `⠒`) and maps each further
+    /// char to its segment/corner/crossing cell.
+    #[rstest::rstest]
+    #[case::solid("\u{2500}\u{2500}\u{2500}\u{2500}", "⠐⠒⠒⠒⠒")]
+    #[case::triple("\u{2261}\u{2261}\u{2261}", "⠐⠒⠿⠿⠿")]
+    #[case::corners(
+        "\u{2500}\u{2500}\u{2500}\u{2500}\u{2534}\u{2500}\u{2500}\u{2500}\u{2500}\u{2510}",
+        "⠐⠒⠒⠒⠒⠚⠒⠒⠒⠒⠲"
+    )]
+    #[case::diagonals("\u{2572}\u{2500}\u{2571}", "⠐⠒⠣⠒⠜")]
+    // §16.2.5: text mid-line takes the terminator `⠄`; the next run re-opens `⠐⠒`.
+    #[case::text_midpoint(
+        "\u{2500}\u{2500}\u{2500}\u{2500}cat\u{2500}\u{2500}\u{2500}\u{2500}",
+        "⠐⠒⠒⠒⠒⠄⠉⠁⠞⠐⠒⠒⠒⠒"
+    )]
+    fn encodes_box_drawing_16_2(#[case] text: &str, #[case] expected: &str) {
+        assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    /// §16.2: a lone box-drawing char (a single mathematical `≡` or `─`) is not a
+    /// line run, so the UEB engine declines it and the legacy/math meaning stands.
+    #[rstest::rstest]
+    #[case::lone_hline("\u{2500}")]
+    #[case::lone_triple("\u{2261}")]
+    fn lone_box_char_is_not_line_mode(#[case] text: &str) {
+        assert_eq!(enc(text), None);
     }
 
     /// §5.7.1: a single letter that is an alphabetic wordsign takes a grade-1

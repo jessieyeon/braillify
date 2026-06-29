@@ -1,11 +1,5 @@
 [
   {
-    "input": "✓ 1.  14",
-    "internal": ",home\"w3",
-    "expected": "3219211317165818",
-    "unicode": "⠠⠓⠕⠍⠑⠐⠺⠒"
-  },
-  {
     "input": "Homework:",
     "internal": ",home\"w3",
     "expected": "3219211317165818",

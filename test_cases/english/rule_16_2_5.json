@@ -6,7 +6,7 @@
     "unicode": "⠐⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠄⠫⠿"
   },
   {
-    "input": "──────connection──────",
+    "input": "────connection────",
     "internal": "\"3333'connec;n\"3333",
     "expected": "16181818184921292917948291618181818",
     "unicode": "⠐⠒⠒⠒⠒⠄⠉⠕⠝⠝⠑⠉⠰⠝⠐⠒⠒⠒⠒"

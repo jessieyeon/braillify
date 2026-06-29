@@ -31,6 +31,7 @@ pub mod rule_10_7;
 pub mod rule_10_7_pron;
 pub mod rule_10_8;
 pub mod rule_10_9;
+pub mod rule_16;
 pub mod rule_3;
 pub mod rule_3_24;
 pub mod rule_4;
@@ -88,6 +89,15 @@ pub fn is_ueb_eligible(text: &str) -> bool {
             // (Korean 제65항 owns the shared per-mille `‰`, which is excluded).
             || matches!(c, '\u{0E3F}' | '\u{2740}')
     })
+    // §16.2: a run of two or more adjacent box-drawing characters is a horizontal
+    // line. A lone box char (a single mathematical `≡` or `─`) is left to the
+    // legacy/math path so its non-line meaning is preserved.
+    || {
+        let chars: Vec<char> = text.chars().collect();
+        chars
+            .windows(2)
+            .any(|w| rule_16::is_line_char(w[0]) && rule_16::is_line_char(w[1]))
+    }
 }
 
 /// Whether `text` is *unambiguously* a math expression the legacy math pipeline
