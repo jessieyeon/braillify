@@ -3,6 +3,15 @@
 //! These one-cell groupsigns apply wherever the letter sequence occurs within a
 //! word (no standing-alone requirement), per RUEB 2024 §10.4. Longest match
 //! wins, so `ing` (3) beats any 2-letter prefix at the same position.
+//!
+//! §10.4.3 exception: the `ing` groupsign is used "wherever the letters it
+//! represents occur except at the beginning of a word" (RUEB 2024 §10.4.3,
+//! p.150). That exception needs cross-token context — a word-initial `ing`
+//! after a space/hyphen/dash spells out (`ingot`→`⠔⠛`), but an `ing` that only
+//! *looks* word-initial because its token follows a mid-word connector
+//! (`brown(ing)`, `Ch'ing`, a typeform run `flow𝑖𝑛𝑔`) keeps the groupsign — so
+//! it is applied by the engine in
+//! [`super::rule_10_9::encode_with_longer_shortforms`], not in this rule.
 
 use phf::phf_map;
 
@@ -40,7 +49,10 @@ mod tests {
     #[rstest::rstest]
     #[case::ch("ch", 0, Some((decode_unicode('⠡'), 2)))]
     #[case::th("th", 0, Some((decode_unicode('⠹'), 2)))]
+    // §10.4 matches `ing` at any position; the §10.4.3 word-initial exception is
+    // applied with cross-token context by the engine, not in this rule.
     #[case::ing("ing", 0, Some((decode_unicode('⠬'), 3)))]
+    #[case::ing_midword("sing", 1, Some((decode_unicode('⠬'), 3)))]
     #[case::st_mid("must", 2, Some((decode_unicode('⠌'), 2)))]
     #[case::no_match("xyz", 0, None)]
     fn matches_strong_groupsigns(

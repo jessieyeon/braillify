@@ -53,10 +53,23 @@ pub fn is_pure_shortform_abbreviation(word: &str) -> bool {
 pub fn encode_with_longer_shortforms(
     word: &[char],
     contractions: &ContractionEngine,
+    suppress_initial_ing: bool,
 ) -> Option<Vec<u8>> {
     let mut out = Vec::with_capacity(word.len());
     let mut pos = 0;
     while pos < word.len() {
+        // §10.4.3: the `ing` groupsign is used wherever its letters occur EXCEPT
+        // at the beginning of a word. When the caller marks this token as a word
+        // start (preceded by a space/hyphen/dash/text edge), a leading `ing` is
+        // written as the `in` lower groupsign (⠔, §10.6) + `g` (`ingot`→⠔⠛⠕⠞,
+        // never ⠬⠕⠞). A token that only looks word-initial because it follows a
+        // mid-word connector (`brown(ing)`, `Ch'ing`, a typeform run) is NOT a
+        // word start, so the caller passes `false` and the `ing` groupsign stands.
+        if suppress_initial_ing && pos == 0 && word.starts_with(&['i', 'n', 'g']) {
+            out.push(decode_unicode('⠔'));
+            pos += 2;
+            continue;
+        }
         if let Some((source_len, cells)) = longer_match(word, pos) {
             out.extend(cells);
             pos += source_len;

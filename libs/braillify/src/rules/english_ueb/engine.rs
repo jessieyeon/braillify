@@ -339,6 +339,36 @@ fn transcriber_note_at(tokens: &[EnglishToken], i: usize) -> Option<(bool, usize
     }
 }
 
+/// §10.4.3: whether a word token preceded by `prev` begins a fresh word — `prev`
+/// is the text edge, a space, or a hyphen/dash (`to-ing`, `Smith–Inge`). A token
+/// after a mid-word connector (`(`, `'`, a base word, or a typeform run, as in
+/// `brown(ing)`, `Ch'ing`, `flow𝑖𝑛𝑔`) is a continuation, not a word start, so a
+/// leading `ing` there keeps its groupsign instead of spelling `in` + `g`.
+fn word_initial_boundary(prev: Option<&EnglishToken>) -> bool {
+    matches!(
+        prev,
+        None | Some(EnglishToken::Space)
+            | Some(EnglishToken::Symbol('-' | '\u{2013}' | '\u{2014}'))
+    )
+}
+
+/// Per-word encoding context derived from a word's surrounding tokens: the §2.6
+/// standing-alone status and the §8/§10 boundary flags. Bundled so the word
+/// encoder takes one value instead of a long boolean argument list.
+struct WordContext {
+    /// §2.6: the word stands alone, so §10.1/§10.2/§10.5 wordsigns may apply.
+    standing_alone: bool,
+    /// §10.9: a shortform abbreviation may be used for this word.
+    shortform_usable: bool,
+    /// §10.5: the stricter lower-wordsign boundary is also satisfied.
+    lower_usable: bool,
+    /// §8.4: inside a caps passage — per-word capital indicators are suppressed.
+    suppress_caps: bool,
+    /// §10.4.3: this token begins a fresh word (after a space/hyphen/dash/edge),
+    /// so a word-initial `ing` spells out as `in` (⠔) + `g`.
+    word_initial: bool,
+}
+
 /// Document-level UEB Grade-2 encoder.
 pub struct EnglishUebEngine {
     contractions: ContractionEngine,
@@ -479,10 +509,13 @@ impl EnglishUebEngine {
                     }
                     self.encode_word(
                         chars,
-                        standing_alone,
-                        shortform_usable,
-                        lower_usable,
-                        in_passage[i],
+                        WordContext {
+                            standing_alone,
+                            shortform_usable,
+                            lower_usable,
+                            suppress_caps: in_passage[i],
+                            word_initial: word_initial_boundary(prev),
+                        },
                         &mut out,
                     )?;
                     prev_was_number = false;
@@ -792,10 +825,13 @@ impl EnglishUebEngine {
         let lower_usable = standing_alone && lower_wordsign_usable(prev, next);
         self.encode_word(
             chars,
-            standing_alone,
-            shortform_usable,
-            lower_usable,
-            suppress_caps,
+            WordContext {
+                standing_alone,
+                shortform_usable,
+                lower_usable,
+                suppress_caps,
+                word_initial: word_initial_boundary(prev),
+            },
             out,
         )
     }
@@ -843,15 +879,14 @@ impl EnglishUebEngine {
 
     /// §8 capital prefix + §10.1/§10.2 wordsigns (when standing alone) +
     /// §4.1/§10 contracted letters.
-    fn encode_word(
-        &self,
-        chars: &[char],
-        standing_alone: bool,
-        shortform_usable: bool,
-        lower_usable: bool,
-        suppress_caps: bool,
-        out: &mut Vec<u8>,
-    ) -> Option<()> {
+    fn encode_word(&self, chars: &[char], ctx: WordContext, out: &mut Vec<u8>) -> Option<()> {
+        let WordContext {
+            standing_alone,
+            shortform_usable,
+            lower_usable,
+            suppress_caps,
+            word_initial,
+        } = ctx;
         // Unicode lowercase (so an accented/ligatured capital folds to its base —
         // `Œ`→`œ`, `À`→`à`), letting the §8 capital come from `classify_caps` while
         // the letter encodes without its own indicator (avoids a doubled `⠠`).
@@ -918,6 +953,7 @@ impl EnglishUebEngine {
         out.extend(super::rule_10_9::encode_with_longer_shortforms(
             &lower,
             &self.contractions,
+            word_initial,
         )?);
         Some(())
     }
@@ -932,8 +968,13 @@ impl EnglishUebEngine {
     /// on word position), returns `None` so the legacy path handles the word.
     fn encode_mixed_case(&self, chars: &[char], out: &mut Vec<u8>) -> Option<()> {
         let whole_lower: Vec<char> = chars.iter().flat_map(|c| c.to_lowercase()).collect();
-        let whole =
-            super::rule_10_9::encode_with_longer_shortforms(&whole_lower, &self.contractions)?;
+        // §8.2 mixed-case parts (`WALK`+`ing`) are mid-word continuations, never
+        // word starts, so the §10.4.3 word-initial `ing` rule does not apply here.
+        let whole = super::rule_10_9::encode_with_longer_shortforms(
+            &whole_lower,
+            &self.contractions,
+            false,
+        )?;
 
         let mut bounds = vec![0usize];
         for i in 1..chars.len() {
@@ -959,8 +1000,11 @@ impl EnglishUebEngine {
         for w in bounds.windows(2) {
             let seg = &chars[w[0]..w[1]];
             let seg_lower: Vec<char> = seg.iter().flat_map(|c| c.to_lowercase()).collect();
-            let cells =
-                super::rule_10_9::encode_with_longer_shortforms(&seg_lower, &self.contractions)?;
+            let cells = super::rule_10_9::encode_with_longer_shortforms(
+                &seg_lower,
+                &self.contractions,
+                false,
+            )?;
             let caps = classify_caps(seg)?;
             // §8.6.3: a §8.4 caps word (`⠠⠠`) is terminated by `⠠⠄` before lowercase
             // letters that continue the same word (`ABCs`, `WALKing`, `unSELFish`).
