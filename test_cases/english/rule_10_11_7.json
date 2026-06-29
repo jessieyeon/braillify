@@ -1,9 +1,9 @@
 [
   {
     "input": "acreage",
-    "internal": "acr1g",
-    "expected": "1923227",
-    "unicode": "⠁⠉⠗⠂⠛"
+    "internal": "acr1ge",
+    "expected": "192322717",
+    "unicode": "⠁⠉⠗⠂⠛⠑"
   },
   {
     "input": "agreeable",
