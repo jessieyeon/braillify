@@ -33,6 +33,14 @@ static INDEX: LazyLock<HashMap<&'static str, Vec<&'static str>>> = LazyLock::new
     map
 });
 
+/// True iff `word` (lowercase) is recorded in CMUdict — a cheap membership test
+/// (no phoneme parsing). Used as a free-word oracle for morphological boundary
+/// detection: a `micro·film`-style combining-form compound is recognised only when
+/// the component after the combining form is itself a recorded word (§10.11).
+pub fn is_recorded_word(word: &str) -> bool {
+    INDEX.contains_key(word)
+}
+
 /// Looks up ARPABET pronunciations from the embedded CMUdict.
 pub struct CmuDictProvider;
 

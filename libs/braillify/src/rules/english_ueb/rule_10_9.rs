@@ -68,6 +68,10 @@ pub fn encode_with_longer_shortforms(
     suppress_initial_ing: bool,
 ) -> Option<Vec<u8>> {
     let n = word.len();
+    // §10.11.1: a contraction must not bridge the seam of a compound word. Look up
+    // this word's compound seams once (empty for non-compounds → they contract).
+    let word_string: String = word.iter().collect();
+    let seams = super::compound::compound_seams(&word_string);
     // §10.11 (§10.10.1): positions strictly inside a protected span — a
     // morpheme/pronunciation-validated contraction (`part`, a kept `in`, `con`…)
     // must not be split by a cheaper generic contraction starting inside it.
@@ -101,6 +105,7 @@ pub fn encode_with_longer_shortforms(
             contractions,
             suppress_initial_ing,
             &inside_protected,
+            &seams,
         ) {
             let next = pos + consumed;
             if next > n || cost[next] == usize::MAX {
@@ -141,6 +146,7 @@ fn candidate_moves(
     contractions: &ContractionEngine,
     suppress_initial_ing: bool,
     inside_protected: &[bool],
+    seams: &[usize],
 ) -> Vec<(Vec<u8>, usize, u16)> {
     let mut moves = Vec::new();
     // §10.9 longer-word shortform placement (preferred on a cost tie → priority 0).
@@ -149,6 +155,18 @@ fn candidate_moves(
     }
     let protected_here = inside_protected[pos];
     for m in contractions.matches_at(word, pos) {
+        // §10.11.1: a GROUPSIGN must not bridge a compound-word seam —
+        // `an[t·h]ill`, `cart[·h]orse`, `nor[the]ast` spell the bridging digraph
+        // out. An initial-letter contraction (§10.7 `upon`, priority 55) and a
+        // whole-word sign for the compound itself (`cannot`→⠸⠉) are NOT groupsigns,
+        // so they keep their contraction; `seams` is empty for non-compounds.
+        if m.consumed >= 2
+            && m.priority != 55
+            && m.consumed != word.len()
+            && seams.iter().any(|&s| pos < s && s < pos + m.consumed)
+        {
+            continue;
+        }
         // §10.4.3: the `ing` groupsign is never used at the start of a word — drop
         // it so the `in` lower groupsign (⠔) + `g` is chosen instead.
         if suppress_initial_ing && pos == 0 && m.consumed == 3 && word.starts_with(&['i', 'n', 'g'])

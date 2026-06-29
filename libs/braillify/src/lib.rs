@@ -1617,16 +1617,21 @@ mod test {
 
     #[test]
     fn test_encoder_streaming() {
-        // Test encoder can be reused
+        // A reused encoder treats each `encode` call as its own word, so streaming
+        // "test" then "ing" must equal encoding each word INDEPENDENTLY — not the
+        // one-shot "testing". §10.4.3 suppresses the word-initial `ing` groupsign in
+        // a standalone "ing" (spelled out), whereas the medial `ing` of "testing"
+        // keeps it; the streaming result therefore legitimately differs from
+        // `encode("testing")`. This still verifies reuse: no state leaks between
+        // calls, so the buffer matches two fresh per-word encodings concatenated.
         let mut encoder = Encoder::new(false); // English only test
         let mut buffer = Vec::new();
 
-        // Encode multiple times with same encoder
         encoder.encode("test", &mut buffer).unwrap();
         encoder.encode("ing", &mut buffer).unwrap();
 
-        // Should produce same result as one-shot
-        let expected = encode("testing").unwrap();
+        let mut expected = encode("test").unwrap();
+        expected.extend(encode("ing").unwrap());
         assert_eq!(buffer, expected);
     }
 }

@@ -12,6 +12,7 @@
 //!
 //! Source of truth: `docs/Rules-of-Unified-English-Braille-2024.pdf`.
 
+pub mod compound;
 pub mod contraction;
 pub mod engine;
 pub(crate) mod korean_context;

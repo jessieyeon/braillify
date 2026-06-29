@@ -80,6 +80,51 @@ impl InitialContractionPronunciationRule {
         full.iter()
             .all(|fp| sub.iter().any(|sp| contains_contiguous(fp, sp)))
     }
+
+    /// §10.7: a SUFFICIENT acceptance for a contraction whose letters end in a silent
+    /// `e` (`one`, `some`, `name`, `time`, `here`, `there`, `where`, `these`,
+    /// `those`). The letters form the `…one`/`…ere` unit — word-final OR medial —
+    /// when the trailing `e` is silent or `ey`-merged in every recorded pronunciation
+    /// (`cone`, `atonement`, `honey`); a `e` voicing its own vowel splits the unit
+    /// (`krone` /…ə/, `Monet` /…eɪ/, `phonetic` /…ɛ…/) — see [`super::pronunciation::aligner`].
+    /// A preceding vowel letter is rejected so the first letter never continues a
+    /// vowel digraph (`B[oo]ne`, `R[oo]ney`).
+    fn silent_final_e_supports(&self, word: &[char], pos: usize, key: &str, full: &str) -> bool {
+        if !key.ends_with('e') {
+            return false;
+        }
+        if pos > 0 && matches!(word[pos - 1], 'a' | 'e' | 'i' | 'o' | 'u') {
+            return false;
+        }
+        let e_idx = pos + key.chars().count() - 1;
+        // §10.10: a following `ed`/`er` strong groupsign claims the trailing `e` with
+        // the next letter (`stone·d`→⠫, `ton·er`→⠻, `on·er·ous`→⠻), so the silent `e`
+        // must not be swallowed into the contraction: `stoned`=st·o·n·ed,
+        // `toner`=t·o·n·er — not st·one·d / t·one·r.
+        if matches!(word.get(e_idx + 1), Some('d' | 'r')) {
+            return false;
+        }
+        let prons = self.provider.pronunciations(full);
+        super::pronunciation::aligner::trailing_letter_is_silent_or_merged(word, e_idx, &prons)
+    }
+
+    /// §10.7 `ever`: used where the letters `e·v·e·r` form the unstressed `-er` unit
+    /// (`fever`, `several`, `beverage`) — the trailing `er` carrying no stress — but
+    /// not a stressed `e·VER·sion`/`se·VER·ity`, nor across a preceding vowel digraph
+    /// (`belie·ver`'s `ie`). Restricted to `ever`; `father`/`mother`/`under` are
+    /// deferred (no test corpus, and `under` risks coincidental substrings like
+    /// `th·under`).
+    fn ever_shape_supports(&self, word: &[char], pos: usize, key: &str, full: &str) -> bool {
+        if key != "ever" {
+            return false;
+        }
+        if pos > 0 && matches!(word[pos - 1], 'a' | 'e' | 'i' | 'o' | 'u') {
+            return false;
+        }
+        let er_e_idx = pos + 2; // the `e` of the trailing `er` in `e·v·e·r`
+        let prons = self.provider.pronunciations(full);
+        super::pronunciation::aligner::trailing_er_is_unstressed(word, er_e_idx, &prons)
+    }
 }
 
 impl ContractionRule for InitialContractionPronunciationRule {
@@ -88,13 +133,23 @@ impl ContractionRule for InitialContractionPronunciationRule {
         let mut best: Option<(usize, [u8; 2])> = None;
         for (key, &cells) in PRON_CONTRACTIONS.entries() {
             let klen = key.chars().count();
-            if pos + klen <= word.len()
-                && key
-                    .chars()
-                    .zip(&word[pos..pos + klen])
-                    .all(|(k, w)| k == *w)
-                && best.is_none_or(|(bl, _)| klen > bl)
-                && self.pronunciation_supports(&full, key)
+            let end = pos + klen;
+            if end > word.len()
+                || !key.chars().zip(&word[pos..end]).all(|(k, w)| k == *w)
+                || best.is_some_and(|(bl, _)| klen <= bl)
+            {
+                continue;
+            }
+            // The letters keep their sound here when EITHER the whole word's
+            // pronunciation contains the contraction's run (`part`/`work`), OR — for
+            // a silent-`e` contraction standing word-finally — the trailing `e` is
+            // proven silent (`cone`, `phone`, `adhere`). Note: these §10.7
+            // initial-letter contractions are whole-unit signs (priority 55), exempt
+            // from §10.11 compound-seam bridging — `up·on`/`there·up·on` legitimately
+            // span their own etymological seams.
+            if self.pronunciation_supports(&full, key)
+                || self.silent_final_e_supports(word, pos, key, &full)
+                || self.ever_shape_supports(word, pos, key, &full)
             {
                 best = Some((klen, cells));
             }
@@ -154,12 +209,68 @@ mod tests {
         assert_eq!(try_at(word, pos), expected);
     }
 
-    /// Pronunciation DIFFERS (spelling-only coincidence) → safely spelled out.
+    /// §10.7 `ever`: the unstressed `-er` unit contracts (`fever` /…V ER0/,
+    /// `several` /…V R AH0…/); a stressed `e·VER` (`eversion`) or a full vowel at the
+    /// `e` (`severity`) does not.
     #[rstest::rstest]
-    #[case::money_not_one("money", 1)] // M AH N IY — no W AH N
-    #[case::component_not_one("component", 4)] // K AH M P OW N AH N T — no W AH N
+    #[case::fever("fever", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
+    #[case::several("several", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
+    #[case::beverage("beverage", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
+    #[case::eversion("eversion", 0, None)] // e·VER stressed → use `er`
+    #[case::severity("severity", 1, None)] // se·VER·ity — e is a full vowel
+    fn applies_ever_when_unstressed(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] expected: Option<(Vec<u8>, usize)>,
+    ) {
+        assert_eq!(try_at(word, pos), expected);
+    }
+
+    /// The letters split across the contraction's sound → safely spelled out.
+    /// `component` voices a schwa at the `e` (`…N AH0 N T`), so the `one` unit is
+    /// split; `acknowledge`'s `know` is /N AA…/, not /N OW/.
+    #[rstest::rstest]
+    #[case::component_not_one("component", 4)] // K AH M P OW N AH0 N T — e voices schwa
     #[case::acknowledge_not_know("acknowledge", 2)] // AE K N AA L … — `know` is N OW
     fn spells_out_when_pronunciation_differs(#[case] word: &str, #[case] pos: usize) {
+        assert_eq!(try_at(word, pos), None);
+    }
+
+    /// Silent word-final `e` → the e-ending contraction is used even though the
+    /// in-word vowel differs from the standalone sound (`cone` /…N/ ≠ `one` /wʌn/).
+    #[rstest::rstest]
+    #[case::cone("cone", 1, decode_unicode('⠕'), 3)] // c·one — word-final
+    #[case::done("done", 1, decode_unicode('⠕'), 3)]
+    #[case::phone("phone", 2, decode_unicode('⠕'), 3)]
+    #[case::everyone("everyone", 5, decode_unicode('⠕'), 3)] // y precedes — not a digraph
+    #[case::adhere("adhere", 2, decode_unicode('⠓'), 4)] // ad·here
+    #[case::atonement("atonement", 2, decode_unicode('⠕'), 3)] // medial: at·one·ment
+    #[case::honey("honey", 1, decode_unicode('⠕'), 3)] // medial: h·one·y (ey merge)
+    #[case::money("money", 1, decode_unicode('⠕'), 3)] // m·one·y — identical to honey
+    fn applies_silent_final_e(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] letter: u8,
+        #[case] consumed: usize,
+    ) {
+        assert_eq!(
+            try_at(word, pos),
+            Some((vec![decode_unicode('⠐'), letter], consumed))
+        );
+    }
+
+    /// The silent-`e` path stays conservative: a SOUNDED final `e` (`krone` /…ə/,
+    /// `anemone` /…i/), a preceding vowel digraph (`b[oo]ne`), or a medial occurrence
+    /// (`money`) all spell out rather than risk a wrong contraction.
+    #[rstest::rstest]
+    #[case::krone("krone", 2)] // K R OW N AH0 — sounded final e
+    #[case::anemone("anemone", 4)] // … N IY0 — sounded final e
+    #[case::boone("boone", 2)] // b·oo·ne — o starts inside the `oo` digraph
+    #[case::abalone("abalone", 4)] // … OW N IY0 — sounded final e
+    #[case::colonel("colonel", 3)] // irregular K ER1 N AH0 L — e voices schwa
+    #[case::stoned("stoned", 2)] // st·o·n·ed — `ed` groupsign claims e-d
+    #[case::toner("toner", 1)] // t·o·n·er — `er` groupsign claims e-r
+    fn silent_final_e_stays_conservative(#[case] word: &str, #[case] pos: usize) {
         assert_eq!(try_at(word, pos), None);
     }
 

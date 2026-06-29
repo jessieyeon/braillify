@@ -11,6 +11,7 @@
 //! BSD), embedded by [`cmudict`]. The decision rules derive from RUEB 2024
 //! §10.6 (first-syllable) plus phonological facts, never from test outputs.
 
+pub mod aligner;
 pub mod classifier;
 pub mod cmudict;
 
