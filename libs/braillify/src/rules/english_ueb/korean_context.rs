@@ -114,6 +114,7 @@ fn korean_initial_match(word: &[char], pos: usize) -> Option<ContractionMatch> {
         cells: cells.to_vec(),
         consumed,
         priority: 55,
+        protect_span: false,
     })
 }
 
@@ -158,6 +159,7 @@ fn match_korean_lower_table(word: &[char], pos: usize) -> Option<ContractionMatc
         cells: vec![cell],
         consumed,
         priority: 70,
+        protect_span: false,
     })
 }
 

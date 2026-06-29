@@ -39,11 +39,20 @@ impl EnInBeforeNessRule {
 
 impl ContractionRule for EnInBeforeNessRule {
     fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
-        let m = LowerGroupsignRule.try_match(word, pos)?;
-        // §10.10: suppress `en`/`in` so the overlapping word-final `ness` wins,
-        // but only when pronunciation confirms the `n` onsets the `ness` syllable.
-        if ness_overlaps(word, pos) && self.n_onsets_ness(word) {
-            return None;
+        let mut m = LowerGroupsignRule.try_match(word, pos)?;
+        // §10.6.8: where `en`/`in` overlaps a following `ness` at the shared `n`,
+        // pronunciation decides which is kept.
+        if ness_overlaps(word, pos) {
+            if self.n_onsets_ness(word) {
+                // The `n` onsets the `ness` syllable (`busi·ness`, `fi·ness·e`) →
+                // suppress `en`/`in` so the cheaper `ness` final groupsign wins.
+                return None;
+            }
+            // The `n` closes the base syllable (`captain·ess`, `citizen·ess`) →
+            // keep `en`/`in` AND protect its span (§10.10.1), so the §10.10.2
+            // cell-minimiser cannot pick the overlapping `ness` (`captain·ess`,
+            // not `captai·ness`).
+            m.protect_span = true;
         }
         Some(m)
     }

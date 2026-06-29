@@ -105,6 +105,9 @@ impl ContractionRule for InitialContractionPronunciationRule {
             // Same band as the spelling-only §10.7 set so longest-match drives
             // the choice; below §10.4 strong groupsigns (60) on equal length.
             priority: 55,
+            // §10.10.1: pronunciation-validated (`part` in `apartheid`), so the
+            // cell-minimiser must not split it with a cheaper generic contraction.
+            protect_span: true,
         })
     }
 }

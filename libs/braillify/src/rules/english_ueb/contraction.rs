@@ -5,6 +5,7 @@
 //! §10.10 preference rule encoded structurally. Unmatched positions fall back to
 //! single letters (§4.1 alphabet), realised via [`crate::english::encode_english`].
 
+#[cfg(test)]
 use crate::english::encode_english;
 
 /// A contraction match starting at a word position.
@@ -15,6 +16,14 @@ pub struct ContractionMatch {
     pub consumed: usize,
     /// Tie-breaker among equal-length matches (lower wins).
     pub priority: u16,
+    /// §10.10.1/§10.11: a morpheme- or pronunciation-validated contraction whose
+    /// span must NOT be split by a cheaper generic contraction in the §10.10.2
+    /// cell-minimiser. Set by the gated rules — restricted `be`/`con`/`dis`
+    /// (§10.6.4), the pronunciation-gated initial-letter contractions like `part`
+    /// (§10.7), and a `en`/`in` kept against an overlapping coda `ness` (§10.6.8,
+    /// e.g. `captain·ess`). Keeps greedy's "consume-to-block" guarantee that the
+    /// cell-min would otherwise lose (`apartheid`→`a·part·heid`, not `ar·the·id`).
+    pub protect_span: bool,
 }
 
 /// One UEB contraction rule (§10.x). `word` is the lowercased letter slice.
@@ -47,6 +56,7 @@ pub fn match_longest(
         cells: vec![cell],
         consumed: klen,
         priority,
+        protect_span: false,
     })
 }
 
@@ -62,12 +72,15 @@ impl ContractionEngine {
         self.rules.push(rule);
     }
 
-    /// Encode the best contraction at `pos`, or the single fallback letter.
-    pub fn encode_at(&self, word: &[char], pos: usize) -> Option<(Vec<u8>, usize)> {
-        self.best_match(word, pos)
-            .map(|matched| (matched.cells, matched.consumed))
-            .or_else(|| super::rule_4::accent_cells(word[pos]).map(|cells| (cells, 1)))
-            .or_else(|| encode_english(word[pos]).ok().map(|cell| (vec![cell], 1)))
+    /// Every contraction match offered at `pos`, across all registered rules —
+    /// the §10.10 candidate set from which the cell-minimising DP in
+    /// [`super::rule_10_9::encode_with_longer_shortforms`] selects the sequence
+    /// occupying the fewest cells (§10.10.2), after structural filtering (§10.10.1).
+    pub fn matches_at(&self, word: &[char], pos: usize) -> Vec<ContractionMatch> {
+        self.rules
+            .iter()
+            .filter_map(|rule| rule.try_match(word, pos))
+            .collect()
     }
 
     /// Encode a lowercased letter slice to braille cells.
@@ -97,6 +110,9 @@ impl ContractionEngine {
         Some(out)
     }
 
+    /// Greedy longest-match (test-only helper for [`Self::encode_word`]); the
+    /// production path is the §10.10.2 cell-minimising DP over [`Self::matches_at`].
+    #[cfg(test)]
     fn best_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
         let mut best: Option<ContractionMatch> = None;
         for rule in &self.rules {

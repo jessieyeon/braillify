@@ -46,6 +46,9 @@ impl ContractionRule for RestrictedLowerGroupsignRule {
                 // Below §10.4 strong groupsigns (60) so a longer strong match
                 // still wins; ties on length prefer the more specific prefix.
                 priority: 65,
+                // §10.10.1: syllable-validated, so the cell-minimiser must not
+                // split it with a cheaper generic contraction (`con`/`dis`/`be`).
+                protect_span: true,
             }),
             Decision::SpellOut | Decision::Unknown => None,
         }

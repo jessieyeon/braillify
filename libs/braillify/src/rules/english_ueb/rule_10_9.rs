@@ -47,39 +47,146 @@ pub fn is_pure_shortform_abbreviation(word: &str) -> bool {
         .any(|abbr| abbr.chars().all(|ch| ch.is_ascii_lowercase()) && *abbr == word)
 }
 
-/// Encode a word using the safe §10.9.2-§10.9.3 longer-word placements currently
-/// expressible without a pronunciation dictionary. Returns `None` only when the
-/// fallback letter/contraction engine cannot encode a source character.
+/// Encode a word as the §10.10.2 cell-minimising contraction sequence.
+///
+/// §10.10.2 ("give preference to the groupsign which causes a word to occupy
+/// fewer cells") is global cell minimisation, solved as a shortest-path DP from
+/// the end of the word: `cost[pos]` is the fewest cells that can encode
+/// `word[pos..]`, and `back[pos]` records the move (cells + characters consumed)
+/// achieving it. Greedy longest-match fails the overlap cases — in `bastion` the
+/// 2-letter `st` blocks the cheaper `s`+`tion`.
+///
+/// §10.10.1 ("unless other rules apply") makes the structural rules primary, so
+/// before cell counts are compared [`candidate_moves`] removes the contractions
+/// they forbid: the word-initial `ing` (§10.4.3), the `en` overlapping an `ence`
+/// in encea/enced/encer (§10.10.6), and any generic contraction that would split
+/// a morpheme/pronunciation-validated span (§10.11, via `protect_span`). Among
+/// equal-cost moves the lower `priority` wins (§10.10.3–.7), then the longer match.
 pub fn encode_with_longer_shortforms(
     word: &[char],
     contractions: &ContractionEngine,
     suppress_initial_ing: bool,
 ) -> Option<Vec<u8>> {
-    let mut out = Vec::with_capacity(word.len());
-    let mut pos = 0;
-    while pos < word.len() {
-        // §10.4.3: the `ing` groupsign is used wherever its letters occur EXCEPT
-        // at the beginning of a word. When the caller marks this token as a word
-        // start (preceded by a space/hyphen/dash/text edge), a leading `ing` is
-        // written as the `in` lower groupsign (⠔, §10.6) + `g` (`ingot`→⠔⠛⠕⠞,
-        // never ⠬⠕⠞). A token that only looks word-initial because it follows a
-        // mid-word connector (`brown(ing)`, `Ch'ing`, a typeform run) is NOT a
-        // word start, so the caller passes `false` and the `ing` groupsign stands.
-        if suppress_initial_ing && pos == 0 && word.starts_with(&['i', 'n', 'g']) {
-            out.push(decode_unicode('⠔'));
-            pos += 2;
-            continue;
-        }
-        if let Some((source_len, cells)) = longer_match(word, pos) {
-            out.extend(cells);
-            pos += source_len;
-        } else {
-            let (cells, consumed) = contractions.encode_at(word, pos)?;
-            out.extend(cells);
-            pos += consumed;
+    let n = word.len();
+    // §10.11 (§10.10.1): positions strictly inside a protected span — a
+    // morpheme/pronunciation-validated contraction (`part`, a kept `in`, `con`…)
+    // must not be split by a cheaper generic contraction starting inside it.
+    let mut inside_protected = vec![false; n];
+    let mut max_reach = vec![0usize; n];
+    for start in 0..n {
+        // A gated contraction pre-empted by a longer contraction starting earlier
+        // and covering this position is never used, so it must not protect
+        // anything: in `hea·the·nesse` the `the` (pos 3–5) covers the `e` of the
+        // `e·n` at pos 5, so that `en` is never chosen and the overlapping `ness`
+        // must stay free.
+        let preempted = (0..start).any(|s| max_reach[s] > start);
+        for m in contractions.matches_at(word, start) {
+            max_reach[start] = max_reach[start].max(start + m.consumed);
+            if m.protect_span && !preempted {
+                let end = (start + m.consumed).min(n);
+                inside_protected[(start + 1)..end].fill(true);
+            }
         }
     }
+    // §10.10.2 cell-minimising DP from the end of the word.
+    let mut cost = vec![usize::MAX; n + 1];
+    let mut back: Vec<Option<(Vec<u8>, usize)>> = vec![None; n + 1];
+    cost[n] = 0;
+    for pos in (0..n).rev() {
+        // Best candidate so far: (total cells, priority, consumed, cells).
+        let mut best: Option<(usize, u16, usize, Vec<u8>)> = None;
+        for (cells, consumed, priority) in candidate_moves(
+            word,
+            pos,
+            contractions,
+            suppress_initial_ing,
+            &inside_protected,
+        ) {
+            let next = pos + consumed;
+            if next > n || cost[next] == usize::MAX {
+                continue;
+            }
+            let total = cells.len() + cost[next];
+            let better = best.as_ref().is_none_or(|(bt, bp, bc, _)| {
+                total < *bt
+                    || (total == *bt && priority < *bp)
+                    || (total == *bt && priority == *bp && consumed > *bc)
+            });
+            if better {
+                best = Some((total, priority, consumed, cells));
+            }
+        }
+        let (total, _, consumed, cells) = best?;
+        cost[pos] = total;
+        back[pos] = Some((cells, consumed));
+    }
+    // Reconstruct the chosen sequence from the start.
+    let mut out = Vec::with_capacity(cost[0]);
+    let mut pos = 0;
+    while pos < n {
+        let (cells, consumed) = back[pos].as_ref()?;
+        out.extend(cells.iter().copied());
+        pos += consumed;
+    }
     Some(out)
+}
+
+/// The candidate moves at `pos` for the §10.10.2 DP, after the §10.10.1
+/// structural filters: an embedded §10.9 shortform, every §10.x contraction match
+/// (minus those a structural rule forbids), and the §4.1/§4.2 single-letter
+/// fallback. Each is `(cells, characters consumed, priority)`.
+fn candidate_moves(
+    word: &[char],
+    pos: usize,
+    contractions: &ContractionEngine,
+    suppress_initial_ing: bool,
+    inside_protected: &[bool],
+) -> Vec<(Vec<u8>, usize, u16)> {
+    let mut moves = Vec::new();
+    // §10.9 longer-word shortform placement (preferred on a cost tie → priority 0).
+    if let Some((len, cells)) = longer_match(word, pos) {
+        moves.push((cells, len, 0));
+    }
+    let protected_here = inside_protected[pos];
+    for m in contractions.matches_at(word, pos) {
+        // §10.4.3: the `ing` groupsign is never used at the start of a word — drop
+        // it so the `in` lower groupsign (⠔) + `g` is chosen instead.
+        if suppress_initial_ing && pos == 0 && m.consumed == 3 && word.starts_with(&['i', 'n', 'g'])
+        {
+            continue;
+        }
+        // §10.10.6: use the `ence` final groupsign in `encea`/`enced`/`encer` —
+        // drop the overlapping 2-cell `en` lower groupsign so `ence` (a cell tie)
+        // is the one the minimiser keeps (`Sp·ence·r`, `comm·ence·d`).
+        if m.consumed == 2
+            && word.get(pos) == Some(&'e')
+            && word.get(pos + 1) == Some(&'n')
+            && is_ence_context(word, pos)
+        {
+            continue;
+        }
+        // §10.11: a generic contraction may not start strictly inside a protected
+        // span, so a morpheme/pronunciation-validated contraction is never split
+        // by a cheaper one (`a·part·heid`, `captain·ess`).
+        if protected_here && !m.protect_span && m.consumed >= 2 {
+            continue;
+        }
+        moves.push((m.cells, m.consumed, m.priority));
+    }
+    // §4.2 accent / §4.1 single letter — always available so the DP never stalls.
+    if let Some(cells) = super::rule_4::accent_cells(word[pos]) {
+        moves.push((cells, 1, u16::MAX));
+    } else if let Ok(cell) = encode_english(word[pos]) {
+        moves.push((vec![cell], 1, u16::MAX));
+    }
+    moves
+}
+
+/// §10.10.6: whether `pos` begins the letters-sequence `encea`/`enced`/`encer`.
+fn is_ence_context(word: &[char], pos: usize) -> bool {
+    word.get(pos..pos + 5).is_some_and(|s| {
+        s[0] == 'e' && s[1] == 'n' && s[2] == 'c' && s[3] == 'e' && matches!(s[4], 'a' | 'd' | 'r')
+    })
 }
 
 fn longer_match(word: &[char], pos: usize) -> Option<(usize, Vec<u8>)> {

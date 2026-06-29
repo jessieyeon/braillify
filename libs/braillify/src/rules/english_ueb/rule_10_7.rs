@@ -62,6 +62,7 @@ impl ContractionRule for InitialContractionRule {
             cells: cells.to_vec(),
             consumed: klen,
             priority: 55,
+            protect_span: false,
         })
     }
 }

@@ -60,6 +60,7 @@ impl ContractionRule for FinalGroupsignRule {
             cells: cells.to_vec(),
             consumed: klen,
             priority: 80,
+            protect_span: false,
         })
     }
 }

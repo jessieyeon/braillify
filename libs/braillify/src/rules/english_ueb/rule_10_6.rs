@@ -58,6 +58,7 @@ pub(crate) fn middle_lower_groupsign(word: &[char], pos: usize) -> Option<Contra
         cells: vec![cell],
         consumed: 2,
         priority: 70,
+        protect_span: false,
     })
 }
 

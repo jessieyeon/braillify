@@ -45,8 +45,19 @@ fn splits_between(word: &[char], pos: usize) -> bool {
 
 /// A strong digraph whose two letters represent a single sound, so a
 /// hyphenation break between them reliably marks a compound boundary (§10.11).
+/// `gh` and `ow` join `th`/`wh`/`sh` on the same basis: within a morpheme each is
+/// a single sound (`high`/`night`, `power`/`vowel` — hyphenation keeps the pair
+/// together), so a break between the two letters marks a compound seam
+/// (`shang·hai`, `kilo·watt`, `co·worker`). Measured against the corpus they add
+/// only correct compound spell-outs; the rare hyphenation mis-split (`to·ward`)
+/// yields a *missed* contraction — the safe error per the conservative design.
+/// `ar` was rejected: it suppressed legitimate mid-morpheme contractions
+/// (`sacchar·ine`) with no compensating compound fixes.
 fn is_bridging_digraph(a: char, b: char) -> bool {
-    matches!((a, b), ('t', 'h') | ('w', 'h') | ('s', 'h'))
+    matches!(
+        (a, b),
+        ('t', 'h') | ('w', 'h') | ('s', 'h') | ('g', 'h') | ('o', 'w')
+    )
 }
 
 /// §10.11-aware strong groupsign rule: identical to [`StrongGroupsignRule`]
