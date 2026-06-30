@@ -66,7 +66,10 @@ fn is_contraction_suffix(w: &[char]) -> bool {
 
 /// §5.7.1: whether the single-letter word at `tokens[i]` needs a grade-1
 /// indicator. Returns `false` for any token that is not a single wordsign letter.
-pub fn needs_grade1_indicator(tokens: &[EnglishToken], i: usize) -> bool {
+/// `explicit_english` (set under an explicit `context: english`) forces the
+/// indicator even on an isolated single letter; default content-routing keeps such
+/// a §4.1/§28 specimen bare.
+pub fn needs_grade1_indicator(tokens: &[EnglishToken], i: usize, explicit_english: bool) -> bool {
     let Some(EnglishToken::Word(chars)) = tokens.get(i) else {
         return false;
     };
@@ -75,11 +78,14 @@ pub fn needs_grade1_indicator(tokens: &[EnglishToken], i: usize) -> bool {
     }
     let prev = i.checked_sub(1).map(|p| &tokens[p]);
     let next = tokens.get(i + 1);
-    // Guard 1: a bare space/edge-bounded letter is the §4.1 letter, not a wordsign
-    // risk, so require at least one punctuation neighbour.
-    if !matches!(prev, Some(EnglishToken::Symbol(_)))
-        && !matches!(next, Some(EnglishToken::Symbol(_)))
-    {
+    // Guard 1 (§28 / §4.1): under DEFAULT content-routing a single letter that is
+    // the ENTIRE isolated text — a text edge on BOTH sides — is an alphabet specimen
+    // / a §28 roman letter, kept as its bare §4.1 cell (`b`→⠃; `rule_4_1`, korean
+    // `rule_28`). Under an explicit `context: english` (`explicit_english`) the input
+    // is DECLARED English, so even an isolated letter is grade-1-indicated (`x`→⠰⠭,
+    // §2.6/§10.12.2). A letter in RUNNING TEXT (any space/hyphen/dash/punctuation
+    // neighbour) always proceeds — `N S`, `c 1600`, `3 N m`, `7 L` take ⠰ per §10.12.2.
+    if !explicit_english && prev.is_none() && next.is_none() {
         return false;
     }
     // Left boundary: strip §2.6.2 openers, then require a §2.6.1 boundary.
@@ -139,8 +145,11 @@ mod tests {
     #[case::apostrophe_suffix_ll(vec![word("X"), sym('\''), word("ll")], 0, true)]
     #[case::apostrophe_suffix_s(vec![word("p"), sym('\''), word("s")], 0, true)]
     #[case::apostrophe_at_end(vec![word("d"), sym('\'')], 0, true)]
+    // §10.12.2: a single wordsign letter in running text (a space neighbour) is
+    // indicated even without a punctuation neighbour (`a b`'s `b`, `N S`, `c 1600`),
+    // whereas a letter that IS the whole isolated text stays bare (`bare_alone`).
+    #[case::running_text_space_bounded(vec![word("a"), EnglishToken::Space, word("b")], 2, true)]
     // Not indicated:
-    #[case::bare_space_bounded(vec![word("a"), EnglishToken::Space, word("b")], 2, false)]
     #[case::bare_alone(vec![word("b")], 0, false)]
     #[case::aio_excluded(vec![sym('('), word("i"), sym(')')], 1, false)]
     #[case::factorial(vec![word("x"), sym('!')], 0, false)]
@@ -155,6 +164,22 @@ mod tests {
         #[case] index: usize,
         #[case] expected: bool,
     ) {
-        assert_eq!(needs_grade1_indicator(&tokens, index), expected);
+        assert_eq!(needs_grade1_indicator(&tokens, index, false), expected);
+    }
+
+    /// §2.6/§10.12.2: under an explicit `context: english` (`explicit_english=true`)
+    /// even a single letter that IS the whole isolated text takes the grade-1
+    /// indicator (`x`→⠰⠭, `N`→⠰⠠⠝) — the §4.1/§28 bare-specimen exception applies
+    /// only to default content-routing. `a`/`i`/`o` carry no wordsign so stay exempt.
+    #[rstest::rstest]
+    #[case::isolated_x(vec![word("x")], 0, true)]
+    #[case::isolated_capital_n(vec![word("N")], 0, true)]
+    #[case::isolated_aio(vec![word("i")], 0, false)]
+    fn explicit_english_indicates_isolated_letter(
+        #[case] tokens: Vec<EnglishToken>,
+        #[case] index: usize,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(needs_grade1_indicator(&tokens, index, true), expected);
     }
 }

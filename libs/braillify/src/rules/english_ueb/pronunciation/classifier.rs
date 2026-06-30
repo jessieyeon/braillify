@@ -62,10 +62,17 @@ fn classify_be(word: &[char], provider: &dyn PronunciationProvider) -> Decision 
     if word.len() >= 4 && word[2] == word[3] && !is_vowel_char(word[2]) {
         return Decision::SpellOut;
     }
-    decide_all(&provider.pronunciations(&word_string(word)), be_pron_uses)
+    // For a primary-stressed TENSE vowel, `be` is an open first syllable when a
+    // CONSONANT letter follows (`be·ta` /B EY1 T…/, the `t` onsets the next
+    // syllable), but a VOWEL after `be` makes a digraph the `be` is part of
+    // (`bea·con`, `beat`) — those spell out.
+    let consonant_follows = word.get(2).is_some_and(|c| !is_vowel_char(*c));
+    decide_all(&provider.pronunciations(&word_string(word)), |p| {
+        be_pron_uses(p, consonant_follows)
+    })
 }
 
-fn be_pron_uses(p: &[Phoneme]) -> bool {
+fn be_pron_uses(p: &[Phoneme], consonant_follows: bool) -> bool {
     if p.first().map(|ph| ph.base.as_str()) != Some("B") {
         return false;
     }
@@ -78,22 +85,31 @@ fn be_pron_uses(p: &[Phoneme]) -> bool {
     match p[idx].stress {
         Some(0 | 2) => true,
         Some(1) if TENSE_VOWELS.contains(&p[idx].base.as_str()) => {
-            p.get(idx + 1).is_some_and(|n| n.is_vowel())
+            // Open syllable: a following vowel (hiatus, `be·ing`) OR a consonant
+            // letter after `be` (`be·ta`) — both keep `be` open.
+            p.get(idx + 1).is_some_and(|n| n.is_vowel()) || consonant_follows
         }
         _ => false,
     }
 }
 
 /// `con`: the prefix is the first syllable when the pronunciation is `K`, a
-/// vowel, then `N` followed by a *consonant* (`con·cept`, `con·trol`). A vowel
-/// after the `N` makes the split `co·n…` (`coney`), and nothing after it is a
-/// single syllable (`cone`); in both cases the groupsign is not used.
+/// vowel, then `N`/`NG` followed by a *consonant*, AND a second syllable follows
+/// (`con·cept`, `con·trol`, `con·gress` /…NG G…/). A vowel after the `N` makes the
+/// split `co·n…` (`coney`); a single syllable (`cone`, `conch` /K AA NG K/) is not
+/// the prefix; in all those cases the groupsign is not used.
 fn classify_con(word: &[char], provider: &dyn PronunciationProvider) -> Decision {
     decide_all(&provider.pronunciations(&word_string(word)), con_pron_uses)
 }
 
 fn con_pron_uses(p: &[Phoneme]) -> bool {
-    p.len() >= 4 && p[0].base == "K" && p[1].is_vowel() && p[2].base == "N" && !p[3].is_vowel()
+    let multisyllable = p.iter().filter(|ph| ph.is_vowel()).count() >= 2;
+    p.len() >= 4
+        && p[0].base == "K"
+        && p[1].is_vowel()
+        && matches!(p[2].base.as_str(), "N" | "NG")
+        && !p[3].is_vowel()
+        && multisyllable
 }
 
 /// `dis`: the prefix forms the first syllable when (1) the remainder after `dis`
@@ -114,12 +130,20 @@ fn classify_dis(word: &[char], provider: &dyn PronunciationProvider) -> Decision
 }
 
 fn dis_pron_uses(p: &[Phoneme]) -> bool {
-    p.len() >= 4 && p[0].base == "D" && p[1].base == "IH" && p[2].base == "S" && p[3].is_vowel()
+    if !(p.len() >= 4 && p[0].base == "D" && p[1].base == "IH" && p[2].base == "S") {
+        return false;
+    }
+    // `dis` is the first syllable when a vowel onsets the next syllable after the
+    // `S` (`dis·aster`, `dis·cipline`), OR the `IH` is stressed AND a second
+    // syllable follows — the stressed `dis` closes its own syllable (`dis·tance`
+    // /D IH1 S T…/, `dis·trict`), unlike an unstressed `di·spirited` (/D IH0 S P…/).
+    let multisyllable = p.iter().filter(|ph| ph.is_vowel()).count() >= 2;
+    p[3].is_vowel() || (matches!(p[1].stress, Some(1 | 2)) && multisyllable)
 }
 
 /// Every pronunciation must agree for a definite `Use`/`SpellOut`; disagreement
 /// or no data yields `Unknown`.
-fn decide_all(prons: &[Vec<Phoneme>], uses: fn(&[Phoneme]) -> bool) -> Decision {
+fn decide_all<F: Fn(&[Phoneme]) -> bool>(prons: &[Vec<Phoneme>], uses: F) -> Decision {
     let Some((first, rest)) = prons.split_first() else {
         return Decision::Unknown;
     };
@@ -179,6 +203,13 @@ mod tests {
             ("dispirited", vec!["D IH0 S P IH1 R IH0 T IH0 D"]),
             ("disulphide", vec!["D AY0 S AH1 L F AY2 D"]),
             ("disc", vec!["D IH1 S K"]),
+            ("congress", vec!["K AA1 NG G R AH0 S"]),
+            ("conch", vec!["K AA1 NG K"]),
+            ("congo", vec!["K AA1 NG G OW0"]),
+            ("connor", vec!["K AA1 N ER0"]),
+            ("distance", vec!["D IH1 S T AH0 N S"]),
+            ("beta", vec!["B EY1 T AH0"]),
+            ("beacon", vec!["B IY1 K AH0 N"]),
         ]))
     }
 
@@ -213,6 +244,14 @@ mod tests {
     #[case::dispirited("dispirited", Prefix::Dis, Decision::SpellOut)]
     #[case::disulphide("disulphide", Prefix::Dis, Decision::SpellOut)]
     #[case::disc_monosyllable("disc", Prefix::Dis, Decision::SpellOut)]
+    // §10.6 NG/multisyllable con + stressed dis (regression locks):
+    #[case::congress_ng("congress", Prefix::Con, Decision::Use)] // K AA NG G… multisyllable
+    #[case::conch_monosyllable("conch", Prefix::Con, Decision::SpellOut)] // K AA NG K — 1 syllable
+    #[case::congo_ng("congo", Prefix::Con, Decision::Use)]
+    #[case::connor_vowel_after_n("connor", Prefix::Con, Decision::SpellOut)] // K AA N ER — coney split
+    #[case::distance_stressed("distance", Prefix::Dis, Decision::Use)] // D IH1 S T… stressed dis
+    #[case::beta_open_consonant("beta", Prefix::Be, Decision::Use)] // be·ta — t after `be`
+    #[case::beacon_digraph("beacon", Prefix::Be, Decision::SpellOut)] // bea·con — vowel digraph
     fn classifies_restricted_prefixes(
         #[case] word: &str,
         #[case] prefix: Prefix,

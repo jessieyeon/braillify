@@ -60,6 +60,41 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '\u{2022}' => vec![decode_unicode('⠸'), decode_unicode('⠲')], // • bullet (§3.22)
         // §3.28 check mark: a fixed UEB symbol ⠈⠩ (dot-4 prefix + dots-146).
         '\u{2713}' => vec![decode_unicode('⠈'), decode_unicode('⠩')], // ✓
+        // §4.2 standalone accent signs (the ⠘ dots-4-5 prefix): a lone acute or
+        // grave glyph referenced in isolation (`the acute (´) and grave (` + "`" + `)`).
+        '\u{00B4}' => vec![decode_unicode('⠘'), decode_unicode('⠌')], // ´ acute
+        '\u{0060}' => vec![decode_unicode('⠘'), decode_unicode('⠡')], // ` grave
+        // §11.6 the return/enter arrow ↵ → arrow indicator ⠰⠳ + ⠲⠩.
+        '\u{21B5}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠳'),
+            decode_unicode('⠲'),
+            decode_unicode('⠩'),
+        ], // ↵ return arrow
+        // §11.6 directional arrows: arrow indicator ⠰⠳ + shaft/head cells.
+        '\u{21D2}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠳'),
+            decode_unicode('⠶'),
+            decode_unicode('⠶'),
+            decode_unicode('⠕'),
+        ], // ⇒ rightwards double arrow
+        '\u{2194}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠳'),
+            decode_unicode('⠺'),
+            decode_unicode('⠗'),
+            decode_unicode('⠕'),
+        ], // ↔ left-right arrow
+        // §11.7 the circled-plus sign ⊕ → shape indicator ⠰⠫ + ⠿⠪⠐⠖.
+        '\u{2295}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠫'),
+            decode_unicode('⠿'),
+            decode_unicode('⠪'),
+            decode_unicode('⠐'),
+            decode_unicode('⠖'),
+        ], // ⊕ circled plus
         // §3.11 degree sign and §3.20 reference signs: ⠘ (dots 4-5) prefix + letter.
         '\u{00B0}' => vec![decode_unicode('⠘'), decode_unicode('⠚')], // ° degree
         '\u{00B6}' => vec![decode_unicode('⠘'), decode_unicode('⠏')], // ¶ pilcrow
@@ -110,6 +145,13 @@ mod tests {
     #[case::male('\u{2642}', vec![decode_unicode('⠘'), decode_unicode('⠽')])]
     #[case::bullet('\u{2022}', vec![decode_unicode('⠸'), decode_unicode('⠲')])]
     #[case::check_mark('\u{2713}', vec![decode_unicode('⠈'), decode_unicode('⠩')])]
+    // §4.2 standalone accent signs and §11.6 return arrow.
+    #[case::acute('\u{00B4}', vec![decode_unicode('⠘'), decode_unicode('⠌')])]
+    #[case::grave('\u{0060}', vec![decode_unicode('⠘'), decode_unicode('⠡')])]
+    #[case::return_arrow('\u{21B5}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠲'), decode_unicode('⠩')])]
+    #[case::rightwards_double_arrow('\u{21D2}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠶'), decode_unicode('⠶'), decode_unicode('⠕')])]
+    #[case::left_right_arrow('\u{2194}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠺'), decode_unicode('⠗'), decode_unicode('⠕')])]
+    #[case::circled_plus('\u{2295}', vec![decode_unicode('⠰'), decode_unicode('⠫'), decode_unicode('⠿'), decode_unicode('⠪'), decode_unicode('⠐'), decode_unicode('⠖')])]
     // §3.11 degree and §3.20 reference signs.
     #[case::degree('\u{00B0}', vec![decode_unicode('⠘'), decode_unicode('⠚')])]
     #[case::pilcrow('\u{00B6}', vec![decode_unicode('⠘'), decode_unicode('⠏')])]

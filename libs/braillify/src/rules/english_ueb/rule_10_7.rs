@@ -10,7 +10,7 @@
 //! The contractions whose letters frequently occur INSIDE unrelated words with
 //! a different sound (`one` in *component*, `here` in *adhered*, `ever` in
 //! *persevere*, `time` in *centimetre*, `some`, `name`, `part`, `had`, `under`,
-//! `day`, `there`, `where`, `word`, `know`, `these`, `those`, `many`, `lord`,
+//! `day`, `there`, `where`, `know`, `these`, `those`, `lord`,
 //! `mother`, `father`, `young`, `their`) are pronunciation- and
 //! morphology-dependent (§10.7 "retain the pronunciation" + §10.11 bridging).
 //! A naive longest-match over those mis-contracts ~120 words, so they are
@@ -31,13 +31,19 @@ static INITIAL_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {
     "character" => [decode_unicode('⠐'), decode_unicode('⠡')],
     "through"   => [decode_unicode('⠐'), decode_unicode('⠹')],
     "ought"     => [decode_unicode('⠐'), decode_unicode('⠳')],
-    // ⠨ (dots 4-5) prefix. (`upon` omitted — it occurs inside `Dupont`,
+    // ⠨ (dots 4-6) prefix. (`upon` omitted — it occurs inside `Dupont`,
     // `coupon` with a different sound; deferred to the morphology-gated pass.)
     "whose"     => [decode_unicode('⠨'), decode_unicode('⠱')],
-    // ⠸ (dots 4-5-6) prefix.
+    // ⠘ (dots 4-5) prefix. `word` is unambiguous: every corpus occurrence
+    // (`sword`, `foreword`, `misworded`, `Wordsworth`, `word-for-word`) is the
+    // `word` morpheme, so spelling-match is safe (no spell-out exception exists).
+    "word"      => [decode_unicode('⠘'), decode_unicode('⠺')],
+    // ⠸ (dots 4-5-6) prefix. `many` is likewise unambiguous (`Germany`,
+    // `many-sided`) — the `m·a·n·y` run never occurs with a different sound.
     "cannot"    => [decode_unicode('⠸'), decode_unicode('⠉')],
     "spirit"    => [decode_unicode('⠸'), decode_unicode('⠎')],
     "world"     => [decode_unicode('⠸'), decode_unicode('⠺')],
+    "many"      => [decode_unicode('⠸'), decode_unicode('⠍')],
 };
 
 /// §10.7 initial-letter contraction rule.

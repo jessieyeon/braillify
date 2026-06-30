@@ -25,12 +25,14 @@
   },
   {
     "input": "2.5%",
+    "context": "english",
     "internal": "#b4e.0",
     "expected": "60350174052",
     "unicode": "⠼⠃⠲⠑⠨⠴"
   },
   {
     "input": "2,5%",
+    "context": "english",
     "internal": "#b1e.0",
     "expected": "6032174052",
     "unicode": "⠼⠃⠂⠑⠨⠴"
@@ -55,6 +57,7 @@
   },
   {
     "input": "4:30",
+    "context": "english",
     "internal": "#d3#cj",
     "expected": "60251860926",
     "unicode": "⠼⠙⠒⠼⠉⠚"

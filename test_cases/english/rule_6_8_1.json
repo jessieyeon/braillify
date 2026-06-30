@@ -25,6 +25,7 @@
   },
   {
     "input": "$15.00",
+    "context": "english",
     "internal": "@s#ae4jj",
     "expected": "81460117502626",
     "unicode": "⠈⠎⠼⠁⠑⠲⠚⠚"

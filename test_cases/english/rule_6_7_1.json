@@ -37,6 +37,7 @@
   },
   {
     "input": "$8.75",
+    "context": "english",
     "internal": "@s#h4ge",
     "expected": "8146019502717",
     "unicode": "⠈⠎⠼⠓⠲⠛⠑"
@@ -55,12 +56,14 @@
   },
   {
     "input": "$1,500.00",
+    "context": "english",
     "internal": "@s#a1ejj4jj",
     "expected": "8146012172626502626",
     "unicode": "⠈⠎⠼⠁⠂⠑⠚⠚⠲⠚⠚"
   },
   {
     "input": "€1.500,00",
+    "context": "english",
     "internal": "@e#a4ejj1jj",
     "expected": "8176015017262622626",
     "unicode": "⠈⠑⠼⠁⠲⠑⠚⠚⠂⠚⠚"
@@ -103,6 +106,7 @@
   },
   {
     "input": "(416) 486-2500",
+    "context": "english",
     "internal": "\"<#daf\"> #dhf-#bejj",
     "expected": "16356025111162806025191136603172626",
     "unicode": "⠐⠣⠼⠙⠁⠋⠐⠜⠀⠼⠙⠓⠋⠤⠼⠃⠑⠚⠚"

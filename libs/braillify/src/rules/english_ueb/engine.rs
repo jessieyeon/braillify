@@ -107,12 +107,42 @@ fn styled_passage_extent(
         }
     }
     let mut end = last_styled_end;
+    // A trailing dash or *closing bracket* separates the passage from following
+    // matter, so the terminator falls *before* it (`…𝐽𝑢𝑙𝑖𝑒𝑡⠨⠄⠐⠜`,
+    // `…𝑤𝑖𝑡.⠨⠄⠠⠤`); a sentence mark (`.`, `,`) that belongs to the emphasised
+    // phrase stays inside (`𝐶𝑖𝑡𝑖𝑒𝑠⠲⠨⠄`).
     while matches!(tokens.get(end),
-        Some(EnglishToken::Symbol(c)) if !matches!(c, '-' | '\u{2013}' | '\u{2014}'))
+        Some(EnglishToken::Symbol(c))
+            if !matches!(c, '-' | '\u{2013}' | '\u{2014}' | ')' | ']' | '}'))
     {
         end += 1;
     }
     (words, end)
+}
+
+/// §8.4 within a §9 typeform passage: whether every styled letter from `start` to
+/// `end` (exclusive) is uppercase, so the passage is also a capitals passage
+/// (`⠠⠠⠠ … ⠠⠄` nested inside the typeform `⠨⠶ … ⠨⠄`). A single lowercase styled
+/// letter disqualifies it (each caps word then takes its own `⠠⠠`).
+fn styled_passage_all_caps(
+    tokens: &[EnglishToken],
+    start: usize,
+    end: usize,
+    form: super::token::Typeform,
+) -> bool {
+    let mut saw_letter = false;
+    for t in tokens.iter().take(end).skip(start) {
+        if let EnglishToken::Styled(c, f) = t
+            && *f == form
+            && c.is_alphabetic()
+        {
+            saw_letter = true;
+            if c.is_lowercase() {
+                return false;
+            }
+        }
+    }
+    saw_letter
 }
 
 /// §9.5: whether the space-delimited word continues past index `j` with more
@@ -417,13 +447,22 @@ impl EnglishUebEngine {
                 super::pronunciation::cmudict::CmuDictProvider::new(),
             )),
         ));
+        // §10.7/§10.11 structure-gated initial-letter contractions (`lord`, `work`):
+        // applied only where the letters START a real word component.
+        contractions.register(Box::new(
+            super::rule_10_7_struct::StructuralInitialContractionRule::new(Box::new(
+                super::pronunciation::cmudict::CmuDictProvider::new(),
+            )),
+        ));
         Self { contractions }
     }
 
     /// Encode a token stream. Returns `None` if any token is unsupported
     /// (a number, a symbol, or a mixed-case word), so the legacy path — which
-    /// handles those — takes over.
-    pub fn encode(&self, tokens: &[EnglishToken]) -> Option<Vec<u8>> {
+    /// handles those — takes over. `explicit_english` is true only under an
+    /// explicit `EncodingMode::English` (testcase `context: english`); it threads
+    /// to §5.7.1 so an isolated single letter is grade-1-indicated only then.
+    pub fn encode(&self, tokens: &[EnglishToken], explicit_english: bool) -> Option<Vec<u8>> {
         let mut out = Vec::new();
         let mut prev_was_number = false;
         // §6.3: numeric mode continues across a `,` or `.` that separates digits
@@ -433,17 +472,23 @@ impl EnglishUebEngine {
         // §9: index past a styled run already emitted as a word indicator, so its
         // member tokens are not re-emitted individually.
         let mut skip_to = 0usize;
-        // §9.x active typeform passage: (end index exclusive, form). Its terminator
-        // ⠨⠄ is emitted once the walk passes the styled span.
-        let mut passage: Option<(usize, super::token::Typeform)> = None;
+        // §9.x active typeform passage: (end index exclusive, form, caps) where
+        // `caps` marks a passage whose every styled word is all-caps (§8.4), so a
+        // capitals passage ⠠⠠⠠ … ⠠⠄ nests inside the typeform ⠨⠶ … ⠨⠄. Its
+        // terminator is emitted once the walk passes the styled span.
+        let mut passage: Option<(usize, super::token::Typeform, bool)> = None;
         // §8.4 capitals passage: ⠠⠠⠠ … ⠠⠄ around runs of 3+ all-caps words.
         let (cap_start, cap_term, in_passage) = caps_passages(tokens);
         // §7.6 single-quote vs apostrophe role per token (matched-pair analysis).
         let sq_roles = single_quote_roles(tokens);
         for i in 0..tokens.len() {
-            if let Some((end, form)) = passage
+            if let Some((end, form, caps)) = passage
                 && i >= end
             {
+                // §8.4: close the nested capitals passage before the typeform one.
+                if caps {
+                    out.extend([CAPITAL, decode_unicode('⠄')]);
+                }
                 out.extend(super::rule_9::terminator(form));
                 passage = None;
             }
@@ -485,7 +530,8 @@ impl EnglishUebEngine {
                     // §5.7.1: a single wordsign-letter standing alone (§2.6) takes a
                     // grade-1 indicator ⠰ so it is not read as the wordsign; §5.8.1
                     // places it before any capital. Full rule in `rule_5_7`.
-                    let letter_grade1 = super::rule_5_7::needs_grade1_indicator(tokens, i);
+                    let letter_grade1 =
+                        super::rule_5_7::needs_grade1_indicator(tokens, i, explicit_english);
                     if after_number_grade1 || letter_grade1 {
                         out.push(GRADE1);
                     }
@@ -703,11 +749,28 @@ impl EnglishUebEngine {
                     // multi-segment styled word extends it to its span end.
                     let mut run_end = j;
                     if chars.iter().all(char::is_ascii_digit) {
-                        // §9 + §6: a styled number is one symbol-sequence — a single
-                        // symbol indicator, then the whole number (`3̲4̲` → `⠸⠆⠼⠉⠙`,
-                        // `5𝟓` → `⠼⠑⠘⠆⠼⠑`).
-                        out.extend(super::rule_9::symbol_indicator(*form));
-                        out.extend(super::rule_6::encode_number(&chars)?);
+                        // §9: a styled digit run that is only PART of a larger number
+                        // — plain digits sit immediately before or after it — takes a
+                        // *word* indicator when it spans 2+ digits, with a terminator
+                        // if plain digits continue after it (`45̲6̲7` → ⠼⠙⠸⠂⠼⠑⠋⠸⠄⠼⠛,
+                        // `13.8𝟔𝟔𝟔𝟔` → …⠓⠘⠂⠼⠋⠋⠋⠋). A *whole* styled number (`3̲4̲` →
+                        // ⠸⠆⠼⠉⠙) or a single styled digit (`5𝟓` → …⠘⠆⠼⠑) is instead one
+                        // symbol-sequence under a symbol indicator.
+                        let prev_is_number = i.checked_sub(1).is_some_and(|p| {
+                            matches!(tokens.get(p), Some(EnglishToken::Number(_)))
+                        });
+                        let next_is_number =
+                            matches!(tokens.get(j), Some(EnglishToken::Number(_)));
+                        if chars.len() >= 2 && (prev_is_number || next_is_number) {
+                            out.extend(super::rule_9::word_indicator(*form));
+                            out.extend(super::rule_6::encode_number(&chars)?);
+                            if next_is_number {
+                                out.extend(super::rule_9::terminator(*form));
+                            }
+                        } else {
+                            out.extend(super::rule_9::symbol_indicator(*form));
+                            out.extend(super::rule_6::encode_number(&chars)?);
+                        }
                     } else if chars.len() == 1 && !chars[0].is_ascii_alphabetic() {
                         // §9: a single styled punctuation/symbol mark (`.̲` → `⠸⠆⠲`,
                         // `%̲` → `⠸⠆⠨⠴`).
@@ -726,14 +789,30 @@ impl EnglishUebEngine {
                             let (words, end) = styled_passage_extent(tokens, i, *form);
                             if words >= 3 {
                                 out.extend(super::rule_9::passage_indicator(*form));
-                                passage = Some((end, *form));
+                                // §8.4: if every styled word in the passage is
+                                // all-caps, open a nested capitals passage ⠠⠠⠠ right
+                                // after the typeform indicator (`𝑅𝑂𝑀𝐸𝑂 𝐴𝑁𝐷 𝐽𝑈𝐿𝐼𝐸𝑇`
+                                // → ⠨⠶⠠⠠⠠…⠠⠄⠨⠄), so the words drop their own ⠠⠠.
+                                let caps = styled_passage_all_caps(tokens, i, end, *form);
+                                if caps {
+                                    out.extend([CAPITAL, CAPITAL, CAPITAL]);
+                                }
+                                passage = Some((end, *form, caps));
                             }
                         }
                         if passage.is_some() {
                             // Inside a passage: each word carries no indicator of its
                             // own; the terminator is emitted once the walk passes the
-                            // span end.
-                            self.encode_styled_word(&chars, i, j, tokens, in_passage[i], &mut out)?;
+                            // span end. A caps passage also suppresses per-word caps.
+                            let caps_active = matches!(passage, Some((_, _, true)));
+                            self.encode_styled_word(
+                                &chars,
+                                i,
+                                j,
+                                tokens,
+                                in_passage[i] || caps_active,
+                                &mut out,
+                            )?;
                         } else if chars.len() == 1 && span_end == j {
                             out.extend(super::rule_9::symbol_indicator(*form));
                             // §5.7.1/§5.8.1: a single styled wordsign-letter standing
@@ -799,7 +878,10 @@ impl EnglishUebEngine {
             }
         }
         // §9.x: a passage reaching the end of the input still needs its terminator.
-        if let Some((_, form)) = passage {
+        if let Some((_, form, caps)) = passage {
+            if caps {
+                out.extend([CAPITAL, decode_unicode('⠄')]);
+            }
             out.extend(super::rule_9::terminator(form));
         }
         Some(out)
@@ -1059,18 +1141,25 @@ mod tests {
     #[case::lower_groupsign_in("find", vec![decode_unicode('⠋'), decode_unicode('⠔'), decode_unicode('⠙')])]
     #[case::lower_groupsign_en("send", vec![decode_unicode('⠎'), decode_unicode('⠢'), decode_unicode('⠙')])]
     #[case::enough_lower_wordsign("enough", vec![decode_unicode('⠢')])]
-    #[case::two_words("a b", vec![decode_unicode('⠁'), SPACE, decode_unicode('⠃')])]
+    // §10.12.2: the lone wordsign letter `b` in running text takes a grade-1 ⠰.
+    #[case::two_words("a b", vec![decode_unicode('⠁'), SPACE, GRADE1, decode_unicode('⠃')])]
     #[case::number_then_az_letter("5a", vec![decode_unicode('⠼'), decode_unicode('⠑'), GRADE1, decode_unicode('⠁')])]
     #[case::word_space_number("a 50", vec![decode_unicode('⠁'), SPACE, decode_unicode('⠼'), decode_unicode('⠑'), decode_unicode('⠚')])]
     fn encodes_supported_words(#[case] text: &str, #[case] expected: Vec<u8>) {
         assert_eq!(enc(text), Some(expected));
     }
 
-    /// A mixed-case word whose capitals form an internal run *followed by*
-    /// lowercase (`founDAtion`) is not yet modelled by [`encode_mixed_case`], so the
-    /// engine returns `None` and the legacy path takes over.
+    /// Mixed-case words the UEB engine defers to the legacy path (`None`):
+    /// `founDAtion` has an internal caps run before lowercase that
+    /// [`encode_mixed_case`] does not model; `CliffEdge`'s lowercased whole form
+    /// `cliffedge` contracts its medial `ff` (§10.6.5), differing from the
+    /// component-wise spelling where the `ff` closes `Cliff` — so the §8.2
+    /// split-vs-whole guard (`concat != whole`) defers rather than emit a
+    /// position-dependent guess. The legacy path encodes both correctly (the
+    /// `CliffEdge` test case passes through it).
     #[rstest::rstest]
     #[case::caps_run_then_lower("founDAtion")]
+    #[case::ff_at_component_boundary("CliffEdge")]
     fn unsupported_inputs_return_none(#[case] text: &str) {
         assert_eq!(enc(text), None);
     }
@@ -1080,7 +1169,6 @@ mod tests {
     /// indicator (`⠠` single, `⠠⠠` all-caps), contractions applying within each.
     #[rstest::rstest]
     #[case::mcd("McD", "⠠⠍⠉⠠⠙")]
-    #[case::title_concatenation("CliffEdge", "⠠⠉⠇⠊⠋⠋⠠⠫⠛⠑")]
     #[case::trailing_single_cap("verY", "⠧⠻⠠⠽")]
     #[case::trailing_caps_word("grandEST", "⠛⠗⠯⠠⠠⠑⠌")]
     fn encodes_mixed_case_words_8_2(#[case] text: &str, #[case] expected: &str) {
@@ -1266,7 +1354,8 @@ mod tests {
         "out-\u{1D45C}\u{1D453}-\u{1D461}\u{210E}\u{1D452}-way",
         "⠳⠤⠨⠂⠷⠤⠮⠨⠄⠤⠺⠁⠽"
     )]
-    #[case::apostrophe_single_first_segment("\u{1D459}'\u{1D45C} z", "⠨⠂⠇⠄⠕⠀⠵")]
+    // §10.12.2: the trailing lone wordsign letter `z` in running text takes grade-1 ⠰.
+    #[case::apostrophe_single_first_segment("\u{1D459}'\u{1D45C} z", "⠨⠂⠇⠄⠕⠀⠰⠵")]
     fn typeform_multi_segment_word_9(#[case] text: &str, #[case] expected: &str) {
         assert_eq!(enc(text), Some(cells(expected)));
     }

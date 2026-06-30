@@ -46,12 +46,16 @@ pub(crate) static MIDDLE_LOWER_GROUPSIGNS: phf::Map<&'static str, u8> = phf_map!
 /// Match a §10.6.5 middle lower groupsign at `pos`, or `None`. Requires an
 /// alphabetic neighbour on both sides (so word-initial/final pairs spell out).
 pub(crate) fn middle_lower_groupsign(word: &[char], pos: usize) -> Option<ContractionMatch> {
-    if pos == 0 || !word[pos - 1].is_ascii_alphabetic() {
+    // §10.6.5 "preceded and followed by a letter": a letter is any alphabetic
+    // char, incl. an accented Latin letter (`abbé`, `réchauffé`) whose accent the
+    // §4.2 path renders as indicator + base — still a letter neighbour, so the
+    // doubled/`ea` pair beside it stays *medial* and keeps its groupsign.
+    if pos == 0 || !word[pos - 1].is_alphabetic() {
         return None;
     }
     let key: String = word.get(pos..pos + 2)?.iter().collect();
     let &cell = MIDDLE_LOWER_GROUPSIGNS.get(key.as_str())?;
-    if !word.get(pos + 2).is_some_and(|c| c.is_ascii_alphabetic()) {
+    if !word.get(pos + 2).is_some_and(|c| c.is_alphabetic()) {
         return None;
     }
     Some(ContractionMatch {

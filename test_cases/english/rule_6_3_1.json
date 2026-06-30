@@ -7,6 +7,7 @@
   },
   {
     "input": "10:12:2009",
+    "context": "english",
     "internal": "#aj3#ab3#bjji",
     "expected": "6012618601318603262610",
     "unicode": "⠼⠁⠚⠒⠼⠁⠃⠒⠼⠃⠚⠚⠊"
@@ -25,6 +26,7 @@
   },
   {
     "input": "2.5-5",
+    "context": "english",
     "internal": "#b4e-#e",
     "expected": "6035017366017",
     "unicode": "⠼⠃⠲⠑⠤⠼⠑"
@@ -85,6 +87,7 @@
   },
   {
     "input": "7(2)",
+    "context": "english",
     "internal": "#g\"<#b\">",
     "expected": "602716356031628",
     "unicode": "⠼⠛⠐⠣⠼⠃⠐⠜"

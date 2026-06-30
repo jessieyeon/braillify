@@ -1,12 +1,14 @@
 [
   {
     "input": "5%",
+    "context": "english",
     "internal": "#e.0",
     "expected": "60174052",
     "unicode": "⠼⠑⠨⠴"
   },
   {
     "input": "95 %",
+    "context": "english",
     "internal": "#ie .0",
     "expected": "60101704052",
     "unicode": "⠼⠊⠑⠀⠨⠴"

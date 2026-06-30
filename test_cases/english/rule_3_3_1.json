@@ -79,6 +79,7 @@
   },
   {
     "input": "* * *",
+    "context": "english",
     "internal": "\"9 \"9 \"9",
     "expected": "16200162001620",
     "unicode": "⠐⠔⠀⠐⠔⠀⠐⠔"

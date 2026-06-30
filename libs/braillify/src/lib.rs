@@ -639,14 +639,28 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
     // italic/bold emphasis that the math-alphanumeric normalization below erases
     // by folding `𝑝`→`p` (the Korean math path writes no font variation). For
     // english-dominant prose the UEB engine instead emits a typeform indicator,
-    // so try it on the ORIGINAL text first; math/Korean inputs (no ASCII letter,
-    // or math-owned) fall through to the normalization as before.
+    // so try it on the ORIGINAL text first. The letter signal is an ASCII letter
+    // OR a UEB-decodable styled char (`decode_styled`), so a *fully* styled phrase
+    // carrying no plain ASCII (`𝐡𝐢𝐬 𝐡𝐞𝐫𝐬 𝐢𝐭𝐬`, `13.8𝟔𝟔𝟔`) is still routed here
+    // instead of being flattened to plain letters first; math/Korean inputs, or
+    // styles the UEB path cannot decode, fall through to normalization as before.
     if options.default_mode.is_none()
         && normalization_triggers.has_math_alphanumeric
         && !text.chars().any(crate::utils::is_korean_char)
-        && text.chars().any(|c| c.is_ascii_alphabetic())
+        && text
+            .chars()
+            .any(|c| c.is_ascii_alphabetic() || crate::rules::english_ueb::rule_9::decode_styled(c).is_some())
         && !crate::rules::english_ueb::is_math_owned(text)
         && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
+    {
+        return Ok(bytes);
+    }
+    // `EncodingMode::English` forces the UEB engine even for a letterless numeric or
+    // symbol fragment (`4:30`→`⠼⠙⠒⠼⠉⠚`), where content-based routing would otherwise
+    // treat it as a Korean-context number (colon `⠐⠂`). A bare `N:M`/`N(x)` is
+    // ambiguous from input alone, so the testcase declares its language via `context`.
+    if matches!(options.default_mode, Some(EncodingMode::English))
+        && let Some(bytes) = crate::rules::english_ueb::encode_forced(text)
     {
         return Ok(bytes);
     }

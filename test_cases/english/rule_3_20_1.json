@@ -1,6 +1,7 @@
 [
   {
     "input": "¶3",
+    "context": "english",
     "internal": "^p#c",
     "expected": "2415609",
     "unicode": "⠘⠏⠼⠉"
@@ -25,6 +26,7 @@
   },
   {
     "input": "§5",
+    "context": "english",
     "internal": "^s#e",
     "expected": "24146017",
     "unicode": "⠘⠎⠼⠑"
@@ -43,6 +45,7 @@
   },
   {
     "input": "§§ 5-15",
+    "context": "english",
     "internal": "^s^s #e-#ae",
     "expected": "24142414060173660117",
     "unicode": "⠘⠎⠘⠎⠀⠼⠑⠤⠼⠁⠑"

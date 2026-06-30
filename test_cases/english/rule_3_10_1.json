@@ -19,6 +19,7 @@
   },
   {
     "input": "$6",
+    "context": "english",
     "internal": "@s#f",
     "expected": "8146011",
     "unicode": "⠈⠎⠼⠋"
@@ -31,12 +32,14 @@
   },
   {
     "input": "$19.95",
+    "context": "english",
     "internal": "@s#ai4ie",
     "expected": "81460110501017",
     "unicode": "⠈⠎⠼⠁⠊⠲⠊⠑"
   },
   {
     "input": "$23,783,200",
+    "context": "english",
     "internal": "@s#bc1ghc1bjj",
     "expected": "8146039227199232626",
     "unicode": "⠈⠎⠼⠃⠉⠂⠛⠓⠉⠂⠃⠚⠚"
@@ -79,12 +82,14 @@
   },
   {
     "input": "€75",
+    "context": "english",
     "internal": "@e#ge",
     "expected": "817602717",
     "unicode": "⠈⠑⠼⠛⠑"
   },
   {
     "input": "30,00€",
+    "context": "english",
     "internal": "#cj1jj@e",
     "expected": "6092622626817",
     "unicode": "⠼⠉⠚⠂⠚⠚⠈⠑"
@@ -97,12 +102,14 @@
   },
   {
     "input": "6€50",
+    "context": "english",
     "internal": "#f@e#ej",
     "expected": "6011817601726",
     "unicode": "⠼⠋⠈⠑⠼⠑⠚"
   },
   {
     "input": "₣1",
+    "context": "english",
     "internal": "@f#a",
     "expected": "811601",
     "unicode": "⠈⠋⠼⠁"

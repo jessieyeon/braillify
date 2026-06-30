@@ -30,6 +30,7 @@ pub mod rule_10_6_middle;
 pub mod rule_10_6_restricted;
 pub mod rule_10_7;
 pub mod rule_10_7_pron;
+pub mod rule_10_7_struct;
 pub mod rule_10_8;
 pub mod rule_10_9;
 pub mod rule_16;
@@ -59,11 +60,32 @@ pub fn try_encode(text: &str) -> Option<Vec<u8>> {
     if !is_ueb_eligible(&composed) {
         return None;
     }
+    // Default content-routing (not an explicit English declaration): an isolated
+    // single letter stays the bare §4.1/§28 cell (`x`→⠭), so `explicit_english`=false.
+    encode_english(&composed, false)
+}
+
+/// Encode `text` through the UEB engine WITHOUT the [`is_ueb_eligible`] content
+/// heuristic. For an EXPLICIT `EncodingMode::English` the caller has already
+/// committed to English, so a letterless fragment like `4:30` (`⠼⠙⠒⠼⠉⠚`) — which
+/// the heuristic would defer to the Korean path — is encoded too; and an isolated
+/// single wordsign letter takes the §2.6/§10.12.2 grade-1 indicator (`x`→⠰⠭).
+pub fn encode_forced(text: &str) -> Option<Vec<u8>> {
+    encode_english(text, true)
+}
+
+/// Run the UEB engine over `text` (no eligibility heuristic). `explicit_english`
+/// is true only when the caller declared English mode via [`encode_forced`]; it
+/// threads down to §5.7.1 so an isolated single letter is grade-1-indicated under
+/// an explicit `context: english` but bare under default content-routing.
+fn encode_english(text: &str, explicit_english: bool) -> Option<Vec<u8>> {
+    use unicode_normalization::UnicodeNormalization;
+    let composed: String = text.nfc().collect();
     let tokens = parser::parse_english(&composed);
     if tokens.is_empty() {
         return None;
     }
-    EnglishUebEngine::new().encode(&tokens)
+    EnglishUebEngine::new().encode(&tokens, explicit_english)
 }
 
 /// Whether `text` carries content the UEB path may own. The legacy/math path
@@ -115,6 +137,18 @@ pub fn is_math_owned(text: &str) -> bool {
     // (0) a balanced `$…$` span is LaTeX math, owned by the math engine. A lone
     // or trailing `$` (currency: `$6`, `US$`) is NOT, and is handled by §3.10.
     if text.len() >= 2 && text.starts_with('$') && text.ends_with('$') {
+        return true;
+    }
+
+    // (0a) §11 math/logic symbols — circled plus ⊕, the double-arrow implications
+    // ⇒/↔ — are math by default wherever they appear (`a ⊕ b`, `p ⇒ q`). The UEB
+    // §11 transcription of the bare glyph declares `context: english`, which routes
+    // through `encode_forced` and bypasses this guard, so the english test cases
+    // still reach §3; only content-routed (mode-less) expressions are kept on math.
+    if text
+        .chars()
+        .any(|c| matches!(c, '\u{2295}' | '\u{21D2}' | '\u{2194}'))
+    {
         return true;
     }
 

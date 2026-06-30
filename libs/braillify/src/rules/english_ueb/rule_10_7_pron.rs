@@ -48,13 +48,11 @@ static PRON_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {
     "there"  => [decode_unicode('⠐'), decode_unicode('⠮')],
     "time"   => [decode_unicode('⠐'), decode_unicode('⠞')],
     "young"  => [decode_unicode('⠐'), decode_unicode('⠽')],
-    // ⠘ (dots 4-5) prefix.
-    "word"   => [decode_unicode('⠘'), decode_unicode('⠺')],
+    // ⠘ (dots 4-5) prefix. (`word` moved to the ungated spelling-only §10.7 set.)
     "these"  => [decode_unicode('⠘'), decode_unicode('⠮')],
     "those"  => [decode_unicode('⠘'), decode_unicode('⠹')],
     "upon"   => [decode_unicode('⠘'), decode_unicode('⠥')],
-    // ⠸ (dots 4-5-6) prefix.
-    "many"   => [decode_unicode('⠸'), decode_unicode('⠍')],
+    // ⠸ (dots 4-5-6) prefix. (`many` moved to the ungated spelling-only §10.7 set.)
     "their"  => [decode_unicode('⠸'), decode_unicode('⠮')],
 };
 
@@ -93,7 +91,13 @@ impl InitialContractionPronunciationRule {
         if !key.ends_with('e') {
             return false;
         }
-        if pos > 0 && matches!(word[pos - 1], 'a' | 'e' | 'i' | 'o' | 'u') {
+        // The preceding-vowel guard stops a VOWEL-initial contraction (`one`, the
+        // `ere` of `here`/`there`/`where`) from continuing a vowel digraph
+        // (`B[oo]ne`, `R[oo]ney`). A CONSONANT-initial contraction (`some`, `name`,
+        // `time`, `here`, `there`, `where`) cannot form a digraph with a preceding
+        // vowel, so the guard does not apply — `blithe·some`, `chromo·some` keep it.
+        let key_starts_vowel = key.starts_with(['a', 'e', 'i', 'o', 'u']);
+        if key_starts_vowel && pos > 0 && matches!(word[pos - 1], 'a' | 'e' | 'i' | 'o' | 'u') {
             return false;
         }
         let e_idx = pos + key.chars().count() - 1;

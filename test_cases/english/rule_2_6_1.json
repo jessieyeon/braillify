@@ -1,6 +1,7 @@
 [
   {
     "input": "x",
+    "context": "english",
     "internal": ";x",
     "expected": "4845",
     "unicode": "⠰⠭"

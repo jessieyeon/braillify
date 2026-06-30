@@ -1,6 +1,7 @@
 [
   {
     "input": "60 °",
+    "context": "english",
     "internal": "#fj ^j",
     "expected": "60112602426",
     "unicode": "⠼⠋⠚⠀⠘⠚"

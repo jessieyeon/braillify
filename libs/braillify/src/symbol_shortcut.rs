@@ -53,6 +53,10 @@ static SHORTCUT_MAP: phf::Map<char, &'static [u8]> = phf_map! {
     '》' => &[decode_unicode('⠶'), decode_unicode('⠆')],
     '―' => &[decode_unicode('⠤'), decode_unicode('⠤')],
     '-' => &[decode_unicode('⠤')],
+    // En-dash / em-dash → the dash sign `⠠⠤` (distinct from the hyphen `⠤`); a tight
+    // number range (`1914–18`, `4—7`) reaches this table for the dash glyph.
+    '\u{2013}' => &[decode_unicode('⠠'), decode_unicode('⠤')],
+    '\u{2014}' => &[decode_unicode('⠠'), decode_unicode('⠤')],
     '∼' => &[decode_unicode('⠈'), decode_unicode('⠔')],
     '‘' => &[decode_unicode('⠠'), decode_unicode('⠦')],
     '’' => &[decode_unicode('⠴'), decode_unicode('⠄')],
