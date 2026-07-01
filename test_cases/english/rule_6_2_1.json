@@ -43,6 +43,7 @@
   },
   {
     "input": ",7",
+    "context": "english",
     "internal": "#1g",
     "expected": "60227",
     "unicode": "⠼⠂⠛"
@@ -85,12 +86,14 @@
   },
   {
     "input": "⅜",
+    "context": "english",
     "internal": "#c/h",
     "expected": "6091219",
     "unicode": "⠼⠉⠌⠓"
   },
   {
     "input": "5⅜",
+    "context": "english",
     "internal": "#e#c/h",
     "expected": "60176091219",
     "unicode": "⠼⠑⠼⠉⠌⠓"

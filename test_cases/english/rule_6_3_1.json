@@ -51,6 +51,7 @@
   },
   {
     "input": "2-½",
+    "context": "english",
     "internal": "#b-#a/b",
     "expected": "60336601123",
     "unicode": "⠼⠃⠤⠼⠁⠌⠃"
@@ -63,6 +64,7 @@
   },
   {
     "input": "6¼—6½",
+    "context": "english",
     "internal": "#f#a/d,-#f#a/b",
     "expected": "6011601122532366011601123",
     "unicode": "⠼⠋⠼⠁⠌⠙⠠⠤⠼⠋⠼⠁⠌⠃"

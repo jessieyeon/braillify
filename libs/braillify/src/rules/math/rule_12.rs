@@ -91,30 +91,27 @@ pub fn encode_variable(
     result: &mut Vec<u8>,
     engine: &MathTokenEngine,
 ) -> Result<bool, String> {
-    if c == 'y'
-        && matches!(tokens.get(*i + 1), Some(MathToken::Superscript(_)))
+    // PDF 수학 제53항 4 — `<var>^{(n)} =` 도함수 차수 표기. 종속변수는 어느 문자든
+    // (y, f, g …) 같은 규칙이고, 위첨자의 `(n)` 괄호가 도함수 차수 표지이므로,
+    // 일반 지수(`x^2 =`)와 구별하기 위해 괄호로 감싼 위첨자만 도함수로 처리한다.
+    if c.is_ascii_alphabetic()
         && matches!(tokens.get(*i + 2), Some(MathToken::Operator('=')))
         && let Some(MathToken::Superscript(content)) = tokens.get(*i + 1)
+        && content.len() >= 2
+        && is_math_paren_open(content.first())
+        && is_math_paren_close(content.last())
     {
-        // PDF 수학 제53항 4 — `y^{(n)}` 형태의 도함수 차수 표기.
-        // content가 이미 `(...)` 형태면 본문 그대로 emit해 중복 괄호화를 피한다.
-        let content_already_wrapped = content.len() >= 2
-            && is_math_paren_open(content.first())
-            && is_math_paren_close(content.last());
-        result.push(crate::english::encode_english('y')?);
+        result.push(crate::english::encode_english(c)?);
         result.push(24);
-        if content_already_wrapped {
-            engine.encode_tokens(content, result)?;
-        } else {
-            result.push(38);
-            engine.encode_tokens(content, result)?;
-            result.push(52);
-        }
+        engine.encode_tokens(content, result)?;
         *prev_was_number = false;
         *i += 2;
         return Ok(true);
     }
 
+    // PDF 수학 제53항 — `= d<num>/d<den>` 도함수 표기. 분자·분모 변수는 어느
+    // 문자든 동일한 규칙으로 점역되므로(dy/dx, dz/dt, dx/du …) 변수값을 고정하지
+    // 않고 토큰에서 읽어 그대로 분모 먼저 emit 한다.
     if c == 'd'
         && matches!(
             tokens.get(i.saturating_sub(1)),
@@ -126,8 +123,6 @@ pub fn encode_variable(
         && matches!(tokens.get(*i + 4), Some(MathToken::Variable(_)))
         && let (Some(MathToken::Variable(num_var)), Some(MathToken::Variable(den_var))) =
             (tokens.get(*i + 1), tokens.get(*i + 4))
-        && *num_var == 'y'
-        && *den_var == 'x'
     {
         result.push(crate::english::encode_english('d')?);
         result.push(crate::english::encode_english(

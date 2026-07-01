@@ -173,7 +173,18 @@ fn punctuation_grade1(tokens: &[EnglishToken], i: usize, c: char) -> bool {
     let prev = i.checked_sub(1).map(|p| &tokens[p]);
     let next = tokens.get(i + 1);
     match c {
-        '?' => matches!(prev, None | Some(EnglishToken::Space)),
+        // §7.1.3: the `?` cell (⠦) is also the "his" groupsign, so a `?` referenced
+        // in isolation takes the grade-1 indicator. That is any `?` not closing a
+        // word: at an edge or space, or attached after an opening bracket or a dash
+        // (`[?]`, `(?—1750)`, `10:30-?`). A `?` right after a word (`who?`) is a
+        // genuine question mark and keeps the bare ⠦.
+        '?' => matches!(
+            prev,
+            None | Some(EnglishToken::Space)
+                | Some(EnglishToken::Symbol(
+                    '(' | '[' | '{' | '-' | '\u{2013}' | '\u{2014}'
+                ))
+        ),
         ':' => {
             matches!(prev, Some(EnglishToken::Word(_)))
                 && matches!(next, Some(EnglishToken::Word(_)))
@@ -382,6 +393,91 @@ fn word_initial_boundary(prev: Option<&EnglishToken>) -> bool {
     )
 }
 
+/// §10.12.15: if `tokens[i]` is part of a letter-by-letter spelled run — three or
+/// more single-letter words joined by single hyphens (`w-i-n-d-o-w`,
+/// `M-a-c-L-e-a-n`, `U-N-I-T-E-D`) ending at a space/edge/sentence mark — return the
+/// run's `(first, last)` letter-token indices. Such a run takes ONE grade-1
+/// *passage* indicator `⠰⠰` at its first letter instead of a per-letter `⠰`. A run
+/// continuing into a plain word (`s-s-s-super`) needs a passage terminator and is
+/// deliberately excluded here.
+fn spelled_letter_run(tokens: &[EnglishToken], i: usize) -> Option<(usize, usize)> {
+    let single = |k: usize| matches!(tokens.get(k), Some(EnglishToken::Word(w)) if w.len() == 1);
+    if !single(i) {
+        return None;
+    }
+    let mut start = i;
+    while start >= 2
+        && matches!(tokens.get(start - 1), Some(EnglishToken::Symbol('-')))
+        && single(start - 2)
+    {
+        start -= 2;
+    }
+    let mut last = i;
+    while matches!(tokens.get(last + 1), Some(EnglishToken::Symbol('-'))) && single(last + 2) {
+        last += 2;
+    }
+    // Three or more letters, and the run must stand alone — a hyphen on either
+    // side glues it to a plain word: a trailing one (`s-s-s-super`) needs a
+    // terminator, a leading one (`so-o-o-o`) is a stutter, not a spelling-out.
+    if (last - start) / 2 + 1 < 3
+        || matches!(tokens.get(last + 1), Some(EnglishToken::Symbol('-')))
+        || (start >= 1 && matches!(tokens.get(start - 1), Some(EnglishToken::Symbol('-'))))
+    {
+        return None;
+    }
+    Some((start, last))
+}
+
+/// §2.6 / §10.12.12: whether the word at `i` continues into a larger
+/// space-delimited unit across an *attached* bracket or double quote —
+/// `child(ish)` = "childish", `(be)long` = "belong", `"just"ice` = "justice" — so
+/// it does NOT stand alone and a wordsign/shortform must not consume it (`child`
+/// keeps its full spelling, not the `child` shortform ⠡; `be` is spelled, not the
+/// ⠆ wordsign; `just` is spelled, not the `just` shortform). A bracket or `"`
+/// directly followed (no space) by a Word/Number means the mark is mid-word, not a
+/// fresh boundary. The *apostrophe* `'` is deliberately excluded — `it's`/`that's`
+/// legitimately keep the wordsign before a contraction-suffix apostrophe.
+fn continues_across_bracket(tokens: &[EnglishToken], i: usize) -> bool {
+    let is_bracket = |t: Option<&EnglishToken>| {
+        matches!(
+            t,
+            Some(EnglishToken::Symbol('(' | ')' | '[' | ']' | '{' | '}' | '"'))
+        )
+    };
+    let is_texty = |t: Option<&EnglishToken>| {
+        matches!(
+            t,
+            Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..))
+        )
+    };
+    // Forward: the word is followed by an attached bracket/`"` then more text
+    // (`child(ish)`, `(be)long`, `"just"ice`).
+    let forward = is_bracket(tokens.get(i + 1)) && is_texty(tokens.get(i + 2));
+    // Backward (symmetric): the word follows an attached bracket/`"` that itself
+    // follows text (`"be"friend` → `friend` continues "befriend", so it spells out
+    // rather than taking the `friend` shortform).
+    let backward = i.checked_sub(1).is_some_and(|p| is_bracket(tokens.get(p)))
+        && i.checked_sub(2).is_some_and(|p| is_texty(tokens.get(p)));
+    // §10.12.12: an apostrophe + a NON-suffix continuation keeps the word from
+    // standing alone (`go'n` = "goin'", `out'a` = "outta" → spell `go`/`out`, not
+    // their wordsigns). The standard contraction suffixes — `'s 't 'd 'm 'll 're
+    // 've` (`it's`, `don't`, `we'll`, `they're`) — DO leave the word standing alone.
+    let is_suffix = |w: &[char]| {
+        let lc = |c: &char| c.to_ascii_lowercase();
+        match w {
+            // `'s 't 'd 'm` (`it's`, `don't`, `we'd`, `I'm`) — case-insensitive so an
+            // all-caps contraction (`IT'S`, `HE'S`, `THAT'S`) is protected too.
+            [a] => matches!(lc(a), 's' | 't' | 'd' | 'm'),
+            // `'ll 're 've` (`we'll`, `they're`, `we've`).
+            [a, b] => matches!((lc(a), lc(b)), ('l', 'l') | ('r', 'e') | ('v', 'e')),
+            _ => false,
+        }
+    };
+    let apostrophe = matches!(tokens.get(i + 1), Some(EnglishToken::Symbol('\'')))
+        && matches!(tokens.get(i + 2), Some(EnglishToken::Word(w)) if !is_suffix(w));
+    forward || backward || apostrophe
+}
+
 /// Per-word encoding context derived from a word's surrounding tokens: the §2.6
 /// standing-alone status and the §8/§10 boundary flags. Bundled so the word
 /// encoder takes one value instead of a long boolean argument list.
@@ -397,6 +493,9 @@ struct WordContext {
     /// §10.4.3: this token begins a fresh word (after a space/hyphen/dash/edge),
     /// so a word-initial `ing` spells out as `in` (⠔) + `g`.
     word_initial: bool,
+    /// §10.12.1: the word directly abuts a digit (`CH6`, `6CH`), so an all-caps run
+    /// is an initialism "used as letters" and takes no contractions.
+    digit_adjacent: bool,
 }
 
 /// Document-level UEB Grade-2 encoder.
@@ -520,7 +619,8 @@ impl EnglishUebEngine {
                 EnglishToken::Word(chars) => {
                     let prev = i.checked_sub(1).map(|p| &tokens[p]);
                     let next = tokens.get(i + 1);
-                    let standing_alone = is_standing_alone(prev, next);
+                    let standing_alone =
+                        is_standing_alone(prev, next) && !continues_across_bracket(tokens, i);
                     // §6.5: a lowercase letter a–j immediately after a number needs
                     // the grade-1 indicator ⠰ so it is not misread as a digit.
                     let after_number_grade1 = prev_was_number
@@ -530,8 +630,15 @@ impl EnglishUebEngine {
                     // §5.7.1: a single wordsign-letter standing alone (§2.6) takes a
                     // grade-1 indicator ⠰ so it is not read as the wordsign; §5.8.1
                     // places it before any capital. Full rule in `rule_5_7`.
-                    let letter_grade1 =
-                        super::rule_5_7::needs_grade1_indicator(tokens, i, explicit_english);
+                    // §10.12.15: a letter-by-letter spelled run (`w-i-n-d-o-w`) takes
+                    // one grade-1 *passage* ⠰⠰ at its first letter; its members then
+                    // suppress the per-letter grade-1 ⠰.
+                    let spelled_run = spelled_letter_run(tokens, i);
+                    if matches!(spelled_run, Some((start, _)) if start == i) {
+                        out.extend([GRADE1, GRADE1]);
+                    }
+                    let letter_grade1 = spelled_run.is_none()
+                        && super::rule_5_7::needs_grade1_indicator(tokens, i, explicit_english);
                     if after_number_grade1 || letter_grade1 {
                         out.push(GRADE1);
                     }
@@ -561,6 +668,8 @@ impl EnglishUebEngine {
                             lower_usable,
                             suppress_caps: in_passage[i],
                             word_initial: word_initial_boundary(prev),
+                            digit_adjacent: matches!(prev, Some(EnglishToken::Number(_)))
+                                || matches!(next, Some(EnglishToken::Number(_))),
                         },
                         &mut out,
                     )?;
@@ -708,6 +817,22 @@ impl EnglishUebEngine {
                     prev_was_number = false;
                     numeric_mode = false;
                 }
+                EnglishToken::Symbol(c @ ('.' | ','))
+                    if matches!(
+                        i.checked_sub(1).map(|p| &tokens[p]),
+                        None | Some(EnglishToken::Space)
+                    ) && matches!(tokens.get(i + 1), Some(EnglishToken::Number(_))) =>
+                {
+                    // §6: a leading decimal point or comma (`.375`, `,7`) opens a
+                    // number — the numeric indicator ⠼ then the separator (`.`→⠲,
+                    // `,`→⠂), with numeric mode carrying the following digits (no
+                    // second ⠼). A `.`/`,` *after* a digit (`3.14`, `8,93`) is the
+                    // §6.3 digit-separator handled in the general Symbol arm below.
+                    out.push(super::rule_6::NUMERIC_INDICATOR);
+                    out.push(decode_unicode(if *c == '.' { '⠲' } else { '⠂' }));
+                    prev_was_number = false;
+                    numeric_mode = true;
+                }
                 EnglishToken::Symbol(c) => {
                     // §7.1.3: a lower-cell punctuation mark whose cell collides with
                     // a lower contraction takes a grade-1 indicator ⠰ where that
@@ -717,7 +842,8 @@ impl EnglishUebEngine {
                         out.push(GRADE1);
                     }
                     let cells = super::rule_7::encode_punctuation(*c)
-                        .or_else(|| super::rule_3::encode_symbol(*c))?;
+                        .or_else(|| super::rule_3::encode_symbol(*c))
+                        .or_else(|| super::rule_6::encode_vulgar_fraction(*c))?;
                     out.extend(cells);
                     prev_was_number = false;
                     // §6.3: a `,` or `.` between two numbers is a digit separator —
@@ -913,6 +1039,7 @@ impl EnglishUebEngine {
                 lower_usable,
                 suppress_caps,
                 word_initial: word_initial_boundary(prev),
+                digit_adjacent: false,
             },
             out,
         )
@@ -968,6 +1095,7 @@ impl EnglishUebEngine {
             lower_usable,
             suppress_caps,
             word_initial,
+            digit_adjacent,
         } = ctx;
         // Unicode lowercase (so an accented/ligatured capital folds to its base —
         // `Œ`→`œ`, `À`→`à`), letting the §8 capital come from `classify_caps` while
@@ -1010,6 +1138,29 @@ impl EnglishUebEngine {
                 out.push(CAPITAL);
                 out.push(CAPITAL);
             }
+        }
+        // §10.12.1: an all-caps initialism directly abutting a digit (`CH6`,
+        // `W2N 6CH`) is "used as letters" — no contractions, each letter spelled.
+        // Ordinal suffixes (`6TH`, `1ST`) keep their groupsign; a lowercase
+        // digit-neighbour (`3rd`, `21st`) is not all-caps and never reaches here.
+        // (A bare short acronym like `WHO`/`OED` also qualifies under §10.12.1, but
+        // is structurally indistinguishable from a short §8 all-caps emphasis word
+        // that DOES contract (`THE`/`SHE`) — a heuristic that suppresses contractions
+        // there was measured to regress 9 passing cases for 11, so it is left out.)
+        let acronym_as_letters = matches!(classify_caps(chars), Some(Caps::Word))
+            && !matches!(
+                lower.as_slice(),
+                ['s', 't'] | ['n', 'd'] | ['r', 'd'] | ['t', 'h']
+            )
+            && digit_adjacent;
+        if acronym_as_letters {
+            for &c in &lower {
+                match super::rule_4::accent_cells(c) {
+                    Some(cells) => out.extend(cells),
+                    None => out.push(crate::english::encode_english(c).ok()?),
+                }
+            }
+            return Some(());
         }
         // §10.1/§10.2 (upper) and §10.5 (lower) wordsigns: a whole word that
         // stands alone (§2.6) becomes its wordsign. Lower wordsigns additionally
@@ -1079,6 +1230,7 @@ impl EnglishUebEngine {
         let mut buf = Vec::new();
         let mut concat = Vec::new();
         let mut prev_caps_word = false;
+        let mut has_caps_word_segment = false;
         for w in bounds.windows(2) {
             let seg = &chars[w[0]..w[1]];
             let seg_lower: Vec<char> = seg.iter().flat_map(|c| c.to_lowercase()).collect();
@@ -1088,6 +1240,7 @@ impl EnglishUebEngine {
                 false,
             )?;
             let caps = classify_caps(seg)?;
+            has_caps_word_segment |= matches!(caps, Caps::Word);
             // §8.6.3: a §8.4 caps word (`⠠⠠`) is terminated by `⠠⠄` before lowercase
             // letters that continue the same word (`ABCs`, `WALKing`, `unSELFish`).
             if prev_caps_word && matches!(caps, Caps::None) {
@@ -1106,10 +1259,14 @@ impl EnglishUebEngine {
             concat.extend(cells);
             prev_caps_word = matches!(caps, Caps::Word);
         }
-        // The split must reproduce the whole-word contractions exactly; otherwise a
-        // boundary changed them (e.g. a position-sensitive groupsign), so defer to
-        // the legacy path rather than emit a context-dependent guess.
-        if concat != whole {
+        // §8.2 / §10.12.12: a lower→upper case boundary breaks a contraction that
+        // would span it, so the per-part split is the correct reading (`NorthEast`
+        // → `North`+`East`, not the boundary-spanning `the`; `CliffEdge` → component
+        // `f·f`, not the medial `ff` groupsign). When the split differs from the
+        // whole word it is therefore *preferred* — UNLESS a part is an all-caps run
+        // (`founDAtion`'s `DA`), whose caps pattern and position-sensitive groupsigns
+        // (`tion`) are not yet modelled part-wise: those defer to the legacy path.
+        if concat != whole && has_caps_word_segment {
             return None;
         }
         out.extend(buf);
@@ -1149,17 +1306,13 @@ mod tests {
         assert_eq!(enc(text), Some(expected));
     }
 
-    /// Mixed-case words the UEB engine defers to the legacy path (`None`):
-    /// `founDAtion` has an internal caps run before lowercase that
-    /// [`encode_mixed_case`] does not model; `CliffEdge`'s lowercased whole form
-    /// `cliffedge` contracts its medial `ff` (§10.6.5), differing from the
-    /// component-wise spelling where the `ff` closes `Cliff` — so the §8.2
-    /// split-vs-whole guard (`concat != whole`) defers rather than emit a
-    /// position-dependent guess. The legacy path encodes both correctly (the
-    /// `CliffEdge` test case passes through it).
+    /// `founDAtion` still defers to the legacy path (`None`): it has an internal
+    /// all-caps run before lowercase (`DA`) whose caps pattern and the
+    /// position-sensitive `tion` groupsign are not yet modelled part-wise (§8.2).
+    /// A mixed-case word whose parts are all Title-case is split instead — see
+    /// `CliffEdge`/`NorthEast` in `encodes_mixed_case_words_8_2`.
     #[rstest::rstest]
     #[case::caps_run_then_lower("founDAtion")]
-    #[case::ff_at_component_boundary("CliffEdge")]
     fn unsupported_inputs_return_none(#[case] text: &str) {
         assert_eq!(enc(text), None);
     }
@@ -1171,6 +1324,10 @@ mod tests {
     #[case::mcd("McD", "⠠⠍⠉⠠⠙")]
     #[case::trailing_single_cap("verY", "⠧⠻⠠⠽")]
     #[case::trailing_caps_word("grandEST", "⠛⠗⠯⠠⠠⠑⠌")]
+    // §8.2/§10.12.12: Title-case parts split even when a contraction would span the
+    // boundary in the whole word (`ff` in `cliffedge`, `the` in `northeast`).
+    #[case::cliff_edge_title_split("CliffEdge", "⠠⠉⠇⠊⠋⠋⠠⠫⠛⠑")]
+    #[case::north_east_title_split("NorthEast", "⠠⠝⠕⠗⠹⠠⠑⠁⠌")]
     fn encodes_mixed_case_words_8_2(#[case] text: &str, #[case] expected: &str) {
         assert_eq!(enc(text), Some(cells(expected)));
     }

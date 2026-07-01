@@ -34,6 +34,30 @@ pub fn encode_number(digits: &[char]) -> Option<Vec<u8>> {
     Some(out)
 }
 
+/// §6: a precomposed Unicode vulgar fraction (`½`, `⅜`, …) is written
+/// numerator-first as `⠼` + numerator digits + `⠌` (fraction line, dots 3-4) +
+/// denominator digits — one numeric pass, no second `⠼` before the denominator
+/// (`⅜` → `⠼⠉⠌⠓`, `½` → `⠼⠁⠌⠃`, `¾` → `⠼⠉⠌⠙`). This is the UEB §6 order; the
+/// Korean/math path writes the same code points denominator-first (`¾` →
+/// `⠼⠙⠌⠼⠉`), so only the English engine routes here. The numerator/denominator
+/// are read from the glyph's own Unicode NFKD decomposition via the shared
+/// [`crate::fraction::parse_unicode_fraction`] (`½` → `("1", "2")`) — the same
+/// general decomposer the Korean/math path uses, so every vulgar-fraction code
+/// point is covered without a per-glyph table.
+pub fn encode_vulgar_fraction(c: char) -> Option<Vec<u8>> {
+    let (num, den) = crate::fraction::parse_unicode_fraction(c)?;
+    let mut out = Vec::with_capacity(num.len() + den.len() + 2);
+    out.push(NUMERIC_INDICATOR);
+    for d in num.chars() {
+        out.push(digit_cell(d)?);
+    }
+    out.push(decode_unicode('⠌'));
+    for d in den.chars() {
+        out.push(digit_cell(d)?);
+    }
+    Some(out)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -50,5 +74,20 @@ mod tests {
     fn encodes_numbers(#[case] digits: &str, #[case] expected: Vec<u8>) {
         let chars: Vec<char> = digits.chars().collect();
         assert_eq!(encode_number(&chars), Some(expected));
+    }
+
+    /// §6 vulgar fractions: numerator-first `⠼num⠌den`, denominator without `⠼`.
+    #[rstest::rstest]
+    #[case::half('\u{00BD}', vec![NUMERIC_INDICATOR, decode_unicode('⠁'), decode_unicode('⠌'), decode_unicode('⠃')])]
+    #[case::three_eighths('\u{215C}', vec![NUMERIC_INDICATOR, decode_unicode('⠉'), decode_unicode('⠌'), decode_unicode('⠓')])]
+    #[case::three_quarters('\u{00BE}', vec![NUMERIC_INDICATOR, decode_unicode('⠉'), decode_unicode('⠌'), decode_unicode('⠙')])]
+    #[case::one_quarter('\u{00BC}', vec![NUMERIC_INDICATOR, decode_unicode('⠁'), decode_unicode('⠌'), decode_unicode('⠙')])]
+    fn encodes_vulgar_fractions(#[case] c: char, #[case] expected: Vec<u8>) {
+        assert_eq!(encode_vulgar_fraction(c), Some(expected));
+    }
+
+    #[test]
+    fn non_fraction_char_is_none() {
+        assert_eq!(encode_vulgar_fraction('x'), None);
     }
 }
