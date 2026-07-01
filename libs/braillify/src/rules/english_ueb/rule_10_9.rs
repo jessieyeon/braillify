@@ -94,10 +94,18 @@ pub fn encode_with_longer_shortforms(
     }
     // §10.10.2 cell-minimising DP from the end of the word.
     let mut cost = vec![usize::MAX; n + 1];
+    // §10.10.3–.7: on a cell-count tie the sequence using the most-preferred
+    // (lowest-priority) contraction wins — a decision about the WHOLE remaining
+    // path, not just the immediate move. `path_priority[pos]` is the lowest
+    // priority number used along the best path from `pos`, so a higher-preference
+    // initial-letter contraction one step later (`e`→`name`, 55) beats a
+    // lower-preference groupsign that overlaps its start here (`en`, 70):
+    // `re·name·d`, not `r·en·amed`; `mis·time·d`, not `mis·st·imed`.
+    let mut path_priority = vec![u16::MAX; n + 1];
     let mut back: Vec<Option<(Vec<u8>, usize)>> = vec![None; n + 1];
     cost[n] = 0;
     for pos in (0..n).rev() {
-        // Best candidate so far: (total cells, priority, consumed, cells).
+        // Best candidate so far: (total cells, path priority, consumed, cells).
         let mut best: Option<(usize, u16, usize, Vec<u8>)> = None;
         for (cells, consumed, priority) in candidate_moves(
             word,
@@ -112,17 +120,21 @@ pub fn encode_with_longer_shortforms(
                 continue;
             }
             let total = cells.len() + cost[next];
+            // The preference of the whole remaining path: the best contraction in
+            // this move or anything the tail already chose.
+            let this_priority = priority.min(path_priority[next]);
             let better = best.as_ref().is_none_or(|(bt, bp, bc, _)| {
                 total < *bt
-                    || (total == *bt && priority < *bp)
-                    || (total == *bt && priority == *bp && consumed > *bc)
+                    || (total == *bt && this_priority < *bp)
+                    || (total == *bt && this_priority == *bp && consumed > *bc)
             });
             if better {
-                best = Some((total, priority, consumed, cells));
+                best = Some((total, this_priority, consumed, cells));
             }
         }
-        let (total, _, consumed, cells) = best?;
+        let (total, pp, consumed, cells) = best?;
         cost[pos] = total;
+        path_priority[pos] = pp;
         back[pos] = Some((cells, consumed));
     }
     // Reconstruct the chosen sequence from the start.
@@ -229,10 +241,20 @@ fn longer_use_allowed(word: &[char], pos: usize, shortform: &str) -> bool {
         "children" => !is_followed_by_vowel_or_y(word, pos, shortform),
         "above" | "afternoon" | "afterward" => true,
         "paid" => pos > 0,
-        "about" => is_about_compound(word, pos),
+        // §10.9.3: `about` may be used within a longer word. Beyond the
+        // about-face / about-turn / …-abouts compounds, it also ends the locative
+        // `-about` adverbs `here·about`, `there·about`, `where·about`.
+        "about" => {
+            is_about_compound(word, pos)
+                || matches!(
+                    &word[..pos],
+                    ['h', 'e', 'r', 'e'] | ['t', 'h', 'e', 'r', 'e'] | ['w', 'h', 'e', 'r', 'e']
+                )
+        }
         "good" => pos == 0 && good_prefix_allowed(word),
         "quick" => pos == 0 && quick_prefix_allowed(word),
-        "such" => pos == 0,
+        // §10.9.3: `such` word-initial (`such`, `suchlike`) or ending `some·such`.
+        "such" => pos == 0 || matches!(&word[..pos], ['s', 'o', 'm', 'e']),
         "after" | "blind" | "first" | "friend" | "letter" | "little" => {
             pos == 0 && !is_followed_by_vowel_or_y(word, pos, shortform)
         }

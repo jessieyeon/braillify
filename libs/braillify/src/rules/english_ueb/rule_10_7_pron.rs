@@ -53,6 +53,10 @@ static PRON_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {
     "those"  => [decode_unicode('⠘'), decode_unicode('⠹')],
     "upon"   => [decode_unicode('⠘'), decode_unicode('⠥')],
     // ⠸ (dots 4-5-6) prefix. (`many` moved to the ungated spelling-only §10.7 set.)
+    // `had` is pronunciation-gated (unlike the ungated `many`/`world`), so it is not
+    // taken where the letters take a different sound (`shadow` /SH AE D/, not
+    // /HH AE D/) — `haddock`, `Galahad`, `hadn't` contract, `shadow` spells out.
+    "had"    => [decode_unicode('⠸'), decode_unicode('⠓')],
     "their"  => [decode_unicode('⠸'), decode_unicode('⠮')],
 };
 
@@ -129,6 +133,91 @@ impl InitialContractionPronunciationRule {
         let prons = self.provider.pronunciations(full);
         super::pronunciation::aligner::trailing_er_is_unstressed(word, er_e_idx, &prons)
     }
+
+    /// True iff `chars` is a recorded CMUdict headword.
+    fn is_word(&self, chars: &[char]) -> bool {
+        !self
+            .provider
+            .pronunciations(&chars.iter().collect::<String>())
+            .is_empty()
+    }
+
+    /// §10.7 danger zone: decide a final-`e` contraction `key` at `pos` whose next
+    /// letter is the `r`/`d` of an -er/-ed suffix. The contraction is used only when
+    /// it is a morpheme exposed by word structure, not merely by sound.
+    fn danger_zone_use(&self, word: &[char], pos: usize, key: &str, end: usize) -> bool {
+        // The suffix must be a single trailing `r`/`d`; a longer tail (`some|rsault`,
+        // `some|rs`) means the letters do not sit on the -er/-ed boundary.
+        if end + 1 != word.len() {
+            return false;
+        }
+        // The base IS the contraction: `time`+r, `name`+d. There is no word
+        // `somer`/`somed`, so a bare `some`+suffix never carries the -some morpheme.
+        if word[..end].iter().copied().eq(key.chars()) {
+            return key != "some";
+        }
+        // If the base WITHOUT the contraction's final `e` is itself a word, the word
+        // is (that word)+ed/er and the `e` is the suffix vowel — not part of the
+        // -some/-name morpheme (`ransom`+ed, `blossom`+ed). `handsom` (from
+        // `handsome`+r) is not a word, so `handsomer` survives this guard.
+        if self.is_word(&word[..end - 1]) {
+            return false;
+        }
+        // Otherwise the contraction must be an exposed suffix of the base: a known
+        // word or a closed bound prefix precedes it, AND the base's pronunciation
+        // carries the contraction's sound. `one` is excluded from known-word
+        // recovery so `toner`/`sooner`/`crooner` keep the `er` groupsign (§10.7).
+        // A closed bound prefix (`mis`·time·d, `re`·name·d) is reliable evidence on
+        // its own — skip phonology, since the base (`mistime`, `rename`) is often
+        // absent from CMUdict. With the §10.10 path-priority tie-break the offered
+        // contraction is now actually selected over the overlapping `st`/`en`.
+        let left_str: String = word[..pos].iter().collect();
+        if bound_prefix_exposes(key, &left_str) {
+            return true;
+        }
+        // A known word before the contraction still needs phonology on the base
+        // (`hand`·some → `handsome` carries /S AH M/) to avoid a coincidence.
+        matches!(key, "some" | "time" | "name")
+            && self.is_word(&word[..pos])
+            && self.pronunciation_supports(&word[..end].iter().collect::<String>(), key)
+    }
+
+    /// §10.7 morphology recovery for CMUdict GAPS: when a word is absent from the
+    /// dictionary (so phonology can neither confirm nor deny) but its structure
+    /// exposes the contraction as a clean morpheme — `blithe·some`, `some·such`,
+    /// `tea·time`, `time·ously` — the sign is safe. Restricted to the
+    /// consonant-initial final-`e` keys whose `e` is reliably silent as a
+    /// suffix/compound unit (`one` is excluded: its vowel onset risks a
+    /// digraph/diphthong with a coincidental neighbour). A known word is left to
+    /// the phonology gates above; unknown words with no clean split spell out.
+    fn morphology_recovers(&self, word: &[char], pos: usize, key: &str, end: usize) -> bool {
+        // Consonant-initial final-`e` keys (silent-`e` compounds) plus `upon`, whose
+        // `here·upon` compound is a clean word-edge morpheme (`there·upon`/
+        // `where·upon` are already in CMUdict; `coupon` is, so it never reaches here).
+        if !matches!(key, "some" | "name" | "time" | "here" | "there" | "where" | "upon")
+            || self.is_word(word)
+        {
+            return false;
+        }
+        // The contraction must sit at a WORD EDGE. A fragment on BOTH sides
+        // (`ga`|some|`ter` in `gasometer`, where the dict happens to list `ga`) is a
+        // coincidence, not a morpheme boundary — so exactly one side must be empty.
+        let after = &word[end..];
+        let after_ok = after.is_empty()
+            || self.is_word(after)
+            || is_safe_suffix(&after.iter().collect::<String>());
+        if pos == 0 {
+            // Word-initial unit: `some`·such, `time`·ously, `name`·able, `where`·of.
+            // A bare key alone is a known word (handled by phonology), so a valid
+            // non-empty remainder is required.
+            !after.is_empty() && after_ok
+        } else if after.is_empty() {
+            // Word-final unit: `blithe`·some, `tea`·time, `your`·name.
+            self.is_word(&word[..pos])
+        } else {
+            false
+        }
+    }
 }
 
 impl ContractionRule for InitialContractionPronunciationRule {
@@ -151,10 +240,21 @@ impl ContractionRule for InitialContractionPronunciationRule {
             // initial-letter contractions are whole-unit signs (priority 55), exempt
             // from §10.11 compound-seam bridging — `up·on`/`there·up·on` legitimately
             // span their own etymological seams.
-            if self.pronunciation_supports(&full, key)
-                || self.silent_final_e_supports(word, pos, key, &full)
-                || self.ever_shape_supports(word, pos, key, &full)
-            {
+            // §10.7 danger zone: a final-`e` contraction immediately followed by
+            // `r`/`d` (the -er/-ed suffix) cannot be judged by phonology alone —
+            // `time+r` (USE) shares the /… ER/ / /… D/ shape with `some+rsault`,
+            // interior `tone`+`r`, and `ransom+ed`. Require an exposed morpheme.
+            let danger =
+                key.ends_with('e') && word.get(end).is_some_and(|c| matches!(c, 'r' | 'd'));
+            let accept = if danger {
+                self.danger_zone_use(word, pos, key, end)
+            } else {
+                self.pronunciation_supports(&full, key)
+                    || self.silent_final_e_supports(word, pos, key, &full)
+                    || self.ever_shape_supports(word, pos, key, &full)
+                    || self.morphology_recovers(word, pos, key, end)
+            };
+            if accept {
                 best = Some((klen, cells));
             }
         }
@@ -169,6 +269,22 @@ impl ContractionRule for InitialContractionPronunciationRule {
             protect_span: true,
         })
     }
+}
+
+/// Closed set of bound prefixes that expose a final-`e` contraction as a morpheme
+/// in an -er/-ed word (`mis·time·d`, `re·name·d`). Kept deliberately small so the
+/// danger-zone override never over-accepts.
+fn bound_prefix_exposes(key: &str, left: &str) -> bool {
+    matches!((key, left), ("time", "mis") | ("name", "re"))
+}
+
+/// Closed set of safe derivational/inflectional suffixes that may follow a
+/// recovered final-`e` contraction (`time·ously`, `lone·some·st`, `some`·`s`).
+fn is_safe_suffix(s: &str) -> bool {
+    matches!(
+        s,
+        "s" | "es" | "st" | "ly" | "ness" | "ous" | "ously" | "able" | "ment"
+    )
 }
 
 /// Whether `needle` occurs as a contiguous run inside `haystack`, comparing only
@@ -293,5 +409,47 @@ mod tests {
         // `M AH N` is present as letters but not as a contiguous phoneme run.
         let nope: Vec<Phoneme> = "M AH1 N".split_whitespace().map(parse_phoneme).collect();
         assert!(!contains_contiguous(&hay, &nope));
+    }
+
+    /// §10.7 danger zone (a final-`e` contraction immediately followed by `r`/`d`).
+    /// The sign is used only when it is an EXPOSED morpheme — the whole base
+    /// (`time`+r, `name`+d), or a known word / bound prefix + key (`hand`·some·r,
+    /// `re`·name·d) — never a coincidental run (`somer`sault), an interior substring
+    /// (`t`·one within `tone`+r), or the `-ed`/`-er` suffix vowel (`ransom`+ed,
+    /// `blossom`+ed). `one` is excluded from known-word recovery.
+    #[rstest::rstest]
+    #[case::timer("timer", 0, true)] // time + r
+    #[case::named("named", 0, true)] // name + d
+    #[case::renamed("renamed", 2, true)] // re + name + d (bound prefix)
+    #[case::mistimed("mistimed", 3, true)] // mis + time + d (bound prefix)
+    #[case::handsomer("handsomer", 4, true)] // hand + some + r
+    #[case::toner("toner", 1, false)] // tone interior; keep `er`
+    #[case::somersault("somersault", 0, false)] // somer… not a morpheme
+    #[case::somerset("somerset", 0, false)]
+    #[case::somers("somers", 0, false)] // som + er + s (tail not a single r)
+    #[case::ransomed("ransomed", 3, false)] // ransom + ed
+    #[case::blossomed("blossomed", 4, false)] // blossom + ed
+    fn danger_zone_er_ed(#[case] word: &str, #[case] pos: usize, #[case] use_it: bool) {
+        assert_eq!(try_at(word, pos).is_some(), use_it, "danger zone: {word}");
+    }
+
+    /// §10.7 morphology recovery for CMUdict GAPS: an unknown word whose structure
+    /// exposes the contraction at a WORD EDGE (`some`·such, `tea`·time, `blithe`·some,
+    /// `time`·ously, `name`·able) uses the sign; a fragment on both sides
+    /// (`ga`·some·`ter`) is a coincidence and spells out.
+    #[rstest::rstest]
+    #[case::somesuch("somesuch", 0, true)] // some + such
+    #[case::teatime("teatime", 3, true)] // tea + time
+    #[case::blithesome("blithesome", 6, true)] // blithe + some
+    #[case::nameable("nameable", 0, true)] // name + able
+    #[case::hereupon("hereupon", 4, true)] // here + upon (word-edge, dict gap)
+    #[case::timeously("timeously", 0, true)] // time + ously
+    #[case::gasometer("gasometer", 2, false)] // ga | some | ter — coincidence
+    fn morphology_recovery_for_dict_gaps(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] use_it: bool,
+    ) {
+        assert_eq!(try_at(word, pos).is_some(), use_it, "recovery: {word}");
     }
 }
