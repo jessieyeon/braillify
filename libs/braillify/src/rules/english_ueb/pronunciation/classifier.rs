@@ -99,6 +99,15 @@ fn be_pron_uses(p: &[Phoneme], consonant_follows: bool) -> bool {
 /// split `co·n…` (`coney`); a single syllable (`cone`, `conch` /K AA NG K/) is not
 /// the prefix; in all those cases the groupsign is not used.
 fn classify_con(word: &[char], provider: &dyn PronunciationProvider) -> Decision {
+    // §10.6: like `dis`+`t`, `con` before `t`/`g` is its own first syllable
+    // (`con·trol`, `con·tain`, `con·gress`, `con·gruous`) — the letter test also
+    // settles the monosyllabic abbreviation `cont`/`cont.` and CMUdict gaps
+    // (`congee`, `congruous`) that the multisyllable pronunciation rule rejects.
+    // No `con…t`/`con…g` word in the corpus spells out (the con-monosyllables are
+    // `conch`/`conk`/`cone`, i.e. con+`c`/`k`/`e`).
+    if matches!(word.get(3), Some('t' | 'g')) {
+        return Decision::Use;
+    }
     decide_all(&provider.pronunciations(&word_string(word)), con_pron_uses)
 }
 
@@ -124,6 +133,14 @@ fn classify_dis(word: &[char], provider: &dyn PronunciationProvider) -> Decision
     // A ≥2-letter remainder rules out 1-letter codas (`disc`→`c`, `dish`→`h`)
     // that some single-letter dictionary entries would otherwise match.
     if word.len() > 4 && !provider.pronunciations(&word_string(&word[3..])).is_empty() {
+        return Decision::Use;
+    }
+    // §10.6: `dis` before `t` is conventionally its own first syllable — the `s`
+    // is read as the coda of `dis` (`dis·tinct`, `dis·turb`, `dis·tance`, `dist.`),
+    // unlike the `s`-cluster onset of `di·spirited` (`sp`). Spelling settles what
+    // stress cannot: `distinct`/`disturbed` are pretonic (`D IH0 S T…`) just like
+    // `dispirited`, yet take `dis`. No `dis…t` word in the corpus spells out.
+    if word.get(3) == Some(&'t') {
         return Decision::Use;
     }
     decide_all(&provider.pronunciations(&word_string(word)), dis_pron_uses)
@@ -250,6 +267,11 @@ mod tests {
     #[case::congo_ng("congo", Prefix::Con, Decision::Use)]
     #[case::connor_vowel_after_n("connor", Prefix::Con, Decision::SpellOut)] // K AA N ER — coney split
     #[case::distance_stressed("distance", Prefix::Dis, Decision::Use)] // D IH1 S T… stressed dis
+    #[case::distinct_dis_t("distinct", Prefix::Dis, Decision::Use)] // dis·t spelling rule (pretonic)
+    #[case::disturb_dis_t("disturb", Prefix::Dis, Decision::Use)] // dis·t, not in mock — letter rule
+    #[case::cont_con_t("cont", Prefix::Con, Decision::Use)] // con·t abbreviation, monosyllable
+    #[case::congee_con_g("congee", Prefix::Con, Decision::Use)] // con·g spelling rule (dict gap)
+    #[case::dispirited_not_dis_t("dispirited", Prefix::Dis, Decision::SpellOut)] // dis·p, spelled
     #[case::beta_open_consonant("beta", Prefix::Be, Decision::Use)] // be·ta — t after `be`
     #[case::beacon_digraph("beacon", Prefix::Be, Decision::SpellOut)] // bea·con — vowel digraph
     fn classifies_restricted_prefixes(
