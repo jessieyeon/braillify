@@ -116,15 +116,6 @@ mod tests {
         assert_eq!(ascii, expect_ascii);
     }
 
-    /// Rule 41 golden test — testcase JSON 정답과 byte-identical.
-    #[rstest::rstest]
-    #[case::thousand_with_comma("1,000", "⠼⠁⠂⠚⠚⠚")]
-    #[case::decimal_with_period("0.48", "⠼⠚⠲⠙⠓")]
-    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
-        let result = crate::encode_to_unicode(input).unwrap();
-        assert_eq!(result, expected, "Rule 41 golden test failed for: {input}");
-    }
-
     #[test]
     fn meta_is_correct() {
         assert_eq!(META.section, "41");

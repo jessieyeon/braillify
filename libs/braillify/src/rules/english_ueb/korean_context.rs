@@ -37,6 +37,7 @@ pub(crate) struct KoreanPrefixInput<'a> {
     pub(crate) wrap_active: bool,
     pub(crate) is_all_uppercase: bool,
     pub(crate) at_entry: bool,
+    pub(crate) standalone_wordsign: bool,
 }
 
 /// Match result for a Korean-context UEB prefix.
@@ -50,6 +51,13 @@ pub(crate) fn match_korean_prefix(input: KoreanPrefixInput<'_>) -> Option<Korean
     let word = lowercase_word(input.word);
     if input.pos >= word.len() {
         return None;
+    }
+
+    if input.at_entry
+        && input.standalone_wordsign
+        && let Some(matched) = korean_wordsign_match(&word)
+    {
+        return Some(matched);
     }
 
     let gate = Gate::new(&word, &input);
@@ -72,6 +80,16 @@ pub(crate) fn match_korean_prefix(input: KoreanPrefixInput<'_>) -> Option<Korean
         return Some(matched);
     }
     None
+}
+
+fn korean_wordsign_match(word: &[char]) -> Option<KoreanPrefixMatch> {
+    let text = word_as_str(word)?;
+    super::rule_10_1::wordsign(&text)
+        .or_else(|| super::rule_10_2::wordsign(&text))
+        .map(|cell| KoreanPrefixMatch {
+            cells: vec![cell],
+            consumed: word.len(),
+        })
 }
 
 struct Gate {
@@ -235,8 +253,30 @@ mod tests {
             wrap_active,
             is_all_uppercase: false,
             at_entry: pos == 0,
+            standalone_wordsign: false,
         })
         .map(|matched| (matched.cells, matched.consumed));
         assert_eq!(got, expected);
+    }
+
+    #[rstest::rstest]
+    #[case::alphabetic_you("you", decode_unicode('⠽'), 3)]
+    #[case::strong_this("this", decode_unicode('⠹'), 4)]
+    fn matches_standalone_wordsigns(
+        #[case] word: &str,
+        #[case] expected_cell: u8,
+        #[case] expected_consumed: usize,
+    ) {
+        let chars: Vec<char> = word.chars().collect();
+        let got = match_korean_prefix(KoreanPrefixInput {
+            word: &chars,
+            pos: 0,
+            wrap_active: false,
+            is_all_uppercase: false,
+            at_entry: true,
+            standalone_wordsign: true,
+        })
+        .map(|matched| (matched.cells, matched.consumed));
+        assert_eq!(got, Some((vec![expected_cell], expected_consumed)));
     }
 }

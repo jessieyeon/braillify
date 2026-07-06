@@ -5020,8 +5020,10 @@ impl EnglishUebEngine {
         let spanish_foreign = super::rule_13::spanish_context(&doc_letters);
         let foreign_passage = !explicit_english
             && !bibliography_entry_context(tokens)
-            && (super::rule_13::likely_foreign_passage(&document_prose_words(tokens), &doc_letters)
-                || is_short_typeform_foreign_sentence(tokens));
+            && (super::rule_13::likely_foreign_passage(
+                &document_prose_words(tokens),
+                &doc_letters,
+            ) || is_short_typeform_foreign_sentence(tokens));
         let scansion_stress_context = tokens
             .iter()
             .any(|t| matches!(t, EnglishToken::Symbol('/' | '|')))

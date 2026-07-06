@@ -135,15 +135,6 @@ mod tests {
         assert!(apply(ch).is_err());
     }
 
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![("국보", "⠈⠍⠁⠘⠥"), ("놋그릇", "⠉⠥⠄⠈⠪⠐⠪⠄")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 3 golden test failed for: {}", input);
-        }
-    }
-
     use rstest::rstest;
 
     /// matches() must be true only for syllables that have a jongseong (받침).

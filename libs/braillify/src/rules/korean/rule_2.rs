@@ -134,15 +134,6 @@ mod tests {
         assert_eq!(decompose('ㅎ'), None);
     }
 
-    #[test]
-    fn golden_test_alignment() {
-        let cases = vec![("꾸러미", "⠠⠈⠍⠐⠎⠑⠕"), ("쓰기", "⠠⠠⠪⠈⠕")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 2 golden test failed for: {}", input);
-        }
-    }
-
     use rstest::rstest;
 
     #[rstest]

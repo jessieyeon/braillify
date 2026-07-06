@@ -118,16 +118,6 @@ mod tests {
         assert!(apply('가').is_err());
     }
 
-    #[test]
-    fn golden_test_alignment() {
-        // From test_cases/rule_1.json — encoding full syllables that start with each consonant
-        let cases = vec![("거리", "⠈⠎⠐⠕"), ("너비", "⠉⠎⠘⠕"), ("호수", "⠚⠥⠠⠍")];
-        for (input, expected) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(result, expected, "Rule 1 golden test failed for: {}", input);
-        }
-    }
-
     use rstest::rstest;
 
     /// matches() must return true iff the current char is a Korean syllable.

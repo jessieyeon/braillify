@@ -147,25 +147,6 @@ mod tests {
     }
 
     #[test]
-    fn golden_test_alignment() {
-        // From test_cases/rule_11.json
-        let cases = vec![
-            ("아예", "⠣⠤⠌"),
-            ("도예", "⠊⠥⠤⠌"),
-            ("뭐예요", "⠑⠏⠤⠌⠬"),
-            ("서예", "⠠⠎⠤⠌"),
-        ];
-        for (input, expected_unicode) in cases {
-            let result = crate::encode_to_unicode(input).unwrap();
-            assert_eq!(
-                result, expected_unicode,
-                "Rule 11 golden test failed for input: {}",
-                input
-            );
-        }
-    }
-
-    #[test]
     fn meta_is_correct() {
         assert_eq!(META.section, "11");
         assert_eq!(META.name, "vowel_ye_separator");

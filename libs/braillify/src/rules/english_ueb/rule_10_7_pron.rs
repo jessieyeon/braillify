@@ -23,7 +23,7 @@ use super::pronunciation::{Phoneme, PronunciationProvider};
 use crate::unicode::decode_unicode;
 
 /// §10.7 deferred initial-letter contractions → (prefix cell, first-letter cell),
-/// taken from the RUEB 2024 §10.7 examples in `test_cases/english/rule_10_7_*`.
+/// taken from the RUEB 2024 §10.7 examples.
 /// The unambiguous ones (`right`, `cannot`, `world`, …) already live ungated in
 /// [`super::rule_10_7`]; this table holds only the pronunciation-gated remainder.
 static PRON_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {

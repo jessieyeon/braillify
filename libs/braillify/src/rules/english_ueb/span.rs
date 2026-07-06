@@ -63,6 +63,7 @@ mod tests {
             wrap_active,
             is_all_uppercase: false,
             at_entry: pos == 0,
+            standalone_wordsign: false,
         })
         .unwrap()
     }

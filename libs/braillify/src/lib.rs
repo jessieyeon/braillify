@@ -1102,99 +1102,6 @@ mod test {
         start..start + needle.len()
     }
 
-    /// `encode_to_unicode` 종합 표 — 한글/영어/숫자/수식/기호 혼합 시나리오.
-    /// 각 행은 단일 input/expected 쌍을 나타내며 #[case::xxx] 라벨로 시나리오 구분.
-    #[rstest::rstest]
-    // Korean repetition / inline newline
-    #[case::sangsang("상상이상의 ", "⠇⠶⠇⠶⠕⠇⠶⠺")]
-    #[case::an_nyeong_nl("안녕\n반가워", "⠣⠒⠉⠻\n⠘⠒⠫⠏")]
-    // English uppercase + Korean parentheses
-    #[case::bmi_paren("BMI(지수)", "⠴⠠⠠⠃⠍⠊⠦⠄⠨⠕⠠⠍⠠⠴")]
-    #[case::jisu_bmi("지수(BMI)", "⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
-    #[case::che_jil_bmi("체질량 지수(BMI)", "⠰⠝⠨⠕⠂⠐⠜⠶⠀⠨⠕⠠⠍⠦⠄⠴⠠⠠⠃⠍⠊⠠⠴")]
-    #[case::roma_bracket("Roma [ㄹㄹ로마]", "⠴⠠⠗⠕⠍⠁⠲⠀⠦⠆⠸⠂⠸⠂⠐⠥⠑⠰⠴")]
-    #[case::ye_quoted("‘ㅖ’로 적는다.", "⠠⠦⠿⠌⠴⠄⠐⠥⠀⠨⠹⠉⠵⠊⠲")]
-    // English mode (standalone English → UEB). The §10.6 restricted `con`
-    // groupsign ⠒ contracts via the always-embedded pronunciation dictionary.
-    #[case::contents("Contents", "⠠⠒⠞⠢⠞⠎")]
-    #[case::table_of_contents("Table of Contents", "⠠⠞⠁⠃⠇⠑⠀⠷⠀⠠⠒⠞⠢⠞⠎")]
-    #[case::bonjour("bonjour", "⠃⠕⠝⠚⠳⠗")]
-    // Korean jamo names
-    #[case::triangle_jamo("삼각형 ㄱㄴㄷ", "⠇⠢⠫⠁⠚⠻⠀⠿⠁⠿⠒⠿⠔")]
-    // Specific syllables
-    #[case::keok("걲", "⠈⠹⠁")]
-    #[case::geot("겄", "⠈⠎⠌")]
-    // Unit symbols
-    #[case::kg("kg", "⠅⠛")]
-    #[case::kg_paren("(kg)", "⠐⠣⠅⠛⠐⠜")]
-    // Mixed arithmetic
-    #[case::naru_plus_bae("나루 + 배 = 나룻배", "⠉⠐⠍⠀⠢⠀⠘⠗⠀⠒⠒⠀⠉⠐⠍⠄⠘⠗")]
-    // Phone number
-    #[case::phone_dash("02-2669-9775~6", "⠼⠚⠃⠤⠼⠃⠋⠋⠊⠤⠼⠊⠛⠛⠑⠈⠔⠼⠋")]
-    // Triple uppercase
-    #[case::welcome_to_korea("WELCOME TO KOREA", "⠠⠠⠠⠺⠑⠇⠉⠕⠍⠑⠀⠞⠕⠀⠅⠕⠗⠑⠁⠠⠄")]
-    #[case::sns_eseo("SNS에서", "⠴⠠⠠⠎⠝⠎⠲⠝⠠⠎")]
-    #[case::atm("ATM", "⠠⠠⠁⠞⠍")]
-    #[case::atm_korean("ATM 기기", "⠴⠠⠠⠁⠞⠍⠲⠀⠈⠕⠈⠕")]
-    // Numbers with separators
-    #[case::thousand("1,000", "⠼⠁⠂⠚⠚⠚")]
-    #[case::decimal("0.48", "⠼⠚⠲⠙⠓")]
-    #[case::id_number("820718-2036794", "⠼⠓⠃⠚⠛⠁⠓⠤⠼⠃⠚⠉⠋⠛⠊⠙")]
-    // Korean-math arithmetic
-    #[case::five_minus_three("5개−3개=2개", "⠼⠑⠈⠗⠀⠔⠀⠼⠉⠈⠗⠀⠒⠒⠀⠼⠃⠈⠗")]
-    // Standalone syllables
-    #[case::sohwaeg("소화액", "⠠⠥⠚⠧⠤⠗⠁")]
-    #[case::cap_x("X", "⠠⠭")]
-    #[case::kkeot("껐", "⠠⠈⠎⠌")]
-    #[case::tv_reul("TV를", "⠴⠠⠠⠞⠧⠲⠐⠮")]
-    #[case::kkeoteoyo("껐어요.", "⠠⠈⠎⠌⠎⠬⠲")]
-    #[case::five_un_six("5운6기", "⠼⠑⠀⠛⠼⠋⠈⠕")]
-    #[case::kkeunh("끊", "⠠⠈⠵⠴")]
-    #[case::kkeunh_gyeoss("끊겼어요", "⠠⠈⠵⠴⠈⠱⠌⠎⠬")]
-    #[case::si_yeyo("시예요", "⠠⠕⠤⠌⠬")]
-    #[case::jeong("정", "⠨⠻")]
-    #[case::na_yo("나요", "⠉⠣⠬")]
-    #[case::saiseu("사이즈", "⠇⠕⠨⠪")]
-    #[case::cheongso_reul("청소를", "⠰⠻⠠⠥⠐⠮")]
-    #[case::geos("것", "⠸⠎")]
-    #[case::geos_i("것이", "⠸⠎⠕")]
-    #[case::i_oss("이 옷", "⠕⠀⠥⠄")]
-    #[case::dot(".", "⠲")]
-    // Progressive an_nyeong_haseyo
-    #[case::an("안", "⠣⠒")]
-    #[case::an_nyeong("안녕", "⠣⠒⠉⠻")]
-    #[case::an_nyeong_ha("안녕하", "⠣⠒⠉⠻⠚")]
-    #[case::seyo("세요", "⠠⠝⠬")]
-    #[case::ha_seyo("하세요", "⠚⠠⠝⠬")]
-    #[case::an_nyeong_ha_seyo("안녕하세요", "⠣⠒⠉⠻⠚⠠⠝⠬")]
-    #[case::an_nyeong_hasibnikka("안녕하십니까", "⠣⠒⠉⠻⠚⠠⠕⠃⠉⠕⠠⠫")]
-    // Progressive geuraeseo
-    #[case::geuraeseo_jakdong("그래서 작동", "⠁⠎⠀⠨⠁⠊⠿")]
-    #[case::geuraeseo_hanā("그래서 작동하나", "⠁⠎⠀⠨⠁⠊⠿⠚⠉")]
-    #[case::geuraeseo_yo("그래서 작동하나요", "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬")]
-    #[case::geuraeseo_yo_q("그래서 작동하나요?", "⠁⠎⠀⠨⠁⠊⠿⠚⠉⠣⠬⠦")]
-    #[case::i_norae("이 노래", "⠕⠀⠉⠥⠐⠗")]
-    // areum
-    #[case::a("아", "⠣")]
-    #[case::reum("름", "⠐⠪⠢")]
-    #[case::areum("아름", "⠣⠐⠪⠢")]
-    #[case::sa("사", "⠇")]
-    #[case::sang("상", "⠇⠶")]
-    #[case::areumda_sesang("아름다운 세상.", "⠣⠐⠪⠢⠊⠣⠛⠀⠠⠝⠇⠶⠲")]
-    #[case::modeun_things("모든 것이 무너진 듯해도", "⠑⠥⠊⠵⠀⠸⠎⠕⠀⠑⠍⠉⠎⠨⠟⠀⠊⠪⠄⠚⠗⠊⠥")]
-    // LaTeX fractions
-    #[case::latex_frac_3_4("$\\frac{3}{4}$", "⠼⠙⠌⠼⠉")]
-    #[case::latex_3_frac_1_4("$3\\frac{1}{4}$", "⠼⠉⠼⠙⠌⠼⠁")]
-    #[case::ascii_1_2("1/2", "⠼⠁⠸⠌⠼⠃")]
-    #[case::unicode_half("½", "⠼⠃⠌⠼⠁")]
-    fn encode_to_unicode_table(#[case] input: &str, #[case] expected: &str) {
-        assert_eq!(
-            encode_to_unicode(input).unwrap(),
-            expected,
-            "input={input:?}"
-        );
-    }
-
     #[test]
     fn english_continuation_after_inline_number() {
         let output = encode("가 a1a").unwrap();
@@ -1902,7 +1809,11 @@ mod coverage_targeted_tests {
     #[case::plain_subscript("B₆")]
     #[case::latex_subscript("$B_6$")]
     fn korean_rule68_compact_subscript_default_routes_to_korean(#[case] input: &str) {
-        assert_eq!(encode_to_unicode(input).unwrap(), "⠴⠠⠃⠰⠼⠋");
+        let expected = vec![52, 32, 3, 48, 60, 11];
+        let plain = encode("B₆").unwrap();
+        let encoded = encode(input).unwrap();
+        assert_eq!(plain, expected);
+        assert_eq!(encoded, plain);
     }
 
     /// `move_negation_combiner_before_base` early-returns when no U+0338 is

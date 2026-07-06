@@ -41,6 +41,8 @@ const ASCII_UNIT_MAPPINGS: &[(&str, &str)] = &[
     ("h", "⠴⠓⠲"),
 ];
 
+const PERCENT_ABBREVIATION_MAPPINGS: &[(&str, &str)] = &[("%ile", "⠴⠏⠞"), ("%p", "⠴⠏⠏")];
+
 const SEPARATED_SYMBOLS: &[char] = &['%', '‰', '°', '℃', '℉'];
 
 fn encode_unicode_cells(unicode: &str) -> Vec<u8> {
@@ -112,6 +114,24 @@ pub(crate) fn encode_ascii_unit(word: &[char], index: usize) -> Option<(Vec<u8>,
             continue;
         }
         return Some((encode_unicode_cells(unicode), unit.len()));
+    }
+    None
+}
+
+fn encode_percent_abbreviation(word: &[char], index: usize) -> Option<(Vec<u8>, usize)> {
+    let tail = &word[index..];
+    for (abbr, unicode) in PERCENT_ABBREVIATION_MAPPINGS {
+        if !chars_start_with_ascii(tail, abbr) {
+            continue;
+        }
+        if *abbr == "%p"
+            && tail
+                .get(abbr.len())
+                .is_some_and(|ch| ch.is_ascii_alphabetic())
+        {
+            continue;
+        }
+        return Some((encode_unicode_cells(unicode), abbr.len()));
     }
     None
 }
@@ -196,28 +216,14 @@ impl BrailleRule for Rule69 {
         }
 
         if ctx.current_char() == '%'
-            && ctx.word_chars.get(ctx.index + 1) == Some(&'i')
-            && ctx.word_chars.get(ctx.index + 2) == Some(&'l')
-            && ctx.word_chars.get(ctx.index + 3) == Some(&'e')
+            && let Some((encoded, consumed)) =
+                encode_percent_abbreviation(ctx.word_chars, ctx.index)
         {
-            let encoded = encode_unicode_cells("⠴⠏⠞");
             ctx.emit_slice(&encoded);
-            *ctx.skip_count = 3;
-            return Ok(RuleResult::Consumed);
-        }
-
-        if ctx.current_char() == '%'
-            && ctx.word_chars.get(ctx.index + 1) == Some(&'p')
-            && ctx
-                .word_chars
-                .get(ctx.index + 2)
-                .is_none_or(|ch| !ch.is_ascii_alphabetic())
-        {
-            ctx.emit_slice(&encode_unicode_cells("⠴⠏⠏"));
-            *ctx.skip_count = 1;
+            *ctx.skip_count = consumed.saturating_sub(1);
             if ctx
                 .word_chars
-                .get(ctx.index + 2)
+                .get(ctx.index + consumed)
                 .is_some_and(|ch| crate::utils::is_korean_char(*ch))
             {
                 ctx.emit(0);
@@ -267,7 +273,7 @@ impl BrailleRule for Rule69 {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_numeric_ascii_unit_prefix;
+    use super::{encode_percent_abbreviation, parse_numeric_ascii_unit_prefix};
 
     #[test]
     fn parses_compact_number_unit_word() {
@@ -277,20 +283,22 @@ mod tests {
         assert_eq!(parsed.2, chars.len());
     }
 
-    /// 제69항 — `%ile` 패턴은 `⠴⠏⠞`로 점역 (line 211-220).
-    #[test]
-    fn rule69_percent_ile_pattern() {
-        let result = crate::encode_to_unicode("50%ile는");
-        assert!(result.is_ok());
-        let s = result.unwrap();
-        assert!(s.contains('⠞'));
+    /// 제69항 — percent-derived measurement abbreviations are data-driven, and
+    /// `%p` only contracts at an abbreviation boundary.
+    #[rstest::rstest]
+    #[case::percentile("%ile", 4)]
+    #[case::percentage_point("%p는", 2)]
+    fn encodes_percent_abbreviation(#[case] input: &str, #[case] consumed: usize) {
+        let chars: Vec<char> = input.chars().collect();
+        let (encoded, actual_consumed) = encode_percent_abbreviation(&chars, 0).expect("abbr");
+        assert!(!encoded.is_empty());
+        assert_eq!(actual_consumed, consumed);
     }
 
-    /// 제69항 — `%p` 패턴 (line 222-239).
     #[test]
-    fn rule69_percent_p_pattern() {
-        let result = crate::encode_to_unicode("50%p는");
-        assert!(result.is_ok());
+    fn percent_p_does_not_match_inside_ascii_word() {
+        let chars: Vec<char> = "%point".chars().collect();
+        assert!(encode_percent_abbreviation(&chars, 0).is_none());
     }
 
     /// rule_69:255 — `μ` (mu) alone or followed by non-unit chars triggers the

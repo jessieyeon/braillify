@@ -121,19 +121,6 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-    /// Rule 12 golden test — testcase JSON 정답과 byte-identical.
-    #[rstest::rstest]
-    #[case::ya_ae("야애", "⠜⠤⠗")]
-    #[case::sohwa_aek("소화액", "⠠⠥⠚⠧⠤⠗⠁")]
-    #[case::su_aek("수액", "⠠⠍⠤⠗⠁")]
-    fn golden_test_alignment(#[case] input: &str, #[case] expected: &str) {
-        let result = crate::encode_to_unicode(input).unwrap();
-        assert_eq!(
-            result, expected,
-            "Rule 12 golden test failed for input: {input}"
-        );
-    }
-
     #[test]
     fn meta_is_correct() {
         assert_eq!(META.section, "12");

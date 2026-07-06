@@ -8,7 +8,6 @@
 //! Reference: 2024 Korean Braille Standard, Chapter 4, Section 10, Article 28
 
 use crate::char_struct::CharType;
-use crate::english;
 use crate::rules::RuleMeta;
 use crate::rules::context::RuleContext;
 use crate::rules::english_ueb::korean_context::KoreanPrefixInput;
@@ -29,7 +28,7 @@ pub const UPPERCASE_SINGLE: u8 = 32; // ⠠
 /// Encode a single English letter to braille.
 #[cfg(test)]
 fn apply(ch: char) -> Result<u8, String> {
-    english::encode_english(ch)
+    crate::english::encode_english(ch)
 }
 
 /// Returns a slice of indicator bytes to prepend.
@@ -105,17 +104,8 @@ impl BrailleRule for Rule28 {
         }
 
         // English abbreviation lookup + fallback letter encoding.
-        //
-        // Rule28 only fires when `ctx.char_type` is `CharType::English(_)`, so the
-        // current character is ASCII. Non-ASCII trailing characters (e.g. Korean
-        // following an English run) are not lowercase-affected by the lookup tables,
-        // so `to_ascii_lowercase` per char is equivalent to the previous
-        // `.collect::<String>().to_lowercase()` for any input that reaches the
-        // lookup matchers — and avoids the second allocation + Unicode tables.
-        let remaining: String = ctx.word_chars[ctx.index..]
-            .iter()
-            .map(|c| c.to_ascii_lowercase())
-            .collect();
+        // Korean-context UEB contractions and standalone wordsigns are delegated to
+        // `encode_korean_unit`; this rule only decides the surrounding mode markers.
         let is_whole_lowercase_word =
             ctx.index == 0 && ctx.word_chars.iter().all(|ch| ch.is_ascii_lowercase());
         let prev_is_ascii_word =
@@ -124,21 +114,15 @@ impl BrailleRule for Rule28 {
             .remaining_words
             .first()
             .is_some_and(|w| !w.is_empty() && w.chars().all(|ch| ch.is_ascii_alphabetic()));
-
-        if is_whole_lowercase_word && remaining == "you" && prev_is_ascii_word && next_is_ascii_word
-        {
-            ctx.emit(english::encode_english('y')?);
-            *ctx.skip_count = ctx.word_len().saturating_sub(1);
-            ctx.state.is_english = true;
-            ctx.state.needs_english_continuation = false;
-            return Ok(RuleResult::Consumed);
-        }
         let unit = encode_korean_unit(KoreanPrefixInput {
             word: ctx.word_chars,
             pos: ctx.index,
             wrap_active: ctx.state.english_dominant_wrap_active,
             is_all_uppercase: ctx.is_all_uppercase,
             at_entry: !ctx.state.is_english || ctx.index == 0,
+            standalone_wordsign: is_whole_lowercase_word
+                && prev_is_ascii_word
+                && next_is_ascii_word,
         })?;
         ctx.emit_slice(&unit.cells);
         if unit.contracted {

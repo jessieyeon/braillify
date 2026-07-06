@@ -264,10 +264,7 @@ mod tests {
     #[rstest::rstest]
     #[case::one_numerator("1\u{0332}/(x+y)", "1")]
     #[case::two_numerator("2\u{0332}/(x+y)", "2")]
-    fn underline_fraction_with_parenthesised_body(
-        #[case] input: &str,
-        #[case] numerator: &str,
-    ) {
+    fn underline_fraction_with_parenthesised_body(#[case] input: &str, #[case] numerator: &str) {
         let tokens = parse_math_expression(input).unwrap();
         // First token must be Grouping open (denominator-first ordering).
         assert!(
