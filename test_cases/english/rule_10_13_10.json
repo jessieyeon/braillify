@@ -1,26 +1,26 @@
 [
   {
-    "input": "eggnog",
-    "internal": "egg-  nog",
-    "expected": "1727273600292127",
-    "unicode": "⠑⠛⠛⠤⠀⠀⠝⠕⠛"
+    "input": "egg\nnog",
+    "internal": "egg-\nnog",
+    "expected": "17272736\n292127",
+    "unicode": "⠑⠛⠛⠤\n⠝⠕⠛"
   },
   {
-    "input": "motheaten",
-    "internal": "mo?-  eat5",
-    "expected": "13215736001713034",
-    "unicode": "⠍⠕⠹⠤⠀⠀⠑⠁⠞⠢"
+    "input": "moth\neaten",
+    "internal": "mo?-\neat5",
+    "expected": "13215736\n1713034",
+    "unicode": "⠍⠕⠹⠤\n⠑⠁⠞⠢"
   },
   {
-    "input": "peanut",
-    "internal": "pea-  nut",
-    "expected": "151713600293730",
-    "unicode": "⠏⠑⠁⠤⠀⠀⠝⠥⠞"
+    "input": "pea\nnut",
+    "internal": "pea-\nnut",
+    "expected": "1517136\n293730",
+    "unicode": "⠏⠑⠁⠤\n⠝⠥⠞"
   },
   {
-    "input": "stiffly",
-    "internal": "/iff-  ly",
-    "expected": "121011113600761",
-    "unicode": "⠌⠊⠋⠋⠤⠀⠀⠇⠽"
+    "input": "stiff\nly",
+    "internal": "/iff-\nly",
+    "expected": "1210111136\n761",
+    "unicode": "⠌⠊⠋⠋⠤\n⠇⠽"
   }
 ]

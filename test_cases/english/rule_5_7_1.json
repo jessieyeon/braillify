@@ -109,15 +109,15 @@
   },
   {
     "input": "letter d",
-    "internal": "lr .2;d",
-    "expected": "72304064825",
-    "unicode": "⠇⠗⠀⠨⠆⠰⠙"
+    "internal": "lr ;d",
+    "expected": "72304825",
+    "unicode": "⠇⠗⠀⠰⠙"
   },
   {
     "input": "\"X marks the spot.\"",
-    "internal": ".78;,x m>ks ! spot40.'",
-    "expected": "405438483245013285140460141521305052404",
-    "unicode": "⠨⠶⠦⠰⠠⠭⠀⠍⠜⠅⠎⠀⠮⠀⠎⠏⠕⠞⠲⠴⠨⠄"
+    "internal": "8;,x m>ks ! spot40",
+    "expected": "38483245013285140460141521305052",
+    "unicode": "⠦⠰⠠⠭⠀⠍⠜⠅⠎⠀⠮⠀⠎⠏⠕⠞⠲⠴"
   },
   {
     "input": "Dr J. F. Smith, M.D.",

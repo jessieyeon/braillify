@@ -45,19 +45,14 @@ fn splits_between(word: &[char], pos: usize) -> bool {
 
 /// A strong digraph whose two letters represent a single sound, so a
 /// hyphenation break between them reliably marks a compound boundary (§10.11).
-/// `gh` and `ow` join `th`/`wh`/`sh` on the same basis: within a morpheme each is
+/// `gh` joins `th`/`wh`/`sh` on the same basis: within a morpheme it is
 /// a single sound (`high`/`night`, `power`/`vowel` — hyphenation keeps the pair
 /// together), so a break between the two letters marks a compound seam
-/// (`shang·hai`, `kilo·watt`, `co·worker`). Measured against the corpus they add
-/// only correct compound spell-outs; the rare hyphenation mis-split (`to·ward`)
-/// yields a *missed* contraction — the safe error per the conservative design.
-/// `ar` was rejected: it suppressed legitimate mid-morpheme contractions
-/// (`sacchar·ine`) with no compensating compound fixes.
+/// (`shang·hai`). `ow` is deliberately excluded: hyphenation splits legitimate
+/// mid-morpheme `to·ward`, but RUEB 2024 §10.4.1 explicitly contracts it.
+/// `ar` was likewise rejected: it suppresses legitimate mid-morpheme contractions.
 fn is_bridging_digraph(a: char, b: char) -> bool {
-    matches!(
-        (a, b),
-        ('t', 'h') | ('w', 'h') | ('s', 'h') | ('g', 'h') | ('o', 'w')
-    )
+    matches!((a, b), ('t', 'h') | ('w', 'h') | ('s', 'h') | ('g', 'h'))
 }
 
 /// §10.11-aware strong groupsign rule: identical to [`StrongGroupsignRule`]
@@ -97,6 +92,13 @@ mod tests {
     #[case::mishandle("mishandle", 2)] // mis|handle (sh)
     fn bridging_digraph_suppressed(#[case] word: &str, #[case] pos: usize) {
         assert_eq!(try_at(word, pos), None);
+    }
+
+    /// §10.4.1: `toward` keeps `ow`; a hyphenation break alone is not enough for
+    /// `ow` because the rulebook contracts this exact mid-morpheme case.
+    #[test]
+    fn ow_contracts_in_toward() {
+        assert_eq!(try_at("toward", 1), Some((vec![decode_unicode('⠪')], 2)));
     }
 
     /// `sh` in a single morpheme still contracts (⠩): `bish·op` keeps it together.

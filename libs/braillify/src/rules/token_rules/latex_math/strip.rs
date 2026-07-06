@@ -7,13 +7,8 @@ use super::grouping::{needs_grouping_in_fraction, to_subscript_sequence, to_supe
 use super::read_braced_content;
 
 pub(crate) fn strip_latex_to_math(latex_inner: &str) -> String {
-    // Normalize known irregular log-base notations from testcase corpus.
-    let normalized = latex_inner
-        .replace("\\log_{(3}/_{1)}", "log₍₃/₁₎")
-        .replace("\\log_{(0}._{2)}", "log₍₀.₂₎");
-
     let mut result = String::new();
-    let mut chars = normalized.chars().peekable();
+    let mut chars = latex_inner.chars().peekable();
     let mut escaped_brace_depth = 0usize;
     // 직전에 LaTeX 명령(`\command`)이 emit한 결과인지 추적: 명령 주변 공백은 LaTeX
     // 토큰 분리용이므로 제거해야 하고, 직접 Unicode 기호 주변 공백은 보존해야 한다.
@@ -1095,5 +1090,13 @@ mod tests {
     fn escaped_open_brace_then_plain_close() {
         let _ = strip_latex_to_math("\\{x}");
         let _ = strip_latex_to_math("\\{abc}");
+    }
+
+    #[rstest::rstest]
+    #[case::integer_ratio_base("\\log_{(3}/_{1)}x", "log₍₃/₁₎x")]
+    #[case::decimal_base("\\log_{(0}._{2)}x", "log₍₀.₂₎x")]
+    #[case::multi_digit_ratio_base("\\log_{(12}/_{34)}x", "log₍₁₂/₃₄₎x")]
+    fn split_subscript_log_base_is_structural(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(strip_latex_to_math(input), expected);
     }
 }

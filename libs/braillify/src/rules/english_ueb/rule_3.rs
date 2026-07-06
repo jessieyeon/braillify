@@ -20,15 +20,21 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '%' => vec![decode_unicode('⠨'), decode_unicode('⠴')], // §3.21
         '&' => vec![decode_unicode('⠈'), decode_unicode('⠯')], // §3.1
         '*' => vec![decode_unicode('⠐'), decode_unicode('⠔')], // §3.3
+        '^' => vec![decode_unicode('⠈'), decode_unicode('⠢')], // §3.6 caret
+        '_' => vec![decode_unicode('⠨'), decode_unicode('⠤')], // §3.13 underscore
+        '〃' => vec![decode_unicode('⠐'), decode_unicode('⠂')], // §3.12 ditto mark
         // §3.17 signs of operation and comparison.
         '+' => vec![decode_unicode('⠐'), decode_unicode('⠖')],
         '=' => vec![decode_unicode('⠐'), decode_unicode('⠶')],
         '\u{2212}' => vec![decode_unicode('⠐'), decode_unicode('⠤')], // − minus sign
         '<' => vec![decode_unicode('⠈'), decode_unicode('⠣')],
         '>' => vec![decode_unicode('⠈'), decode_unicode('⠜')],
+        '⟨' | '〈' => vec![decode_unicode('⠈'), decode_unicode('⠣')], // §3.17 angle bracket less-than shape
+        '⟩' | '〉' => vec![decode_unicode('⠈'), decode_unicode('⠜')], // §3.17 angle bracket greater-than shape
         '\u{00F7}' => vec![decode_unicode('⠐'), decode_unicode('⠌')], // ÷ division
         '\u{00D7}' => vec![decode_unicode('⠐'), decode_unicode('⠦')], // × multiplication (§3.9)
         '~' => vec![decode_unicode('⠈'), decode_unicode('⠔')],        // §3.25 tilde
+        '⎵' => vec![decode_unicode('⠬')],                             // §6.2 visible space
         // §3.10 currency signs: ⠈ + the unit letter. A balanced `$…$` LaTeX math
         // span is kept out of the UEB path by `is_math_owned`, so a `$` reaching
         // here is the currency sign.
@@ -57,7 +63,10 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         // §3.16 gender signs (⠘ prefix).
         '\u{2640}' => vec![decode_unicode('⠘'), decode_unicode('⠭')], // ♀ female
         '\u{2642}' => vec![decode_unicode('⠘'), decode_unicode('⠽')], // ♂ male
-        '\u{2022}' => vec![decode_unicode('⠸'), decode_unicode('⠲')], // • bullet (§3.22)
+        '\u{2022}' => vec![decode_unicode('⠸'), decode_unicode('⠲')], // • bullet (§3.5)
+        // §3.8 copyright, registered, and trademark signs.
+        '\u{00A9}' => vec![decode_unicode('⠘'), decode_unicode('⠉')], // © copyright
+        '\u{2122}' => vec![decode_unicode('⠘'), decode_unicode('⠞')], // ™ trademark
         // §3.28 check mark: a fixed UEB symbol ⠈⠩ (dot-4 prefix + dots-146).
         '\u{2713}' => vec![decode_unicode('⠈'), decode_unicode('⠩')], // ✓
         // §4.2 standalone accent signs (the ⠘ dots-4-5 prefix): a lone acute or
@@ -72,6 +81,16 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
             decode_unicode('⠩'),
         ], // ↵ return arrow
         // §11.6 directional arrows: arrow indicator ⠰⠳ + shaft/head cells.
+        '\u{2190}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠳'),
+            decode_unicode('⠪'),
+        ], // ← leftwards arrow
+        '\u{2191}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠳'),
+            decode_unicode('⠬'),
+        ], // ↑ upwards arrow
         '\u{21D2}' => vec![
             decode_unicode('⠰'),
             decode_unicode('⠳'),
@@ -99,15 +118,44 @@ pub fn encode_symbol(c: char) -> Option<Vec<u8>> {
         '\u{00B0}' => vec![decode_unicode('⠘'), decode_unicode('⠚')], // ° degree
         '\u{00B6}' => vec![decode_unicode('⠘'), decode_unicode('⠏')], // ¶ pilcrow
         '\u{00A7}' => vec![decode_unicode('⠘'), decode_unicode('⠎')], // § section
-        // §3.26 transcriber-defined symbols (the `⠹` shape). The shared per-mille
-        // `‰` is excluded — Korean 제65항 owns that code point — but these two are
-        // English-exclusive. ฿ = ⠼⠹, ❀ = ⠈⠼⠹.
+        '\u{00AE}' => vec![decode_unicode('⠘'), decode_unicode('⠗')], // ® registered sign
+        // §3.22 shapes used as print symbols in non-technical prose.
+        '\u{25A1}' => vec![
+            decode_unicode('⠰'),
+            decode_unicode('⠫'),
+            decode_unicode('⠼'),
+            decode_unicode('⠙'),
+        ], // □ square
+        '\u{270F}' => vec![
+            decode_unicode('⠈'),
+            decode_unicode('⠫'),
+            decode_unicode('⠏'),
+            decode_unicode('⠑'),
+            decode_unicode('⠝'),
+            decode_unicode('⠉'),
+            decode_unicode('⠊'),
+            decode_unicode('⠇'),
+        ], // ✏ pencil
+        '\u{261E}' => vec![
+            decode_unicode('⠈'),
+            decode_unicode('⠫'),
+            decode_unicode('⠏'),
+            decode_unicode('⠕'),
+            decode_unicode('⠊'),
+            decode_unicode('⠝'),
+            decode_unicode('⠞'),
+        ], // ☞ point
+        // §3.26 transcriber-defined symbols (the `⠹` shape).
+        '\u{2030}' => vec![decode_unicode('⠹')], // ‰ first transcriber-defined symbol
         '\u{0E3F}' => vec![decode_unicode('⠼'), decode_unicode('⠹')], // ฿ baht
         '\u{2740}' => vec![
             decode_unicode('⠈'),
             decode_unicode('⠼'),
             decode_unicode('⠹'),
         ], // ❀
+        // §3.2 number/hash sign — the two-cell UEB `⠸⠹` (dots-456 + dots-1456).
+        // Used before an address/apartment number (`Apt. #B`, `#3 Main St.`).
+        '#' => vec![decode_unicode('⠸'), decode_unicode('⠹')],
         _ => return None,
     })
 }
@@ -120,6 +168,7 @@ mod tests {
     #[case::percent('%', vec![decode_unicode('⠨'), decode_unicode('⠴')])]
     #[case::ampersand('&', vec![decode_unicode('⠈'), decode_unicode('⠯')])]
     #[case::asterisk('*', vec![decode_unicode('⠐'), decode_unicode('⠔')])]
+    #[case::caret('^', vec![decode_unicode('⠈'), decode_unicode('⠢')])]
     // §3.17 signs of operation and comparison.
     #[case::plus('+', vec![decode_unicode('⠐'), decode_unicode('⠖')])]
     #[case::equals('=', vec![decode_unicode('⠐'), decode_unicode('⠶')])]
@@ -129,6 +178,7 @@ mod tests {
     #[case::division('\u{00F7}', vec![decode_unicode('⠐'), decode_unicode('⠌')])]
     #[case::multiplication('\u{00D7}', vec![decode_unicode('⠐'), decode_unicode('⠦')])]
     #[case::tilde('~', vec![decode_unicode('⠈'), decode_unicode('⠔')])]
+    #[case::ditto('〃', vec![decode_unicode('⠐'), decode_unicode('⠂')])]
     #[case::dollar('$', vec![decode_unicode('⠈'), decode_unicode('⠎')])]
     #[case::cent('¢', vec![decode_unicode('⠈'), decode_unicode('⠉')])]
     #[case::euro('€', vec![decode_unicode('⠈'), decode_unicode('⠑')])]
@@ -144,11 +194,15 @@ mod tests {
     #[case::female('\u{2640}', vec![decode_unicode('⠘'), decode_unicode('⠭')])]
     #[case::male('\u{2642}', vec![decode_unicode('⠘'), decode_unicode('⠽')])]
     #[case::bullet('\u{2022}', vec![decode_unicode('⠸'), decode_unicode('⠲')])]
+    #[case::copyright('\u{00A9}', vec![decode_unicode('⠘'), decode_unicode('⠉')])]
+    #[case::trademark('\u{2122}', vec![decode_unicode('⠘'), decode_unicode('⠞')])]
     #[case::check_mark('\u{2713}', vec![decode_unicode('⠈'), decode_unicode('⠩')])]
     // §4.2 standalone accent signs and §11.6 return arrow.
     #[case::acute('\u{00B4}', vec![decode_unicode('⠘'), decode_unicode('⠌')])]
     #[case::grave('\u{0060}', vec![decode_unicode('⠘'), decode_unicode('⠡')])]
     #[case::return_arrow('\u{21B5}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠲'), decode_unicode('⠩')])]
+    #[case::leftwards_arrow('\u{2190}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠪')])]
+    #[case::upwards_arrow('\u{2191}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠬')])]
     #[case::rightwards_double_arrow('\u{21D2}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠶'), decode_unicode('⠶'), decode_unicode('⠕')])]
     #[case::left_right_arrow('\u{2194}', vec![decode_unicode('⠰'), decode_unicode('⠳'), decode_unicode('⠺'), decode_unicode('⠗'), decode_unicode('⠕')])]
     #[case::circled_plus('\u{2295}', vec![decode_unicode('⠰'), decode_unicode('⠫'), decode_unicode('⠿'), decode_unicode('⠪'), decode_unicode('⠐'), decode_unicode('⠖')])]
@@ -157,8 +211,15 @@ mod tests {
     #[case::pilcrow('\u{00B6}', vec![decode_unicode('⠘'), decode_unicode('⠏')])]
     #[case::section('\u{00A7}', vec![decode_unicode('⠘'), decode_unicode('⠎')])]
     // §3.26 transcriber-defined symbols.
+    #[case::per_mille('\u{2030}', vec![decode_unicode('⠹')])]
     #[case::baht('\u{0E3F}', vec![decode_unicode('⠼'), decode_unicode('⠹')])]
     #[case::floral('\u{2740}', vec![decode_unicode('⠈'), decode_unicode('⠼'), decode_unicode('⠹')])]
+    // §3.22 shapes.
+    #[case::square('\u{25A1}', vec![decode_unicode('⠰'), decode_unicode('⠫'), decode_unicode('⠼'), decode_unicode('⠙')])]
+    #[case::pencil('\u{270F}', vec![decode_unicode('⠈'), decode_unicode('⠫'), decode_unicode('⠏'), decode_unicode('⠑'), decode_unicode('⠝'), decode_unicode('⠉'), decode_unicode('⠊'), decode_unicode('⠇')])]
+    #[case::pointing_hand('\u{261E}', vec![decode_unicode('⠈'), decode_unicode('⠫'), decode_unicode('⠏'), decode_unicode('⠕'), decode_unicode('⠊'), decode_unicode('⠝'), decode_unicode('⠞')])]
+    // §3.2 number/hash sign — used before an address/apartment number.
+    #[case::number_sign('#', vec![decode_unicode('⠸'), decode_unicode('⠹')])]
     fn encodes_known_symbols(#[case] c: char, #[case] expected: Vec<u8>) {
         assert_eq!(encode_symbol(c), Some(expected));
     }

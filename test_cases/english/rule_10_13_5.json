@@ -1,38 +1,38 @@
 [
   {
-    "input": "\"Comin'?\"",
-    "internal": "8,com-  in'80",
-    "expected": "3832921133600102943852",
-    "unicode": "⠦⠠⠉⠕⠍⠤⠀⠀⠊⠝⠄⠦⠴"
+    "input": "\"Com\nin'?\"",
+    "internal": "8,com-\nin'80",
+    "expected": "38329211336\n102943852",
+    "unicode": "⠦⠠⠉⠕⠍⠤\n⠊⠝⠄⠦⠴"
   },
   {
-    "input": "(Disentangle",
-    "internal": "\"<,45-  tan gle",
-    "expected": "1635325034360030129027717",
-    "unicode": "⠐⠣⠠⠲⠢⠤⠀⠀⠞⠁⠝⠀⠛⠇⠑"
+    "input": "(Disen\ntangle",
+    "internal": "\"<,45-\ntangle",
+    "expected": "163532503436\n3012927717",
+    "unicode": "⠐⠣⠠⠲⠢⠤\n⠞⠁⠝⠛⠇⠑"
   },
   {
-    "input": "disinherit",
-    "internal": "4in-  h]it",
-    "expected": "501029360019591030",
-    "unicode": "⠲⠊⠝⠤⠀⠀⠓⠻⠊⠞"
+    "input": "disin\nherit",
+    "internal": "4in-\nh]it",
+    "expected": "50102936\n19591030",
+    "unicode": "⠲⠊⠝⠤\n⠓⠻⠊⠞"
   },
   {
-    "input": "enjoy",
-    "internal": "en-  joy",
-    "expected": "17293600262161",
-    "unicode": "⠑⠝⠤⠀⠀⠚⠕⠽"
+    "input": "en\njoy",
+    "internal": "en-\njoy",
+    "expected": "172936\n262161",
+    "unicode": "⠑⠝⠤\n⠚⠕⠽"
   },
   {
-    "input": "linen...",
-    "internal": "l9-  en444",
-    "expected": "72036001729505050",
-    "unicode": "⠇⠔⠤⠀⠀⠑⠝⠲⠲⠲"
+    "input": "lin\nen...",
+    "internal": "l9-\nen444",
+    "expected": "72036\n1729505050",
+    "unicode": "⠇⠔⠤\n⠑⠝⠲⠲⠲"
   },
   {
-    "input": "shortenin'",
-    "internal": "%ort-  5in'",
-    "expected": "4121233036003410294",
-    "unicode": "⠩⠕⠗⠞⠤⠀⠀⠢⠊⠝⠄"
+    "input": "short\nenin'",
+    "internal": "%ort-\n5in'",
+    "expected": "4121233036\n3410294",
+    "unicode": "⠩⠕⠗⠞⠤\n⠢⠊⠝⠄"
   }
 ]

@@ -82,6 +82,7 @@
   },
   {
     "input": "1er",
+    "context": "english",
     "internal": "#a;er",
     "expected": "601481723",
     "unicode": "⠼⠁⠰⠑⠗"
@@ -106,7 +107,6 @@
   },
   {
     "input": "(416) 486-2500",
-    "context": "english",
     "internal": "\"<#daf\"> #dhf-#bejj",
     "expected": "16356025111162806025191136603172626",
     "unicode": "⠐⠣⠼⠙⠁⠋⠐⠜⠀⠼⠙⠓⠋⠤⠼⠃⠑⠚⠚"

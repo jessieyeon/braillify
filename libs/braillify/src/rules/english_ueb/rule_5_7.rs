@@ -103,14 +103,26 @@ pub fn needs_grade1_indicator(tokens: &[EnglishToken], i: usize, explicit_englis
         return match tokens.get(i + 2) {
             None => true,
             Some(EnglishToken::Word(w)) => is_contraction_suffix(w),
+            // §5.7.1 example `'n' Ma` — a trailing apostrophe followed by a space
+            // (or terminal punctuation) closes an apostrophe-wrapped lone-letter
+            // fragment (`'n'`), so the letter still gets the grade-1 indicator.
+            Some(EnglishToken::Space) => true,
+            Some(EnglishToken::Symbol('.' | ',' | ':' | ';' | '!' | '?' | '\u{2026}')) => true,
             _ => false,
         };
     }
+    // §5.7.1 example `'t?` — a leading contraction apostrophe puts the letter in
+    // a genuinely lone-word context, so a terminal `?` or `!` (excluded from the
+    // general right-transparent set to preserve math factorial `x!`) IS transparent
+    // here and the letter takes the grade-1 indicator.
+    let after_apostrophe = matches!(prev, Some(EnglishToken::Symbol('\'')));
+    let right_transparent =
+        |c: char| is_right_transparent(c) || (after_apostrophe && matches!(c, '!' | '?'));
     // Right boundary: strip §2.6.3 closers/terminal punctuation, then require a
     // §2.6.1 boundary.
     let mut r = i;
     while r + 1 < tokens.len()
-        && matches!(&tokens[r + 1], EnglishToken::Symbol(c) if is_right_transparent(*c))
+        && matches!(&tokens[r + 1], EnglishToken::Symbol(c) if right_transparent(*c))
     {
         r += 1;
     }

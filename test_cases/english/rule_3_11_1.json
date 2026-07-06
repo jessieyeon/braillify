@@ -38,6 +38,7 @@
   },
   {
     "input": "33°51′35.9″S",
+    "context": "english",
     "internal": "#cc^j#ea7#ce4i77,s",
     "expected": "60992426601715460917501054543214",
     "unicode": "⠼⠉⠉⠘⠚⠼⠑⠁⠶⠼⠉⠑⠲⠊⠶⠶⠠⠎"

@@ -1,12 +1,14 @@
 [
   {
     "input": "Wᵐ",
+    "context": "english",
     "internal": ",w;9m",
     "expected": "3258482013",
     "unicode": "⠠⠺⠰⠔⠍"
   },
   {
     "input": "H₂O",
+    "context": "english",
     "internal": ",h;5#b,o",
     "expected": "321948346033221",
     "unicode": "⠠⠓⠰⠢⠼⠃⠠⠕"
@@ -19,6 +21,7 @@
   },
   {
     "input": "4m²",
+    "context": "english",
     "internal": "#dm9#b",
     "expected": "60251320603",
     "unicode": "⠼⠙⠍⠔⠼⠃"

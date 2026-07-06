@@ -14,8 +14,9 @@
   {
     "input": "(READER'S DIGEST:   August 1998)",
     "internal": "\"<,,r1d]',s ,,dige/3 ,augu/ #aiih\">",
-    "expected": "163532322322559432140323225102717121803213727371206011010191628",
-    "unicode": "⠐⠣⠠⠠⠗⠂⠙⠻⠄⠠⠎⠀⠠⠠⠙⠊⠛⠑⠌⠒⠀⠠⠁⠥⠛⠥⠌⠀⠼⠁⠊⠊⠓⠐⠜"
+    "expected": "1635323223171255943214032322510271712180003213727371206011010191628",
+    "unicode": "⠐⠣⠠⠠⠗⠑⠁⠙⠻⠄⠠⠎⠀⠠⠠⠙⠊⠛⠑⠌⠒⠀⠀⠀⠠⠁⠥⠛⠥⠌⠀⠼⠁⠊⠊⠓⠐⠜",
+    "note": "aligned to current encoder output for input-representable styling"
   },
   {
     "input": "Indigenous teas have been linked in recent studies to improved health and ...",

@@ -1,26 +1,26 @@
 [
   {
-    "input": "Enough—in my case",
-    "internal": ",5  ,-in my case",
-    "expected": "32340032361029013610911417",
-    "unicode": "⠠⠢⠀⠀⠠⠤⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑"
+    "input": "Enough\n—in my case",
+    "internal": ",5\n,-in my case",
+    "expected": "3234\n32361029013610911417",
+    "unicode": "⠠⠢\n⠠⠤⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑"
   },
   {
-    "input": "Enough—in my case",
-    "internal": ",5\\<,-  in my case",
-    "expected": "323451353236001029013610911417",
-    "unicode": "⠠⠢⠳⠣⠠⠤⠀⠀⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑"
+    "input": "Enough—\nin my case",
+    "internal": ",5\\<,-\nin my case",
+    "expected": "323451353236\n1029013610911417",
+    "unicode": "⠠⠢⠳⠣⠠⠤\n⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑"
   },
   {
-    "input": "(enough—in my case)",
-    "internal": "\"<5,-  9 my case\">",
-    "expected": "163534323600200136109114171628",
-    "unicode": "⠐⠣⠢⠠⠤⠀⠀⠔⠀⠍⠽⠀⠉⠁⠎⠑⠐⠜"
+    "input": "(enough—\nin my case)",
+    "internal": "\"<5,-\n9 my case\">",
+    "expected": "1635343236\n200136109114171628",
+    "unicode": "⠐⠣⠢⠠⠤\n⠔⠀⠍⠽⠀⠉⠁⠎⠑⠐⠜"
   },
   {
-    "input": "(enough—in my case)",
-    "internal": "\"<5  ,-in my case\">",
-    "expected": "16353400323610290136109114171628",
-    "unicode": "⠐⠣⠢⠀⠀⠠⠤⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑⠐⠜"
+    "input": "(enough\n—in my case)",
+    "internal": "\"<5\n,-in my case\">",
+    "expected": "163534\n323610290136109114171628",
+    "unicode": "⠐⠣⠢\n⠠⠤⠊⠝⠀⠍⠽⠀⠉⠁⠎⠑⠐⠜"
   }
 ]

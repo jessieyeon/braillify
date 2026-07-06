@@ -129,7 +129,8 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
 
     // 여는 대괄호: ⠐⠘⠷ = 16, 24, 55 | 닫는 대괄호: ⠘⠾ = 24, 62
     // 여는 빗금: ⠐⠘⠌ = 16, 24, 12 | 닫는 빗금: ⠘⠌ = 24, 12
-    for ch in text.chars() {
+    let mut chars = text.chars().peekable();
+    while let Some(ch) = chars.next() {
         match ch {
             '[' => {
                 flush_korean(&mut korean_buf, &mut out)?;
@@ -154,8 +155,29 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
                 }
             }
             ' ' => {
+                if (bracket_open || slash_open) && matches!(chars.peek(), Some('(')) {
+                    continue;
+                }
                 flush_korean(&mut korean_buf, &mut out)?;
                 out.push(0);
+            }
+            '(' if bracket_open || slash_open => {
+                flush_korean(&mut korean_buf, &mut out)?;
+                let mut text = String::from("(");
+                for next in chars.by_ref() {
+                    text.push(next);
+                    if next == ')' {
+                        break;
+                    }
+                }
+                out.extend_from_slice(&[48, 48]);
+                out.push(0);
+                out.extend(encode(text.as_str())?);
+                out.push(0);
+                out.extend_from_slice(&[16, 48, 6]);
+                if matches!(chars.peek(), Some(' ')) {
+                    chars.next();
+                }
             }
             _ if bracket_open || slash_open => {
                 // 묶음 안: IPA 음운/영문 점자 변환.
@@ -183,11 +205,20 @@ pub(crate) fn encode_ipa_char(ch: char) -> Option<Vec<u8>> {
     // (현재 본 라이브러리가 인식하는 음운 기호 부분 집합.
     //  새 기호 추가 시 PDF 표에 근거해 직접 추가한다.)
     match ch {
-        'ə' => Some(vec![34]),     // ⠢ (점 2+6)
-        'ː' => Some(vec![18]),     // ⠒ (점 2+5) — 장음 표시
-        'θ' => Some(vec![40, 57]), // ⠨⠹ (점 4+6, 점 1+4+5+6)
-        'ŋ' => Some(vec![43]),     // ⠫ (점 1+2+4+6)
-        'æ' => Some(vec![41]),     // ⠩ (점 1+4+6)
+        'ə' => Some(vec![34]),       // ⠢ (점 2+6)
+        'ː' => Some(vec![18]),       // ⠒ (점 2+5) — 장음 표시
+        'θ' => Some(vec![40, 57]),   // ⠨⠹ (점 4+6, 점 1+4+5+6)
+        'ŋ' => Some(vec![43]),       // ⠫ (점 1+2+4+6)
+        'æ' => Some(vec![41]),       // ⠩ (점 1+4+6)
+        'ɔ' => Some(vec![35]),       // ⠣ open o — UEB §14.4 table.
+        'ʃ' => Some(vec![49]),       // ⠱ esh — UEB §14.4 table.
+        'ð' => Some(vec![59]),       // ⠻ edh — UEB §14.4 table.
+        'ɪ' => Some(vec![12]),       // ⠌ small capital i — UEB §14.4 table.
+        'ɹ' => Some(vec![60]),       // ⠼ turned r — UEB §14.4 table.
+        'ɾ' => Some(vec![22, 23]),   // ⠖⠗ fish-hook r — UEB §14.4 table.
+        'ˈ' => Some(vec![56, 3]),    // ⠸⠃ superior stress — UEB §14.4 table.
+        'ˌ' => Some(vec![56, 6]),    // ⠸⠆ inferior stress — UEB §14.4 table.
+        'č' => Some(vec![3, 8, 38]), // ⠉⠈⠦ c with wedge — UEB §14.4 table.
         _ => {
             // 기본 알파벳/숫자는 일반 영어 점자 변환을 사용.
             if let Ok(code) = english::encode_english(ch) {
@@ -203,6 +234,10 @@ pub(crate) fn encode_ipa_char(ch: char) -> Option<Vec<u8>> {
 mod tests {
     use super::*;
 
+    fn cells(s: &str) -> Vec<u8> {
+        s.chars().map(crate::unicode::decode_unicode).collect()
+    }
+
     /// ipa:108 — IPA input WITHOUT any Korean char triggers the else branch
     /// in flush_korean: `encode(buf.as_str())?` (no with_encoder wrap).
     #[test]
@@ -210,6 +245,22 @@ mod tests {
         // Pure English + IPA bracket, no Korean anywhere.
         let _ = encode_ipa("think [θɪŋk]");
         let _ = encode_ipa("[θ]/æ/");
+    }
+
+    #[rstest::rstest]
+    #[case::edh('ð', vec![59])]
+    #[case::open_o('ɔ', vec![35])]
+    #[case::primary_stress('ˈ', vec![56, 3])]
+    #[case::fish_hook_r('ɾ', vec![22, 23])]
+    #[case::c_wedge('č', vec![3, 8, 38])]
+    fn encodes_ueb_14_4_ipa_table_chars(#[case] ch: char, #[case] expected: Vec<u8>) {
+        assert_eq!(encode_ipa_char(ch), Some(expected));
+    }
+
+    #[test]
+    fn bracketed_ipa_temporarily_switches_to_ueb_for_parentheses() {
+        let encoded = encode_ipa("[ðə (garbled section) dɪs]").expect("IPA should encode");
+        assert_eq!(encoded, cells("⠐⠘⠷⠻⠢⠰⠰⠀⠐⠣⠛⠜⠃⠇⠫⠀⠎⠑⠉⠰⠝⠐⠜⠀⠐⠰⠆⠙⠌⠎⠘⠾"));
     }
 
     /// ipa:196 — `encode_ipa_char` returns None for chars that aren't in the

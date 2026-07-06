@@ -15,6 +15,9 @@ pub fn encode_punctuation(c: char) -> Option<Vec<u8>> {
         ',' => vec![decode_unicode('⠂')],
         '?' => vec![decode_unicode('⠦')],
         '!' => vec![decode_unicode('⠖')],
+        // §13.5 and §13.6/§14 Spanish inverted punctuation signs.
+        '¿' => vec![decode_unicode('⠢')],
+        '¡' => vec![decode_unicode('⠖')],
         ';' => vec![decode_unicode('⠆')],
         ':' => vec![decode_unicode('⠒')],
         '-' => vec![decode_unicode('⠤')],

@@ -94,9 +94,9 @@ pub(crate) fn parse_math_expression_with_math_mode(
             return parse_math_expression_with_math_mode(&format!("{prefix}/1"), math_mode_active);
         }
 
-        if let Some(rest) = input.strip_prefix("1̲/") {
-            let body = rest.trim();
-            if body.starts_with('(') && body.ends_with(')') {
+        if let Some((numerator, denominator)) = input.split_once("̲/") {
+            let body = denominator.trim();
+            if !numerator.is_empty() && body.starts_with('(') && body.ends_with(')') {
                 let inner = &body[1..body.len() - 1];
                 let mut tokens = Vec::new();
                 tokens.push(MathToken::OpenParen(BracketKind::Grouping));
@@ -106,7 +106,10 @@ pub(crate) fn parse_math_expression_with_math_mode(
                 )?);
                 tokens.push(MathToken::CloseParen(BracketKind::Grouping));
                 tokens.push(MathToken::Operator('/'));
-                tokens.push(MathToken::Number("1".to_string()));
+                tokens.extend(parse_math_expression_with_math_mode(
+                    numerator,
+                    math_mode_active,
+                )?);
                 return Ok(tokens);
             }
         }

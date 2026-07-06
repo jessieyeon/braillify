@@ -45,6 +45,7 @@
   },
   {
     "input": "7−5 = 2",
+    "context": "english",
     "internal": "#g\"-#e \"7 #b",
     "expected": "602716366017016540603",
     "unicode": "⠼⠛⠐⠤⠼⠑⠀⠐⠶⠀⠼⠃"

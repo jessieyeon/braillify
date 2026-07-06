@@ -1,6 +1,7 @@
 [
   {
     "input": "180cm",
+    "context": "korean",
     "internal": "#ahj0cm4",
     "expected": "60119265291350",
     "unicode": "⠼⠁⠓⠚⠴⠉⠍⠲",

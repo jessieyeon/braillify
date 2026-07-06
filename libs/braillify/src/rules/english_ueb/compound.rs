@@ -53,6 +53,35 @@ const SEAM_DENYLIST: &[&str] = &["nightingale", "sheriff"];
 const SUPPLEMENTAL: &[(&str, &[usize])] = &[
     ("twofold", &[3]),    // two·fold (numeral + `-fold`)
     ("insofar", &[2, 4]), // in·so·far (fixed adverbial compound)
+    // RUEB 2024 §10.4.1/§10.11 printed compounds and prefix seams whose seam is
+    // morphologically visible but absent from CompoundPiece/CMUdict hyphenation.
+    ("deshabille", &[3]), // des·habille — aspirated h, no `sh`
+    ("stalingrad", &[6]), // Stalin·grad — no `ing`
+    ("viceregal", &[4]),  // vice·regal — no `er`
+    ("motheaten", &[4]),  // moth·eaten — suppress `the`, allow `ea` in eaten
+    ("newhaven", &[3]),   // New·haven — aspirated h, no `wh`
+    ("sontheim", &[4]),   // Sont·heim — aspirated h, no `the`
+    ("sontheimer", &[4]),
+    ("mishap", &[3]),               // mis·hap — aspirated h, no `sh`
+    ("chisholm", &[4]),             // Chis·holm — aspirated h, no `sh`
+    ("kilowatt", &[4]),             // kilo·watt — no `ow`
+    ("chifforobe", &[5]),           // chiff·orobe — no `for`, keep medial `ff`
+    ("moongod", &[4]),              // moon·god — no `ong`
+    ("nongaseous", &[3]),           // non·gaseous — no `ong`
+    ("pityard", &[4]),              // pity·ard — no `ity`
+    ("electroencephalogram", &[7]), // electro·encephalogram — no initial `ence`
+    ("disingenuous", &[3]),         // dis·ingenuous — component-initial `ing` spells `in`+g
+    ("antitype", &[4]),             // anti·type — no `ity`
+    ("cofounder", &[2]),            // co·founder — no `of`
+    ("filofax", &[4]),              // filo·fax — no `of`
+    ("infrared", &[5]),             // infra·red — no `ar`
+    ("prounion", &[3]),             // pro·union — no `ou`
+    ("riboflavin", &[4]),           // ribo·flavin — no `of`
+    ("styrofoam", &[5]),            // styro·foam — no `of`
+    ("indiarubber", &[5]),          // india·rubber — no `ar`
+    ("forenoon", &[4]),             // fore·noon — §10.6.8 spells `en` across seam
+    ("doityourself", &[2, 4]),      // do·it·yourself — §10.1.1 printed compound, no `ity`
+    ("brailledocuments", &[7]),     // braille·documents — file-path compound, no `ed` bridge
 ];
 
 /// Greek/Latin combining forms that productively build solid compounds with a free

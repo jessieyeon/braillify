@@ -24,9 +24,8 @@
 //! better than a wrong one), except where the candidate plainly crosses a
 //! real-word+real-word compound seam, which defaults to *spell out*.
 //!
-//! Known accepted false negative: `dog·gone` looks like a transparent `dog`+`gone`
-//! compound but is lexicalised; with no surface signal separating it from
-//! `dumb·bell`, it spells out (a miss, never a wrong contraction).
+//! RUEB 2024 §10.6.5 contracts lexicalised doubled forms such as `doggone` even
+//! when their spelling historically resembles a compound.
 
 use super::contraction::{ContractionMatch, ContractionRule};
 use super::pronunciation::PronunciationProvider;
@@ -52,6 +51,11 @@ const CONSONANT_DOUBLING_SUFFIXES: &[&str] = &["ing", "ed", "er", "est", "y", "i
 /// spells out though it is not a free-standing dictionary word (`lime·ade`).
 const ROOTLIKE_A_FORMS: &[&str] = &["ade"];
 
+/// §10.6.7 productive prefixes whose final `e` can be followed by an `a`-initial
+/// remainder, so `ea` bridges the prefix boundary and spells out (`de·activate`,
+/// `ge·anticline`, `pre·amble`, `re·action`).
+const EA_BRIDGING_PREFIXES: &[&str] = &["de", "fore", "ge", "pre", "re"];
+
 /// Morpheme-gated §10.6.5/§10.11 middle lower groupsign rule.
 pub struct MiddleLowerGroupsignRule {
     provider: Box<dyn PronunciationProvider>,
@@ -69,21 +73,30 @@ impl MiddleLowerGroupsignRule {
     /// derivational-suffix seam (§10.11.7) keeps the sign and is checked first.
     fn ea_allowed(&self, word: &[char], pos: usize) -> bool {
         let b = pos + 1;
-        if outranked_at(word, b) {
-            return false;
-        }
         if self.is_ea_suffix_seam(word, b) {
             return true;
         }
-        !self.is_ea_root_seam(word, b)
+        let derived_compound_seams = self.derived_ea_compound_seams(word, pos);
+        if bridges_known_compound_seam(word, pos, 2)
+            || bridges_any_seam(&derived_compound_seams, pos, 2)
+        {
+            return false;
+        }
+        if sign_outranks_ea(word, b, &derived_compound_seams) {
+            return false;
+        }
+        if starts_at_known_compound_component(word, pos) {
+            return true;
+        }
+        !self.is_ea_prefix_seam(word, b)
     }
 
-    /// Doubled `bb cc ff gg` (§10.6.5/§10.11): contract by default; spell out on a
-    /// §10.10 overlap or an unhyphenated-compound seam (§10.11.1). A doubling
-    /// suffix (`begg·ing`) keeps the sign.
+    /// Doubled `bb cc ff gg` (§10.6.5/§10.11): contract by default; spell out on an
+    /// unhyphenated-compound seam (§10.11.1). A doubling suffix (`begg·ing`) keeps
+    /// the sign. §10.10.5 examples such as `egghead` and `effulgent` keep the
+    /// doubled lower groupsign even though `gh`/`ful` also begin at the second letter.
     fn doubled_allowed(&self, word: &[char], pos: usize) -> bool {
-        let b = pos + 1;
-        if outranked_at(word, b) {
+        if strong_sign_outranks_doubled(word, pos + 1) {
             return false;
         }
         if self.is_doubled_before_suffix(word, pos) {
@@ -101,25 +114,63 @@ impl MiddleLowerGroupsignRule {
             && (self.is_word(&word[..b]) || self.is_word(word))
     }
 
-    /// §10.11.1/§10.11.4: the `a` OPENS a root the `ea` bridges into — `word[b..]`
-    /// is the combining form `ade`, or it is a real root word of ≥4 letters that
-    /// the `a` does not instead *close*. The `a` closes a leading word only when
-    /// `word[..=b]` is a word AND the remainder `word[b+1..]` is itself a real
-    /// continuation — an intra-component `ea` (`sea|shore`, `area|wide`). That two
-    /// part test is the seam discriminator: it keeps `sea·shore` contracted while
-    /// `re·action`/`ge·anticline` spell out, because `rea`+`ction`/`gea`+`nticline`
-    /// have no real continuation. A short coda (`cave·at`, `be·at`) is < 4 → kept.
-    /// Over-suppression of a rare monomorpheme is a safe miss, never a wrong sign.
-    fn is_ea_root_seam(&self, word: &[char], b: usize) -> bool {
+    /// §10.11.4: the `a` opens a remainder after a productive prefix whose final
+    /// letter is the `e` of the candidate (`re·action`, `pre·amble`). Free-word
+    /// compounds are handled by the compound-seam oracle before this check, so
+    /// monomorphemes whose `a...` tail happens to be a CMUdict word (`speak·er`,
+    /// `tore·ador`) keep the `ea` sign.
+    fn is_ea_prefix_seam(&self, word: &[char], b: usize) -> bool {
         let right = &word[b..];
+        // §10.6.5: `ea` is retained in ordinary roots such as `reach`/`reaching`.
+        // The `re-` prefix seam restriction only applies when the `a` opens a new
+        // root (`re·act`, `pre·amble`), not when `rea` is the root spelling.
+        if right.starts_with(&['a', 'c', 'h']) {
+            return false;
+        }
         if ROOTLIKE_A_FORMS.contains(&collect(right).as_str()) {
             return true;
         }
-        if right.len() < 4 || !self.is_word(right) {
+        let prefix = collect(&word[..b]);
+        if !EA_BRIDGING_PREFIXES.contains(&prefix.as_str()) {
             return false;
         }
-        let a_closes_leading_word = self.is_word(&word[..=b]) && self.is_word(&word[b + 1..]);
-        !a_closes_leading_word
+        right.len() >= 4 && self.is_word(right)
+    }
+
+    /// Additional solid-compound seams recover obvious free-word compounds not in
+    /// the static source table. The right component must carry its own primary
+    /// stress in CMUdict; this rejects bound/foreign tails such as `tore·ador` while
+    /// accepting compounds like `wise·acre` and `flea·ridden`.
+    fn derived_ea_compound_seams(&self, word: &[char], pos: usize) -> Vec<usize> {
+        let b = pos + 1;
+        let mut seams = Vec::with_capacity(2);
+        if b >= 3 && self.is_word(&word[..b]) && self.is_compound_component(&word[b..]) {
+            seams.push(b);
+        }
+        if b + 1 < word.len()
+            && self.is_word(&word[..=b])
+            && self.is_compound_component(&word[b + 1..])
+        {
+            seams.push(b + 1);
+        }
+        seams
+    }
+
+    fn is_compound_component(&self, chars: &[char]) -> bool {
+        let text = collect(chars);
+        if ROOTLIKE_A_FORMS.contains(&text.as_str()) {
+            return true;
+        }
+        if chars.len() < 4 {
+            return false;
+        }
+        let pronunciations = self.provider.pronunciations(&text);
+        !pronunciations.is_empty()
+            && pronunciations.iter().all(|pron| {
+                pron.iter()
+                    .find(|phoneme| phoneme.is_vowel())
+                    .is_some_and(|phoneme| phoneme.stress == Some(1))
+            })
     }
 
     /// A doubled consonant added by a productive suffix is intra-stem: the stem
@@ -128,7 +179,10 @@ impl MiddleLowerGroupsignRule {
     fn is_doubled_before_suffix(&self, word: &[char], pos: usize) -> bool {
         let base = &word[..=pos];
         let after = collect(&word[pos + 2..]);
-        self.is_word(base) && CONSONANT_DOUBLING_SUFFIXES.iter().any(|s| after.starts_with(s))
+        self.is_word(base)
+            && CONSONANT_DOUBLING_SUFFIXES
+                .iter()
+                .any(|s| after.starts_with(s))
     }
 
     /// §10.11.1: the doubled pair bridges an unhyphenated compound — a real head
@@ -137,15 +191,30 @@ impl MiddleLowerGroupsignRule {
     /// (`arc|cosine`, `arc|tangent`). The ≥3 head floor keeps the silent assimilated
     /// prefix of `ac·count` part of one word; the ≥4-real-root / ≥5-long-tail floors
     /// keep a monomorphemic short coda contracted (`cab·bage`, `bub·ble`, `rib·bon`).
-    /// Over-suppressing a rare long monomorpheme is a safe miss, never a wrong sign;
-    /// `dog|gone` is the one accepted false negative (a lexicalised compound).
+    /// A recorded whole word whose later vowels are all unstressed is treated as a
+    /// lexicalised doubled form, not a productive compound: RUEB 2024 §10.6.5's
+    /// `doggone` example contracts `gg` because the second written `g` no longer
+    /// opens an independently stressed component.
     fn is_doubled_compound_seam(&self, word: &[char], pos: usize) -> bool {
         let left = &word[..=pos];
         let right = &word[pos + 1..];
         if left.len() < 3 || !self.is_word(left) {
             return false;
         }
+        if self.is_lexicalized_doubled_form(word) {
+            return false;
+        }
         (right.len() >= 4 && self.is_word(right)) || right.len() >= 5
+    }
+
+    fn is_lexicalized_doubled_form(&self, word: &[char]) -> bool {
+        let pronunciations = self.provider.pronunciations(&collect(word));
+        !pronunciations.is_empty()
+            && pronunciations.iter().all(|pron| {
+                let mut vowels = pron.iter().filter(|phoneme| phoneme.is_vowel());
+                let _first_stressed_head = vowels.next();
+                vowels.all(|phoneme| phoneme.stress == Some(0))
+            })
     }
 
     /// True iff `chars` form a word recorded in the pronunciation source.
@@ -158,13 +227,68 @@ fn collect(chars: &[char]) -> String {
     chars.iter().collect()
 }
 
+fn compound_seams_for(word: &[char]) -> Vec<usize> {
+    super::compound::compound_seams(&collect(word))
+}
+
+fn starts_at_known_compound_component(word: &[char], pos: usize) -> bool {
+    compound_seams_for(word).contains(&pos)
+}
+
+fn bridges_known_compound_seam(word: &[char], pos: usize, consumed: usize) -> bool {
+    bridges_any_seam(&compound_seams_for(word), pos, consumed)
+}
+
+fn bridges_any_seam(seams: &[usize], pos: usize, consumed: usize) -> bool {
+    seams
+        .iter()
+        .any(|&seam| pos < seam && seam < pos + consumed)
+}
+
 /// §10.10 preference: whether a strong contraction (§10.3), strong groupsign
 /// (§10.4) or final-letter groupsign (§10.8) begins at `at` — any of which
 /// outranks a §10.6 lower groupsign and must claim the shared letter.
-fn outranked_at(word: &[char], at: usize) -> bool {
+/// Shared with the 제74항 digital-notation path so URL/email words apply the
+/// same preference (`learn` → `l e ar n`, never `l ea r n`).
+pub(crate) fn outranked_at(word: &[char], at: usize) -> bool {
     StrongContractionRule.try_match(word, at).is_some()
         || StrongGroupsignRule.try_match(word, at).is_some()
         || FinalGroupsignRule.try_match(word, at).is_some()
+}
+
+fn sign_outranks_ea(word: &[char], at: usize, derived_compound_seams: &[usize]) -> bool {
+    [
+        StrongContractionRule.try_match(word, at),
+        StrongGroupsignRule.try_match(word, at),
+        FinalGroupsignRule.try_match(word, at),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|m| {
+        !bridges_known_compound_seam(word, at, m.consumed)
+            && !bridges_any_seam(derived_compound_seams, at, m.consumed)
+    })
+}
+
+/// §10.10.5: a strong contraction/groupsign beginning at the second letter of a
+/// doubled lower groupsign normally wins (`a f·for d`, `ba c·chanal`). It does
+/// not win when that competing sign would itself bridge a known compound seam —
+/// then §10.11 has already barred it (`egg·head`, `chiff·orobe`) — and final-letter
+/// groupsigns do not outrank doubled lower signs (`effulgent`).
+fn strong_sign_outranks_doubled(word: &[char], at: usize) -> bool {
+    [
+        StrongContractionRule.try_match(word, at),
+        StrongGroupsignRule.try_match(word, at),
+    ]
+    .into_iter()
+    .flatten()
+    .any(|m| !bridges_compound_seam(word, at, m.consumed))
+}
+
+fn bridges_compound_seam(word: &[char], pos: usize, consumed: usize) -> bool {
+    compound_seams_for(word)
+        .iter()
+        .any(|&seam| pos < seam && seam < pos + consumed)
 }
 
 impl ContractionRule for MiddleLowerGroupsignRule {
@@ -175,7 +299,10 @@ impl ContractionRule for MiddleLowerGroupsignRule {
             (a, b) if a == b => self.doubled_allowed(word, pos),
             _ => false,
         };
-        allowed.then_some(m)
+        allowed.then_some(ContractionMatch {
+            protect_span: true,
+            ..m
+        })
     }
 }
 
@@ -210,6 +337,11 @@ mod tests {
     #[case::genealogy("genealogy", 3)] // gene·alogy — no root seam
     #[case::read("read", 1)] // monomorpheme — `ad` < 4 → not a root seam
     #[case::ready("ready", 1)] // monomorpheme — `ady` < 4 → not a root seam
+    #[case::leader("leader", 1)] // §10.6.5: `ea` keeps its sound in a monomorpheme
+    #[case::motheaten("motheaten", 4)] // §10.6.5: `ea` keeps its sound in eaten
+    #[case::toreador("toreador", 3)] // §10.6.5: `ea` keeps its sound
+    #[case::flearidden("flearidden", 2)] // §10.11.1: flea·ridden keeps `ea`
+    #[case::tearoom("tearoom", 1)] // §10.11.1: tea·room keeps `ea`
     fn ea_contracts(#[case] word: &str, #[case] pos: usize) {
         assert_eq!(try_at(word, pos), Some((vec![decode_unicode('⠂')], 2)));
     }
@@ -223,6 +355,7 @@ mod tests {
     #[case::reaction("reaction", 1)] // re|action — the `a` opens `action`
     #[case::preamble("preamble", 3)] // pre|amble — the `a` opens `amble`
     #[case::geanticline("geanticline", 1)] // ge|anticline — the `a` opens `anticline`
+    #[case::wiseacre("wiseacre", 3)] // wise|acre — compound seam
     #[case::bear("bear", 1)] // ear → strong groupsign `ar`
     #[case::meander("meander", 1)] // eand → strong contraction `and`
     #[case::vengeance("vengeance", 4)] // eance → final groupsign `ance`
@@ -236,6 +369,8 @@ mod tests {
     #[case::accept("accept", 1, '⠒')] // `ac` < 3 → one word
     #[case::account("account", 1, '⠒')] // `ac` < 3 → one word
     #[case::begging("begging", 2, '⠶')] // beg + g + ing — doubling suffix
+    #[case::doggone("doggone", 2, '⠶')] // §10.6.5 lexicalised doubled form
+    #[case::chifforobe("chifforobe", 3, '⠖')] // §10.6.5 keeps medial `ff`
     #[case::rabbi("rabbi", 2, '⠆')] // mid-stem
     #[case::abbe("abbé", 1, '⠆')] // accented neighbour, mid-stem
     fn doubled_contracts(#[case] word: &str, #[case] pos: usize, #[case] cell: char) {

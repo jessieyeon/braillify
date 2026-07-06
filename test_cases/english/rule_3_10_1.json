@@ -70,6 +70,7 @@
   },
   {
     "input": "$hop for $aving$",
+    "context": "english",
     "internal": "@shop = @sav+@s",
     "expected": "814192115063081413944814",
     "unicode": "⠈⠎⠓⠕⠏⠀⠿⠀⠈⠎⠁⠧⠬⠈⠎"

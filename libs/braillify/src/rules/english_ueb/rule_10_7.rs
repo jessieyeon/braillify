@@ -31,9 +31,9 @@ static INITIAL_CONTRACTIONS: phf::Map<&'static str, [u8; 2]> = phf_map! {
     "character" => [decode_unicode('⠐'), decode_unicode('⠡')],
     "through"   => [decode_unicode('⠐'), decode_unicode('⠹')],
     "ought"     => [decode_unicode('⠐'), decode_unicode('⠳')],
-    // ⠨ (dots 4-6) prefix. (`upon` omitted — it occurs inside `Dupont`,
+    // ⠘ (dots 4-5) prefix. (`upon` omitted — it occurs inside `Dupont`,
     // `coupon` with a different sound; deferred to the morphology-gated pass.)
-    "whose"     => [decode_unicode('⠨'), decode_unicode('⠱')],
+    "whose"     => [decode_unicode('⠘'), decode_unicode('⠱')],
     // ⠘ (dots 4-5) prefix. `word` is unambiguous: every corpus occurrence
     // (`sword`, `foreword`, `misworded`, `Wordsworth`, `word-for-word`) is the
     // `word` morpheme, so spelling-match is safe (no spell-out exception exists).

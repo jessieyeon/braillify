@@ -265,6 +265,7 @@
   },
   {
     "input": "7ins",
+    "context": "english",
     "internal": "#g;ins",
     "expected": "602748102914",
     "unicode": "⠼⠛⠰⠊⠝⠎"

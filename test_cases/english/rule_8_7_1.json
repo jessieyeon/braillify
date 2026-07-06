@@ -19,6 +19,7 @@
   },
   {
     "input": "[Σ]",
+    "context": "english",
     "internal": ".<,.s.>",
     "expected": "40353240144028",
     "unicode": "⠨⠣⠠⠨⠎⠨⠜"

@@ -30,7 +30,7 @@
     "unicode": "⠑"
   },
   {
-    "input": "jk",
+    "input": "f",
     "internal": "f",
     "expected": "11",
     "unicode": "⠋"
@@ -66,7 +66,7 @@
     "unicode": "⠅"
   },
   {
-    "input": "ll",
+    "input": "l",
     "internal": "l",
     "expected": "7",
     "unicode": "⠇"
@@ -96,7 +96,7 @@
     "unicode": "⠏"
   },
   {
-    "input": "qq",
+    "input": "q",
     "internal": "q",
     "expected": "31",
     "unicode": "⠟"
@@ -108,7 +108,7 @@
     "unicode": "⠗"
   },
   {
-    "input": "ss",
+    "input": "s",
     "internal": "s",
     "expected": "14",
     "unicode": "⠎"
@@ -120,7 +120,7 @@
     "unicode": "⠞"
   },
   {
-    "input": "uu",
+    "input": "u",
     "internal": "u",
     "expected": "37",
     "unicode": "⠥"

@@ -13,9 +13,9 @@
   },
   {
     "input": "8 chickens!",
-    "internal": ".2#h *ick5s6",
-    "expected": "40660190331095341422",
-    "unicode": "⠨⠆⠼⠓⠀⠡⠊⠉⠅⠢⠎⠖"
+    "internal": "#h *ick5s6",
+    "expected": "60190331095341422",
+    "unicode": "⠼⠓⠀⠡⠊⠉⠅⠢⠎⠖"
   },
   {
     "input": "story̲   stori̲es",
@@ -43,9 +43,9 @@
   },
   {
     "input": "Stop! May I help?",
-    "internal": ",/op^26 ,may ,i help^28",
-    "expected": "321221152462203213161032100191771524638",
-    "unicode": "⠠⠌⠕⠏⠘⠆⠖⠀⠠⠍⠁⠽⠀⠠⠊⠀⠓⠑⠇⠏⠘⠆⠦"
+    "internal": ",/op6 ,may ,i help8",
+    "expected": "321221152203213161032100191771538",
+    "unicode": "⠠⠌⠕⠏⠖⠀⠠⠍⠁⠽⠀⠠⠊⠀⠓⠑⠇⠏⠦"
   },
   {
     "input": "83%̲",
@@ -55,15 +55,15 @@
   },
   {
     "input": "It will cost $45 not €45.",
-    "internal": ",x w co/ ^2@s#de n ^2@e#de4",
-    "expected": "32450580921120246814602517029024681760251750",
-    "unicode": "⠠⠭⠀⠺⠀⠉⠕⠌⠀⠘⠆⠈⠎⠼⠙⠑⠀⠝⠀⠘⠆⠈⠑⠼⠙⠑⠲"
+    "internal": ",x w co/ @s#de n @e#de4",
+    "expected": "32450580921120814602517029081760251750",
+    "unicode": "⠠⠭⠀⠺⠀⠉⠕⠌⠀⠈⠎⠼⠙⠑⠀⠝⠀⠈⠑⠼⠙⠑⠲"
   },
   {
     "input": "For help, click the ? icon.",
-    "internal": ",= help1 click ! ^2;8 icon4",
-    "expected": "32630191771520971095046024648380109212950",
-    "unicode": "⠠⠿⠀⠓⠑⠇⠏⠂⠀⠉⠇⠊⠉⠅⠀⠮⠀⠘⠆⠰⠦⠀⠊⠉⠕⠝⠲"
+    "internal": ",= help1 click ! ;8 icon4",
+    "expected": "32630191771520971095046048380109212950",
+    "unicode": "⠠⠿⠀⠓⠑⠇⠏⠂⠀⠉⠇⠊⠉⠅⠀⠮⠀⠰⠦⠀⠊⠉⠕⠝⠲"
   },
   {
     "input": "change 𝑦 to 𝑖",

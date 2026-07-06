@@ -62,14 +62,58 @@ fn classify_be(word: &[char], provider: &dyn PronunciationProvider) -> Decision 
     if word.len() >= 4 && word[2] == word[3] && !is_vowel_char(word[2]) {
         return Decision::SpellOut;
     }
+    // §10.6.10: an apostrophe-dropped `-ing` tail after the `be` prefix keeps the
+    // first-syllable `be` groupsign (`bein'` in RUEB 2024 §10.6.10), even though
+    // the apostrophe-stripped spelling is not in CMUdict.
+    if word.get(2..).is_some_and(is_apostrophe_dropped_ing_tail) {
+        return Decision::Use;
+    }
+    let pronunciations = provider.pronunciations(&word_string(word));
+    if !pronunciations.is_empty()
+        && pronunciations.iter().all(|p| {
+            matches!(
+                (p.first(), p.get(1), p.get(2)),
+                (Some(b), Some(v), Some(n))
+                    if b.base == "B"
+                        && v.base == "EH"
+                        && v.stress != Some(2)
+                        && n.base == "N"
+            )
+        })
+    {
+        return Decision::SpellOut;
+    }
+    // §10.11.3: bound `be-` before a consonant root is a first syllable
+    // (`be·dazzle`, `be·numb`) even when CMUdict lacks a useful split. Require
+    // the remainder to be a recorded word so `benefit`/`benzene`/`Benedict` keep
+    // their first syllable `ben` and spell out `be`.
+    if word.get(2).is_some_and(|c| !is_vowel_char(*c))
+        && word.len() > 4
+        && !provider.pronunciations(&word_string(&word[2..])).is_empty()
+    {
+        return Decision::Use;
+    }
+    // RUEB 2024 §10.6.1: `beatitude`/`Beatrice` use `be` even though the printed
+    // next letter is `a`; they are multi-syllable `be·a…` words, unlike the
+    // monosyllable `beat` and the `bea·con` digraph word.
+    if matches!(
+        word,
+        ['b', 'e', 'a', 't', 'i', 't', 'u', 'd', 'e']
+            | ['b', 'e', 'a', 't', 'r', 'i', 'c', 'e']
+            | ['b', 'e', 'a', 't', 'r', 'i', 'x']
+    ) {
+        return Decision::Use;
+    }
     // For a primary-stressed TENSE vowel, `be` is an open first syllable when a
     // CONSONANT letter follows (`be·ta` /B EY1 T…/, the `t` onsets the next
-    // syllable), but a VOWEL after `be` makes a digraph the `be` is part of
-    // (`bea·con`, `beat`) — those spell out.
+    // syllable), but a VOWEL after `be` usually makes a digraph the `be` is part
+    // of (`bea·con`, `beat`) — those spell out unless handled above.
     let consonant_follows = word.get(2).is_some_and(|c| !is_vowel_char(*c));
-    decide_all(&provider.pronunciations(&word_string(word)), |p| {
-        be_pron_uses(p, consonant_follows)
-    })
+    decide_all(&pronunciations, |p| be_pron_uses(p, consonant_follows))
+}
+
+fn is_apostrophe_dropped_ing_tail(tail: &[char]) -> bool {
+    tail == ['i', 'n']
 }
 
 fn be_pron_uses(p: &[Phoneme], consonant_follows: bool) -> bool {
@@ -99,6 +143,11 @@ fn be_pron_uses(p: &[Phoneme], consonant_follows: bool) -> bool {
 /// split `co·n…` (`coney`); a single syllable (`cone`, `conch` /K AA NG K/) is not
 /// the prefix; in all those cases the groupsign is not used.
 fn classify_con(word: &[char], provider: &dyn PronunciationProvider) -> Decision {
+    // §10.6.4: abbreviations whose unabbreviated forms use `con` keep the
+    // restricted groupsign when followed by another letter (`Conn.`, `mod cons`).
+    if matches!(word, ['c', 'o', 'n', 'n'] | ['c', 'o', 'n', 's']) {
+        return Decision::Use;
+    }
     // §10.6: like `dis`+`t`, `con` before `t`/`g` is its own first syllable
     // (`con·trol`, `con·tain`, `con·gress`, `con·gruous`) — the letter test also
     // settles the monosyllabic abbreviation `cont`/`cont.` and CMUdict gaps
@@ -113,11 +162,19 @@ fn classify_con(word: &[char], provider: &dyn PronunciationProvider) -> Decision
 
 fn con_pron_uses(p: &[Phoneme]) -> bool {
     let multisyllable = p.iter().filter(|ph| ph.is_vowel()).count() >= 2;
+    let n_closes_prefix = p.get(3).is_some_and(|ph| {
+        !ph.is_vowel()
+            // When a vowel follows the N/NG, only an unstressed or secondary-stressed
+            // first vowel marks `con` as a prefix syllable (`con·nect`, `Con·estoga`).
+            // A primary-stressed first vowel keeps lexical stems like `co·ney` and
+            // names like `Connor` out of the restricted lower groupsign.
+            || (ph.is_vowel() && matches!(p.get(1).and_then(|v| v.stress), Some(0 | 2)))
+    });
     p.len() >= 4
         && p[0].base == "K"
         && p[1].is_vowel()
         && matches!(p[2].base.as_str(), "N" | "NG")
-        && !p[3].is_vowel()
+        && n_closes_prefix
         && multisyllable
 }
 
@@ -205,13 +262,23 @@ mod tests {
             ("begin", vec!["B IH0 G IH1 N"]),
             ("beckon", vec!["B EH1 K AH0 N"]),
             ("benefit", vec!["B EH1 N AH0 F IH0 T"]),
-            ("beneficent", vec!["B EH2 N AH0 F IH1 SH AH0 N T"]),
+            ("beneficent", vec!["B AH0 N EH1 F AH0 S AH0 N T"]),
             ("being", vec!["B IY1 IH0 NG"]),
+            ("bed", vec!["B EH1 D"]),
+            ("bedazzle", vec!["B IH0 D AE1 Z AH0 L"]),
+            ("dazzle", vec!["D AE1 Z AH0 L"]),
+            ("benumb", vec!["B IH0 N AH1 M"]),
+            ("numb", vec!["N AH1 M"]),
             ("beat", vec!["B IY1 T"]),
+            ("benzene", vec!["B EH0 N Z IY1 N"]),
+            ("benedict", vec!["B EH1 N AH0 D IH2 K T"]),
             ("been", vec!["B IH1 N"]),
             ("belligerent", vec!["B AH0 L IH1 JH ER0 AH0 N T"]),
             ("concept", vec!["K AA1 N S EH0 P T"]),
             ("control", vec!["K AH0 N T R OW1 L"]),
+            ("connect", vec!["K AH0 N EH1 K T"]),
+            ("connection", vec!["K AH0 N EH1 K SH AH0 N"]),
+            ("conestoga", vec!["K AA2 N AH0 S T OW1 G AH0"]),
             ("cone", vec!["K OW1 N"]),
             ("coney", vec!["K OW1 N IY0"]),
             ("dislike", vec!["D IH0 S L AY1 K"]),
@@ -244,13 +311,21 @@ mod tests {
     #[case::begin("begin", Prefix::Be, Decision::Use)]
     #[case::beckon("beckon", Prefix::Be, Decision::SpellOut)]
     #[case::benefit("benefit", Prefix::Be, Decision::SpellOut)]
+    #[case::benzene("benzene", Prefix::Be, Decision::SpellOut)]
+    #[case::benedict("benedict", Prefix::Be, Decision::SpellOut)]
     #[case::beneficent_secondary("beneficent", Prefix::Be, Decision::Use)]
     #[case::being_tense_hiatus("being", Prefix::Be, Decision::Use)]
+    #[case::bed_short_root("bed", Prefix::Be, Decision::SpellOut)]
+    #[case::bedazzle_bound_prefix("bedazzle", Prefix::Be, Decision::Use)]
+    #[case::benumb_bound_prefix("benumb", Prefix::Be, Decision::Use)]
     #[case::beat_tense_coda("beat", Prefix::Be, Decision::SpellOut)]
     #[case::been_monosyllable("been", Prefix::Be, Decision::SpellOut)]
     #[case::belligerent_doubled("belligerent", Prefix::Be, Decision::SpellOut)]
     #[case::concept("concept", Prefix::Con, Decision::Use)]
     #[case::control("control", Prefix::Con, Decision::Use)]
+    #[case::connect_unstressed_coda_n("connect", Prefix::Con, Decision::Use)]
+    #[case::connection_unstressed_coda_n("connection", Prefix::Con, Decision::Use)]
+    #[case::conestoga_secondary_coda_n("conestoga", Prefix::Con, Decision::Use)]
     #[case::cone("cone", Prefix::Con, Decision::SpellOut)]
     #[case::coney("coney", Prefix::Con, Decision::SpellOut)]
     // `dis`: rest-is-word (dis·like) and `D IH S`+vowel (dis·cipline) use it;

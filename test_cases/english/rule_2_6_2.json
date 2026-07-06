@@ -150,12 +150,14 @@
   },
   {
     "input": "é",
+    "context": "english",
     "internal": "^/e",
     "expected": "241217",
     "unicode": "⠘⠌⠑"
   },
   {
     "input": "ū",
+    "context": "english",
     "internal": "@-u",
     "expected": "83637",
     "unicode": "⠈⠤⠥"

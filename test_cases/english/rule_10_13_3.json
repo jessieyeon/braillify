@@ -1,38 +1,38 @@
 [
   {
-    "input": "childlike",
-    "internal": "*ild-  like",
-    "expected": "33107253600710517",
-    "unicode": "⠡⠊⠇⠙⠤⠀⠀⠇⠊⠅⠑"
+    "input": "child\nlike",
+    "internal": "*ild-\nlike",
+    "expected": "331072536\n710517",
+    "unicode": "⠡⠊⠇⠙⠤\n⠇⠊⠅⠑"
   },
   {
-    "input": "everything",
-    "internal": "\"ey-  ?+",
-    "expected": "16176136005744",
-    "unicode": "⠐⠑⠽⠤⠀⠀⠹⠬"
+    "input": "every\nthing",
+    "internal": "\"ey-\n?+",
+    "expected": "16176136\n5744",
+    "unicode": "⠐⠑⠽⠤\n⠹⠬"
   },
   {
-    "input": "furthermore",
-    "internal": "fur!r-  more",
-    "expected": "1137234623360013212317",
-    "unicode": "⠋⠥⠗⠮⠗⠤⠀⠀⠍⠕⠗⠑"
+    "input": "further\nmore",
+    "internal": "fur!r-\nmore",
+    "expected": "113723462336\n13212317",
+    "unicode": "⠋⠥⠗⠮⠗⠤\n⠍⠕⠗⠑"
   },
   {
-    "input": "outcome",
-    "internal": "\\t-  come",
-    "expected": "513036009211317",
-    "unicode": "⠳⠞⠤⠀⠀⠉⠕⠍⠑"
+    "input": "out\ncome",
+    "internal": "\\t-\ncome",
+    "expected": "513036\n9211317",
+    "unicode": "⠳⠞⠤\n⠉⠕⠍⠑"
   },
   {
-    "input": "standstill",
-    "internal": "/&-  /ill",
-    "expected": "12473600121077",
-    "unicode": "⠌⠯⠤⠀⠀⠌⠊⠇⠇"
+    "input": "stand\nstill",
+    "internal": "/&-\n/ill",
+    "expected": "124736\n121077",
+    "unicode": "⠌⠯⠤\n⠌⠊⠇⠇"
   },
   {
-    "input": "whichever",
-    "internal": ":i*-  \"e",
-    "expected": "49103336001617",
-    "unicode": "⠱⠊⠡⠤⠀⠀⠐⠑"
+    "input": "which\never",
+    "internal": ":i*-\n\"e",
+    "expected": "49103336\n1617",
+    "unicode": "⠱⠊⠡⠤\n⠐⠑"
   }
 ]

@@ -37,9 +37,10 @@
   },
   {
     "input": "BUY FAHRENHEIT 9/11 ON E-BAY",
-    "internal": ",,,buy .1fahr5heit .1#i_/#aa on ;e-bay,'",
-    "expected": "3232323376104021111923341917103004026010561260110212904817363161324",
-    "unicode": "⠠⠠⠠⠃⠥⠽⠀⠨⠂⠋⠁⠓⠗⠢⠓⠑⠊⠞⠀⠨⠂⠼⠊⠸⠌⠼⠁⠁⠀⠕⠝⠀⠰⠑⠤⠃⠁⠽⠠⠄"
+    "note": "PDF typeform on FAHRENHEIT and 9/11 is not representable in plain Unicode input",
+    "internal": ",,,buy fahr5heit #i_/#aa on ;e-bay,'",
+    "expected": "3232323376101111923341917103006010561260110212904817363161324",
+    "unicode": "⠠⠠⠠⠃⠥⠽⠀⠋⠁⠓⠗⠢⠓⠑⠊⠞⠀⠼⠊⠸⠌⠼⠁⠁⠀⠕⠝⠀⠰⠑⠤⠃⠁⠽⠠⠄"
   },
   {
     "input": "A.A. (ALAN ALEXANDER) MILNE",

@@ -16,6 +16,63 @@ use super::token::EnglishToken;
 /// (`it's`, `that's`). Spaces and text boundaries are always permitted; a directly
 /// adjacent word or number means the run is not isolated.
 pub fn is_standing_alone(prev: Option<&EnglishToken>, next: Option<&EnglishToken>) -> bool {
+    is_standing_alone_impl(prev, next, None)
+}
+
+/// §2.6.2/§2.6.4 apostrophe transparency: when a word is preceded by `'`, the
+/// apostrophe MAY be a §2.6.2 opening (elision `'as` = has, preceded by a
+/// boundary) or a §2.6.4 contraction prefix (`d'you`, preceded by a letter).
+/// The distinction depends on what precedes the apostrophe, so this variant
+/// passes the token BEFORE the apostrophe (`before_apostrophe`) so §2.6.2 can
+/// allow standing-alone `'as` → `⠄⠵` while §2.6.4 still keeps `d'you` spelled.
+pub fn is_standing_alone_at(tokens: &[EnglishToken], i: usize) -> bool {
+    let prev = i.checked_sub(1).map(|p| &tokens[p]);
+    let next = tokens.get(i + 1);
+    let before_apostrophe = if matches!(prev, Some(EnglishToken::Symbol('\''))) {
+        Some(i.checked_sub(2).map(|p| &tokens[p]))
+    } else {
+        None
+    };
+    // §2.6.3: strip a run of the explicitly-listed transparent right-side
+    // punctuation/terminators and look at what actually follows. A directly
+    // attached word past the run (`but...not`) or an unlisted symbol past it
+    // (`this.)*`, `Braillex®`) means the letters-sequence is NOT standing alone.
+    let stripped_next = {
+        let mut r = i + 1;
+        while matches!(
+            tokens.get(r),
+            Some(EnglishToken::Symbol(s)) if is_strippable_following_run_symbol(*s)
+        ) {
+            r += 1;
+        }
+        tokens.get(r)
+    };
+    let stripped_ok = match stripped_next {
+        None | Some(EnglishToken::Space | EnglishToken::LineBreak) => true,
+        Some(
+            EnglishToken::Word(_) | EnglishToken::WordDivision { .. } | EnglishToken::Number(_),
+        ) => {
+            // stripped_next == next means nothing was stripped, so the historical
+            // rule applies (the immediate-next check below governs).
+            std::ptr::eq(
+                stripped_next.unwrap(),
+                next.unwrap_or(stripped_next.unwrap()),
+            )
+        }
+        Some(EnglishToken::Symbol(_)) => std::ptr::eq(
+            stripped_next.unwrap(),
+            next.unwrap_or(stripped_next.unwrap()),
+        ),
+        _ => true,
+    };
+    stripped_ok && is_standing_alone_impl(prev, next, before_apostrophe)
+}
+
+fn is_standing_alone_impl(
+    prev: Option<&EnglishToken>,
+    next: Option<&EnglishToken>,
+    before_apostrophe: Option<Option<&EnglishToken>>,
+) -> bool {
     // §2.6.2: only a restricted set of *preceding* punctuation permits standing
     // alone — an opening bracket/parenthesis or an opening quotation mark (cells
     // that carry upper dots and genuinely open a fresh run). Sentence-internal
@@ -23,28 +80,89 @@ pub fn is_standing_alone(prev: Option<&EnglishToken>, next: Option<&EnglishToken
     // `b...but` is attached to the ellipsis on its leading side → spelled out).
     // A preceding apostrophe marks a contraction suffix (`don't`) → not alone.
     let prev_ok = match prev {
-        None | Some(EnglishToken::Space) => true,
+        None | Some(EnglishToken::Space | EnglishToken::Symbol('\t')) => true,
         // §2.6.1: a hyphen or dash bounds a standing-alone word (e.g. the `more`
         // in `mmm-more`, the `like` in `child-like`).
         Some(EnglishToken::Symbol('-' | '–' | '—')) => true,
         // §2.6.2: opening bracket/parenthesis or opening quotation mark.
         Some(EnglishToken::Symbol('(' | '[' | '{' | '"' | '“' | '‘')) => true,
+        // §2.6.2/§2.6.4: an apostrophe is transparent when it OPENS a fragment
+        // (`'as` = has, preceded by space/edge). When it follows a letter word
+        // (`d'you`, `don't`) it is a contraction marker and does NOT open a
+        // standing-alone run. The caller of `is_standing_alone_at` supplies the
+        // token BEFORE the apostrophe; a bare `is_standing_alone` call has no
+        // such context and keeps the historical "not alone" reading.
+        Some(EnglishToken::Symbol('\'')) => matches!(
+            before_apostrophe,
+            Some(
+                None | Some(EnglishToken::Space)
+                    | Some(EnglishToken::Symbol(
+                        '-' | '–' | '—' | '(' | '[' | '{' | '"' | '“'
+                    ))
+            )
+        ),
         // Sentence-internal marks (ellipsis/period/comma) and a preceding
         // apostrophe (contraction suffix, `don't`) do NOT permit standing alone.
         Some(EnglishToken::Symbol(_)) => false,
-        Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..)) => false,
+        Some(
+            EnglishToken::Word(_)
+            | EnglishToken::WordDivision { .. }
+            | EnglishToken::Number(_)
+            | EnglishToken::Styled(..)
+            | EnglishToken::Technical(_),
+        ) => false,
+        Some(EnglishToken::LineBreak) => true,
     };
     // §2.6.3: a wide set of *following* punctuation still permits standing alone
     // (period, ellipsis, comma, `?`, `!`, closing brackets/quotes, apostrophe …).
     let next_ok = match next {
-        None | Some(EnglishToken::Space) => true,
+        None | Some(EnglishToken::Space | EnglishToken::Symbol('\t')) => true,
         // §3.10: a directly-following currency sign attaches to the word like a
         // unit or number (`US$` spells out "US"; it is not the `us` wordsign), so
         // it breaks isolation just as an adjacent number does.
-        Some(EnglishToken::Symbol(s)) => !matches!(s, '$' | '¢' | '£' | '¥' | '€' | '₣' | '₦'),
-        Some(EnglishToken::Word(_) | EnglishToken::Number(_) | EnglishToken::Styled(..)) => false,
+        Some(EnglishToken::Symbol(s)) => is_following_transparent_symbol(*s),
+        Some(
+            EnglishToken::Word(_)
+            | EnglishToken::WordDivision { .. }
+            | EnglishToken::Number(_)
+            | EnglishToken::Styled(..)
+            | EnglishToken::Technical(_),
+        ) => false,
+        Some(EnglishToken::LineBreak) => true,
     };
     prev_ok && next_ok
+}
+
+/// §2.6.3 right-side punctuation/indicator symbols that may intervene before a
+/// following space, hyphen, dash or text boundary. Unlisted symbols such as `®`
+/// and `*` are not transparent for contraction standing-alone purposes.
+fn is_following_transparent_symbol(s: char) -> bool {
+    matches!(
+        s,
+        ',' | ';'
+            | ':'
+            | '.'
+            | '\u{2026}'
+            | '!'
+            | '?'
+            | ')'
+            | ']'
+            | '}'
+            | '"'
+            | '”'
+            | '’'
+            | '\''
+            | '-'
+            | '–'
+            | '—'
+    )
+}
+
+fn is_strippable_following_run_symbol(s: char) -> bool {
+    matches!(
+        s,
+        ',' | ';' | ':' | '.' | '\u{2026}' | '!' | '?' | ')' | ']' | '}' | '"' | '”' | '’'
+    )
 }
 
 /// §10.5 (with §2.6): whether a *lower* wordsign — `be, enough, his, in, was,
@@ -64,7 +182,7 @@ pub fn lower_wordsign_usable(prev: Option<&EnglishToken>, next: Option<&EnglishT
 fn is_lower_anchor(boundary: Option<&EnglishToken>) -> bool {
     matches!(
         boundary,
-        None | Some(EnglishToken::Space)
+        None | Some(EnglishToken::Space | EnglishToken::Symbol('\t'))
             | Some(EnglishToken::Symbol('(' | ')' | '[' | ']' | '{' | '}'))
     )
 }

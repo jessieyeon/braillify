@@ -10,6 +10,7 @@
 //! | print            | cell | meaning (§16.2)                          |
 //! |------------------|------|------------------------------------------|
 //! | `─` U+2500       | `⠒`  | simple (solid single) segment            |
+//! | spaced `─`       | `⠂`  | variant (dotted/dashed) segment          |
 //! | `═` U+2550       | `⠶`  | double segment                           |
 //! | `≡` U+2261       | `⠿`  | triple segment                           |
 //! | `┴` U+2534       | `⠚`  | corner with upward vertical              |
@@ -27,14 +28,73 @@ use crate::unicode::decode_unicode;
 /// The §16.2 horizontal-line cell for a box-drawing character, or `None`.
 pub fn line_segment(c: char) -> Option<u8> {
     Some(match c {
-        '\u{2500}' => decode_unicode('⠒'), // ─ simple
-        '\u{2550}' => decode_unicode('⠶'), // ═ double
-        '\u{2261}' => decode_unicode('⠿'), // ≡ triple
-        '\u{2534}' => decode_unicode('⠚'), // ┴ corner up
-        '\u{2510}' => decode_unicode('⠲'), // ┐ corner down
-        '\u{253C}' => decode_unicode('⠺'), // ┼ crossing vertical
-        '\u{2572}' => decode_unicode('⠣'), // ╲ crossing left diagonal
-        '\u{2571}' => decode_unicode('⠜'), // ╱ crossing right diagonal
+        '\u{2500}' | '\u{250C}' | '\u{2514}' => decode_unicode('⠒'),
+        '\u{2550}' => decode_unicode('⠶'),
+        '\u{2261}' => decode_unicode('⠿'),
+        '\u{2502}' | '\u{251C}' => decode_unicode('⠸'),
+        '\u{250A}' => decode_unicode('⠘'),
+        '\u{2534}' | '\u{2518}' => decode_unicode('⠚'),
+        '\u{2510}' | '\u{252C}' => decode_unicode('⠲'),
+        '\u{253C}' => decode_unicode('⠺'),
+        '\u{2572}' => decode_unicode('⠣'),
+        '\u{2571}' | '\u{2573}' => decode_unicode('⠜'),
+        '▔' => decode_unicode('⠉'),
+        '▁' => decode_unicode('⠤'),
+        // §16.2.4 distinctive line features (multi-cell forms have their own
+        // `line_marker_cells` path below; the fall-through `⠯` here is retained
+        // as a single-cell approximation for pure `▭` glyphs outside a line).
+        '▭' => decode_unicode('⠯'),
+        _ => return None,
+    })
+}
+
+/// §16.2.4: distinctive line-feature markers whose braille form is more than one
+/// cell — the rectangle `▭` renders as `⠯⠭⠭⠭⠽` (open + fill + close) in the
+/// middle of a horizontal line, per the PDF page 232 example
+/// `⠐⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠯⠭⠭⠭⠽⠒⠒`.
+pub fn line_marker_cells(c: char) -> Option<Vec<u8>> {
+    Some(match c {
+        '▭' => vec![
+            decode_unicode('⠯'),
+            decode_unicode('⠭'),
+            decode_unicode('⠭'),
+            decode_unicode('⠭'),
+            decode_unicode('⠽'),
+        ],
+        _ => return None,
+    })
+}
+
+/// §16.3–§16.4 spatial vertical/diagonal symbols outside horizontal line mode.
+pub fn spatial_symbol(c: char) -> Option<Vec<u8>> {
+    Some(match c {
+        '\u{2502}' => vec![decode_unicode('⠸')],
+        '\u{250A}' => vec![decode_unicode('⠘')],
+        '\u{2572}' => vec![decode_unicode('⠣')],
+        '\u{2571}' => vec![decode_unicode('⠜')],
+        '←' => vec![decode_unicode('⠳'), decode_unicode('⠪')],
+        '↙' => vec![decode_unicode('⠳'), decode_unicode('⠜')],
+        '↗' => vec![decode_unicode('⠳'), decode_unicode('⠎')],
+        _ => return None,
+    })
+}
+
+/// Whether `c` is a §16.3 vertical or diagonal segment outside horizontal mode.
+pub fn is_spatial_segment(c: char) -> bool {
+    matches!(
+        c,
+        '\u{2502}' | '\u{250A}' | '\u{2572}' | '\u{2571}' | '\u{2573}'
+    )
+}
+
+/// §16.4 arrow cells when an arrow is continuous with a line drawing.
+pub fn line_arrow(c: char) -> Option<Vec<u8>> {
+    Some(match c {
+        '→' => vec![decode_unicode('⠳'), decode_unicode('⠕')],
+        '↓' => vec![decode_unicode('⠳'), decode_unicode('⠩')],
+        '←' => vec![decode_unicode('⠳'), decode_unicode('⠪')],
+        '↙' => vec![decode_unicode('⠳'), decode_unicode('⠜')],
+        '↗' => vec![decode_unicode('⠳'), decode_unicode('⠎')],
         _ => return None,
     })
 }
@@ -46,6 +106,10 @@ pub fn is_line_char(c: char) -> bool {
 
 /// The solid single horizontal segment `─`, folded into the `⠐⠒` indicator.
 pub const SIMPLE_SEGMENT: char = '\u{2500}';
+
+/// §16.2.2: print dashed horizontal lines can be represented as spaced dashes;
+/// in line mode they become variant horizontal line segments (`⠂`).
+pub const VARIANT_SPACED_SEGMENT: char = '\u{2500}';
 
 #[cfg(test)]
 mod tests {

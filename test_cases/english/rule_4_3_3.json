@@ -12,7 +12,7 @@
     "unicode": "⠨⠂⠞⠘⠖⠓⠀⠵⠀⠔⠀⠮"
   },
   {
-    "input": "T̶h̶ĕ̶ssalōnĭan",
+    "input": "T̶h̶ĕssalōnĭan",
     "internal": ",t^6h@+essal@-on@+ian",
     "expected": "323024221984417141417836212984410129",
     "unicode": "⠠⠞⠘⠖⠓⠈⠬⠑⠎⠎⠁⠇⠈⠤⠕⠝⠈⠬⠊⠁⠝"

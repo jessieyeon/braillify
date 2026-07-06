@@ -191,11 +191,14 @@ impl InitialContractionPronunciationRule {
     /// digraph/diphthong with a coincidental neighbour). A known word is left to
     /// the phonology gates above; unknown words with no clean split spell out.
     fn morphology_recovers(&self, word: &[char], pos: usize, key: &str, end: usize) -> bool {
-        // Consonant-initial final-`e` keys (silent-`e` compounds) plus `upon`, whose
+        // Consonant-initial final-`e` keys (silent-`e` compounds) plus selected
+        // vowel-initial `one` compounds (`stone·work`, `lone·some`) and `upon`, whose
         // `here·upon` compound is a clean word-edge morpheme (`there·upon`/
         // `where·upon` are already in CMUdict; `coupon` is, so it never reaches here).
-        if !matches!(key, "some" | "name" | "time" | "here" | "there" | "where" | "upon")
-            || self.is_word(word)
+        if !matches!(
+            key,
+            "some" | "name" | "time" | "here" | "there" | "where" | "upon" | "one"
+        ) || self.is_word(word)
         {
             return false;
         }
@@ -206,13 +209,22 @@ impl InitialContractionPronunciationRule {
         let after_ok = after.is_empty()
             || self.is_word(after)
             || is_safe_suffix(&after.iter().collect::<String>());
-        if pos == 0 {
+        if key == "one" {
+            // §10.7.6: use `one` in compounds/derivatives (`stonework`,
+            // `demonetise`, `lonesomest`) when not preceded by `o`; require a real
+            // following component/suffix so monomorphemes like `anemone` still spell.
+            pos > 0 && word[pos - 1] != 'o' && !after.is_empty() && after_ok
+        } else if pos == 0 {
             // Word-initial unit: `some`·such, `time`·ously, `name`·able, `where`·of.
             // A bare key alone is a known word (handled by phonology), so a valid
             // non-empty remainder is required.
             !after.is_empty() && after_ok
         } else if after.is_empty() {
             // Word-final unit: `blithe`·some, `tea`·time, `your`·name.
+            self.is_word(&word[..pos])
+        } else if matches!(key, "some" | "time")
+            && is_safe_suffix(&after.iter().collect::<String>())
+        {
             self.is_word(&word[..pos])
         } else {
             false
@@ -233,6 +245,42 @@ impl ContractionRule for InitialContractionPronunciationRule {
             {
                 continue;
             }
+            if *key == "where"
+                && (word.get(end) == Some(&'\'')
+                    || word.get(end..).is_some_and(|tail| {
+                        tail.starts_with(&['e', 'v', 'e', 'r'])
+                            || tail.starts_with(&['v', 'e', 'r'])
+                    }))
+            {
+                continue;
+            }
+            if *key == "time"
+                && pos > 0
+                && word[pos - 1] == 'n'
+                && !matches!(word.get(..pos), Some(['u', 'n']))
+            {
+                continue;
+            }
+            if *key == "day"
+                && end != word.len()
+                && word
+                    .get(end)
+                    .is_some_and(|c| matches!(c, 'a' | 'e' | 'i' | 'o' | 'u'))
+            {
+                continue;
+            }
+            if *key == "ever" && pos > 0 && word[pos - 1] == 'i' {
+                continue;
+            }
+            if *key == "one" && pos > 0 && matches!(word[pos - 1], 'a' | 'e' | 'i' | 'o' | 'u') {
+                continue;
+            }
+            if *key == "one" && word.get(end..) == Some(&['s', 's']) {
+                continue;
+            }
+            if *key == "one" && word.get(end..) == Some(&['g', 'a', 'l']) {
+                continue;
+            }
             // The letters keep their sound here when EITHER the whole word's
             // pronunciation contains the contraction's run (`part`/`work`), OR — for
             // a silent-`e` contraction standing word-finally — the trailing `e` is
@@ -246,7 +294,27 @@ impl ContractionRule for InitialContractionPronunciationRule {
             // interior `tone`+`r`, and `ransom+ed`. Require an exposed morpheme.
             let danger =
                 key.ends_with('e') && word.get(end).is_some_and(|c| matches!(c, 'r' | 'd'));
-            let accept = if danger {
+            let accept = if (*key == "had" && pos == 0 && !matches!(word.get(3), Some('e' | 'r')))
+                || (*key == "day"
+                    && (end == word.len()
+                        || word
+                            .get(end)
+                            .is_some_and(|c| !matches!(c, 'a' | 'e' | 'i' | 'o' | 'u'))))
+                || (*key == "under" && pos > 0 && word[pos - 1] == 'w')
+                || (*key == "ever" && word.get(pos..pos + 5) == Some(&['e', 'v', 'e', 'r', 'y']))
+                || (*key == "ever" && ever_morpheme_exposed(word, pos, end))
+                || (*key == "one"
+                    && (word.get(pos..pos + 5) == Some(&['o', 'n', 'e', 's', 't'])
+                        || word.get(end..end + 4) == Some(&['s', 'o', 'm', 'e'])
+                        || word.get(end..) == Some(&['t', 'i', 's', 'e'])
+                        || word.get(end) == Some(&'y')))
+                || (*key == "time"
+                    && pos > 0
+                    && matches!(word.get(..pos), Some(['u', 'n']))
+                    && word.get(end..) == Some(&['l', 'y']))
+            {
+                true
+            } else if danger {
                 self.danger_zone_use(word, pos, key, end)
             } else {
                 self.pronunciation_supports(&full, key)
@@ -285,6 +353,12 @@ fn is_safe_suffix(s: &str) -> bool {
         s,
         "s" | "es" | "st" | "ly" | "ness" | "ous" | "ously" | "able" | "ment"
     )
+}
+
+/// §10.7 `ever` in transparent bound forms not reliably covered by CMUdict.
+fn ever_morpheme_exposed(word: &[char], pos: usize, end: usize) -> bool {
+    matches!(word.get(end..), Some([] | ['a', 't', 'e']))
+        && matches!(word.get(..pos), Some(['a', 's', 's'] | [.., 's', 'o']))
 }
 
 /// Whether `needle` occurs as a contiguous run inside `haystack`, comparing only
@@ -336,6 +410,8 @@ mod tests {
     #[case::fever("fever", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
     #[case::several("several", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
     #[case::beverage("beverage", 1, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
+    #[case::whosesoever("whosesoever", 7, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
+    #[case::asseverate("asseverate", 3, Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4)))]
     #[case::eversion("eversion", 0, None)] // e·VER stressed → use `er`
     #[case::severity("severity", 1, None)] // se·VER·ity — e is a full vowel
     fn applies_ever_when_unstressed(
@@ -365,6 +441,7 @@ mod tests {
     #[case::everyone("everyone", 5, decode_unicode('⠕'), 3)] // y precedes — not a digraph
     #[case::adhere("adhere", 2, decode_unicode('⠓'), 4)] // ad·here
     #[case::atonement("atonement", 2, decode_unicode('⠕'), 3)] // medial: at·one·ment
+    #[case::dishonesty("dishonesty", 4, decode_unicode('⠕'), 3)] // dis·h·one·sty
     #[case::honey("honey", 1, decode_unicode('⠕'), 3)] // medial: h·one·y (ey merge)
     #[case::money("money", 1, decode_unicode('⠕'), 3)] // m·one·y — identical to honey
     fn applies_silent_final_e(

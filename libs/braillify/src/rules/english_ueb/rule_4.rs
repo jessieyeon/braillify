@@ -52,6 +52,8 @@ fn accent_of(c: char) -> Option<(&'static [u8], char)> {
         'ó' => (ACUTE, 'o'),
         'ú' => (ACUTE, 'u'),
         'ý' => (ACUTE, 'y'),
+        'ć' => (ACUTE, 'c'),
+        'ń' => (ACUTE, 'n'),
         'â' => (CIRCUMFLEX, 'a'),
         'ê' => (CIRCUMFLEX, 'e'),
         'î' => (CIRCUMFLEX, 'i'),
@@ -59,10 +61,10 @@ fn accent_of(c: char) -> Option<(&'static [u8], char)> {
         'û' => (CIRCUMFLEX, 'u'),
         'ä' => (DIAERESIS, 'a'),
         'ë' => (DIAERESIS, 'e'),
-        'ï' => (DIAERESIS, 'i'),
-        'ö' => (DIAERESIS, 'o'),
         'ü' => (DIAERESIS, 'u'),
         'ÿ' => (DIAERESIS, 'y'),
+        'ï' => (DIAERESIS, 'i'),
+        'ö' => (DIAERESIS, 'o'),
         'č' => (CARON, 'c'),
         'š' => (CARON, 's'),
         'ž' => (CARON, 'z'),
@@ -79,6 +81,7 @@ fn accent_of(c: char) -> Option<(&'static [u8], char)> {
         'ī' => (MACRON, 'i'),
         'ō' => (MACRON, 'o'),
         'ū' => (MACRON, 'u'),
+        'ȳ' => (MACRON, 'y'),
         'ă' => (BREVE, 'a'),
         'ĕ' => (BREVE, 'e'),
         'ĭ' => (BREVE, 'i'),
@@ -123,6 +126,11 @@ pub fn is_accented(c: char) -> bool {
     accent_of(c).is_some() || ligature_bases(c).is_some() || matches!(c, 'ß' | 'ẞ')
 }
 
+/// Whether `c` is a §4.2 modifier-bearing letter (not a ligature or eszett).
+pub fn is_modified_letter(c: char) -> bool {
+    accent_of(c).is_some()
+}
+
 /// Braille cells for an accented or ligatured letter — `[§8 capital] + …`.
 /// An uppercase letter (`É`, `Æ`) carries the capital indicator ⠠ first. `None`
 /// if `c` is not a supported accented/ligatured letter.
@@ -136,6 +144,9 @@ pub fn accent_cells(c: char) -> Option<Vec<u8>> {
             cells.push(decode_unicode('⠠'));
         }
         cells.push(encode_english(first).ok()?);
+        if c.is_uppercase() {
+            cells.push(decode_unicode('⠠'));
+        }
         cells.extend([decode_unicode('⠘'), decode_unicode('⠖')]);
         cells.push(encode_english(second).ok()?);
         return Some(cells);
@@ -170,9 +181,9 @@ mod tests {
     #[case::u_circumflex_upper('Û', "⠠⠘⠩⠥")]
     // §4.2 ligatures æ/Æ and œ/Œ → first base + ligature sign ⠘⠖ + second base.
     #[case::ae_ligature('æ', "⠁⠘⠖⠑")]
-    #[case::ae_ligature_upper('Æ', "⠠⠁⠘⠖⠑")]
+    #[case::ae_ligature_upper('Æ', "⠠⠁⠠⠘⠖⠑")]
     #[case::oe_ligature('œ', "⠕⠘⠖⠑")]
-    #[case::oe_ligature_upper('Œ', "⠠⠕⠘⠖⠑")]
+    #[case::oe_ligature_upper('Œ', "⠠⠕⠠⠘⠖⠑")]
     // §4.6 the German eszett ß/ẞ → ⠨⠮ (uppercase form carries the §8 capital).
     #[case::eszett('ß', "⠨⠮")]
     #[case::eszett_upper('ẞ', "⠠⠨⠮")]

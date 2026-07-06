@@ -1,50 +1,50 @@
 [
   {
-    "input": "carefully",
-    "internal": "c>e-  fully",
-    "expected": "92817360011377761",
-    "unicode": "⠉⠜⠑⠤⠀⠀⠋⠥⠇⠇⠽"
+    "input": "care\nfully",
+    "internal": "c>e-\nfully",
+    "expected": "9281736\n11377761",
+    "unicode": "⠉⠜⠑⠤\n⠋⠥⠇⠇⠽"
   },
   {
-    "input": "CEMENT.)",
-    "internal": ",,ce-  m5t4\">",
-    "expected": "32329173600133430501628",
-    "unicode": "⠠⠠⠉⠑⠤⠀⠀⠍⠢⠞⠲⠐⠜"
+    "input": "CE\nMENT.)",
+    "internal": ",,ce-\nm5t4\">",
+    "expected": "323291736\n133430501628",
+    "unicode": "⠠⠠⠉⠑⠤\n⠍⠢⠞⠲⠐⠜"
   },
   {
-    "input": "confusion?",
-    "internal": "3fu-  sion8",
-    "expected": "18113736001410212938",
-    "unicode": "⠒⠋⠥⠤⠀⠀⠎⠊⠕⠝⠦"
+    "input": "confu\nsion?",
+    "internal": "3fu-\nsion8",
+    "expected": "18113736\n1410212938",
+    "unicode": "⠒⠋⠥⠤\n⠎⠊⠕⠝⠦"
   },
   {
-    "input": "expressionless",
-    "internal": "expres-  sion.s",
-    "expected": "1745152317143600141021294014",
-    "unicode": "⠑⠭⠏⠗⠑⠎⠤⠀⠀⠎⠊⠕⠝⠨⠎"
+    "input": "expres\nsionless",
+    "internal": "expres-\nsion.s",
+    "expected": "17451523171436\n141021294014",
+    "unicode": "⠑⠭⠏⠗⠑⠎⠤\n⠎⠊⠕⠝⠨⠎"
   },
   {
-    "input": "fundamentally",
-    "internal": "funda-  m5tally",
-    "expected": "113729251360013343017761",
-    "unicode": "⠋⠥⠝⠙⠁⠤⠀⠀⠍⠢⠞⠁⠇⠇⠽"
+    "input": "funda\nmentally",
+    "internal": "funda-\nm5tally",
+    "expected": "11372925136\n13343017761",
+    "unicode": "⠋⠥⠝⠙⠁⠤\n⠍⠢⠞⠁⠇⠇⠽"
   },
   {
-    "input": "reliance",
-    "internal": "reli-  ance",
-    "expected": "23177103600129917",
-    "unicode": "⠗⠑⠇⠊⠤⠀⠀⠁⠝⠉⠑"
+    "input": "reli\nance",
+    "internal": "reli-\nance",
+    "expected": "231771036\n129917",
+    "unicode": "⠗⠑⠇⠊⠤\n⠁⠝⠉⠑"
   },
   {
-    "input": "rotations",
-    "internal": "rota-  tions",
-    "expected": "232130136003010212914",
-    "unicode": "⠗⠕⠞⠁⠤⠀⠀⠞⠊⠕⠝⠎"
+    "input": "rota\ntions",
+    "internal": "rota-\ntions",
+    "expected": "232130136\n3010212914",
+    "unicode": "⠗⠕⠞⠁⠤\n⠞⠊⠕⠝⠎"
   },
   {
-    "input": "vitality",
-    "internal": "vital-  ity",
-    "expected": "391030173600103061",
-    "unicode": "⠧⠊⠞⠁⠇⠤⠀⠀⠊⠞⠽"
+    "input": "vital\nity",
+    "internal": "vital-\nity",
+    "expected": "3910301736\n103061",
+    "unicode": "⠧⠊⠞⠁⠇⠤\n⠊⠞⠽"
   }
 ]

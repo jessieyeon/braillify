@@ -109,7 +109,7 @@
     "unicode": "⠠⠽⠳⠠⠞⠥⠃⠑"
   },
   {
-    "input": "prepaid",
+    "input": "𝑝𝑟𝑒paid",
     "internal": ".1pre.'paid",
     "expected": "4021523174041511025",
     "unicode": "⠨⠂⠏⠗⠑⠨⠄⠏⠁⠊⠙"

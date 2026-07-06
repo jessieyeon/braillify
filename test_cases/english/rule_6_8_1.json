@@ -13,12 +13,14 @@
   },
   {
     "input": ".50",
+    "context": "english",
     "internal": "#  4ej",
     "expected": "6000501726",
     "unicode": "⠼⠀⠀⠲⠑⠚"
   },
   {
     "input": "------",
+    "context": "english",
     "internal": "\"3333333",
     "expected": "1618181818181818",
     "unicode": "⠐⠒⠒⠒⠒⠒⠒⠒"

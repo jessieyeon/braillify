@@ -36,13 +36,13 @@
     "unicode": "⠈⠨⠣⠠⠔⠀⠮⠀⠞⠁⠃⠇⠑⠀⠆⠇⠂⠀⠮⠀⠉⠕⠇⠥⠍⠝⠀⠓⠂⠙⠬⠎⠀⠜⠑⠀⠁⠆⠗⠑⠧⠊⠁⠞⠫⠀⠵⠀⠋⠕⠇⠇⠪⠎⠒"
   },
   {
-    "input": "emp inc:   Employment Income",
+    "input": "emp inc: Employment Income",
     "internal": "emp 9c3 ,employ;t ,9come",
     "expected": "171315020918032171315721614830032209211317",
     "unicode": "⠑⠍⠏⠀⠔⠉⠒⠀⠠⠑⠍⠏⠇⠕⠽⠰⠞⠀⠠⠔⠉⠕⠍⠑"
   },
   {
-    "input": "payable:   Approximate Tax Payable",
+    "input": "payable: Approximate Tax Payable",
     "internal": "payable3 ,approximate ,tax ,payable",
     "expected": "15161137171803211515232145101313017032301450321516113717",
     "unicode": "⠏⠁⠽⠁⠃⠇⠑⠒⠀⠠⠁⠏⠏⠗⠕⠭⠊⠍⠁⠞⠑⠀⠠⠞⠁⠭⠀⠠⠏⠁⠽⠁⠃⠇⠑"

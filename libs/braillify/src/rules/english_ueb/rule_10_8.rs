@@ -34,6 +34,22 @@ pub(crate) fn final_groupsign_cells(cluster: &str) -> Option<[u8; 2]> {
     FINAL_GROUPSIGNS.get(cluster).copied()
 }
 
+/// RUEB 2024 §10.8.3 printed exceptions for the `ity` final-letter groupsign.
+fn ity_exception(word: &[char]) -> bool {
+    matches!(
+        word,
+        ['b', 'i', 's', 'c', 'u', 'i', 't', 'y']
+            | ['d', 'a', 'c', 'o', 'i', 't', 'y']
+            | ['f', 'r', 'u', 'i', 't', 'y']
+            | ['p', 'i', 't', 'y', 'a', 'r', 'd']
+            | ['r', 'a', 'b', 'b', 'i', 't', 'y']
+    )
+}
+
+fn ness_exception(word: &[char]) -> bool {
+    matches!(word, ['h', 'e', 'a', 't', 'h', 'e', 'n', 'e', 's', 's'])
+}
+
 /// §10.8 final-letter groupsign rule.
 pub struct FinalGroupsignRule;
 
@@ -51,6 +67,8 @@ impl ContractionRule for FinalGroupsignRule {
                     .chars()
                     .zip(&word[pos..pos + klen])
                     .all(|(k, w)| k == *w)
+                && !(*key == "ity" && ity_exception(word))
+                && !(*key == "ness" && ness_exception(word))
                 && best.is_none_or(|(bl, _)| klen > bl)
             {
                 best = Some((klen, cells));

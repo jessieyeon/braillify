@@ -1,12 +1,14 @@
 [
   {
     "input": "╲",
+    "context": "english",
     "internal": "<\n <\n  <\n   <",
     "expected": "35\n035\n0035\n00035",
     "unicode": "⠣\n⠀⠣\n⠀⠀⠣\n⠀⠀⠀⠣"
   },
   {
     "input": "┊",
+    "context": "english",
     "internal": "^\n^\n^\n^",
     "expected": "24\n24\n24\n24",
     "unicode": "⠘\n⠘\n⠘\n⠘"
