@@ -415,5 +415,6 @@ mod tests {
         assert_eq!(Rule64Square.priority(), 49);
         // Rule64::priority is the default 350.
         assert_eq!(Rule64.priority(), 350);
+        assert_eq!(BrailleRule::priority(&Rule64), 350);
     }
 }

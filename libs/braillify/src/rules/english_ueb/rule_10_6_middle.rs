@@ -363,6 +363,13 @@ mod tests {
         assert_eq!(try_at(word, pos), None);
     }
 
+    #[test]
+    fn ea_prefix_seam_recognizes_rootlike_a_form() {
+        let chars: Vec<char> = "limeade".chars().collect();
+
+        assert!(rule().is_ea_prefix_seam(&chars, 4));
+    }
+
     /// Doubled letters mid-stem or doubled-by-suffix → contracted.
     #[rstest::rstest]
     #[case::bubble("bubble", 2, '⠆')] // monomorphemic

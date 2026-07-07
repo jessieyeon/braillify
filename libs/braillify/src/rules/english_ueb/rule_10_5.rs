@@ -7,22 +7,19 @@
 //! these wordsigns are therefore suppressed inside Korean text (한국 점자 제37항),
 //! which the engine signals by passing `standing_alone = false`.
 
-use phf::phf_map;
-
 use crate::unicode::decode_unicode;
-
-static WORDSIGNS: phf::Map<&'static str, u8> = phf_map! {
-    "be"     => decode_unicode('⠆'),
-    "enough" => decode_unicode('⠢'),
-    "his"    => decode_unicode('⠦'),
-    "in"     => decode_unicode('⠔'),
-    "was"    => decode_unicode('⠴'),
-    "were"   => decode_unicode('⠶'),
-};
 
 /// The §10.5 lower wordsign cell for a lowercased whole word, if any.
 pub fn wordsign(word: &str) -> Option<u8> {
-    WORDSIGNS.get(word).copied()
+    match word {
+        "be" => Some(decode_unicode('⠆')),
+        "enough" => Some(decode_unicode('⠢')),
+        "his" => Some(decode_unicode('⠦')),
+        "in" => Some(decode_unicode('⠔')),
+        "was" => Some(decode_unicode('⠴')),
+        "were" => Some(decode_unicode('⠶')),
+        _ => None,
+    }
 }
 
 #[cfg(test)]

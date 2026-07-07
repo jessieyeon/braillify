@@ -130,7 +130,6 @@ impl MathTokenRule for MathSymbolRule {
             if !matches!(tokens.get(i), Some(MathToken::OpenParen(_))) {
                 // fall through to default handling
             } else {
-                let open_idx = i;
                 i += 1;
                 while matches!(tokens.get(i), Some(MathToken::Space)) {
                     i += 1;
@@ -153,7 +152,6 @@ impl MathTokenRule for MathSymbolRule {
                         result.push(52); // ⠴ (MathParen close)
                         state.prev_was_number = false;
                         let consumed = i + 1 - index;
-                        let _ = open_idx;
                         return Ok(MathTokenResult::Consumed(consumed));
                     }
                 }
@@ -396,7 +394,7 @@ impl MathTokenRule for MathSymbolRule {
             rule_55::encode_nabla_symbol(*c, result)?;
         } else if rule_56::is_integral_symbol(*c) {
             rule_56::encode_integral_symbol(*c, result)?;
-        } else if rule_58::is_double_integral(*c) {
+        } else if *c == '\u{222C}' {
             rule_58::encode_double_integral(*c, result)?;
         } else if rule_59::is_contour_integral(*c) {
             rule_59::encode_contour_integral(*c, result)?;
@@ -1012,6 +1010,107 @@ mod tests {
         let _ = result;
     }
 
+    #[test]
+    fn fullwidth_hash_parenthesized_upper_variable_dispatch() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::{BracketKind, MathToken};
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::UpperVariable('A'),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("#(A) should encode");
+
+        assert_eq!(result, vec![56, 57, 38, 32, 1, 52]);
+    }
+
+    #[test]
+    fn fullwidth_hash_spaced_parenthesized_upper_variable_dispatch() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::{BracketKind, MathToken};
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::Space,
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Space,
+            MathToken::UpperVariable('B'),
+            MathToken::Space,
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("# (B) should encode");
+
+        assert_eq!(result, vec![56, 57, 38, 32, 3, 52]);
+    }
+
+    #[test]
+    fn fullwidth_hash_followed_by_upper_variable_dispatch() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::MathToken;
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::Space,
+            MathToken::UpperVariable('A'),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("# A should encode");
+
+        assert_eq!(result, vec![56, 57, 38, 32, 1, 52]);
+    }
+
+    #[test]
+    fn fullwidth_hash_immediately_followed_by_upper_variable_dispatch() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::MathToken;
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::UpperVariable('C'),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("#C should encode");
+
+        assert_eq!(result, vec![56, 57, 38, 32, 9, 52]);
+    }
+
+    #[test]
+    fn fullwidth_hash_before_paren_requires_upper_variable_inside() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::{BracketKind, MathToken};
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::Variable('x'),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default())
+            .expect("fullwidth hash should fall through");
+
+        assert!(!result.is_empty());
+
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::UpperVariable('X'),
+        ];
+        let result = enc_ctx_attempt(&tokens, MathContext::default())
+            .expect("fullwidth hash should fall through without close paren");
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn double_integral_dispatch_uses_rule_58() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::MathToken;
+        let tokens = vec![MathToken::MathSymbol('\u{222C}')];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("∬ should encode");
+
+        assert!(!result.is_empty());
+    }
+
     /// Direct caller for MathSymbolRule.apply over a hand-built token slice.
     fn enc_ctx_attempt(
         tokens: &[super::super::super::parser::MathToken],
@@ -1094,5 +1193,31 @@ mod tests {
         use super::super::super::parser::MathToken;
         let tokens = vec![MathToken::Variable('x')];
         let _ = enc_ctx_attempt(&tokens, MathContext::default());
+    }
+
+    #[test]
+    fn fullwidth_hash_cardinality_allows_spaces_before_paren() {
+        use super::super::super::parser::{BracketKind, MathToken};
+        let tokens = vec![
+            MathToken::MathSymbol(std::hint::black_box('\u{FF03}')),
+            MathToken::Space,
+            MathToken::OpenParen(BracketKind::MathParen),
+            MathToken::UpperVariable('A'),
+            MathToken::CloseParen(BracketKind::MathParen),
+        ];
+
+        assert!(enc_ctx_attempt(&tokens, MathContext::default()).is_ok());
+    }
+
+    #[test]
+    fn fullwidth_hash_cardinality_before_upper_variable() {
+        use super::super::super::parser::MathToken;
+        let tokens = vec![
+            MathToken::MathSymbol('\u{FF03}'),
+            MathToken::Space,
+            MathToken::UpperVariable('A'),
+        ];
+
+        assert!(enc_ctx_attempt(&tokens, MathContext::default()).is_ok());
     }
 }

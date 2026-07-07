@@ -123,4 +123,9 @@ mod tests {
     fn cluster_groupsign_unaffected() {
         assert_eq!(try_at("master", 2), Some((vec![decode_unicode('⠌')], 2)));
     }
+
+    #[test]
+    fn non_ascii_word_cannot_split_as_compound_bridge() {
+        assert!(!splits_between(&['c', 'a', 'f', 'é'], 2));
+    }
 }

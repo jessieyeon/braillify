@@ -423,7 +423,9 @@ impl MathTokenRule for VariableRule {
     }
 
     fn matches(&self, tokens: &[MathToken], index: usize, _state: &MathEncodeState) -> bool {
-        matches!(tokens.get(index), Some(MathToken::Variable(_)))
+        tokens
+            .get(index)
+            .is_some_and(|token| matches!(token, MathToken::Variable(_)))
     }
 
     fn apply(
@@ -731,6 +733,21 @@ mod tests {
         assert_eq!(i, 1);
     }
 
+    #[test]
+    fn upper_variable_sequence_counts_consecutive_upper_variables() {
+        let toks = vec![MathToken::UpperVariable('A'), MathToken::UpperVariable('B')];
+        let mut prev = false;
+        let mut i = 0usize;
+        let mut result = Vec::new();
+
+        let handled =
+            encode_upper_variable('A', &toks, &mut i, &mut prev, false, false, &mut result)
+                .expect("encode_upper_variable");
+
+        assert!(handled);
+        assert_eq!(i, 2);
+    }
+
     /// encode_upper_variable: A∨¬B logic pattern (lines 310-328).
     #[test]
     fn upper_variable_logic_or_not_pattern() {
@@ -828,6 +845,15 @@ mod tests {
         let engine = dummy_engine();
         let res = r.apply(&toks, 0, &mut result, &mut state, &engine);
         assert!(matches!(res, Ok(MathTokenResult::Skip)));
+    }
+
+    #[test]
+    fn variable_rule_matches_only_variable_tokens() {
+        let r = VariableRule;
+        let state = MathEncodeState::with_context(false, MathContext::default());
+
+        assert!(r.matches(&[MathToken::Variable('x')], 0, &state));
+        assert!(!r.matches(&[MathToken::Number("1".to_string())], 0, &state));
     }
 
     /// rule_12 line 355 - UpperVariableRule.apply let-else Skip when token isn't UpperVariable.

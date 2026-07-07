@@ -35,16 +35,14 @@ impl Phoneme {
 
 /// Parse a CMUdict phoneme token (`AH0`, `B`, `N`) into base symbol + stress.
 pub fn parse_phoneme(tok: &str) -> Phoneme {
-    match tok.as_bytes().last().copied() {
-        Some(d @ b'0'..=b'2') => Phoneme {
+    if let Some(d @ b'0'..=b'2') = tok.as_bytes().last().copied() {
+        return Phoneme {
             base: tok[..tok.len() - 1].to_string(),
             stress: Some(d - b'0'),
-        },
-        _ => Phoneme {
-            base: tok.to_string(),
-            stress: None,
-        },
+        };
     }
+    let base = tok.to_string();
+    Phoneme { base, stress: None }
 }
 
 /// Supplies ARPABET pronunciations for a lowercase word. Returns an empty vec
@@ -76,6 +74,7 @@ mod tests {
     #[case::vowel_primary("AH1", "AH", Some(1))]
     #[case::vowel_unstressed("IH0", "IH", Some(0))]
     #[case::vowel_secondary("EH2", "EH", Some(2))]
+    #[case::digit_not_stress("AH3", "AH3", None)]
     #[case::consonant_b("B", "B", None)]
     #[case::consonant_ng("NG", "NG", None)]
     fn parses_phoneme_base_and_stress(
@@ -92,5 +91,15 @@ mod tests {
     #[test]
     fn no_provider_yields_no_pronunciations() {
         assert!(NoPronunciationProvider.pronunciations("become").is_empty());
+    }
+
+    #[test]
+    fn parses_runtime_consonant_token_without_stress() {
+        let token = std::hint::black_box("NG");
+        let ph = parse_phoneme(token);
+
+        assert_eq!(ph.base, "NG");
+        assert_eq!(ph.stress, None);
+        assert!(!ph.is_vowel());
     }
 }

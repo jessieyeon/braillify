@@ -49,11 +49,12 @@ fn encode_denominator_item(chars: &[char], out: &mut Vec<u8>) -> Option<()> {
         .all(|c| c.is_ascii_digit() || matches!(c, '.' | ','))
     {
         for &c in chars {
-            match c {
-                '0'..='9' => out.push(digit(c)?),
-                '.' => out.push(decode_unicode('⠲')),
-                ',' => out.push(decode_unicode('⠂')),
-                _ => return None,
+            if c.is_ascii_digit() {
+                out.push(digit(c)?);
+            } else if c == '.' {
+                out.push(decode_unicode('⠲'));
+            } else {
+                out.push(decode_unicode('⠂'));
             }
         }
     } else {
@@ -163,18 +164,11 @@ fn has_grade1_construct(chars: &[char]) -> bool {
         i += 1;
     }
     // §11.4.3 superscript/subscript needing braille grouping.
-    let mut j = 0;
-    while j + 2 < chars.len() {
-        if matches!(chars[j], '^' | '_')
+    (0..chars.len().saturating_sub(2)).any(|j| {
+        matches!(chars[j], '^' | '_')
             && chars[j + 1] == '{'
-            && let Some((_, item)) = take_braced(chars, j + 1)
-            && item_needs_braille_grouping(item)
-        {
-            return true;
-        }
-        j += 1;
-    }
-    false
+            && take_braced(chars, j + 1).is_some_and(|(_, item)| item_needs_braille_grouping(item))
+    })
 }
 
 fn simple_fraction(chars: &[char], out: &mut Vec<u8>) -> Option<usize> {
@@ -393,9 +387,6 @@ fn encode_pmatrix(chars: &[char]) -> Option<Vec<u8>> {
         .split("\\\\")
         .map(|row| row.split('&').map(|cell| cell.trim().to_string()).collect())
         .collect();
-    if rows.is_empty() {
-        return None;
-    }
     let mut out = Vec::new();
     // Encode the prefix (e.g. `I = ` before the matrix) through the engine.
     let prefix_trimmed = prefix.trim_end();
@@ -483,9 +474,6 @@ fn encode_array_with_right_brace(chars: &[char]) -> Option<Vec<u8>> {
         .unwrap_or("");
     let body = &text[begin + "\\begin{array}{l}".len()..end];
     let rows: Vec<&str> = body.split("\\\\").map(str::trim).collect();
-    if rows.is_empty() {
-        return None;
-    }
     let mut out = Vec::new();
     for (row_index, row) in rows.iter().enumerate() {
         if row_index > 0 {
@@ -528,19 +516,7 @@ pub fn encode_chemical(chars: &[char]) -> Option<Vec<u8>> {
             '₀'..='₉' => {
                 out.push(decode_unicode('⠢'));
                 out.push(NUMERIC);
-                let digit_char = match chars[i] {
-                    '₀' => '0',
-                    '₁' => '1',
-                    '₂' => '2',
-                    '₃' => '3',
-                    '₄' => '4',
-                    '₅' => '5',
-                    '₆' => '6',
-                    '₇' => '7',
-                    '₈' => '8',
-                    '₉' => '9',
-                    _ => return None,
-                };
+                let digit_char = char::from(b'0' + (chars[i] as u32 - '₀' as u32) as u8);
                 out.push(digit(digit_char)?);
             }
             c if c.is_ascii_digit() => {
@@ -627,6 +603,47 @@ mod tests {
         );
     }
 
+    #[test]
+    fn fraction_operand_con_conserves_prefix_letters_before_contractions() {
+        let mut out = Vec::new();
+
+        encode_fraction_operand(&['c', 'o', 'n', 'c', 'e', 'p', 't'], &mut out)
+            .expect("fraction operand should encode");
+
+        assert!(out.starts_with(&cells("⠉⠕")));
+    }
+
+    #[test]
+    fn fraction_operand_uppercase_restricted_prefix_marks_capital() {
+        let mut out = Vec::new();
+
+        encode_fraction_operand(&['D', 'i', 's', 't', 'a', 'n', 'c', 'e'], &mut out)
+            .expect("fraction operand should encode");
+
+        assert!(out.starts_with(&cells("⠠⠙⠊")));
+    }
+
+    #[rstest::rstest]
+    #[case::plain_short_word(&['a', 'b', 'c'])]
+    #[case::mixed_operand(&['x', '1'])]
+    fn fraction_operand_falls_back_to_expression_walker(#[case] input: &[char]) {
+        let mut out = Vec::new();
+
+        encode_fraction_operand(input, &mut out).expect("fallback operand should encode");
+
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn denominator_item_handles_decimal_comma_digits_directly() {
+        let mut out = Vec::new();
+
+        encode_denominator_item(&['1', ',', '2', '.', '3'], &mut out)
+            .expect("denominator number should encode");
+
+        assert_eq!(out, cells("⠁⠂⠃⠲⠉"));
+    }
+
     /// §11.4.3 superscript with braille-grouped item uses ⠰⠰ grade-1 word.
     #[test]
     fn encodes_superscript_group_with_grade1_word() {
@@ -671,6 +688,314 @@ mod tests {
         assert_eq!(
             encode_technical(&"3.9 × 4.1 < 16".chars().collect::<Vec<_>>()),
             Some(cells("⠰⠰⠰⠼⠉⠲⠊⠐⠦⠼⠙⠲⠁⠀⠈⠣⠀⠼⠁⠋⠰⠄"))
+        );
+    }
+
+    #[test]
+    fn encodes_pmatrix_rows_and_mixed_cells() {
+        let input = "I = \\begin{pmatrix}1&x\\\\2&3\\end{pmatrix}";
+        let encoded = encode_technical(&input.chars().collect::<Vec<_>>()).unwrap();
+        assert!(encoded.starts_with(&cells("⠠⠊⠀⠐⠶⠀⠠⠐⠣⠼⠁⠀⠭⠠⠐⠜")));
+        assert!(encoded.ends_with(&cells("⠠⠐⠣⠼⠃⠀⠼⠉⠠⠐⠜")));
+    }
+
+    #[test]
+    fn encodes_array_with_right_brace_and_trailing_text() {
+        let input =
+            "\\left.\\begin{array}{l}\\text{yes}\\\\\\text{no}\\end{array}\\right\\}\\text{choose}";
+        let encoded = encode_technical(&input.chars().collect::<Vec<_>>()).unwrap();
+        assert!(encoded.starts_with(&cells("⠽⠑⠎⠠⠸⠜⠀⠡⠕⠕⠎⠑")));
+        assert!(encoded.contains(&255));
+        assert!(encoded.ends_with(&cells("⠝⠕⠀⠠⠸⠜")));
+    }
+
+    #[rstest::rstest]
+    #[case::subscript_seven('₇', "⠰⠰⠰⠠⠓⠢⠼⠛⠰⠄")]
+    #[case::subscript_eight('₈', "⠰⠰⠰⠠⠓⠢⠼⠓⠰⠄")]
+    #[case::subscript_nine('₉', "⠰⠰⠰⠠⠓⠢⠼⠊⠰⠄")]
+    fn encodes_remaining_chemical_subscript_digits(
+        #[case] subscript: char,
+        #[case] expected: &str,
+    ) {
+        let input: Vec<char> = ['H', subscript].into_iter().collect();
+        assert_eq!(encode_chemical(&input), Some(cells(expected)));
+    }
+
+    #[rstest::rstest]
+    #[case::standalone_number(&['4'], "⠼⠙")]
+    #[case::uppercase_letter(&['A'], "⠠⠁")]
+    #[case::operator(&['+'], "⠐⠖")]
+    fn encodes_matrix_cell_variants(#[case] input: &[char], #[case] expected: &str) {
+        let mut out = Vec::new();
+        encode_matrix_cell(&input.iter().collect::<String>(), &mut out).unwrap();
+        assert_eq!(out, cells(expected));
+    }
+
+    #[test]
+    fn rejects_unknown_technical_symbol() {
+        assert_eq!(encode_technical(&"@".chars().collect::<Vec<_>>()), None);
+    }
+
+    #[test]
+    fn helper_primitives_reject_invalid_inputs() {
+        let mut out = Vec::new();
+        push_cells(&mut out, "⠁⠃");
+        assert_eq!(out, cells("⠁⠃"));
+
+        assert_eq!(digit('x'), None);
+        assert_eq!(encode_symbol('@', false), None);
+    }
+
+    #[rstest::rstest]
+    #[case::bare_symbol(&['x'], false)]
+    #[case::empty(&[], false)]
+    #[case::numeric(&['1', '2', '.', '3'], false)]
+    #[case::fraction(&['\\', 'f', 'r', 'a', 'c', '{', '1', '}', '{', '2', '}'], false)]
+    #[case::radical(&['\\', 's', 'q', 'r', 't', '{', 'x', '}'], false)]
+    #[case::paren_group(&['(', 'x', '+', '1', ')'], false)]
+    #[case::mixed_item(&['2', 'y'], true)]
+    fn item_grouping_paths(#[case] item: &[char], #[case] expected: bool) {
+        assert_eq!(item_needs_braille_grouping(item), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::letter_fraction(&['\\', 'f', 'r', 'a', 'c', '{', 'x', '}', '{', 'y', '}'], true)]
+    #[case::radical(&['\\', 's', 'q', 'r', 't', '{', 'x', '}'], true)]
+    #[case::grouped_superscript(&['x', '^', '{', '2', 'y', '}'], true)]
+    #[case::space_with_construct(&['x', ' ', '\\', 's', 'q', 'r', 't', '{', 'y', '}'], true)]
+    #[case::plain_word(&['t', 'i', 'm', 'e'], false)]
+    fn grade1_word_wrapper_paths(#[case] chars: &[char], #[case] expected: bool) {
+        assert_eq!(needs_grade1_word_wrapper(chars), expected);
+    }
+
+    #[test]
+    fn braced_parser_handles_nested_and_invalid_groups() {
+        let chars: Vec<char> = "{a{b}c}".chars().collect();
+        let (next, body) = take_braced(&chars, 0).unwrap();
+        assert_eq!(next, chars.len());
+        assert_eq!(body.iter().collect::<String>(), "a{b}c");
+        assert_eq!(take_braced(&chars, 1), None);
+        assert_eq!(take_braced(&"{abc".chars().collect::<Vec<_>>(), 0), None);
+    }
+
+    #[test]
+    fn numeric_helpers_reject_invalid_digits() {
+        let mut out = Vec::new();
+        assert_eq!(encode_number_run(&['1', 'x'], &mut out), None);
+        out.clear();
+        assert_eq!(encode_denominator_item(&['🙂'], &mut out), None);
+    }
+
+    #[test]
+    fn numeric_helpers_accept_comma_decimal_and_reject_non_fraction_prefixes() {
+        let mut out = Vec::new();
+
+        encode_number_run(&['1', ',', '2', '.', '3'], &mut out).unwrap();
+        assert_eq!(out, cells("⠼⠁⠂⠃⠲⠉"));
+
+        out.clear();
+        assert_eq!(simple_fraction(&['x'], &mut out), None);
+        assert_eq!(general_fraction(&['x'], &mut out, false), None);
+    }
+
+    #[test]
+    fn grade1_construct_detects_grouped_script_item_directly() {
+        assert!(has_grade1_construct(&"x_{2y}".chars().collect::<Vec<_>>()));
+        assert!(!has_grade1_construct(&"x_2".chars().collect::<Vec<_>>()));
+    }
+
+    #[test]
+    fn grade1_construct_scans_script_groups_from_loop_start() {
+        assert!(has_grade1_construct(&"_{ab}".chars().collect::<Vec<_>>()));
+    }
+
+    #[test]
+    fn grade1_construct_scans_later_grouped_script() {
+        assert!(has_grade1_construct(
+            &"x+ y^{ab}".chars().collect::<Vec<_>>()
+        ));
+        assert!(has_grade1_construct(&"x_{ab}".chars().collect::<Vec<_>>()));
+    }
+
+    #[test]
+    fn grade1_construct_detects_runtime_fraction_and_script() {
+        let fraction: Vec<char> = std::hint::black_box("z+\\frac{x}{y}").chars().collect();
+        let script: Vec<char> = std::hint::black_box("z+x^{2y}").chars().collect();
+
+        assert!(has_grade1_construct(&fraction));
+        assert!(has_grade1_construct(&script));
+    }
+
+    #[test]
+    fn expression_runtime_radical_path_encodes_body() {
+        let input: Vec<char> = std::hint::black_box("\\sqrt{x}").chars().collect();
+        let mut out = Vec::new();
+
+        encode_expr_with_options(&input, &mut out, false, false)
+            .expect("radical expression should encode");
+
+        assert_eq!(out, cells("⠰⠩⠭⠬"));
+    }
+
+    #[test]
+    fn expression_options_cover_spaces_scripts_and_unknowns() {
+        let mut out = Vec::new();
+
+        encode_expr_with_options(&"x + y".chars().collect::<Vec<_>>(), &mut out, false, false)
+            .unwrap();
+        assert_eq!(out, cells("⠭⠐⠖⠽"));
+
+        out.clear();
+        encode_expr_with_options(&"x y".chars().collect::<Vec<_>>(), &mut out, false, false)
+            .unwrap();
+        assert_eq!(out, cells("⠭⠀⠽"));
+
+        out.clear();
+        encode_expr_with_options(&"x^2".chars().collect::<Vec<_>>(), &mut out, false, false)
+            .unwrap();
+        assert_eq!(out, cells("⠭⠰⠔⠼⠃"));
+
+        out.clear();
+        assert_eq!(
+            encode_expr_with_options(&['@'], &mut out, false, false),
+            None
+        );
+    }
+
+    #[test]
+    fn expression_options_cover_direct_radical_grouping_and_operator_variants() {
+        let mut out = Vec::new();
+
+        encode_expr_with_options(
+            &"\\sqrt{x}".chars().collect::<Vec<_>>(),
+            &mut out,
+            false,
+            false,
+        )
+        .expect("radical should encode");
+        assert!(out.starts_with(&cells("⠰⠩")));
+
+        out.clear();
+        encode_expr_with_options(
+            &"x_{2y}".chars().collect::<Vec<_>>(),
+            &mut out,
+            false,
+            false,
+        )
+        .expect("grouped subscript should encode");
+        assert!(out.contains(&decode_unicode('⠣')));
+
+        for input in ["x>y", "x−y", "x×y"] {
+            out.clear();
+            encode_expr_with_options(&input.chars().collect::<Vec<_>>(), &mut out, false, false)
+                .expect("operator variant should encode");
+            assert!(!out.is_empty());
+        }
+    }
+
+    #[test]
+    fn grade1_construct_detects_grouped_subscript_item() {
+        let subscript = std::hint::black_box("x_{ab}").chars().collect::<Vec<_>>();
+        assert!(needs_grade1_word_wrapper(&subscript));
+
+        let superscript = std::hint::black_box("x^{ab}").chars().collect::<Vec<_>>();
+        assert!(needs_grade1_word_wrapper(&superscript));
+    }
+
+    #[test]
+    fn grade1_construct_runtime_loop_reaches_grouping_check() {
+        let mut chars = Vec::new();
+        chars.extend(std::hint::black_box("x").chars());
+        chars.push(std::hint::black_box('_'));
+        chars.extend(std::hint::black_box("{ab}").chars());
+
+        assert!(has_grade1_construct(&chars));
+    }
+
+    #[test]
+    fn chemistry_paths_cover_spaces_ascii_digits_and_lowercase_letters() {
+        assert_eq!(
+            encode_chemical(&"H2O".chars().collect::<Vec<_>>()),
+            Some(cells("⠰⠰⠰⠠⠓⠼⠃⠠⠕⠰⠄"))
+        );
+        assert_eq!(
+            encode_chemical(&"H + O".chars().collect::<Vec<_>>()),
+            Some(cells("⠰⠰⠰⠠⠓⠐⠖⠠⠕⠰⠄"))
+        );
+        assert_eq!(
+            encode_chemical(&"h".chars().collect::<Vec<_>>()),
+            Some(cells("⠰⠰⠰⠓⠰⠄"))
+        );
+        assert_eq!(
+            encode_chemical(&"H O".chars().collect::<Vec<_>>()),
+            Some(cells("⠰⠰⠰⠠⠓⠀⠠⠕⠰⠄"))
+        );
+        assert_eq!(encode_chemical(&"H@".chars().collect::<Vec<_>>()), None);
+    }
+
+    #[test]
+    fn matrix_and_array_reject_reversed_layouts() {
+        assert_eq!(
+            encode_pmatrix(&"\\end{pmatrix}\\begin{pmatrix}".chars().collect::<Vec<_>>()),
+            None
+        );
+        assert_eq!(
+            encode_array_with_right_brace(
+                &"\\end{array}\\left.\\begin{array}{l}\\right\\}"
+                    .chars()
+                    .collect::<Vec<_>>()
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn radical_index_and_ascii_expression_paths() {
+        assert_eq!(
+            encode_technical(&"\\sqrt[3]{x}".chars().collect::<Vec<_>>()),
+            Some(cells("⠰⠰⠩⠔⠼⠉⠭⠬"))
+        );
+        assert_eq!(
+            encode_technical(&"A_2".chars().collect::<Vec<_>>()),
+            Some(cells("⠠⠁⠰⠢⠼⠃"))
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::minus("1-2", "⠼⠁⠐⠤⠼⠃")]
+    #[case::times_star("2*3", "⠼⠃⠐⠦⠼⠉")]
+    #[case::slash("4/5", "⠼⠙⠐⠌⠼⠑")]
+    #[case::equals("x=1", "⠭⠐⠶⠼⠁")]
+    #[case::parens("(x)", "⠐⠣⠭⠐⠜")]
+    #[case::semicolon("x;y", "⠭⠆⠽")]
+    fn expression_operator_paths(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(
+            encode_technical(&input.chars().collect::<Vec<_>>()),
+            Some(cells(expected))
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::left_arrow('→', "⠰⠳⠕")]
+    #[case::down_arrow('↓', "⠰⠳⠩")]
+    #[case::circle('◯', "⠫⠿")]
+    fn symbol_paths(#[case] c: char, #[case] expected: &str) {
+        assert_eq!(encode_symbol(c, false), Some(cells(expected)));
+    }
+
+    #[test]
+    fn technical_layout_rejects_malformed_matrix_and_array() {
+        assert_eq!(
+            encode_pmatrix(&"\\end{pmatrix}\\begin{pmatrix}".chars().collect::<Vec<_>>()),
+            None
+        );
+        assert_eq!(
+            encode_array_with_right_brace(
+                &"\\left.\\begin{array}{l}plain\\end{array}\\right\\}"
+                    .chars()
+                    .collect::<Vec<_>>()
+            ),
+            None
         );
     }
 }

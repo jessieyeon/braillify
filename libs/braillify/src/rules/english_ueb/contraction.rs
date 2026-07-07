@@ -134,6 +134,25 @@ mod tests {
     use super::*;
     use crate::unicode::decode_unicode;
 
+    struct StaticRule {
+        pattern: &'static [char],
+        cell: char,
+        priority: u16,
+    }
+
+    impl ContractionRule for StaticRule {
+        fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
+            word.get(pos..pos + self.pattern.len())
+                .is_some_and(|slice| slice == self.pattern)
+                .then(|| ContractionMatch {
+                    cells: vec![decode_unicode(self.cell)],
+                    consumed: self.pattern.len(),
+                    priority: self.priority,
+                    protect_span: false,
+                })
+        }
+    }
+
     #[test]
     fn plain_letters_fall_back_to_alphabet() {
         let eng = ContractionEngine::default();
@@ -146,5 +165,60 @@ mod tests {
                 decode_unicode('⠞')
             ]
         );
+    }
+
+    #[test]
+    fn accented_letters_fall_back_to_accent_cells() {
+        let eng = ContractionEngine::default();
+        let cells = eng.encode_word(&['é']).unwrap();
+
+        assert_eq!(
+            cells,
+            vec![
+                decode_unicode('⠘'),
+                decode_unicode('⠌'),
+                decode_unicode('⠑')
+            ]
+        );
+    }
+
+    #[test]
+    fn registered_rule_is_used_before_letter_fallback() {
+        let mut eng = ContractionEngine::default();
+        eng.register(Box::new(StaticRule {
+            pattern: &['c', 'h'],
+            cell: '⠡',
+            priority: 10,
+        }));
+
+        let cells = eng.encode_word(&['c', 'h', 'a', 't']).unwrap();
+
+        assert_eq!(
+            cells,
+            vec![
+                decode_unicode('⠡'),
+                decode_unicode('⠁'),
+                decode_unicode('⠞')
+            ]
+        );
+    }
+
+    #[test]
+    fn lower_priority_wins_equal_length_match() {
+        let mut eng = ContractionEngine::default();
+        eng.register(Box::new(StaticRule {
+            pattern: &['a'],
+            cell: '⠁',
+            priority: 20,
+        }));
+        eng.register(Box::new(StaticRule {
+            pattern: &['a'],
+            cell: '⠃',
+            priority: 10,
+        }));
+
+        let cells = eng.encode_word(&['a']).unwrap();
+
+        assert_eq!(cells, vec![decode_unicode('⠃')]);
     }
 }

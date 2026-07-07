@@ -287,4 +287,49 @@ mod tests {
             expected
         );
     }
+
+    #[test]
+    fn strips_following_punctuation_run_before_deciding_attachment() {
+        let tokens = vec![
+            EnglishToken::Word(vec!['b', 'u', 't']),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Symbol('?'),
+            EnglishToken::Space,
+        ];
+        assert!(is_standing_alone_at(&tokens, 0));
+
+        let attached = vec![
+            EnglishToken::Word(vec!['b', 'u', 't']),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Symbol('?'),
+            EnglishToken::Word(vec!['n', 'o', 't']),
+        ];
+        assert!(!is_standing_alone_at(&attached, 0));
+    }
+
+    #[test]
+    fn standing_alone_at_handles_first_token_and_opening_apostrophe() {
+        let first = vec![EnglishToken::Word(vec!['b', 'u', 't']), EnglishToken::Space];
+        assert!(is_standing_alone_at(&first, std::hint::black_box(0)));
+
+        let elision = vec![
+            EnglishToken::Symbol('\''),
+            EnglishToken::Word(vec!['a', 's']),
+            EnglishToken::Space,
+        ];
+        assert!(is_standing_alone_at(&elision, std::hint::black_box(1)));
+    }
+
+    #[test]
+    fn standing_alone_at_reads_neighbors_and_strips_run() {
+        let tokens = vec![
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['i', 't']),
+            EnglishToken::Symbol(','),
+            EnglishToken::Symbol('”'),
+            EnglishToken::LineBreak,
+        ];
+
+        assert!(is_standing_alone_at(&tokens, std::hint::black_box(1)));
+    }
 }

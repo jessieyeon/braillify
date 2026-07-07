@@ -173,6 +173,25 @@ mod tests {
         assert_eq!(try_at(word, pos), None);
     }
 
+    #[test]
+    fn structural_contraction_can_start_component_without_crossing_seam() {
+        let chars: Vec<char> = "stonework".chars().collect();
+        let rule = rule();
+
+        assert!(rule.starts_component(&chars, 5));
+        assert!(!rule.crosses_seam(&chars, 5, 4));
+        assert!(rule.try_match(&chars, 5).is_some());
+    }
+
+    #[test]
+    fn structural_contraction_detects_crossing_compound_seam() {
+        let chars: Vec<char> = "lucknow".chars().collect();
+        let rule = rule();
+
+        assert!(rule.starts_component(&chars, 3));
+        assert!(rule.crosses_seam(&chars, 3, 4));
+    }
+
     /// After a hyphen/apostrophe the contraction starts a component (`m'lord`).
     #[rstest::rstest]
     #[case::mlord("m'lord", 2, '⠇')]

@@ -395,4 +395,84 @@ mod tests {
             ]
         );
     }
+
+    #[rstest::rstest]
+    #[case::italic_underlined('\u{1D44E}', '\u{0332}', Typeform::ItalicUnderline)]
+    #[case::bold_underlined('\u{1D41A}', '\u{0332}', Typeform::BoldUnderline)]
+    #[case::bold_italic_underlined('\u{1D482}', '\u{0332}', Typeform::BoldItalicUnderline)]
+    fn combines_styled_letters_with_underline(
+        #[case] styled: char,
+        #[case] mark: char,
+        #[case] form: Typeform,
+    ) {
+        assert_eq!(
+            parse_english(&format!("{styled}{mark}")),
+            vec![EnglishToken::Styled('a', form)]
+        );
+    }
+
+    #[test]
+    fn two_letter_stroke_inside_word_stays_word_ligature() {
+        assert_eq!(
+            parse_english("ab\u{0336}c\u{0336}d"),
+            vec![
+                EnglishToken::Word(vec!['a', 'b']),
+                EnglishToken::Symbol('\u{0336}'),
+                EnglishToken::Word(vec!['c']),
+                EnglishToken::Symbol('\u{0336}'),
+                EnglishToken::Word(vec!['d']),
+            ]
+        );
+    }
+
+    #[test]
+    fn word_division_second_line_handles_combining_and_small_caps() {
+        assert_eq!(
+            parse_english("caf\ne\u{0301}ᴅ"),
+            vec![EnglishToken::WordDivision {
+                chars: vec!['c', 'a', 'f', 'é', 'D'],
+                break_at: 3,
+            }]
+        );
+    }
+
+    #[test]
+    fn stroke_ligature_second_overlay_continues_word_run() {
+        assert_eq!(
+            parse_english("b\u{0336}c\u{0336}"),
+            vec![
+                EnglishToken::Styled('b', Typeform::Transcriber3),
+                EnglishToken::Styled('c', Typeform::Transcriber3),
+            ]
+        );
+    }
+
+    #[test]
+    fn stroke_overlay_ligature_keeps_middle_overlay_inside_word() {
+        let chars: Vec<char> = "ab\u{0336}c\u{0336}d".chars().collect();
+
+        assert!(stroke_overlay_ligature(&chars, 3));
+    }
+
+    #[test]
+    fn stroke_overlay_ligature_continues_at_run_end_inside_word() {
+        let chars: Vec<char> = "xa\u{0336}b\u{0336}".chars().collect();
+
+        assert!(stroke_overlay_ligature(&chars, 3));
+    }
+
+    #[test]
+    fn word_division_second_line_keeps_stroke_ligature_word_run() {
+        assert_eq!(
+            parse_english("ab\nc\u{0336}d"),
+            vec![
+                EnglishToken::WordDivision {
+                    chars: vec!['a', 'b', 'c'],
+                    break_at: 2,
+                },
+                EnglishToken::Symbol('\u{0336}'),
+                EnglishToken::Word(vec!['d'])
+            ]
+        );
+    }
 }

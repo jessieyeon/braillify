@@ -642,13 +642,7 @@ fn longer_use_allowed(word: &[char], pos: usize, shortform: &str) -> bool {
         // §10.9.3: `about` may be used within a longer word. Beyond the
         // about-face / about-turn / …-abouts compounds, it also ends the locative
         // `-about` adverbs `here·about`, `there·about`, `where·about`.
-        "about" => {
-            is_about_compound(word, pos)
-                || matches!(
-                    &word[..pos],
-                    ['h', 'e', 'r', 'e'] | ['t', 'h', 'e', 'r', 'e'] | ['w', 'h', 'e', 'r', 'e']
-                )
-        }
+        "about" => is_about_compound(word, pos) || has_locative_about_prefix(word, pos),
         "good" => pos == 0 && good_prefix_allowed(word),
         "quick" => pos == 0 && quick_prefix_allowed(word),
         // §10.9.3: `such` is generative in listed compounds (`suchlike`) or
@@ -677,6 +671,13 @@ fn is_about_compound(word: &[char], pos: usize) -> bool {
         suffix_after(word, pos, "about").as_deref(),
         Some("face" | "faced" | "facer" | "facing" | "turn" | "turned")
     ) || (pos > 0 && matches!(suffix_after(word, pos, "about").as_deref(), Some("s")))
+}
+
+fn has_locative_about_prefix(word: &[char], pos: usize) -> bool {
+    let prefix = &word[..pos];
+    prefix == ['h', 'e', 'r', 'e']
+        || prefix == ['t', 'h', 'e', 'r', 'e']
+        || prefix == ['w', 'h', 'e', 'r', 'e']
 }
 
 fn good_prefix_allowed(word: &[char]) -> bool {
@@ -731,7 +732,42 @@ fn notation_cell(ch: char) -> Option<u8> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::contraction::{ContractionMatch, ContractionRule};
     use super::*;
+
+    struct TestRule {
+        pattern: &'static [char],
+        cell: char,
+        priority: u16,
+        protect_span: bool,
+    }
+
+    impl ContractionRule for TestRule {
+        fn try_match(&self, word: &[char], pos: usize) -> Option<ContractionMatch> {
+            word.get(pos..pos + self.pattern.len())
+                .is_some_and(|slice| slice == self.pattern)
+                .then(|| ContractionMatch {
+                    cells: vec![decode_unicode(self.cell)],
+                    consumed: self.pattern.len(),
+                    priority: self.priority,
+                    protect_span: self.protect_span,
+                })
+        }
+    }
+
+    fn engine_with(rule: TestRule) -> ContractionEngine {
+        let mut engine = ContractionEngine::default();
+        engine.register(Box::new(rule));
+        engine
+    }
+
+    fn chars(word: &str) -> Vec<char> {
+        word.chars().collect()
+    }
+
+    fn cells(s: &str) -> Vec<u8> {
+        s.chars().map(decode_unicode).collect()
+    }
 
     #[rstest::rstest]
     #[case::about("about", "⠁⠃")]
@@ -768,5 +804,359 @@ mod tests {
             division_shortform_allowed(&chars, pos, shortform, WordDivision { index: break_at }),
             expected
         );
+    }
+
+    #[rstest::rstest]
+    #[case::hereinafter("hereinafter", "⠐⠓⠔⠤\n⠁⠋")]
+    #[case::hereinbelow("hereinbelow", "⠐⠓⠔⠤\n⠃⠑⠇⠪")]
+    #[case::hereinx("hereinx", "⠐⠓⠔⠤\n⠭")]
+    fn encode_with_division_handles_herein_exceptions(#[case] word: &str, #[case] expected: &str) {
+        let word = chars(word);
+        let got = encode_with_division(
+            &word,
+            &ContractionEngine::default(),
+            WordDivision { index: 6 },
+            false,
+        );
+        let expected: Vec<u8> = expected
+            .chars()
+            .map(|c| if c == '\n' { 255 } else { decode_unicode(c) })
+            .collect();
+        assert_eq!(got, Some(expected));
+    }
+
+    #[rstest::rstest]
+    #[case::blocks_span("abcd", &['b', 'c'], 1, WordDivision { index: 2 })]
+    #[case::blocks_initial_ing("thing", &['i', 'n', 'g'], 2, WordDivision { index: 2 })]
+    #[case::blocks_restricted_lower("because", &['b', 'e'], 0, WordDivision { index: 2 })]
+    #[case::blocks_middle_lower("peanut", &['e', 'a'], 1, WordDivision { index: 3 })]
+    #[case::blocks_final_letter("abation", &['a', 't', 'i', 'o', 'n'], 2, WordDivision { index: 2 })]
+    #[case::blocks_lower_sequence("a--", &['-'], 2, WordDivision { index: 1 })]
+    fn candidate_moves_drops_matches_for_division_rules(
+        #[case] word: &str,
+        #[case] pattern: &'static [char],
+        #[case] pos: usize,
+        #[case] division: WordDivision,
+    ) {
+        let word = chars(word);
+        let engine = engine_with(TestRule {
+            pattern,
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+        let moves = candidate_moves(
+            &word,
+            pos,
+            &engine,
+            false,
+            true,
+            &vec![false; word.len()],
+            &[],
+            Some(division),
+            false,
+            false,
+            false,
+        );
+        assert!(moves.iter().all(|(cells, consumed, _)| {
+            *consumed != pattern.len() || cells != &vec![decode_unicode('⠆')]
+        }));
+    }
+
+    #[rstest::rstest]
+    #[case::friend_at_break("penfriend", 3, "friend", 3, true)]
+    #[case::after_at_break("hereinafter", 6, "after", 6, true)]
+    #[case::immediate_before_break("immediatecare", 0, "immediate", 9, true)]
+    #[case::necessary_after_break("unnecessary", 2, "necessary", 2, true)]
+    #[case::good_not_division_exception("goodness", 0, "good", 4, false)]
+    fn division_shortform_allowed_only_for_listed_divisions(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] shortform: &str,
+        #[case] break_at: usize,
+        #[case] expected: bool,
+    ) {
+        let chars: Vec<char> = word.chars().collect();
+        assert_eq!(
+            division_shortform_allowed(&chars, pos, shortform, WordDivision { index: break_at }),
+            expected
+        );
+    }
+
+    #[test]
+    fn lower_sequence_helpers_reconstruct_prefix_cells() {
+        let word = chars("bb");
+        let engine = engine_with(TestRule {
+            pattern: &['b'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(all_lower_sequence_cells(&word, &engine), Some(cells("⠆⠆")));
+    }
+
+    #[test]
+    fn lower_sequence_uses_matching_prefix_from_nonzero_position() {
+        let word = chars("ab");
+        let engine = engine_with(TestRule {
+            pattern: &['a'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(
+            all_lower_sequence_prefix_cells(&word, 1, &engine),
+            Some(cells("⠆"))
+        );
+    }
+
+    #[test]
+    fn lower_sequence_follows_match_from_middle_position() {
+        let word = chars("bc");
+        let engine = engine_with(TestRule {
+            pattern: &['b'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(
+            all_lower_sequence_prefix_cells(&word, 1, &engine),
+            Some(cells("⠆"))
+        );
+    }
+
+    #[test]
+    fn lower_sequence_prefix_skips_unreachable_positions() {
+        let word = chars("ab");
+        let engine = engine_with(TestRule {
+            pattern: &['b'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(all_lower_sequence_prefix_cells(&word, 2, &engine), None);
+    }
+
+    #[test]
+    fn lower_sequence_prefix_rejects_match_that_crosses_requested_end() {
+        let word = chars("ab");
+        let engine = engine_with(TestRule {
+            pattern: &['a', 'b'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(all_lower_sequence_prefix_cells(&word, 1, &engine), None);
+    }
+
+    #[test]
+    fn lower_sequence_prefix_accepts_match_that_reaches_requested_end() {
+        let word = chars("ab");
+        let engine = engine_with(TestRule {
+            pattern: &['a', 'b'],
+            cell: '⠆',
+            priority: 65,
+            protect_span: false,
+        });
+
+        assert_eq!(
+            all_lower_sequence_prefix_cells(&word, 2, &engine),
+            Some(cells("⠆"))
+        );
+    }
+
+    #[test]
+    fn candidate_moves_falls_back_to_plain_english_cell() {
+        let word = chars("z");
+        let moves = candidate_moves(
+            &word,
+            0,
+            &ContractionEngine::default(),
+            false,
+            false,
+            &vec![false; word.len()],
+            &[],
+            None,
+            false,
+            false,
+            false,
+        );
+
+        assert!(moves.iter().any(|(cells, consumed, priority)| {
+            *cells == vec![decode_unicode('⠵')] && *consumed == 1 && *priority == u16::MAX
+        }));
+    }
+
+    #[test]
+    fn longer_match_helpers_handle_herein_exception_directly() {
+        let word = chars("hereinbelow");
+
+        assert_eq!(longer_match(&word, 0), Some((6, cells("⠐⠓⠔"))));
+        assert_eq!(shortform_part_cells(&word, 0), Some((6, cells("⠐⠓⠔"))));
+        assert_eq!(
+            longer_match_for_division(&word, 0, WordDivision { index: 6 }),
+            Some((6, cells("⠐⠓⠔")))
+        );
+    }
+
+    #[test]
+    fn longer_match_for_division_accepts_division_specific_shortform() {
+        let word = chars("penfriend");
+
+        assert_eq!(
+            longer_match_for_division(&word, 3, WordDivision { index: 3 }),
+            Some((6, cells("⠋⠗")))
+        );
+    }
+
+    #[test]
+    fn division_longer_match_accepts_regular_longer_use_path() {
+        let word = chars("aboutface");
+
+        assert_eq!(
+            longer_match_for_division(&word, 0, WordDivision { index: 5 }),
+            Some((5, cells("⠁⠃")))
+        );
+    }
+
+    #[test]
+    fn division_shortform_or_branch_accepts_exception_path() {
+        let word = chars("unnecessary");
+
+        assert_eq!(
+            longer_match_for_division(&word, 2, WordDivision { index: 2 }),
+            Some((9, cells("⠝⠑⠉")))
+        );
+    }
+
+    #[test]
+    fn division_longer_match_accepts_division_specific_or_path() {
+        let word = chars("penfriend");
+
+        assert_eq!(
+            longer_match_for_division(&word, 3, WordDivision { index: 3 }),
+            Some((6, cells("⠋⠗")))
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::encea("encea")]
+    #[case::enced("enced")]
+    #[case::encer("encer")]
+    fn detects_ence_letter_sequence_contexts(#[case] word: &str) {
+        assert!(is_ence_context(&chars(word), 0));
+    }
+
+    #[rstest::rstest]
+    #[case::hereabout("hereabout", 4, true)]
+    #[case::thereabouts("thereabouts", 5, true)]
+    #[case::aboutface("aboutface", 0, true)]
+    #[case::not_about_compound("turnaboutx", 4, false)]
+    fn about_longer_use_paths(#[case] word: &str, #[case] pos: usize, #[case] expected: bool) {
+        assert_eq!(longer_use_allowed(&chars(word), pos, "about"), expected);
+    }
+
+    #[test]
+    fn about_compound_helper_accepts_plural_tail() {
+        assert!(is_about_compound(&chars("thereabouts"), 5));
+        assert!(is_about_compound(&chars("aboutturned"), 0));
+        assert!(longer_use_allowed(&chars("thereabouts"), 5, "about"));
+    }
+
+    #[test]
+    fn about_shortform_accepts_whereabout_suffix() {
+        assert!(longer_use_allowed(&chars("whereabout"), 5, "about"));
+    }
+
+    #[test]
+    fn about_shortform_runtime_prefix_suffix_path() {
+        let word = chars(std::hint::black_box("hereabout"));
+
+        assert!(longer_use_allowed(&word, 4, "about"));
+    }
+
+    #[test]
+    fn runtime_shortform_helpers_cover_longer_loop_paths() {
+        let aboutface = chars(std::hint::black_box("aboutface"));
+        assert_eq!(longer_match(&aboutface, 0), Some((5, cells("⠁⠃"))));
+        assert_eq!(shortform_part_cells(&aboutface, 0), Some((5, cells("⠁⠃"))));
+
+        let thereabout = chars(std::hint::black_box("thereabout"));
+        assert!(longer_use_allowed(&thereabout, 5, "about"));
+
+        let unnecessary = chars(std::hint::black_box("unnecessary"));
+        assert_eq!(
+            longer_match_for_division(&unnecessary, 2, WordDivision { index: 2 }),
+            Some((9, cells("⠝⠑⠉")))
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::about_face("aboutfacing", 0, true)]
+    #[case::some_such("somesuch", 4, true)]
+    #[case::suchlike_listed("suchlike", 0, true)]
+    #[case::children_before_vowel("childreny", 0, false)]
+    #[case::paid_prefix_rejected("paid", 0, false)]
+    #[case::paid_embedded_allowed("repaid", 2, true)]
+    fn longer_use_additional_shortform_paths(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] expected: bool,
+    ) {
+        let shortform = if word[pos..].starts_with("about") {
+            "about"
+        } else if word[pos..].starts_with("such") {
+            "such"
+        } else if word[pos..].starts_with("children") {
+            "children"
+        } else {
+            "paid"
+        };
+        assert_eq!(longer_use_allowed(&chars(word), pos, shortform), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::good_before_consonant("goodness", true)]
+    #[case::good_before_vowel_rejected("goodish", false)]
+    #[case::goodafternoon_exception("goodafternoon", true)]
+    #[case::quick_before_consonant("quickness", true)]
+    #[case::quicker_exception("quicker", true)]
+    #[case::quick_before_vowel_rejected("quickish", false)]
+    fn prefix_shortform_vowel_gates(#[case] word: &str, #[case] expected: bool) {
+        let chars: Vec<char> = word.chars().collect();
+        let actual = if word.starts_with("good") {
+            good_prefix_allowed(&chars)
+        } else {
+            quick_prefix_allowed(&chars)
+        };
+        assert_eq!(actual, expected);
+    }
+
+    #[rstest::rstest]
+    #[case::asterisk('*', '⠡')]
+    #[case::percent('%', '⠩')]
+    #[case::question('?', '⠹')]
+    #[case::backslash('\\', '⠳')]
+    #[case::slash('/', '⠌')]
+    #[case::two('2', '⠆')]
+    #[case::three('3', '⠒')]
+    #[case::nine('9', '⠔')]
+    #[case::right_bracket(']', '⠻')]
+    #[case::exclamation('!', '⠮')]
+    #[case::double_quote('"', '⠐')]
+    #[case::apostrophe('\'', '⠄')]
+    fn maps_shortform_notation_symbols(#[case] notation: char, #[case] expected: char) {
+        assert_eq!(notation_cell(notation), Some(decode_unicode(expected)));
+    }
+
+    #[test]
+    fn rejects_unknown_shortform_notation_symbol() {
+        assert_eq!(notation_cell('@'), None);
+        assert_eq!(notation_cells("@").as_deref(), None);
     }
 }

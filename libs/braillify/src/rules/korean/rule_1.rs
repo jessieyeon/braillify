@@ -165,8 +165,10 @@ mod tests {
 
     #[test]
     fn rule1_meta_phase_priority() {
-        assert_eq!(Rule1.meta().section, "1");
-        assert!(matches!(Rule1.phase(), Phase::CoreEncoding));
-        assert_eq!(Rule1.priority(), 200);
+        let rule: &dyn BrailleRule = std::hint::black_box(&Rule1);
+
+        assert_eq!(rule.meta().section, "1");
+        assert!(matches!(rule.phase(), Phase::CoreEncoding));
+        assert_eq!(rule.priority(), 200);
     }
 }

@@ -1043,6 +1043,16 @@ mod coverage_tests {
         );
     }
 
+    #[test]
+    fn open_paren_followed_by_function_checks_nested_function_name() {
+        let tokens = parse("(cos(x))");
+
+        assert!(matches!(
+            tokens.first(),
+            Some(MathToken::OpenParen(BracketKind::MathParen))
+        ));
+    }
+
     /// Close-paren `promote_grouping && contains_arithmetic && !contains_comma`
     /// (lines 516-523). Pattern: `=(a+b)` — `(` directly after `=` sets
     /// promote_grouping; `+` inside sets contains_arithmetic; no comma → the
@@ -1301,5 +1311,53 @@ mod coverage_tests {
         let tokens = parse_math_expression(".x").unwrap();
         let has_raw_dot = tokens.iter().any(|t| matches!(t, MathToken::Raw('.')));
         assert!(has_raw_dot, "expected Raw(.) for '.x': {tokens:?}");
+    }
+
+    #[test]
+    fn parse_curly_group_pushes_curly_bracket_state() {
+        let tokens = parse_math_expression("{x}").unwrap();
+
+        assert!(matches!(
+            tokens.first(),
+            Some(MathToken::OpenParen(BracketKind::Curly))
+        ));
+        assert!(matches!(
+            tokens.last(),
+            Some(MathToken::CloseParen(BracketKind::Curly))
+        ));
+    }
+
+    #[test]
+    fn open_paren_detects_nested_function_start() {
+        let tokens = parse_math_expression("(sin(x))").unwrap();
+
+        assert!(matches!(
+            tokens.first(),
+            Some(MathToken::OpenParen(BracketKind::MathParen))
+        ));
+    }
+
+    #[test]
+    fn open_paren_checks_runtime_function_prefix() {
+        let input = std::hint::black_box("(cos(x))");
+        let tokens = parse_math_expression(input).unwrap();
+
+        assert!(matches!(
+            tokens.first(),
+            Some(MathToken::OpenParen(BracketKind::MathParen))
+        ));
+    }
+
+    #[test]
+    fn factorial_ratio_reorders_denominator_before_numerator() {
+        let tokens = parse_math_expression("5!/3!").unwrap();
+
+        assert!(matches!(tokens.as_slice(), [
+            MathToken::Number(denominator),
+            MathToken::Operator('!'),
+            MathToken::Operator('/'),
+            MathToken::Number(numerator),
+            MathToken::Operator('!'),
+        ] if denominator == "3" && numerator == "5"));
     }
 }

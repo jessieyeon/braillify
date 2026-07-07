@@ -43,12 +43,26 @@ mod tests {
 
     #[rstest::rstest]
     #[case::primary('ˈ', "⠘⠨⠃")]
+    #[case::primary_double_prime('″', "⠘⠨⠃")]
     #[case::secondary('ˌ', "⠘⠨⠆")]
+    #[case::secondary_prime('′', "⠘⠨⠆")]
     #[case::schwa('ə', "⠸⠢")]
     #[case::line('|', "⠸⠳")]
+    #[case::double_line('‖', "⠸⠳⠸⠳")]
     #[case::scansion_solidus('/', "⠸⠌")]
     #[case::tone_down('↓', "⠘⠨⠮")]
+    #[case::tone_fall('➘', "⠘⠨⠴")]
+    #[case::tone_low_rising('↗', "⠘⠨⠔")]
+    #[case::tone_high_rising('ˊ', "⠘⠨⠊")]
+    #[case::tone_fall_rise('↺', "⠘⠨⠌")]
+    #[case::tone_up('↑', "⠘⠨⠫")]
+    #[case::tone_low_falling('ˎ', "⠘⠨⠢")]
     fn maps_scansion_stress_tone(#[case] c: char, #[case] expected: &str) {
         assert_eq!(encode_symbol(c), Some(cells(expected)));
+    }
+
+    #[test]
+    fn unknown_symbol_returns_none() {
+        assert_eq!(encode_symbol('x'), None);
     }
 }

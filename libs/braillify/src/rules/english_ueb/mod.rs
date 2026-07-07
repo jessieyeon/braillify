@@ -543,7 +543,10 @@ fn matching_prose_angle_close(chars: &[char], open: usize) -> Option<usize> {
 
 #[cfg(test)]
 mod is_math_owned_tests {
-    use super::is_math_owned;
+    use super::{
+        encode_english, encode_struck_ligature_text, has_inline_dollar_math_in_prose, is_math_owned,
+    };
+    use crate::unicode::decode_unicode;
 
     /// Inputs the legacy math engine owns — UEB must NOT intercept these.
     #[rstest::rstest]
@@ -621,6 +624,68 @@ mod is_math_owned_tests {
     #[case::inline_nemeth_prose("The result will be in the form $(ax+by)(cx+dy)$, where $ac=12$.")]
     fn english_inputs_are_not_blocked(#[case] text: &str) {
         assert!(!is_math_owned(text), "{text:?} should NOT be math-owned");
+    }
+
+    #[test]
+    fn struck_ligature_handles_uppercase_second_letter() {
+        assert_eq!(
+            encode_struck_ligature_text("a\u{0336}B\u{0336}"),
+            Some(vec![
+                decode_unicode('⠁'),
+                decode_unicode('⠠'),
+                decode_unicode('⠘'),
+                decode_unicode('⠖'),
+                decode_unicode('⠃'),
+            ])
+        );
+    }
+
+    #[test]
+    fn struck_ligature_rejects_unmarked_second_letter() {
+        assert_eq!(encode_struck_ligature_text("a\u{0336}B"), None);
+    }
+
+    #[test]
+    fn struck_ligature_keeps_capital_for_accented_second_letter() {
+        assert_eq!(
+            encode_struck_ligature_text("a\u{0336}É\u{0336}"),
+            Some(vec![
+                decode_unicode('⠁'),
+                decode_unicode('⠠'),
+                decode_unicode('⠘'),
+                decode_unicode('⠖'),
+                decode_unicode('⠘'),
+                decode_unicode('⠌'),
+                decode_unicode('⠑'),
+            ])
+        );
+    }
+
+    #[test]
+    fn code_switch_closure_encodes_non_empty_english_segment() {
+        let encoded = encode_english("word قُ", true).expect("Arabic code switch should encode");
+
+        assert!(encoded.contains(&decode_unicode('⠺')));
+        assert!(encoded.iter().any(|cell| *cell != 0));
+    }
+
+    #[test]
+    fn plain_english_route_uses_engine_after_parsing_tokens() {
+        let input = std::hint::black_box("cat");
+
+        assert_eq!(
+            encode_english(input, true),
+            Some(vec![
+                decode_unicode('⠉'),
+                decode_unicode('⠁'),
+                decode_unicode('⠞')
+            ])
+        );
+    }
+
+    #[test]
+    fn full_dollar_span_is_not_inline_prose_math() {
+        assert!(!has_inline_dollar_math_in_prose("$x+1$"));
     }
 }
 

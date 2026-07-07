@@ -83,10 +83,35 @@ pub fn listed_or_added_s(word: &str) -> bool {
     if matches!(word, "abouts" | "almosts" | "hims") {
         return false;
     }
-    word.strip_suffix('s')
-        .is_some_and(|base| APPENDIX_LONGER_WORDS.contains(base))
+    match word.strip_suffix('s') {
+        Some(base) => APPENDIX_LONGER_WORDS.contains(base),
+        None => false,
+    }
 }
 
 pub fn mixed_case_listed(word: &str) -> bool {
     APPENDIX_MIXED_CASE_LONGER_WORDS.contains(word)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[rstest::rstest]
+    #[case::listed_base("afterburn", true)]
+    #[case::listed_plural("afterburns", true)]
+    #[case::listed_longer_variant("afterburner", true)]
+    #[case::blocked_abouts("abouts", false)]
+    #[case::unlisted_plural("zzzzs", false)]
+    #[case::unlisted("zzzz", false)]
+    fn listed_or_added_s_paths(#[case] word: &str, #[case] expected: bool) {
+        assert_eq!(listed_or_added_s(word), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::listed("deafblind", true)]
+    #[case::unlisted("penfriend", false)]
+    fn mixed_case_listed_paths(#[case] word: &str, #[case] expected: bool) {
+        assert_eq!(mixed_case_listed(word), expected);
+    }
 }

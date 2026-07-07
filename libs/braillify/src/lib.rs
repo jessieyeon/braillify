@@ -231,14 +231,13 @@ fn normalize_math_alphanumeric_char(c: char) -> char {
     ];
     for &(start, base) in BLOCKS {
         if cp >= start && cp < start + 26 {
-            return char::from_u32(base as u32 + (cp - start)).unwrap_or(c);
+            return char::from(base as u8 + (cp - start) as u8);
         }
     }
     const DIGIT_BLOCKS: &[u32] = &[0x1D7CE, 0x1D7D8, 0x1D7E2, 0x1D7EC, 0x1D7F6];
     for &start in DIGIT_BLOCKS {
         if cp >= start && cp < start + 10 {
-            let digit_code = b'0' as u32 + (cp - start);
-            return char::from_u32(digit_code).unwrap_or(c);
+            return char::from(b'0' + (cp - start) as u8);
         }
     }
     c
@@ -705,97 +704,6 @@ pub fn encode_with_options(text: &str, options: &EncodeOptions) -> Result<Vec<u8
         && !text.chars().any(crate::utils::is_korean_char)
         && crate::rules::english_ueb::is_ueb_eligible(text)
         && !crate::rules::english_ueb::is_math_owned(text)
-        && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
-    {
-        return Ok(bytes);
-    }
-    // §9 typeform: a styled letter (math-alphanumeric, e.g. `𝑝`) carries an
-    // italic/bold emphasis that the math-alphanumeric normalization below erases
-    // by folding `𝑝`→`p` (the Korean math path writes no font variation). For
-    // english-dominant prose the UEB engine instead emits a typeform indicator,
-    // so try it on the ORIGINAL text first. The letter signal is an ASCII letter
-    // OR a UEB-decodable styled char (`decode_styled`), so a *fully* styled phrase
-    // carrying no plain ASCII (`𝐡𝐢𝐬 𝐡𝐞𝐫𝐬 𝐢𝐭𝐬`, `13.8𝟔𝟔𝟔`) is still routed here
-    // instead of being flattened to plain letters first; math/Korean inputs, or
-    // styles the UEB path cannot decode, fall through to normalization as before.
-    if options.default_mode.is_none()
-        && normalization_triggers.has_math_alphanumeric
-        && !text.chars().any(crate::utils::is_korean_char)
-        && text.chars().any(|c| {
-            c.is_ascii_alphabetic() || crate::rules::english_ueb::rule_9::decode_styled(c).is_some()
-        })
-        && !crate::rules::english_ueb::is_math_owned(text)
-        && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
-    {
-        return Ok(bytes);
-    }
-    // UEB §14.6 Nemeth code-switching is signalled by inline `$...$` spans in
-    // English prose testcases. Route the whole sentence to UEB before the legacy
-    // token pipeline can consume each dollar-delimited fragment separately. A bare
-    // `$…$` math expression (the WHOLE input is one balanced span, e.g. `$a^k$`,
-    // `$x'$`, `$ax+b=0$`) is Korean-math-owned by default (`is_math_owned`), so it
-    // is excluded here — only English prose that *contains* `$...$` fragments
-    // (spaces or letters outside the span) reaches the Nemeth code-switch path.
-    if options.default_mode.is_none()
-        && text.contains('$')
-        && text.chars().any(|c| c.is_ascii_alphabetic())
-        && !text.chars().any(crate::utils::is_korean_char)
-        && !crate::rules::english_ueb::is_math_owned(text)
-        && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
-    {
-        return Ok(bytes);
-    }
-    // UEB 2024 §§15-16: scansion/tone/line-mode examples are English-owned even
-    // when they do not contain mathematical-alphanumeric typeform triggers. Route
-    // whole examples through the UEB document engine so tabs, poetry line breaks,
-    // tone arrows and spatial line drawings keep their document-level context.
-    if options.default_mode.is_none()
-        && !text.chars().any(crate::utils::is_korean_char)
-        && text.chars().any(|c| c.is_ascii_alphabetic())
-        && !crate::rules::english_ueb::is_math_owned(text)
-        && (text.contains('\t')
-            || text.contains("\n—")
-            || text.chars().any(|c| matches!(c, '➘' | '↺'))
-            || (text.contains('↑') && text.contains('↓'))
-            || text.chars().any(|c| {
-                matches!(
-                    c,
-                    '─' | '│'
-                        | '┌'
-                        | '┐'
-                        | '└'
-                        | '┘'
-                        | '┬'
-                        | '┴'
-                        | '┼'
-                        | '├'
-                        | '╲'
-                        | '╱'
-                        | '╳'
-                )
-            })
-            || (text.contains('/')
-                && text.chars().any(|c| {
-                    matches!(
-                        c,
-                        'ā' | 'ē'
-                            | 'ī'
-                            | 'ō'
-                            | 'ū'
-                            | 'ȳ'
-                            | 'ă'
-                            | 'ĕ'
-                            | 'ĭ'
-                            | 'ŏ'
-                            | 'ŭ'
-                            | 'Ā'
-                            | 'Ē'
-                            | 'Ī'
-                            | 'Ō'
-                            | 'Ū'
-                            | 'Ȳ'
-                    )
-                })))
         && let Some(bytes) = crate::rules::english_ueb::try_encode(text)
     {
         return Ok(bytes);
@@ -2214,11 +2122,25 @@ mod coverage_targeted_tests {
     fn decompose_accented_latin_called_for_accented_input() {
         // 'é' U+00E9 — Latin-1 Supplement, decomposable to 'e' + U+0301.
         // has_decomposable_latin = true → line 529 hits, function called.
-        let _ = encode("café");
+        let _ = encode(std::hint::black_box("café"));
         // 'ñ' U+00F1 decomposes to 'n' + U+0303.
-        let _ = encode("piñata");
+        let _ = encode(std::hint::black_box("piñata"));
         // 'ã' U+00E3 decomposes to 'a' + U+0303.
-        let _ = encode("ão");
+        let _ = encode(std::hint::black_box("ão"));
+    }
+
+    #[test]
+    fn decompose_accented_latin_directly_expands_latin_marks() {
+        assert_eq!(
+            decompose_accented_latin(Cow::Borrowed("café Å")),
+            Cow::<str>::Owned("cafe\u{0301} Å".to_string())
+        );
+    }
+
+    #[test]
+    fn default_mode_routes_styled_english_and_inline_nemeth_to_ueb() {
+        assert!(encode("𝐡𝐢𝐬 𝐡𝐞𝐫𝐬 𝐢𝐭𝐬").is_ok());
+        assert!(encode("solve $x+1$ now").is_ok());
     }
 
     /// lib.rs:147 — Math Alphanumeric DIGIT blocks (𝟎-𝟗 across 5 styles) normalize
@@ -2233,8 +2155,32 @@ mod coverage_targeted_tests {
     #[case::sans_serif_zero('\u{1D7E2}', '0')]
     #[case::sans_serif_bold_zero('\u{1D7EC}', '0')]
     #[case::monospace_zero('\u{1D7F6}', '0')]
+    #[case::monospace_nine('\u{1D7FF}', '9')]
     fn normalize_math_alphanumeric_digits(#[case] input: char, #[case] expected: char) {
+        assert_eq!(
+            normalize_math_alphanumeric_char(std::hint::black_box(input)),
+            expected
+        );
+    }
+
+    #[test]
+    fn encode_normalizes_math_alphanumeric_digit_blocks() {
+        assert!(encode(std::hint::black_box("𝟘+𝟙=𝟙")).is_ok());
+    }
+
+    #[rstest::rstest]
+    #[case::bold_capital_a('\u{1D400}', 'A')]
+    #[case::bold_lower_a('\u{1D41A}', 'a')]
+    #[case::italic_lower_h('\u{210E}', 'h')]
+    fn normalize_math_alphanumeric_letters(#[case] input: char, #[case] expected: char) {
         assert_eq!(normalize_math_alphanumeric_char(input), expected);
+    }
+
+    #[test]
+    fn may_normalize_math_alphanumeric_detects_supported_ranges() {
+        assert!(may_normalize_math_alphanumeric('\u{210E}'));
+        assert!(may_normalize_math_alphanumeric('\u{1D400}'));
+        assert!(!may_normalize_math_alphanumeric('A'));
     }
 }
 

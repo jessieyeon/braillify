@@ -557,4 +557,11 @@ mod tests {
         let outcome = Rule68.apply(&mut ctx).unwrap();
         assert!(matches!(outcome, RuleResult::Skip));
     }
+
+    #[rstest::rstest]
+    #[case::known_square_meter('㎡', true)]
+    #[case::plain_ascii('x', false)]
+    fn detects_rule_68_symbols(#[case] ch: char, #[case] expected: bool) {
+        assert_eq!(is_rule_68_symbol(std::hint::black_box(ch)), expected);
+    }
 }

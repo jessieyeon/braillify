@@ -80,7 +80,8 @@ fn word_looks_like_unit_chain(word: &[char]) -> bool {
             has_unit_symbol = true;
         }
     }
-    has_separator && (has_unit_symbol || word.iter().any(char::is_ascii_alphabetic))
+    let has_ascii_letter = word.iter().any(char::is_ascii_alphabetic);
+    has_separator && (has_unit_symbol || has_ascii_letter)
 }
 
 fn is_symbol_measurement_context(ctx: &RuleContext, symbol: char) -> bool {
@@ -273,13 +274,45 @@ impl BrailleRule for Rule69 {
 
 #[cfg(test)]
 mod tests {
-    use super::{encode_percent_abbreviation, parse_numeric_ascii_unit_prefix};
+    use super::{
+        Rule69, encode_ascii_unit, encode_percent_abbreviation, parse_numeric_ascii_unit_prefix,
+        word_looks_like_unit_chain,
+    };
+
+    #[rstest::rstest]
+    #[case::slash_with_ascii_unit("cal/min", true)]
+    #[case::slash_with_unit_symbol("kg/㎠", true)]
+    #[case::slash_without_unit_component("//", false)]
+    #[case::unit_symbol_without_slash("㎠", false)]
+    fn detects_unit_chain_words(#[case] input: &str, #[case] expected: bool) {
+        let chars: Vec<char> = input.chars().collect();
+
+        assert_eq!(word_looks_like_unit_chain(&chars), expected);
+    }
 
     #[test]
     fn parses_compact_number_unit_word() {
         let chars: Vec<char> = "180cm".chars().collect();
         let parsed = parse_numeric_ascii_unit_prefix(&chars).expect("should parse 180cm");
         assert_eq!(parsed.0, "180");
+        assert_eq!(parsed.2, chars.len());
+    }
+
+    #[test]
+    fn parses_decimal_number_unit_word() {
+        let chars: Vec<char> = "1,234.5kg".chars().collect();
+        let parsed = parse_numeric_ascii_unit_prefix(&chars).expect("should parse decimal kg");
+
+        assert_eq!(parsed.0, "1,234.5");
+        assert_eq!(parsed.2, chars.len());
+    }
+
+    #[test]
+    fn parses_leading_decimal_numeric_unit_word() {
+        let chars: Vec<char> = ".5kg".chars().collect();
+        let parsed = parse_numeric_ascii_unit_prefix(&chars).expect("should parse .5kg");
+
+        assert_eq!(parsed.0, ".5");
         assert_eq!(parsed.2, chars.len());
     }
 
@@ -299,6 +332,22 @@ mod tests {
     fn percent_p_does_not_match_inside_ascii_word() {
         let chars: Vec<char> = "%point".chars().collect();
         assert!(encode_percent_abbreviation(&chars, 0).is_none());
+    }
+
+    #[test]
+    fn ascii_unit_scan_continues_past_non_matching_candidates() {
+        let chars: Vec<char> = "zzz".chars().collect();
+
+        assert!(encode_ascii_unit(&chars, 0).is_none());
+    }
+
+    #[test]
+    fn rule69_metadata_is_stable() {
+        use crate::rules::traits::BrailleRule;
+
+        assert_eq!(Rule69.meta().name, "measurement_symbols");
+        assert_eq!(Rule69.phase(), crate::rules::traits::Phase::CoreEncoding);
+        assert_eq!(Rule69.priority(), 90);
     }
 
     /// rule_69:255 — `μ` (mu) alone or followed by non-unit chars triggers the

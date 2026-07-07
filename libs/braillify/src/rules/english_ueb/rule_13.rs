@@ -163,12 +163,11 @@ pub fn foreign_accent_cells(c: char, spanish_context: bool) -> Option<Vec<u8>> {
         'ä' => '⠜',
         _ => return None,
     };
-    let mut cells = Vec::with_capacity(2);
-    if cap {
-        cells.push(decode_unicode('⠠'));
-    }
-    cells.push(decode_unicode(cell));
-    Some(cells)
+    Some(if cap {
+        vec![decode_unicode('⠠'), decode_unicode(cell)]
+    } else {
+        vec![decode_unicode(cell)]
+    })
 }
 
 pub fn has_foreign_code_signal(chars: &[char]) -> bool {
@@ -356,13 +355,129 @@ mod tests {
     #[case::spanish_ntilde('ñ', true, "⠻")]
     #[case::french_eacute('é', false, "⠿")]
     #[case::french_egrave('è', false, "⠮")]
+    #[case::french_ccedilla('ç', false, "⠯")]
+    #[case::spanish_eacute('é', true, "⠮")]
+    #[case::grave_or_acute_a('á', false, "⠷")]
+    #[case::ecircumflex('ê', false, "⠣")]
+    #[case::ediaeresis('ë', false, "⠫")]
+    #[case::icircumflex('î', false, "⠩")]
+    #[case::ocircumflex('ô', false, "⠹")]
+    #[case::uacute('ú', false, "⠾")]
+    #[case::iacute('í', false, "⠌")]
     #[case::igbo_o_dot('Ọ', false, "⠠⠪")]
+    #[case::igbo_u_dot('Ụ', false, "⠠⠳")]
+    #[case::adiaeresis('ä', false, "⠜")]
     fn maps_foreign_code_accents_from_13_6_and_14_3(
         #[case] c: char,
         #[case] spanish: bool,
         #[case] expected: &str,
     ) {
         assert_eq!(foreign_accent_cells(c, spanish), Some(cells(expected)));
+    }
+
+    #[rstest::rstest]
+    #[case::acute_lower_a('a', '\u{0301}', 'á')]
+    #[case::acute_upper_a('A', '\u{0301}', 'Á')]
+    #[case::acute_upper_i('I', '\u{0301}', 'Í')]
+    #[case::acute_upper_o('O', '\u{0301}', 'Ó')]
+    #[case::acute_upper_u('U', '\u{0301}', 'Ú')]
+    #[case::grave_lower_a('a', '\u{0300}', 'à')]
+    #[case::grave_lower_i('i', '\u{0300}', 'ì')]
+    #[case::grave_lower_u('u', '\u{0300}', 'ù')]
+    #[case::grave_upper_a('A', '\u{0300}', 'À')]
+    #[case::grave_upper_e('E', '\u{0300}', 'È')]
+    #[case::grave_lower_o('o', '\u{0300}', 'ò')]
+    #[case::grave_upper_i('I', '\u{0300}', 'Ì')]
+    #[case::grave_upper_o('O', '\u{0300}', 'Ò')]
+    #[case::grave_upper_u('U', '\u{0300}', 'Ù')]
+    #[case::circumflex_lower_a('a', '\u{0302}', 'â')]
+    #[case::circumflex_lower_e('e', '\u{0302}', 'ê')]
+    #[case::circumflex_lower_o('o', '\u{0302}', 'ô')]
+    #[case::circumflex_lower_u('u', '\u{0302}', 'û')]
+    #[case::circumflex_upper_a('A', '\u{0302}', 'Â')]
+    #[case::circumflex_upper_e('E', '\u{0302}', 'Ê')]
+    #[case::circumflex_upper_i('I', '\u{0302}', 'Î')]
+    #[case::circumflex_upper_o('O', '\u{0302}', 'Ô')]
+    #[case::circumflex_upper_u('U', '\u{0302}', 'Û')]
+    #[case::diaeresis_lower_a('a', '\u{0308}', 'ä')]
+    #[case::diaeresis_lower_e('e', '\u{0308}', 'ë')]
+    #[case::diaeresis_lower_u('u', '\u{0308}', 'ü')]
+    #[case::tilde_lower_n('n', '\u{0303}', 'ñ')]
+    #[case::tilde_upper_n('N', '\u{0303}', 'Ñ')]
+    #[case::tilde_lower_a('a', '\u{0303}', 'ã')]
+    #[case::tilde_upper_a('A', '\u{0303}', 'Ã')]
+    #[case::tilde_lower_o('o', '\u{0303}', 'õ')]
+    #[case::tilde_upper_o('O', '\u{0303}', 'Õ')]
+    #[case::macron_lower_a('a', '\u{0304}', 'ā')]
+    #[case::macron_upper_a('A', '\u{0304}', 'Ā')]
+    #[case::macron_lower_e('e', '\u{0304}', 'ē')]
+    #[case::macron_upper_e('E', '\u{0304}', 'Ē')]
+    #[case::macron_lower_i('i', '\u{0304}', 'ī')]
+    #[case::macron_upper_i('I', '\u{0304}', 'Ī')]
+    #[case::macron_lower_o('o', '\u{0304}', 'ō')]
+    #[case::macron_upper_o('O', '\u{0304}', 'Ō')]
+    #[case::macron_lower_u('u', '\u{0304}', 'ū')]
+    #[case::macron_lower_y('y', '\u{0304}', 'ȳ')]
+    #[case::macron_upper_u('U', '\u{0304}', 'Ū')]
+    #[case::macron_upper_y('Y', '\u{0304}', 'Ȳ')]
+    #[case::breve_lower_a('a', '\u{0306}', 'ă')]
+    #[case::breve_upper_a('A', '\u{0306}', 'Ă')]
+    #[case::breve_lower_e('e', '\u{0306}', 'ĕ')]
+    #[case::breve_upper_e('E', '\u{0306}', 'Ĕ')]
+    #[case::breve_lower_i('i', '\u{0306}', 'ĭ')]
+    #[case::breve_upper_i('I', '\u{0306}', 'Ĭ')]
+    #[case::breve_lower_o('o', '\u{0306}', 'ŏ')]
+    #[case::breve_upper_o('O', '\u{0306}', 'Ŏ')]
+    #[case::breve_lower_u('u', '\u{0306}', 'ŭ')]
+    #[case::breve_upper_u('U', '\u{0306}', 'Ŭ')]
+    #[case::ring_lower_a('a', '\u{030A}', 'å')]
+    #[case::ring_upper_a('A', '\u{030A}', 'Å')]
+    #[case::caron_lower_c('c', '\u{030C}', 'č')]
+    #[case::caron_upper_c('C', '\u{030C}', 'Č')]
+    #[case::caron_lower_e('e', '\u{030C}', 'ě')]
+    #[case::caron_upper_e('E', '\u{030C}', 'Ě')]
+    #[case::caron_lower_r('r', '\u{030C}', 'ř')]
+    #[case::caron_upper_r('R', '\u{030C}', 'Ř')]
+    #[case::caron_lower_s('s', '\u{030C}', 'š')]
+    #[case::caron_upper_s('S', '\u{030C}', 'Š')]
+    #[case::caron_lower_z('z', '\u{030C}', 'ž')]
+    #[case::caron_upper_z('Z', '\u{030C}', 'Ž')]
+    #[case::cedilla_lower_c('c', '\u{0327}', 'ç')]
+    #[case::cedilla_upper_c('C', '\u{0327}', 'Ç')]
+    #[case::comma_below_lower_t('t', '\u{0326}', 'ț')]
+    #[case::comma_below_upper_t('T', '\u{0326}', 'Ț')]
+    #[case::comma_below_lower_s('s', '\u{0326}', 'ș')]
+    #[case::comma_below_upper_s('S', '\u{0326}', 'Ș')]
+    fn composes_foreign_combining_letters(
+        #[case] base: char,
+        #[case] mark: char,
+        #[case] expected: char,
+    ) {
+        assert_eq!(compose_combining(base, mark), Some(expected));
+    }
+
+    #[test]
+    fn compose_combining_rejects_unknown_pair() {
+        assert_eq!(compose_combining('x', '\u{0301}'), None);
+    }
+
+    #[rstest::rstest]
+    #[case::lower_vowels('á', 'a')]
+    #[case::upper_a('Å', 'A')]
+    #[case::lower_e('ê', 'e')]
+    #[case::upper_e('Ë', 'E')]
+    #[case::lower_i('ï', 'i')]
+    #[case::upper_i('Î', 'I')]
+    #[case::lower_u('ü', 'u')]
+    #[case::upper_u('Û', 'U')]
+    #[case::upper_vowels('Ö', 'O')]
+    #[case::lower_ntilde('ñ', 'n')]
+    #[case::upper_ntilde('Ñ', 'N')]
+    #[case::lower_cedilla('ç', 'c')]
+    #[case::upper_cedilla('Ç', 'C')]
+    #[case::plain_letter('q', 'q')]
+    fn deaccents_foreign_letters_for_dictionary_probe(#[case] input: char, #[case] expected: char) {
+        assert_eq!(deaccent(input), expected);
     }
 
     #[test]
@@ -374,6 +489,67 @@ mod tests {
                 false
             ),
             Some(cells("⠎⠓⠁⠍⠊⠎⠑⠝"))
+        );
+    }
+
+    #[test]
+    fn foreign_code_words_can_include_early_english_letters() {
+        assert_eq!(
+            encode_uncontracted_word(&['þ'], AccentCode::Foreign, false),
+            Some(cells("⠼⠮"))
+        );
+    }
+
+    #[test]
+    fn foreign_accent_cells_rejects_plain_letters() {
+        assert_eq!(foreign_accent_cells('x', false), None);
+    }
+
+    #[test]
+    fn foreign_accent_cells_allocates_for_plain_accent() {
+        let accent = std::hint::black_box('ä');
+        assert_eq!(foreign_accent_cells(accent, false), Some(cells("⠜")));
+    }
+
+    #[test]
+    fn foreign_accent_cells_allocates_for_spanish_accent() {
+        assert_eq!(foreign_accent_cells('ú', true), Some(cells("⠾")));
+    }
+
+    #[rstest::rstest]
+    #[case::lowercase_enye('ñ', false, "⠻")]
+    #[case::french_e_acute('é', false, "⠿")]
+    #[case::spanish_e_acute('é', true, "⠮")]
+    fn foreign_accent_cells_emits_lowercase_foreign_letter(
+        #[case] input: char,
+        #[case] spanish_context: bool,
+        #[case] expected: &str,
+    ) {
+        assert_eq!(
+            foreign_accent_cells(input, spanish_context),
+            Some(cells(expected))
+        );
+    }
+
+    #[test]
+    fn foreign_accent_cells_capitalizes_uppercase_foreign_letter() {
+        assert_eq!(foreign_accent_cells('Ñ', false), Some(cells("⠠⠻")));
+        assert_eq!(foreign_accent_cells('É', true), Some(cells("⠠⠮")));
+        assert_eq!(foreign_accent_cells('@', false), None);
+    }
+
+    #[test]
+    fn foreign_accent_cells_handles_lowercase_mapping_after_cap_check() {
+        assert_eq!(foreign_accent_cells('Ọ', false), Some(cells("⠠⠪")));
+    }
+
+    #[test]
+    fn foreign_accent_runtime_allocates_and_uncontracted_extends() {
+        let letter = std::hint::black_box('ä');
+        assert_eq!(foreign_accent_cells(letter, false), Some(cells("⠜")));
+        assert_eq!(
+            encode_uncontracted_word(&[letter], AccentCode::Foreign, false),
+            Some(cells("⠜"))
         );
     }
 

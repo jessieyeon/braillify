@@ -80,6 +80,19 @@ impl BrailleRule for Rule72 {
 mod tests {
     use super::*;
 
+    #[rstest::rstest]
+    #[case::circle('○', true)]
+    #[case::square('□', true)]
+    #[case::latin('A', false)]
+    fn detects_rule_72_symbols(#[case] input: char, #[case] expected: bool) {
+        assert_eq!(is_rule_72_symbol(input), expected);
+    }
+
+    #[test]
+    fn detects_double_circle_placeholder_symbol() {
+        assert!(is_rule_72_symbol('◎'));
+    }
+
     #[test]
     fn apply_skips_non_korean() {
         let mut owned = crate::test_helpers::CtxOwned::for_text("A", false);

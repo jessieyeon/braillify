@@ -85,15 +85,6 @@ pub fn encode_with_code_switches(
     if input.chars().any(is_arabic_code_char) {
         return encode_non_ueb_runs(input, &mut encode_ueb, is_arabic_code_char, arabic_cell);
     }
-    if input.chars().any(is_greek_code_char) && has_ascii_word_context(input) {
-        return encode_non_ueb_runs_if(
-            input,
-            &mut encode_ueb,
-            is_greek_code_char,
-            greek_cell,
-            greek_run_is_code_switch,
-        );
-    }
     if input.contains("\\key") || input.contains("\\time") {
         return encode_music(input, &mut encode_ueb);
     }
@@ -745,14 +736,10 @@ fn detect_inline_greek_passage(chars: &[char]) -> Option<(usize, usize)> {
         }
         let mut cursor = i;
         let mut word_count = 0usize;
-        let mut last_word_end = i;
+        let mut last_word_end;
         loop {
-            let word_start = cursor;
             while cursor < chars.len() && is_greek_code_char(chars[cursor]) {
                 cursor += 1;
-            }
-            if cursor == word_start {
-                break;
             }
             word_count += 1;
             last_word_end = cursor;
@@ -1468,5 +1455,225 @@ mod tests {
             encode_nemeth_spans(&source, &mut |segment| Some(cells(segment))),
             Some(cells(expected))
         );
+    }
+
+    #[test]
+    fn rejects_uppercase_language_identifier_code() {
+        assert_eq!(language_code_indicator("EN"), None);
+    }
+
+    #[rstest::rstest]
+    #[case::one('1', 'a')]
+    #[case::two('2', 'b')]
+    #[case::three('3', 'c')]
+    #[case::four('4', 'd')]
+    #[case::five('5', 'e')]
+    #[case::six('6', 'f')]
+    #[case::seven('7', 'g')]
+    #[case::eight('8', 'h')]
+    #[case::nine('9', 'i')]
+    #[case::zero('0', 'j')]
+    fn maps_non_ueb_digit_cell_letters(#[case] digit: char, #[case] expected: char) {
+        assert_eq!(digit_cell_letter(digit), Some(expected));
+    }
+
+    #[test]
+    fn rejects_non_digit_cell_letter() {
+        assert_eq!(digit_cell_letter('x'), None);
+    }
+
+    #[rstest::rstest]
+    #[case::length('ː', "⠒")]
+    #[case::schwa('ə', "⠢")]
+    #[case::open_o('ɔ', "⠣")]
+    #[case::primary('ˈ', "⠸⠃")]
+    #[case::secondary('ˌ', "⠸⠆")]
+    #[case::turned_r('ɹ', "⠼")]
+    #[case::theta('θ', "⠨⠹")]
+    #[case::small_cap_i('ɪ', "⠌")]
+    #[case::eth('ð', "⠻")]
+    #[case::tap('ɾ', "⠖⠗")]
+    #[case::eng('ŋ', "⠫")]
+    #[case::esh('ʃ', "⠱")]
+    #[case::caron_c('č', "⠉⠈⠦")]
+    #[case::ascii('t', "⠞")]
+    #[case::space(' ', "⠀")]
+    fn maps_ipa_cells(#[case] input: char, #[case] expected: &str) {
+        assert_eq!(ipa_cell(input), Some(cells(expected)));
+    }
+
+    #[test]
+    fn rejects_unknown_ipa_cell() {
+        assert_eq!(ipa_cell('@'), None);
+    }
+
+    #[test]
+    fn quoted_accent_detection_requires_english_surrounding_prose() {
+        assert!(has_quoted_accented_word("He said \"café\" after lunch."));
+        assert!(!has_quoted_accented_word("\"café\""));
+    }
+
+    #[test]
+    fn nemeth_span_continuation_and_fallback_tail_paths() {
+        assert_eq!(
+            encode_nemeth_spans("$x$, $y$!", &mut |segment| enc_ueb_segment(segment)),
+            Some(cells("⠸⠩⠀⠭⠠⠀⠽⠀⠸⠱⠖"))
+        );
+
+        assert_eq!(encode_simple_ueb_symbols(" !"), Some(cells("⠀⠖")));
+    }
+
+    #[test]
+    fn direct_nemeth_paths_cover_spaces_exponents_and_invalid_digit() {
+        assert_eq!(encode_nemeth_math(" 1"), Some(cells("⠀⠼⠂")));
+        assert_eq!(encode_nemeth_math("1 2"), Some(cells("⠼⠂⠀⠼⠆")));
+        assert_eq!(encode_nemeth_math("x^{ab}"), Some(cells("⠭⠘⠁⠃")));
+        assert_eq!(encode_nemeth_math("x^2"), Some(cells("⠭⠘⠆")));
+        assert_eq!(encode_nemeth_math("x^y"), Some(cells("⠭⠘⠽")));
+        assert_eq!(encode_nemeth_math("{x}"), Some(cells("⠭")));
+        assert_eq!(nemeth_digit('x'), None);
+    }
+
+    #[test]
+    fn nemeth_helpers_reject_full_span_and_cover_remaining_digits() {
+        assert!(!has_nemeth_span("$x+1$"));
+        for digit in ['5', '6', '7', '8', '9'] {
+            assert!(nemeth_digit(digit).is_some());
+        }
+    }
+
+    #[test]
+    fn chemistry_passage_rejects_unknown_character() {
+        assert_eq!(encode_chemistry_passage(&['C', '@']), None);
+    }
+
+    #[test]
+    fn nemeth_math_runtime_space_path_emits_blank_cell() {
+        let encoded = encode_nemeth_math(std::hint::black_box("x y"))
+            .expect("Nemeth math with a space should encode");
+
+        assert!(encoded.contains(&decode_unicode('⠀')));
+    }
+
+    #[test]
+    fn nemeth_math_leading_runtime_space_emits_blank_cell() {
+        let input = format!("{}x", std::hint::black_box(' '));
+        let encoded = encode_nemeth_math(&input).expect("leading space should encode");
+
+        assert_eq!(encoded.first(), Some(&decode_unicode('⠀')));
+    }
+
+    #[test]
+    fn quoted_foreign_words_punctuation_and_reject_paths() {
+        let mut out = Vec::new();
+        encode_quoted_foreign_words(&['é', ' ', ',', '.', '-'], &mut out)
+            .expect("quoted foreign phrase should encode supported punctuation");
+        assert!(!out.is_empty());
+
+        out.clear();
+        assert_eq!(encode_quoted_foreign_words(&['@'], &mut out), None);
+    }
+
+    #[test]
+    fn greek_code_switch_entry_and_inline_reject_paths() {
+        assert!(encode_with_code_switches("Greek μ ο π text", enc_ueb_segment).is_some());
+
+        let mut out = Vec::new();
+        assert_eq!(encode_inline_greek_run(&['@'], &mut out), None);
+        assert_eq!(detect_inline_greek_passage(&['μ', ',', ' ', 'μ']), None);
+        assert_eq!(detect_inline_greek_passage(&['μ', ',', ' ', ',']), None);
+        assert_eq!(
+            detect_inline_greek_passage(&['μ', ' ', '@', ' ', 'ο']),
+            None
+        );
+        out.clear();
+        assert!(
+            encode_inline_greek_run(&['ο', 'υ', ' ', 'ο', 'ι', ',', ' ', 'π'], &mut out).is_some()
+        );
+    }
+
+    #[test]
+    fn code_switch_entry_covers_music_and_ipa_slash_reject() {
+        assert!(encode_with_code_switches("play \\key es \\major now", enc_ueb_segment).is_some());
+        assert_eq!(encode_ipa_slashes("plain", enc_ueb_segment), None);
+    }
+
+    #[test]
+    fn greek_and_arabic_cell_reject_unknown_characters() {
+        assert_eq!(arabic_cell('@'), None);
+        assert_eq!(greek_cell('@'), None);
+        assert_eq!(
+            encode_non_ueb_plain("a 12-z", false),
+            Some(cells("⠁⠀⠼⠁⠃⠤⠵"))
+        );
+        assert_eq!(encode_non_ueb_plain("@", false), None);
+        assert_eq!(digit_cell_letter('@'), None);
+        assert_eq!(encode_greek_word(&['ἱ', 'ο', 'ἱ']), Some(cells("⠓⠪")));
+        assert_eq!(encode_greek_word(&['ο', 'ἱ']), Some(cells("⠓⠪")));
+        assert_eq!(greek_cell('ἰ'), Some(cells("⠊")));
+        assert_eq!(greek_cell('ί'), Some(cells("⠊")));
+        assert_eq!(greek_cell('ἱ'), Some(cells("⠊")));
+        assert_eq!(greek_cell('ι'), Some(cells("⠊")));
+        assert_eq!(greek_cell('υ'), Some(cells("⠥")));
+        assert!(!greek_run_is_code_switch(&[]));
+    }
+
+    #[test]
+    fn macro_code_helpers_cover_tail_and_punctuation_paths() {
+        assert!(encode_macro_head("ROM and RAM", &mut enc_ueb_segment).is_some());
+        assert!(encode_computer_phrase("ROM, RAM.").is_some());
+        assert_eq!(encode_computer_phrase("ROM@"), None);
+        assert!(encode_computer_phrase(" ROM").is_some());
+    }
+
+    #[test]
+    fn non_ueb_run_switches_only_when_predicate_accepts() {
+        let encoded = encode_non_ueb_runs_if(
+            "a قُ b",
+            enc_ueb_segment,
+            is_arabic_code_char,
+            arabic_cell,
+            |_| true,
+        )
+        .expect("Arabic run should encode");
+        assert!(encoded.contains(&decode_unicode('⠘')));
+
+        let plain = encode_non_ueb_runs_if(
+            "a μμ b",
+            enc_ueb_segment,
+            is_greek_code_char,
+            greek_cell,
+            greek_run_is_code_switch,
+        )
+        .expect("rejected Greek run should fall back to UEB plain text");
+        assert!(
+            !plain
+                .windows(2)
+                .any(|w| w == [decode_unicode('⠘'), decode_unicode('⠷')])
+        );
+    }
+
+    #[test]
+    fn greek_identifier_is_used_once_for_parenthesized_code_runs() {
+        let encoded = encode_greek_code_switches("Greek (μ ο) and (π λ)", enc_ueb_segment)
+            .expect("Greek code switches should encode");
+
+        assert!(encoded.windows(5).any(|w| w == cells("⠐⠷⠛⠗⠄")));
+        assert_eq!(
+            encoded.windows(5).filter(|w| *w == cells("⠐⠷⠛⠗⠄")).count(),
+            1
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::key_signature("play \\key es \\major now", "⠏⠇⠁⠽⠀⠠⠄⠣⠣⠣⠀⠝⠪")]
+    #[case::time_signature("play \\time 4/4 now", "⠏⠇⠁⠽⠀⠠⠄⠼⠙⠲⠀⠰⠆⠝⠪")]
+    fn encodes_music_code_switches(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(encode_music(input, enc_ueb_segment), Some(cells(expected)));
+    }
+
+    #[test]
+    fn rejects_unknown_music_switch() {
+        assert_eq!(encode_music("play \\clef treble", enc_ueb_segment), None);
     }
 }

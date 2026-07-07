@@ -126,6 +126,12 @@ mod tests {
         assert_eq!(is_variation_table_array(column_spec, body), expected);
     }
 
+    #[test]
+    fn braced_group_rejects_non_opening_or_unclosed_brace() {
+        assert!(find_braced_group_end("abc", 0).is_none());
+        assert!(find_braced_group_end("{abc", 0).is_none());
+    }
+
     /// 제10항 — `\begin{array}{|c|c|c|}` column spec with nested `{}` braces.
     #[test]
     fn array_column_spec_nested_braces() {

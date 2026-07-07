@@ -279,4 +279,81 @@ mod tests {
         .map(|matched| (matched.cells, matched.consumed));
         assert_eq!(got, Some((vec![expected_cell], expected_consumed)));
     }
+
+    #[test]
+    fn korean_initial_match_finds_initial_contraction() {
+        let chars: Vec<char> = "ever".chars().collect();
+        let got = korean_initial_match(&chars, 0).map(|matched| (matched.cells, matched.consumed));
+
+        assert_eq!(
+            got,
+            Some((vec![decode_unicode('⠐'), decode_unicode('⠑')], 4))
+        );
+    }
+
+    #[test]
+    fn combined_strong_match_chooses_longer_contraction_over_groupsign() {
+        let chars: Vec<char> = std::hint::black_box("rather").chars().collect();
+        let got = combined_strong_match(&chars, std::hint::black_box(2))
+            .map(|matched| (matched.cells, matched.consumed));
+
+        assert_eq!(got, Some((vec![decode_unicode('⠮')], 3)));
+    }
+
+    #[rstest::rstest]
+    #[case::core_middle_lower("enough", 0, decode_unicode('⠢'), 2)]
+    #[case::korean_restricted_lower("become", 0, decode_unicode('⠆'), 2)]
+    #[case::no_lower_match("xyz", 0, 0, 0)]
+    fn korean_lower_match_paths(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] expected_cell: u8,
+        #[case] expected_consumed: usize,
+    ) {
+        let chars: Vec<char> = std::hint::black_box(word).chars().collect();
+        let got = korean_lower_match(&chars, std::hint::black_box(pos))
+            .map(|matched| (matched.cells, matched.consumed));
+        let expected = (expected_consumed > 0).then_some((vec![expected_cell], expected_consumed));
+        assert_eq!(got, expected);
+    }
+
+    #[test]
+    fn korean_lower_table_prefers_longest_runtime_match() {
+        let word: Vec<char> = std::hint::black_box("become").chars().collect();
+        let matched = match_korean_lower_table(&word, std::hint::black_box(0))
+            .expect("restricted lower match should exist");
+
+        assert_eq!(matched.consumed, 2);
+        assert_eq!(matched.cells, vec![decode_unicode('⠆')]);
+    }
+
+    #[test]
+    fn non_ascii_word_is_not_wordsign() {
+        let chars: Vec<char> = "yoü".chars().collect();
+        assert!(korean_wordsign_match(&chars).is_none());
+    }
+
+    #[test]
+    fn prefix_match_rejects_position_past_word_end() {
+        let word = std::hint::black_box("be");
+        let chars: Vec<char> = word.chars().collect();
+        let pos = std::hint::black_box(chars.len());
+
+        assert!(
+            match_korean_prefix(KoreanPrefixInput {
+                word: &chars,
+                pos,
+                wrap_active: false,
+                is_all_uppercase: false,
+                at_entry: false,
+                standalone_wordsign: false,
+            })
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn lowercase_word_maps_ascii_uppercase() {
+        assert_eq!(lowercase_word(&['B', 'e']), vec!['b', 'e']);
+    }
 }

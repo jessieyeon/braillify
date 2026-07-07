@@ -140,6 +140,14 @@ mod tests {
         let _ = Rule31.matches(&ctx);
     }
 
+    #[test]
+    fn rule_metadata_reports_phase_and_priority() {
+        let rule = std::hint::black_box(Rule31);
+
+        assert!(matches!(rule.phase(), Phase::CoreEncoding));
+        assert_eq!(rule.priority(), 145);
+    }
+
     /// 제31항 — 그리스 문자가 한국어 문맥에서 단일 대문자로 나올 때
     /// 영자표(⠴) + 대문자 표시(⠠) + 글자 + 종료표(⠲)로 점역.
     /// Triggers the `korean_context && run.len() == 1 && uppercase` path

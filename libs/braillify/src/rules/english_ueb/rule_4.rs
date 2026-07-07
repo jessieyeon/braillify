@@ -166,10 +166,24 @@ mod tests {
     use super::*;
 
     #[rstest::rstest]
+    #[case::u_grave('ù', "⠘⠡⠥")]
+    #[case::y_acute('ý', "⠘⠌⠽")]
+    #[case::c_acute('ć', "⠘⠌⠉")]
+    #[case::n_acute('ń', "⠘⠌⠝")]
+    #[case::e_circumflex('ê', "⠘⠩⠑")]
+    #[case::y_diaeresis('ÿ', "⠘⠒⠽")]
+    #[case::s_caron('š', "⠘⠬⠎")]
+    #[case::e_caron('ě', "⠘⠬⠑")]
+    #[case::r_caron('ř', "⠘⠬⠗")]
+    #[case::o_tilde('õ', "⠘⠻⠕")]
+    #[case::i_macron('ī', "⠈⠤⠊")]
+    #[case::u_breve('ŭ', "⠈⠬⠥")]
     #[case::e_grave('è', "⠘⠡⠑")]
     #[case::e_acute('é', "⠘⠌⠑")]
     #[case::u_circumflex('û', "⠘⠩⠥")]
+    #[case::e_diaeresis('ë', "⠘⠒⠑")]
     #[case::u_diaeresis('ü', "⠘⠒⠥")]
+    #[case::i_diaeresis('ï', "⠘⠒⠊")]
     #[case::a_ring('å', "⠘⠫⠁")]
     #[case::c_cedilla('ç', "⠘⠯⠉")]
     #[case::a_tilde('ã', "⠘⠻⠁")]
@@ -202,6 +216,30 @@ mod tests {
     #[test]
     fn plain_letter_is_not_accented() {
         assert!(!is_accented('e'));
+        assert!(!is_modified_letter('e'));
         assert!(accent_cells('e').is_none());
+    }
+
+    #[test]
+    fn ligature_and_eszett_are_accented_but_not_modified_letters() {
+        assert!(is_accented('æ'));
+        assert!(is_accented('ß'));
+        assert!(!is_modified_letter('æ'));
+        assert!(!is_modified_letter('ß'));
+    }
+
+    #[test]
+    fn accent_cells_runtime_ligature_allocates_cells() {
+        let letter = std::hint::black_box('æ');
+
+        assert_eq!(
+            accent_cells(letter),
+            Some(vec![
+                decode_unicode('⠁'),
+                decode_unicode('⠘'),
+                decode_unicode('⠖'),
+                decode_unicode('⠑')
+            ])
+        );
     }
 }

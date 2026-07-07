@@ -170,6 +170,52 @@ mod tests {
     }
 
     #[rstest::rstest]
+    #[case::ea_before_added_hyphen("peanut", 1, 2, 3, true)]
+    #[case::bb_after_added_hyphen("abbot", 1, 2, 1, true)]
+    #[case::ordinary_pair("peanut", 0, 2, 2, false)]
+    fn section_10_13_10_blocks_middle_lower_groupsigns(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] consumed: usize,
+        #[case] break_at: usize,
+        #[case] expected: bool,
+    ) {
+        let chars: Vec<char> = word.chars().collect();
+        assert_eq!(
+            WordDivision { index: break_at }.blocks_middle_lower(&chars, pos, consumed),
+            expected
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::long_match_at_second_line_start(3, 3, true)]
+    #[case::short_match_at_second_line_start(3, 2, false)]
+    #[case::long_match_before_second_line(2, 3, false)]
+    fn section_10_13_11_blocks_final_letter_at_line_start(
+        #[case] pos: usize,
+        #[case] consumed: usize,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(
+            WordDivision { index: 3 }.blocks_final_letter(pos, consumed),
+            expected
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::with_added_hyphen(true, "⠤\n")]
+    #[case::without_added_hyphen(false, "\n")]
+    fn append_break_emits_optional_added_hyphen(#[case] add_hyphen: bool, #[case] expected: &str) {
+        let mut cells = Vec::new();
+        append_break(&mut cells, add_hyphen);
+        let expected_cells: Vec<u8> = expected
+            .chars()
+            .map(|c| if c == '\n' { 255 } else { decode_unicode(c) })
+            .collect();
+        assert_eq!(cells, expected_cells);
+    }
+
+    #[rstest::rstest]
     #[case::shortenin_final_in("shortenin", 7, 2, 5, &[decode_unicode('⠔')], true)]
     #[case::linen_initial_en("linen", 3, 2, 3, &[decode_unicode('⠢')], true)]
     #[case::disinherit_has_upper_after("disinherit", 0, 3, 5, &[decode_unicode('⠲')], false)]
@@ -185,6 +231,28 @@ mod tests {
         assert_eq!(
             WordDivision { index: break_at }
                 .blocks_lower_sequence(&chars, pos, consumed, cells, false,),
+            expected
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::non_lower_cell("about", 0, 2, 2, &[decode_unicode('⠁')], false)]
+    #[case::first_line_has_upper_prefix("shortenin", 7, 2, 9, &[decode_unicode('⠔')], false)]
+    #[case::line_start_followed_by_upper_dot_letter("begin", 2, 2, 2, &[decode_unicode('⠢')], false)]
+    #[case::second_line_without_upper_dot("a--", 2, 1, 1, &[decode_unicode('⠆')], true)]
+    #[case::second_line_with_upper_dot("abbbc", 3, 2, 1, &[decode_unicode('⠆')], false)]
+    fn lower_sequence_non_blocking_paths(
+        #[case] word: &str,
+        #[case] pos: usize,
+        #[case] consumed: usize,
+        #[case] break_at: usize,
+        #[case] cells: &[u8],
+        #[case] expected: bool,
+    ) {
+        let chars: Vec<char> = word.chars().collect();
+        assert_eq!(
+            WordDivision { index: break_at }
+                .blocks_lower_sequence(&chars, pos, consumed, cells, true,),
             expected
         );
     }

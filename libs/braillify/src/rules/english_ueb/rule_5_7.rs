@@ -157,6 +157,7 @@ mod tests {
     #[case::apostrophe_suffix_ll(vec![word("X"), sym('\''), word("ll")], 0, true)]
     #[case::apostrophe_suffix_s(vec![word("p"), sym('\''), word("s")], 0, true)]
     #[case::apostrophe_at_end(vec![word("d"), sym('\'')], 0, true)]
+    #[case::apostrophe_before_terminal_punct(vec![word("t"), sym('\''), sym('?')], 0, true)]
     // §10.12.2: a single wordsign letter in running text (a space neighbour) is
     // indicated even without a punctuation neighbour (`a b`'s `b`, `N S`, `c 1600`),
     // whereas a letter that IS the whole isolated text stays bare (`bare_alone`).

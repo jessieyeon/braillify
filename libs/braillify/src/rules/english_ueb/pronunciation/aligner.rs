@@ -330,7 +330,12 @@ pub fn trailing_er_is_unstressed(word: &[char], e_idx: usize, prons: &[Vec<Phone
 mod tests {
     use super::super::PronunciationProvider;
     use super::super::cmudict::CmuDictProvider;
+    use super::super::parse_phoneme;
     use super::*;
+
+    fn ph(s: &str) -> Phoneme {
+        parse_phoneme(s)
+    }
 
     /// Verdict for the contraction's trailing `e` at `e_idx` (the span's last letter),
     /// from the real CMUdict — exactly what the §10.7 gate asks.
@@ -408,5 +413,120 @@ mod tests {
             !er_unstressed(word, e_idx),
             "{word}: trailing er splits — must spell out"
         );
+    }
+
+    #[rstest::rstest]
+    #[case::x_to_z('x', "Z", 0)]
+    #[case::unknown_to_consonant('?', "K", 3)]
+    fn consonant_cost_paths(#[case] letter: char, #[case] base: &str, #[case] expected: u32) {
+        assert_eq!(consonant_cost(letter, base), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::plain_y_is_vowel('y', true)]
+    #[case::plain_b_is_not_vowel('b', false)]
+    fn vowel_letter_paths(#[case] letter: char, #[case] expected: bool) {
+        assert_eq!(is_vowel_letter(letter), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::x_ks('x', "K", "S", 0)]
+    #[case::u_yuw('u', "Y", "UW", 1)]
+    #[case::q_kw('q', "K", "W", 1)]
+    #[case::impossible('a', "K", "S", IMPOSSIBLE)]
+    fn emit_two_phoneme_paths(
+        #[case] letter: char,
+        #[case] first: &str,
+        #[case] second: &str,
+        #[case] expected: u32,
+    ) {
+        assert_eq!(emit2_cost(letter, &ph(first), &ph(second)), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::theta('t', 'h', "TH", 0)]
+    #[case::esh('s', 'h', "SH", 0)]
+    #[case::phi('p', 'h', "F", 0)]
+    #[case::ghost('g', 'h', "G", 0)]
+    #[case::back('c', 'k', "K", 0)]
+    #[case::know('k', 'n', "N", 0)]
+    #[case::write('w', 'r', "R", 0)]
+    #[case::gnome('g', 'n', "N", 0)]
+    #[case::queen('q', 'u', "K", 0)]
+    #[case::digraph_rejects_wrong_consonant('t', 'h', "K", IMPOSSIBLE)]
+    #[case::vowel_digraph_accepts_vowel('o', 'o', "UW1", 1)]
+    #[case::vowel_digraph_rejects_consonant('o', 'o', "K", IMPOSSIBLE)]
+    #[case::unknown_digraph('z', 'z', "Z", IMPOSSIBLE)]
+    fn digraph_cost_paths(
+        #[case] first: char,
+        #[case] second: char,
+        #[case] phoneme: &str,
+        #[case] expected: u32,
+    ) {
+        assert_eq!(digraph_cost(first, second, &ph(phoneme)), expected);
+    }
+
+    #[test]
+    fn alignment_rejects_impossible_word_phoneme_pairs() {
+        assert!(!trailing_letter_is_silent_or_merged(
+            &['a'],
+            0,
+            &[vec![ph("K")]],
+        ));
+        assert!(!trailing_er_is_unstressed(
+            &['e', 'r'],
+            0,
+            &[vec![ph("K"), ph("K"), ph("K")]],
+        ));
+    }
+
+    #[test]
+    fn unstressed_er_accept_path_can_win_without_vowel_split() {
+        assert!(trailing_er_is_unstressed(
+            &['e', 'r'],
+            0,
+            &[vec![ph("ER0")]],
+        ));
+    }
+
+    #[test]
+    fn er_unstressed_direct_accepts_only_unstressed_er_alignment() {
+        assert!(er_unstressed_in(&['e', 'r'], 0, &[ph("ER0")]));
+        assert!(!er_unstressed_in(&['e', 'r'], 0, &[ph("ER1")]));
+    }
+
+    #[test]
+    fn er_unstressed_runtime_phoneme_path_updates_accept_cost() {
+        let word = [std::hint::black_box('e'), std::hint::black_box('r')];
+        let phoneme = parse_phoneme(std::hint::black_box("ER0"));
+
+        assert!(er_unstressed_in(&word, 0, &[phoneme]));
+    }
+
+    #[test]
+    fn er_unstressed_rejects_secondary_stress_and_split_vowel() {
+        assert!(!er_unstressed_in(&['e', 'r'], 0, &[ph("ER2")]));
+        assert!(!er_unstressed_in(&['e', 'r'], 0, &[ph("EH1"), ph("R")]));
+    }
+
+    #[test]
+    fn backward_alignment_handles_silent_emit_and_digraph_paths() {
+        let costs = backward(&['k', 'n'], &[ph("N")]);
+
+        assert_eq!(costs[2][1], 0);
+        assert_eq!(costs[1][1], 5);
+        assert_eq!(costs[0][0], 0);
+    }
+
+    #[test]
+    fn backward_alignment_handles_empty_origin_cell() {
+        let costs = backward(&[], &[]);
+
+        assert_eq!(costs[0][0], 0);
+    }
+
+    #[test]
+    fn unstressed_er_accepts_bare_r_after_silent_e() {
+        assert!(er_unstressed_in(&['e', 'r'], 0, &[ph("R")]));
     }
 }

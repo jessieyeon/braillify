@@ -65,19 +65,19 @@ pub fn is_archaic_only_spelling(word: &str) -> bool {
 
 /// §12.2 special early-English letters and §12.1 ligature/macron combinations.
 pub fn early_letter(c: char) -> Option<Vec<u8>> {
-    Some(match c {
-        'þ' => cells("⠼⠮"),
-        'Þ' => cells("⠠⠼⠮"),
-        'ð' => cells("⠼⠫"),
-        'Ð' => cells("⠠⠼⠫"),
-        'ȝ' => cells("⠼⠽"),
-        'Ȝ' => cells("⠠⠼⠽"),
-        'ƿ' => cells("⠼⠺"),
-        'Ƿ' => cells("⠠⠼⠺"),
-        'ǣ' => cells("⠈⠤⠣⠁⠘⠖⠑⠜"),
-        'Ǣ' => cells("⠠⠈⠤⠣⠁⠘⠖⠑⠜"),
-        _ => return None,
-    })
+    match c {
+        'þ' => Some(cells("⠼⠮")),
+        'Þ' => Some(cells("⠠⠼⠮")),
+        'ð' => Some(cells("⠼⠫")),
+        'Ð' => Some(cells("⠠⠼⠫")),
+        'ȝ' => Some(cells("⠼⠽")),
+        'Ȝ' => Some(cells("⠠⠼⠽")),
+        'ƿ' => Some(cells("⠼⠺")),
+        'Ƿ' => Some(cells("⠠⠼⠺")),
+        'ǣ' => Some(cells("⠈⠤⠣⠁⠘⠖⠑⠜")),
+        'Ǣ' => Some(cells("⠠⠈⠤⠣⠁⠘⠖⠑⠜")),
+        _ => None,
+    }
 }
 
 pub fn is_early_letter(c: char) -> bool {
@@ -85,13 +85,12 @@ pub fn is_early_letter(c: char) -> bool {
 }
 
 fn base_letter(c: char) -> Option<char> {
-    Some(match c {
-        'ē' | 'ĕ' => 'e',
-        'ō' | 'ŏ' => 'o',
-        'ȳ' | 'ў' => 'y',
-        _ if c.is_ascii_alphabetic() => c.to_ascii_lowercase(),
-        _ => return None,
-    })
+    match c {
+        'ē' | 'ĕ' => Some('e'),
+        'ō' | 'ŏ' => Some('o'),
+        'ȳ' | 'ў' => Some('y'),
+        _ => c.is_ascii_alphabetic().then(|| c.to_ascii_lowercase()),
+    }
 }
 
 fn macron_base(c: char) -> Option<char> {
@@ -151,13 +150,62 @@ pub fn encode_uncontracted_word(chars: &[char]) -> Option<Vec<u8>> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn cells_maps_braille_text_to_cells() {
+        assert_eq!(cells("⠼⠮"), vec![60, 46]);
+    }
+
     #[rstest::rstest]
     #[case::thorn('þ', "⠼⠮")]
+    #[case::thorn_upper('Þ', "⠠⠼⠮")]
     #[case::eth('ð', "⠼⠫")]
+    #[case::eth_upper('Ð', "⠠⠼⠫")]
     #[case::yogh('ȝ', "⠼⠽")]
+    #[case::yogh_upper('Ȝ', "⠠⠼⠽")]
     #[case::wynn('ƿ', "⠼⠺")]
+    #[case::wynn_upper('Ƿ', "⠠⠼⠺")]
     #[case::macron_ash('ǣ', "⠈⠤⠣⠁⠘⠖⠑⠜")]
+    #[case::macron_ash_upper('Ǣ', "⠠⠈⠤⠣⠁⠘⠖⠑⠜")]
     fn maps_early_letters(#[case] c: char, #[case] expected: &str) {
         assert_eq!(early_letter(c), Some(cells(expected)));
+    }
+
+    #[rstest::rstest]
+    #[case::citye("citye", true)]
+    #[case::soone("soone", true)]
+    #[case::could("could", false)]
+    fn identifies_archaic_only_spellings(#[case] word: &str, #[case] expected: bool) {
+        assert_eq!(is_archaic_only_spelling(word), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::macron_upper_u(&['Ū'], Some("⠠⠈⠤⠥"))]
+    #[case::early_lower_thorn(&['þ'], Some("⠼⠮"))]
+    #[case::breve_lower_e(&['ĕ'], Some("⠑"))]
+    #[case::macron_lower_o(&['ō'], Some("⠈⠤⠕"))]
+    #[case::macron_upper_o(&['Ō'], Some("⠠⠈⠤⠕"))]
+    #[case::macron_upper_y(&['Ȳ'], Some("⠠⠈⠤⠽"))]
+    #[case::breve_lower_o(&['ŏ'], Some("⠕"))]
+    #[case::breve_cyrillic_y(&['ў'], Some("⠽"))]
+    #[case::all_caps_ascii_word(&['A', 'L'], Some("⠠⠠⠁⠇"))]
+    #[case::early_capital_omits_cap_indicator(&['Ȝ', 'e', 'e'], Some("⠼⠽⠑⠑"))]
+    #[case::unknown_letter(&['🙂'], None)]
+    fn uncontracted_word_paths(#[case] chars: &[char], #[case] expected: Option<&str>) {
+        let expected_cells = expected.map(|s| s.chars().map(decode_unicode).collect());
+        assert_eq!(encode_uncontracted_word(chars), expected_cells);
+    }
+
+    #[test]
+    fn uncontracted_word_runtime_early_letter_extends_cells() {
+        let chars = [std::hint::black_box('þ')];
+
+        assert_eq!(encode_uncontracted_word(&chars), Some(cells("⠼⠮")));
+    }
+
+    #[test]
+    fn uncontracted_word_runtime_early_letter_branch_extends_cells() {
+        let chars = [std::hint::black_box('ȝ')];
+
+        assert_eq!(encode_uncontracted_word(&chars), Some(cells("⠼⠽")));
     }
 }

@@ -169,6 +169,7 @@ mod tests {
     #[case::ampersand('&', vec![decode_unicode('⠈'), decode_unicode('⠯')])]
     #[case::asterisk('*', vec![decode_unicode('⠐'), decode_unicode('⠔')])]
     #[case::caret('^', vec![decode_unicode('⠈'), decode_unicode('⠢')])]
+    #[case::underscore('_', vec![decode_unicode('⠨'), decode_unicode('⠤')])]
     // §3.17 signs of operation and comparison.
     #[case::plus('+', vec![decode_unicode('⠐'), decode_unicode('⠖')])]
     #[case::equals('=', vec![decode_unicode('⠐'), decode_unicode('⠶')])]

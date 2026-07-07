@@ -931,6 +931,14 @@ mod tests {
         );
     }
 
+    #[test]
+    fn math_suffix_and_next_value_cue_helpers_reject_short_or_non_word_inputs() {
+        assert!(!has_ascii_letter_korean_math_suffix(&['a', '의']));
+
+        let tokens = vec![word_tok("ab의"), Token::PreEncoded(vec![1])];
+        assert!(!next_word_starts_with_math_value_cue(&tokens, 0));
+    }
+
     /// `is_logic_symbol_word` — XOR(⊻) 단독 토큰만 true, 그 외는 false.
     /// Kills: `-> false`, `!=` mutations.
     #[rstest::rstest]
@@ -1628,6 +1636,33 @@ mod tests {
         let _ = action;
     }
 
+    #[test]
+    fn uppercase_identifier_after_korean_word_uses_math_letter_path() {
+        let tokens = vec![word_tok("문제"), word_tok("AB의")];
+        let mut state = EncoderState::new(false);
+
+        let action = run(&tokens, 1, &mut state).expect("ok");
+
+        assert!(matches!(action, TokenAction::ReplaceMany(_)));
+    }
+
+    #[test]
+    fn uppercase_identifier_after_non_word_falls_through_prev_check() {
+        let tokens = vec![
+            Token::Fraction(crate::rules::token::FractionToken {
+                whole: None,
+                numerator: "1".to_string(),
+                denominator: "2".to_string(),
+            }),
+            word_tok("AB의"),
+        ];
+        let mut state = EncoderState::new(false);
+
+        let action = run(&tokens, 1, &mut state).expect("ok");
+
+        assert!(matches!(action, TokenAction::Noop));
+    }
+
     /// `$X$<korean>` with prev Token being Fraction directly (non-Word non-Space)
     /// → drives apply.rs `_ => false` arm at line ~287 in prev_is_korean walk-back.
     #[test]
@@ -1912,6 +1947,13 @@ mod tests {
         if let Token::Word(w) = &korean {
             assert!(!word_is_math_letter_context(w));
         }
+    }
+
+    #[test]
+    fn consecutive_ascii_letter_run_paths() {
+        assert!(is_consecutive_ascii_letter_run(&['A', 'B', 'C']));
+        assert!(!is_consecutive_ascii_letter_run(&['A']));
+        assert!(!is_consecutive_ascii_letter_run(&['A', 'C']));
     }
 
     /// Greek list path where Space prev-prev is missing (line 261 returns

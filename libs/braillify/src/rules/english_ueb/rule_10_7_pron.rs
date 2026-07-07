@@ -529,4 +529,72 @@ mod tests {
     ) {
         assert_eq!(try_at(word, pos).is_some(), use_it, "recovery: {word}");
     }
+
+    #[test]
+    fn silent_final_e_support_rejects_vowel_bridge_and_ed_er_claims() {
+        let rule = rule();
+        let boone: Vec<char> = "boone".chars().collect();
+        assert!(!rule.silent_final_e_supports(&boone, 2, "one", "boone"));
+
+        let stoned: Vec<char> = "stoned".chars().collect();
+        assert!(!rule.silent_final_e_supports(&stoned, 2, "one", "stoned"));
+    }
+
+    #[test]
+    fn morphology_recovery_direct_paths_for_word_edges() {
+        let rule = rule();
+        let somesuch: Vec<char> = "somesuch".chars().collect();
+        assert!(rule.morphology_recovers(&somesuch, 0, "some", 4));
+
+        let teatime: Vec<char> = "teatime".chars().collect();
+        assert!(rule.morphology_recovers(&teatime, 3, "time", 7));
+
+        let nameable: Vec<char> = "nameable".chars().collect();
+        assert!(rule.morphology_recovers(&nameable, 0, "name", 4));
+
+        let blithesome: Vec<char> = "blithesome".chars().collect();
+        assert!(rule.morphology_recovers(&blithesome, 6, "some", 10));
+
+        let coincidental_middle: Vec<char> = "gasometer".chars().collect();
+        assert!(!rule.morphology_recovers(&coincidental_middle, 2, "some", 6));
+    }
+
+    #[test]
+    fn morphology_recovery_runtime_initial_unit_checks_suffix() {
+        let rule = rule();
+        let word: Vec<char> = std::hint::black_box("whereof").chars().collect();
+
+        assert!(rule.morphology_recovers(&word, 0, "where", 5));
+    }
+
+    #[test]
+    fn morphology_recovery_directly_covers_empty_after_word_final_unit() {
+        let rule = rule();
+        let teatime: Vec<char> = "teatime".chars().collect();
+
+        assert!(rule.morphology_recovers(&teatime, 3, "time", 7));
+    }
+
+    #[test]
+    fn morphology_recovery_directly_covers_initial_and_one_paths() {
+        let rule = rule();
+        let timeously: Vec<char> = "timeously".chars().collect();
+        assert!(rule.morphology_recovers(&timeously, 0, "time", 4));
+
+        let stonework: Vec<char> = "stonework".chars().collect();
+        assert!(rule.morphology_recovers(&stonework, 2, "one", 5));
+
+        let alone: Vec<char> = "alone".chars().collect();
+        assert!(!rule.morphology_recovers(&alone, 2, "one", 5));
+    }
+
+    #[test]
+    fn morphology_recovery_directly_rejects_known_word_and_accepts_initial_suffix() {
+        let rule = rule();
+        let some: Vec<char> = "some".chars().collect();
+        assert!(!rule.morphology_recovers(&some, 0, "some", 4));
+
+        let somewise: Vec<char> = "somewise".chars().collect();
+        assert!(rule.morphology_recovers(&somewise, 0, "some", 4));
+    }
 }

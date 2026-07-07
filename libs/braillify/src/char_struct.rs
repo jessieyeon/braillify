@@ -280,6 +280,15 @@ mod test {
     }
 
     #[test]
+    fn korean_char_without_jongseong_has_no_final_consonant() {
+        let korean = KoreanChar::new('가').unwrap();
+
+        assert_eq!(korean.cho, 'ㄱ');
+        assert_eq!(korean.jung, 'ㅏ');
+        assert_eq!(korean.jong, None);
+    }
+
+    #[test]
     fn test_char_type_every_branch() {
         // Known-good explicit variant checks
         assert!(matches!(CharType::new('가').unwrap(), CharType::Korean(_)));

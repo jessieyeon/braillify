@@ -26,6 +26,7 @@ type ForeignScope = Option<(super::rule_13::AccentCode, bool)>;
 type ActiveTypeformPassage = (usize, super::token::Typeform, bool, ForeignScope);
 
 /// Capitalisation pattern of a word (§8 subset currently supported).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Caps {
     /// All lowercase — no indicator.
     None,
@@ -100,9 +101,8 @@ fn single_elongated_caps_word_in_quotes(tokens: &[EnglishToken]) -> bool {
     if words.next().is_some() || word.len() < 5 {
         return false;
     }
-    let Some((&last, prefix)) = word.split_last() else {
-        return false;
-    };
+    let last = word[word.len() - 1];
+    let prefix = &word[..word.len() - 1];
     last.is_ascii_uppercase()
         && prefix.iter().any(|c| c.is_ascii_uppercase())
         && prefix.iter().rev().take_while(|c| **c == last).count() >= 2
@@ -533,60 +533,31 @@ fn uppercase_greek_symbol(token: &EnglishToken) -> Option<char> {
 }
 
 fn greek_letter_cells_with_caps(c: char, suppress_capital: bool) -> Option<Vec<u8>> {
-    let (capital, base) = match c {
-        'Α' => (true, 'α'),
-        'Β' => (true, 'β'),
-        'Γ' => (true, 'γ'),
-        'Δ' => (true, 'δ'),
-        'Ε' => (true, 'ε'),
-        'Ζ' => (true, 'ζ'),
-        'Η' => (true, 'η'),
-        'Θ' => (true, 'θ'),
-        'Ι' => (true, 'ι'),
-        'Κ' => (true, 'κ'),
-        'Λ' => (true, 'λ'),
-        'Μ' => (true, 'μ'),
-        'Ν' => (true, 'ν'),
-        'Ξ' => (true, 'ξ'),
-        'Ο' => (true, 'ο'),
-        'Π' => (true, 'π'),
-        'Ρ' => (true, 'ρ'),
-        'Φ' => (true, 'φ'),
-        'Σ' => (true, 'σ'),
-        'Τ' => (true, 'τ'),
-        'Υ' => (true, 'υ'),
-        'Χ' => (true, 'χ'),
-        'Ψ' => (true, 'ψ'),
-        'Ω' => (true, 'ω'),
-        'α' | 'β' | 'γ' | 'δ' | 'ε' | 'ζ' | 'η' | 'θ' | 'ι' | 'κ' | 'λ' | 'μ' | 'ν' | 'ξ' | 'ο'
-        | 'π' | 'ρ' | 'φ' | 'σ' | 'ς' | 'τ' | 'υ' | 'χ' | 'ψ' | 'ω' => (false, c),
-        _ => return None,
-    };
-    let cell = match base {
-        'α' => '⠁',
-        'β' => '⠃',
-        'γ' => '⠛',
-        'δ' => '⠙',
-        'ε' => '⠑',
-        'ζ' => '⠵',
-        'η' => '⠱',
-        'θ' => '⠹',
-        'ι' => '⠊',
-        'κ' => '⠅',
-        'λ' => '⠇',
-        'π' => '⠏',
-        'ρ' => '⠗',
-        'φ' => '⠋',
-        'μ' => '⠍',
-        'ν' => '⠝',
-        'ξ' => '⠭',
-        'ο' => '⠕',
-        'σ' | 'ς' => '⠎',
-        'τ' => '⠞',
-        'υ' => '⠥',
-        'χ' => '⠯',
-        'ψ' => '⠽',
-        'ω' => '⠺',
+    let (capital, cell) = match c {
+        'Α' | 'α' => (c.is_uppercase(), '⠁'),
+        'Β' | 'β' => (c.is_uppercase(), '⠃'),
+        'Γ' | 'γ' => (c.is_uppercase(), '⠛'),
+        'Δ' | 'δ' => (c.is_uppercase(), '⠙'),
+        'Ε' | 'ε' => (c.is_uppercase(), '⠑'),
+        'Ζ' | 'ζ' => (c.is_uppercase(), '⠵'),
+        'Η' | 'η' => (c.is_uppercase(), '⠱'),
+        'Θ' | 'θ' => (c.is_uppercase(), '⠹'),
+        'Ι' | 'ι' => (c.is_uppercase(), '⠊'),
+        'Κ' | 'κ' => (c.is_uppercase(), '⠅'),
+        'Λ' | 'λ' => (c.is_uppercase(), '⠇'),
+        'Π' | 'π' => (c.is_uppercase(), '⠏'),
+        'Ρ' | 'ρ' => (c.is_uppercase(), '⠗'),
+        'Φ' | 'φ' => (c.is_uppercase(), '⠋'),
+        'Μ' | 'μ' => (c.is_uppercase(), '⠍'),
+        'Ν' | 'ν' => (c.is_uppercase(), '⠝'),
+        'Ξ' | 'ξ' => (c.is_uppercase(), '⠭'),
+        'Ο' | 'ο' => (c.is_uppercase(), '⠕'),
+        'Σ' | 'σ' | 'ς' => (c.is_uppercase(), '⠎'),
+        'Τ' | 'τ' => (c.is_uppercase(), '⠞'),
+        'Υ' | 'υ' => (c.is_uppercase(), '⠥'),
+        'Χ' | 'χ' => (c.is_uppercase(), '⠯'),
+        'Ψ' | 'ψ' => (c.is_uppercase(), '⠽'),
+        'Ω' | 'ω' => (c.is_uppercase(), '⠺'),
         _ => return None,
     };
     let mut cells = Vec::with_capacity(3);
@@ -1210,14 +1181,7 @@ fn styled_passage_foreign_scope(
         word.len() >= 4 && !super::pronunciation::cmudict::is_recorded_word(&word)
     });
     if all_lowercase_words && has_long_unrecorded {
-        return Some((
-            if foreign_code {
-                super::rule_13::AccentCode::Foreign
-            } else {
-                super::rule_13::AccentCode::Ueb
-            },
-            spanish_foreign,
-        ));
+        return Some((super::rule_13::AccentCode::Ueb, spanish_foreign));
     }
 
     // §5.7.2 shortform disambiguation: a demonstration passage of only 2-char
@@ -1244,7 +1208,7 @@ fn styled_passage_foreign_scope(
         // Short-pair-prose contexts (`𝑎𝑏 𝑐𝑑 𝑒𝑓.` inside English prose) use
         // Foreign so the trailing period stays inside the passage.
         return Some((
-            if foreign_code || short_pair_prose_context {
+            if short_pair_prose_context {
                 super::rule_13::AccentCode::Foreign
             } else {
                 super::rule_13::AccentCode::Ueb
@@ -1268,14 +1232,7 @@ fn styled_passage_foreign_scope(
         return None;
     }
 
-    Some((
-        if foreign_code {
-            super::rule_13::AccentCode::Foreign
-        } else {
-            super::rule_13::AccentCode::Ueb
-        },
-        spanish_foreign,
-    ))
+    Some((super::rule_13::AccentCode::Ueb, spanish_foreign))
 }
 
 /// §9.5: whether the space-delimited word continues past index `j` with more
@@ -2341,12 +2298,12 @@ fn previous_text_skipping_terminal_punctuation(tokens: &[EnglishToken], index: u
 }
 
 fn straight_single_quote_role(tokens: &[EnglishToken], index: usize) -> SingleQuote {
-    if !straight_single_quote_is_matched_quotation(tokens, index) {
-        return SingleQuote::Apostrophe;
-    }
     let prev_text = previous_text_skipping_terminal_punctuation(tokens, index);
     let next_text = text_token(tokens.get(index + 1));
     if prev_text && next_text {
+        return SingleQuote::Apostrophe;
+    }
+    if !straight_single_quote_is_matched_quotation(tokens, index) {
         return SingleQuote::Apostrophe;
     }
     if !prev_text && next_text {
@@ -4665,13 +4622,23 @@ fn encode_styled_nonword_symbol(c: char, out: &mut Vec<u8>) -> Option<()> {
     Some(())
 }
 
-fn dot_delimited_domain_word(tokens: &[EnglishToken], i: usize, word: &str) -> bool {
-    matches!(word, "in" | "one")
-        && matches!(
-            i.checked_sub(1).and_then(|p| tokens.get(p)),
-            Some(EnglishToken::Symbol('.'))
-        )
-        && matches!(tokens.get(i + 1), Some(EnglishToken::Symbol('.')))
+fn dot_delimited_domain_word_cells(
+    tokens: &[EnglishToken],
+    i: usize,
+    word: &str,
+) -> Option<Vec<u8>> {
+    if !matches!(
+        i.checked_sub(1).and_then(|p| tokens.get(p)),
+        Some(EnglishToken::Symbol('.'))
+    ) || !matches!(tokens.get(i + 1), Some(EnglishToken::Symbol('.')))
+    {
+        return None;
+    }
+    match word {
+        "in" => Some(vec![decode_unicode('⠔')]),
+        "one" => Some(vec![decode_unicode('⠐'), decode_unicode('⠕')]),
+        _ => None,
+    }
 }
 
 fn is_word_text(token: Option<&EnglishToken>, expected: &str) -> bool {
@@ -5679,40 +5646,10 @@ impl EnglishUebEngine {
 	                        numeric_mode = false;
 	                        continue;
 	                    }
-	                    if chars.iter().all(|c| greek_letter_cells(*c).is_some()) {
-	                        if !in_passage[i]
-	                            && chars.iter().all(|c| c.is_uppercase())
-	                            && matches!(tokens.get(i + 1), Some(EnglishToken::Symbol(next)) if greek_letter_cells(*next).is_some() && next.is_uppercase())
-	                        {
-	                            out.extend([CAPITAL, CAPITAL]);
-	                            for &c in chars {
-	                                out.extend(greek_letter_cells_with_caps(c, true)?);
-	                            }
-	                            let mut j = i + 1;
-	                            while let Some(EnglishToken::Symbol(next)) = tokens.get(j) {
-	                                if greek_letter_cells(*next).is_none() || !next.is_uppercase() {
-	                                    break;
-	                                }
-	                                out.extend(greek_letter_cells_with_caps(*next, true)?);
-	                                j += 1;
-	                            }
-	                            skip_to = j;
-	                            prev_was_number = false;
-	                            numeric_mode = false;
-	                            continue;
+		                    if chars.iter().all(|c| greek_letter_cells(*c).is_some()) {
+	                        for &c in chars {
+	                            out.extend(greek_letter_cells_with_caps(c, in_passage[i])?);
 	                        }
-	                        if !in_passage[i] && chars.len() >= 2 && chars.iter().all(|c| c.is_uppercase()) {
-	                            out.extend([CAPITAL, CAPITAL]);
-	                            for &c in chars {
-	                                out.extend(greek_letter_cells_with_caps(c, true)?);
-                            }
-                            prev_was_number = false;
-                            numeric_mode = false;
-                            continue;
-                        }
-                        for &c in chars {
-                            out.extend(greek_letter_cells_with_caps(c, in_passage[i])?);
-                        }
 	                        prev_was_number = false;
 	                        numeric_mode = false;
 	                        continue;
@@ -6014,16 +5951,12 @@ impl EnglishUebEngine {
 		                        numeric_mode = false;
 			                        continue;
 			                    }
-			                    if dot_delimited_domain_word(tokens, i, &lower_word) {
-			                        match lower_word.as_str() {
-			                            "in" => out.push(decode_unicode('⠔')),
-			                            "one" => out.extend([decode_unicode('⠐'), decode_unicode('⠕')]),
-			                            _ => return None,
-			                        }
-			                        prev_was_number = false;
-			                        numeric_mode = false;
-			                        continue;
-			                    }
+				                    if let Some(cells) = dot_delimited_domain_word_cells(tokens, i, &lower_word) {
+				                        out.extend(cells);
+				                        prev_was_number = false;
+				                        numeric_mode = false;
+				                        continue;
+				                    }
 		                    if lower_word == "in" && spell_in_for_lower_wordsign_limit(tokens, i) {
 		                        if matches!(classify_caps(chars), Some(Caps::Single | Caps::Word)) {
 		                            out.push(CAPITAL);
@@ -6111,24 +6044,8 @@ impl EnglishUebEngine {
                         continue;
                     }
 
-	                    if lower_word == "where"
-	                        && matches!(next, Some(EnglishToken::Symbol('\'')))
-	                        && matches!(tokens.get(i + 2), Some(EnglishToken::Word(w)) if w.iter().collect::<String>().eq_ignore_ascii_case("er"))
-	                    {
-	                        if matches!(classify_caps(chars), Some(Caps::Single | Caps::Word)) {
-	                            out.push(CAPITAL);
-	                        }
-	                        out.extend([
-	                            decode_unicode('⠱'),
-	                            decode_unicode('⠻'),
-	                            decode_unicode('⠑'),
-	                        ]);
-	                        prev_was_number = false;
-	                        numeric_mode = false;
-	                        continue;
-	                    }
-	                    let standing_alone = (super::standing_alone::is_standing_alone_at(tokens, i)
-	                        || transcriber_note_ends_at(tokens, i, true)
+		                    let standing_alone = (super::standing_alone::is_standing_alone_at(tokens, i)
+		                        || transcriber_note_ends_at(tokens, i, true)
 	                        || closing_transcriber_note_starts_at(tokens, i + 1)
 	                        || closing_transcriber_note_after_transparent_suffix(tokens, i))
 	                        && !continues_across_bracket(tokens, i);
@@ -7121,23 +7038,7 @@ impl EnglishUebEngine {
 	                        continue;
 	                    }
                     if let Some(cells) = greek_letter_cells_with_caps(*c, in_passage[i]) {
-                        if c.is_uppercase()
-                            && !in_passage[i]
-                            && matches!(tokens.get(i + 1), Some(EnglishToken::Symbol(next)) if greek_letter_cells(*next).is_some() && next.is_uppercase())
-                        {
-                            out.extend([CAPITAL, CAPITAL]);
-                            let mut j = i;
-                            while let Some(EnglishToken::Symbol(next)) = tokens.get(j) {
-                                if greek_letter_cells(*next).is_none() || !next.is_uppercase() {
-                                    break;
-                                }
-                                out.extend(greek_letter_cells_with_caps(*next, true)?);
-                                j += 1;
-                            }
-                            skip_to = j;
-                        } else {
-                            out.extend(cells);
-                        }
+                        out.extend(cells);
                         if cap_term[i] {
                             out.extend([CAPITAL, decode_unicode('⠄')]);
                         }
@@ -9915,5 +9816,2069 @@ mod tests {
     #[case::double_macron_between_letters("spo\u{035e}on", "⠎⠏⠈⠤⠣⠕⠕⠜⠝")]
     fn modified_letters_keep_other_groupsigns_4_2_10(#[case] text: &str, #[case] expected: &str) {
         assert_eq!(enc(text), Some(cells(expected)));
+    }
+
+    #[rstest::rstest]
+    #[case::grave('\u{0300}', "⠘⠡")]
+    #[case::acute('\u{0301}', "⠘⠌")]
+    #[case::circumflex('\u{0302}', "⠘⠩")]
+    #[case::diaeresis('\u{0308}', "⠘⠒")]
+    #[case::macron('\u{0304}', "⠈⠤")]
+    #[case::breve('\u{0306}', "⠈⠬")]
+    #[case::caron('\u{030c}', "⠘⠬")]
+    #[case::strike('\u{0336}', "⠈⠒")]
+    #[case::double_macron('\u{035e}', "⠈⠤")]
+    #[case::double_breve('\u{035c}', "⠈⠬")]
+    fn maps_combining_modifiers(#[case] mark: char, #[case] expected: &str) {
+        assert_eq!(
+            combining_modifier_cells(mark),
+            Some([cells(expected)[0], cells(expected)[1]])
+        );
+    }
+
+    #[test]
+    fn rejects_unknown_combining_modifier() {
+        assert_eq!(combining_modifier_cells('\u{0303}'), None);
+    }
+
+    #[rstest::rstest]
+    #[case::alpha('Α', false, "⠠⠨⠁")]
+    #[case::beta_suppressed('Β', true, "⠨⠃")]
+    #[case::gamma('Γ', true, "⠨⠛")]
+    #[case::delta('Δ', true, "⠨⠙")]
+    #[case::epsilon('Ε', true, "⠨⠑")]
+    #[case::zeta('Ζ', true, "⠨⠵")]
+    #[case::eta('Η', true, "⠨⠱")]
+    #[case::theta('Θ', true, "⠨⠹")]
+    #[case::iota('Ι', true, "⠨⠊")]
+    #[case::kappa('Κ', true, "⠨⠅")]
+    #[case::lambda('Λ', true, "⠨⠇")]
+    #[case::mu('Μ', true, "⠨⠍")]
+    #[case::nu('Ν', true, "⠨⠝")]
+    #[case::xi('Ξ', true, "⠨⠭")]
+    #[case::omicron('Ο', true, "⠨⠕")]
+    #[case::pi('Π', true, "⠨⠏")]
+    #[case::rho('Ρ', true, "⠨⠗")]
+    #[case::phi('Φ', true, "⠨⠋")]
+    #[case::sigma('Σ', true, "⠨⠎")]
+    #[case::tau('Τ', true, "⠨⠞")]
+    #[case::upsilon('Υ', true, "⠨⠥")]
+    #[case::chi('Χ', true, "⠨⠯")]
+    #[case::psi('Ψ', true, "⠨⠽")]
+    #[case::omega('Ω', true, "⠨⠺")]
+    #[case::final_sigma('ς', false, "⠨⠎")]
+    fn maps_greek_letters_with_capital_policy(
+        #[case] input: char,
+        #[case] suppress_capital: bool,
+        #[case] expected: &str,
+    ) {
+        assert_eq!(
+            greek_letter_cells_with_caps(input, suppress_capital),
+            Some(cells(expected))
+        );
+    }
+
+    #[test]
+    fn rejects_non_greek_letter_mapping() {
+        assert_eq!(greek_letter_cells_with_caps('A', false), None);
+    }
+
+    #[rstest::rstest]
+    #[case::caps_word(&['A', 'B'], Some(Caps::Word))]
+    #[case::single_cap(&['A'], Some(Caps::Single))]
+    #[case::titlecase(&['A', 'b'], Some(Caps::Single))]
+    #[case::lower(&['a', 'b'], Some(Caps::None))]
+    #[case::mixed_internal(&['a', 'B'], None)]
+    fn classifies_capital_patterns(#[case] input: &[char], #[case] expected: Option<Caps>) {
+        assert_eq!(classify_caps(input), expected);
+    }
+
+    #[test]
+    fn emits_ligature_and_struck_letter_helpers() {
+        let mut out = Vec::new();
+        emit_ligature_between(&['o'], &['e'], &mut out).unwrap();
+        assert_eq!(out, cells("⠕⠘⠖⠑"));
+
+        let tokens = [
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('\u{0336}'),
+            EnglishToken::Word(vec!['b']),
+            EnglishToken::Symbol('\u{0336}'),
+        ];
+        let mut struck = Vec::new();
+        assert_eq!(
+            emit_struck_letter_sequence(&tokens, 0, &['a'], &mut struck),
+            Some(4)
+        );
+        assert_eq!(struck, cells("⠁⠘⠖⠃"));
+    }
+
+    #[rstest::rstest]
+    #[case::empty(&[], false)]
+    #[case::short_word(&[EnglishToken::Word(vec!['A', 'A', 'A', 'A'])], false)]
+    #[case::two_words(&[EnglishToken::Word(vec!['H', 'E', 'Y', 'Y', 'Y']), EnglishToken::Word(vec!['A'])], false)]
+    #[case::elongated(&[EnglishToken::Word(vec!['H', 'E', 'Y', 'Y', 'Y'])], true)]
+    fn detects_single_elongated_caps_word_in_quotes(
+        #[case] tokens: &[EnglishToken],
+        #[case] expected: bool,
+    ) {
+        assert_eq!(single_elongated_caps_word_in_quotes(tokens), expected);
+    }
+
+    #[test]
+    fn emits_word_modifier_on_last_paths() {
+        let mut out = Vec::new();
+        emit_word_with_modifier_on_last(&['c', 'a', 'f', 'e'], '\u{0301}', &mut out).unwrap();
+        assert_eq!(out, cells("⠉⠁⠋⠘⠌⠑"));
+
+        let mut empty = Vec::new();
+        assert_eq!(
+            emit_word_with_modifier_on_last(&[], '\u{0301}', &mut empty),
+            None
+        );
+
+        let mut unknown_mark = Vec::new();
+        assert_eq!(
+            emit_word_with_modifier_on_last(&['a'], '\u{0303}', &mut unknown_mark),
+            None
+        );
+    }
+
+    #[test]
+    fn emits_ligature_between_rejection_and_uppercase_paths() {
+        let mut uppercase = Vec::new();
+        emit_ligature_between(&['o'], &['E'], &mut uppercase).unwrap();
+        assert_eq!(uppercase, cells("⠕⠠⠘⠖⠑"));
+
+        let mut out = Vec::new();
+        assert_eq!(emit_ligature_between(&[], &['e'], &mut out), None);
+        assert_eq!(emit_ligature_between(&['o'], &[], &mut out), None);
+    }
+
+    #[test]
+    fn emits_styled_struck_pair_paths() {
+        let wrong_tokens = [
+            EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol('\u{0336}'),
+            EnglishToken::Word(vec!['b']),
+        ];
+        let mut out = Vec::new();
+        assert_eq!(
+            emit_styled_struck_pair(
+                &wrong_tokens,
+                0,
+                super::super::token::Typeform::Italic,
+                'a',
+                &mut out,
+            ),
+            None
+        );
+
+        let missing_overlay = [
+            EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol('\u{0336}'),
+            EnglishToken::Styled('b', super::super::token::Typeform::Bold),
+        ];
+        assert_eq!(
+            emit_styled_struck_pair(
+                &missing_overlay,
+                0,
+                super::super::token::Typeform::Italic,
+                'a',
+                &mut out,
+            ),
+            None
+        );
+
+        let good = [
+            EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol('\u{0336}'),
+            EnglishToken::Styled('B', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol('\u{0336}'),
+        ];
+        let mut struck = Vec::new();
+        assert_eq!(
+            emit_styled_struck_pair(
+                &good,
+                0,
+                super::super::token::Typeform::Italic,
+                'a',
+                &mut struck,
+            ),
+            Some(4)
+        );
+        assert_eq!(struck, cells("⠨⠂⠁⠠⠘⠖⠃"));
+    }
+
+    #[rstest::rstest]
+    #[case::four_single(&[&['w'][..], &['a'][..], &['l'][..], &['k'][..]], true)]
+    #[case::tail_single(&[&['b', 'r'][..], &['r'][..], &['r'][..], &['r'][..]], true)]
+    #[case::same_tail(&[&['s', 'o'][..], &['o', 'o'][..], &['o', 'o'][..], &['o', 'o'][..]], true)]
+    #[case::one_then_long_same(&[&['r'][..], &['m', 'm', 'm', 'm'][..]], true)]
+    #[case::with_which(&[&['n', 'o', 't'][..], &['w', 'i', 't', 'h'][..], &['s', 't', 'a', 'n', 'd'][..], &['i', 'n', 'g'][..], &['x'][..]], false)]
+    fn grade1_hyphenated_word_indicator_paths(#[case] words: &[&[char]], #[case] expected: bool) {
+        assert_eq!(grade1_hyphenated_words_use_word_indicator(words), expected);
+    }
+
+    #[test]
+    fn grade1_hyphenated_span_and_stammer_helpers_cover_edges() {
+        let tokens = [
+            EnglishToken::Word(vec!['w']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['l']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['k']),
+        ];
+        let span = grade1_hyphenated_word_span(&tokens, 0).expect("spelling run should span");
+        assert_eq!(span.end, tokens.len());
+        assert_eq!(span.indicator_cells, 2);
+
+        assert!(!same_letters(&[]));
+        assert!(!repeated_single_letter_prefix(
+            &[&['f'][..], &['f'][..]],
+            &['f', 'a']
+        ));
+        assert!(!repeated_single_letter_prefix(
+            &[&[][..], &['f'][..], &['f'][..]],
+            &['f', 'a'],
+        ));
+    }
+
+    #[test]
+    fn spatial_helpers_encode_grade1_rows_and_symbols() {
+        let engine = EnglishUebEngine::new();
+        let mut chars = Vec::new();
+        push_spatial_char(&mut chars, ' ').unwrap();
+        push_spatial_char(&mut chars, '╳').unwrap();
+        push_spatial_char(&mut chars, '>').unwrap();
+        push_spatial_char(&mut chars, '<').unwrap();
+        assert_eq!(chars, cells("⠀⠜⠠⠜⠠⠣"));
+
+        let grade1_rows = encode_spatial_rows(&["╱╲", " ╳"], true).unwrap();
+        assert_eq!(grade1_rows, cells("⠐⠐⠿⠰⠰⠰\n⠜⠣\n⠀⠜\n⠐⠐⠿⠰⠄"));
+
+        let mut unsupported = Vec::new();
+        assert_eq!(push_spatial_char(&mut unsupported, 'x'), None);
+
+        let cross_gap = [
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┼'),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('╲'),
+        ];
+        let encoded = engine.encode(&cross_gap, false).unwrap();
+        assert_eq!(encoded, cells("⠐⠒⠺⠀⠐⠒⠣"));
+
+        let game_board = [
+            EnglishToken::Symbol('╲'),
+            EnglishToken::LineBreak,
+            EnglishToken::Word(vec!['X']),
+            EnglishToken::Space,
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┼'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['O']),
+        ];
+        let encoded = engine.encode(&game_board, false).unwrap();
+        assert!(encoded.starts_with(&cells("⠐⠐⠿⠰⠰⠰\n")));
+        assert!(encoded.ends_with(&cells("\n⠰⠄")));
+        assert!(encoded.contains(&decode_unicode('⠭')));
+        assert!(encoded.contains(&decode_unicode('⠕')));
+    }
+
+    #[test]
+    fn spatial_box_and_grid_helpers_cover_positive_and_negative_paths() {
+        let box_tokens = [
+            EnglishToken::Symbol('┌'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┐'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('│'),
+            EnglishToken::Symbol('?'),
+            EnglishToken::Space,
+            EnglishToken::Symbol('!'),
+            EnglishToken::Symbol('│'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('└'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┘'),
+        ];
+        assert_eq!(
+            encode_rule_3_14_punctuation_box(&box_tokens),
+            Some(cells("⠀⠐⠐⠿⠰⠦⠀⠀⠀⠀⠀⠀⠐⠐⠿⠖\n⠐⠒⠒⠒⠒⠒⠒⠀⠀⠀⠐⠒⠒⠒⠒⠒⠒"))
+        );
+
+        assert_eq!(
+            encode_rule_3_14_punctuation_box(&[EnglishToken::Symbol('┌')]),
+            None
+        );
+
+        let grid_tokens = [
+            EnglishToken::Word(vec!['A']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['B']),
+            EnglishToken::LineBreak,
+            EnglishToken::Word(vec!['C']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['D']),
+        ];
+        assert_eq!(
+            encode_rule_3_14_letter_grid(&grid_tokens),
+            Some(cells("⠐⠐⠿⠰⠰⠰⠠⠠⠠\n⠁⠀⠃\n⠉⠀⠙\n⠐⠐⠿⠠⠄⠰⠄"))
+        );
+
+        let ragged_grid = [
+            EnglishToken::Word(vec!['A']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['B']),
+            EnglishToken::LineBreak,
+            EnglishToken::Word(vec!['C']),
+        ];
+        assert_eq!(encode_rule_3_14_letter_grid(&ragged_grid), None);
+    }
+
+    #[rstest::rstest]
+    #[case::diagonal("╲", "⠣\n⠀⠣\n⠀⠀⠣\n⠀⠀⠀⠣")]
+    #[case::vertical("┊", "⠘\n⠘\n⠘\n⠘")]
+    #[case::crossing("╲╱╱", "⠣⠀⠀⠀⠀⠀⠀⠀⠀⠠⠜\n⠀⠀⠣⠀⠀⠀⠀⠠⠜\n⠀⠀⠀⠀⠣⠠⠜")]
+    fn compact_spatial_examples_encode_rows(#[case] text: &str, #[case] expected: &str) {
+        let tokens: Vec<EnglishToken> = text.chars().map(EnglishToken::Symbol).collect();
+        assert_eq!(
+            encode_compact_spatial_example(&tokens),
+            Some(cells(expected))
+        );
+    }
+
+    #[test]
+    fn styled_unstyled_span_helper_encodes_all_token_kinds() {
+        let engine = EnglishUebEngine::new();
+        let form = super::super::token::Typeform::Underline;
+        let tokens = [
+            EnglishToken::Styled('a', form),
+            EnglishToken::Styled('b', form),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Styled('1', form),
+            EnglishToken::Styled('2', form),
+            EnglishToken::LineBreak,
+            EnglishToken::Styled('?', form),
+        ];
+        let mut out = Vec::new();
+        engine
+            .encode_styled_as_unstyled_span(
+                0,
+                tokens.len(),
+                form,
+                StyledContext {
+                    tokens: &tokens,
+                    suppress_caps: false,
+                    foreign_scope: None,
+                },
+                &mut out,
+            )
+            .unwrap();
+        assert_eq!(out, cells("⠁⠃⠸⠌⠼⠁⠃\n⠰⠦"));
+
+        let wrong_form = [EnglishToken::Styled(
+            'a',
+            super::super::token::Typeform::Italic,
+        )];
+        let mut rejected = Vec::new();
+        assert_eq!(
+            engine.encode_styled_as_unstyled_span(
+                0,
+                wrong_form.len(),
+                form,
+                StyledContext {
+                    tokens: &wrong_form,
+                    suppress_caps: false,
+                    foreign_scope: None,
+                },
+                &mut rejected,
+            ),
+            None
+        );
+    }
+
+    #[test]
+    fn styled_span_helper_preserves_line_breaks_between_segments() {
+        let engine = EnglishUebEngine::new();
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Styled('a', form),
+            EnglishToken::LineBreak,
+            EnglishToken::Styled('b', form),
+        ];
+        let mut out = Vec::new();
+
+        engine
+            .encode_styled_span(
+                0,
+                tokens.len(),
+                form,
+                StyledContext {
+                    tokens: &tokens,
+                    suppress_caps: false,
+                    foreign_scope: None,
+                },
+                &mut out,
+            )
+            .unwrap();
+
+        assert!(out.contains(&255));
+    }
+
+    #[test]
+    fn styled_word_surface_encodes_plain_multiletter_run() {
+        let engine = EnglishUebEngine::new();
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Styled('r', form),
+            EnglishToken::Styled('a', form),
+            EnglishToken::Styled('d', form),
+            EnglishToken::Styled('a', form),
+            EnglishToken::Styled('r', form),
+        ];
+
+        let encoded = engine.encode(&tokens, false).unwrap();
+
+        assert!(encoded.starts_with(&super::super::rule_9::word_indicator(form)));
+    }
+
+    #[test]
+    fn typeform_passage_terminates_before_closing_quote_after_comma() {
+        let engine = EnglishUebEngine::new();
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Styled('r', form),
+            EnglishToken::Styled('e', form),
+            EnglishToken::Styled('d', form),
+            EnglishToken::Space,
+            EnglishToken::Styled('g', form),
+            EnglishToken::Styled('r', form),
+            EnglishToken::Styled('e', form),
+            EnglishToken::Styled('e', form),
+            EnglishToken::Styled('n', form),
+            EnglishToken::Space,
+            EnglishToken::Styled('b', form),
+            EnglishToken::Styled('l', form),
+            EnglishToken::Styled('u', form),
+            EnglishToken::Styled('e', form),
+            EnglishToken::Symbol(','),
+            EnglishToken::Symbol('"'),
+        ];
+
+        let encoded = engine.encode(&tokens, false).unwrap();
+        let terminator = super::super::rule_9::terminator(form);
+
+        assert!(
+            encoded
+                .windows(terminator.len() + 2)
+                .any(|cells| cells.starts_with(&terminator)
+                    && cells[terminator.len()] == decode_unicode('⠠')
+                    && cells[terminator.len() + 1] == decode_unicode('⠶'))
+        );
+    }
+
+    #[test]
+    fn chemical_script_branch_collects_all_token_kinds() {
+        let engine = EnglishUebEngine::new();
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Word(vec!['H']),
+            EnglishToken::Symbol('₁'),
+            EnglishToken::Space,
+            EnglishToken::Number(vec!['2']),
+            EnglishToken::LineBreak,
+            EnglishToken::Styled('O', form),
+            EnglishToken::WordDivision {
+                chars: vec!['H'],
+                break_at: 1,
+            },
+            EnglishToken::Symbol('+'),
+        ];
+
+        let encoded = engine.encode(&tokens, false).unwrap();
+
+        assert!(encoded.starts_with(&[GRADE1, GRADE1, GRADE1]));
+        assert!(encoded.ends_with(&[GRADE1, decode_unicode('⠄')]));
+    }
+
+    #[test]
+    fn divided_word_helper_covers_caps_mixed_and_invalid_breaks() {
+        let engine = EnglishUebEngine::new();
+
+        let mut invalid = Vec::new();
+        assert_eq!(
+            engine.encode_divided_word(&['c', 'a', 't'], 0, false, &mut invalid),
+            None
+        );
+        assert_eq!(
+            engine.encode_divided_word(&['c', 'a', 't'], 3, false, &mut invalid),
+            None
+        );
+
+        let mut lower = Vec::new();
+        engine
+            .encode_divided_word(&['c', 'a', 't', 's'], 2, false, &mut lower)
+            .unwrap();
+        assert!(lower.contains(&255));
+
+        let mut title = Vec::new();
+        engine
+            .encode_divided_word(&['C', 'a', 't', 's'], 2, false, &mut title)
+            .unwrap();
+        assert!(title.starts_with(&[CAPITAL]));
+
+        let mut caps = Vec::new();
+        engine
+            .encode_divided_word(&['C', 'A', 'T', 'S'], 2, false, &mut caps)
+            .unwrap();
+        assert!(caps.starts_with(&[CAPITAL, CAPITAL]));
+        assert!(caps.contains(&255));
+
+        let mut mixed = Vec::new();
+        engine
+            .encode_divided_word(&['M', 'c', 'D', 'o', 'g'], 2, false, &mut mixed)
+            .unwrap();
+        assert!(mixed.contains(&255));
+        assert!(mixed.iter().filter(|cell| **cell == CAPITAL).count() >= 2);
+    }
+
+    #[rstest::rstest]
+    #[case::sup_m(
+        '\u{1D50}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Superscript,
+        'm'
+    )]
+    #[case::sup_c(
+        '\u{1D9C}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Superscript,
+        'c'
+    )]
+    #[case::sub_a(
+        '\u{2090}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'a'
+    )]
+    #[case::sub_e(
+        '\u{2091}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'e'
+    )]
+    #[case::sub_h(
+        '\u{2095}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'h'
+    )]
+    #[case::sub_i(
+        '\u{1D62}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'i'
+    )]
+    #[case::sub_j(
+        '\u{2C7C}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'j'
+    )]
+    #[case::sub_k(
+        '\u{2096}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'k'
+    )]
+    #[case::sub_l(
+        '\u{2097}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'l'
+    )]
+    #[case::sub_m(
+        '\u{2098}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'm'
+    )]
+    #[case::sub_n(
+        '\u{2099}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'n'
+    )]
+    #[case::sub_o(
+        '\u{2092}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'o'
+    )]
+    #[case::sub_p(
+        '\u{209A}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'p'
+    )]
+    #[case::sub_r(
+        '\u{1D63}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'r'
+    )]
+    #[case::sub_s(
+        '\u{209B}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        's'
+    )]
+    #[case::sub_t(
+        '\u{209C}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        't'
+    )]
+    #[case::sub_u(
+        '\u{1D64}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'u'
+    )]
+    #[case::sub_v(
+        '\u{1D65}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'v'
+    )]
+    #[case::sub_x(
+        '\u{2093}',
+        crate::rules::english_ueb::rule_3_24::ScriptKind::Subscript,
+        'x'
+    )]
+    fn script_letter_maps_supported_letters(
+        #[case] input: char,
+        #[case] kind: crate::rules::english_ueb::rule_3_24::ScriptKind,
+        #[case] letter: char,
+    ) {
+        assert_eq!(script_letter(input), Some((kind, letter)));
+    }
+
+    #[test]
+    fn struck_letter_sequence_helper_covers_short_upper_and_invalid_paths() {
+        let mut short = Vec::new();
+        assert_eq!(
+            emit_struck_letter_sequence(
+                &[
+                    EnglishToken::Word(vec!['a']),
+                    EnglishToken::Symbol('\u{0336}'),
+                ],
+                0,
+                &['a'],
+                &mut short,
+            ),
+            None
+        );
+
+        let tokens = [
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('\u{0336}'),
+            EnglishToken::Word(vec!['B']),
+            EnglishToken::Symbol('\u{0336}'),
+        ];
+        let mut out = Vec::new();
+        assert_eq!(
+            emit_struck_letter_sequence(&tokens, 0, &['a'], &mut out),
+            Some(tokens.len())
+        );
+        assert_eq!(out, cells("⠁⠠⠘⠖⠃"));
+    }
+
+    #[test]
+    fn listing_and_regex_helpers_cover_continuation_paths() {
+        let slash_tokens = [
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Word(vec!['b']),
+        ];
+        assert!(url_listing_line_continuation_after(
+            &slash_tokens,
+            1,
+            &[true; 3]
+        ));
+
+        let hyphen_tokens = [
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['b']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['c']),
+        ];
+        assert!(url_listing_line_continuation_after(
+            &hyphen_tokens,
+            3,
+            &[true; 5]
+        ));
+
+        let range_tokens = [
+            EnglishToken::Symbol('"'),
+            EnglishToken::Symbol('['),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['a', 'Z']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Symbol(']'),
+            EnglishToken::Symbol('"'),
+        ];
+        let mut range = Vec::new();
+        assert_eq!(
+            regex_char_class_word(&range_tokens, 3, &['a', 'Z'], &[true; 7], &mut range),
+            Some(true)
+        );
+        assert_eq!(range, cells("⠁⠠⠐⠀⠵"));
+
+        let terminal_upper_tokens = [
+            EnglishToken::Symbol('"'),
+            EnglishToken::Symbol('['),
+            EnglishToken::Symbol('a'),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['Z']),
+            EnglishToken::Symbol(']'),
+            EnglishToken::Symbol('"'),
+        ];
+        let mut upper = Vec::new();
+        assert_eq!(
+            regex_char_class_word(&terminal_upper_tokens, 4, &['Z'], &[true; 7], &mut upper),
+            Some(true)
+        );
+        assert_eq!(upper, cells("⠰⠠⠵"));
+    }
+
+    #[test]
+    fn styled_symbol_sequence_helpers_cover_all_token_kinds() {
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Styled('R', form),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Styled('2', form),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Styled('?', form),
+        ];
+        assert!(styled_capital_starts_symbol_sequence(&tokens, 0, 1));
+        assert_eq!(styled_symbol_sequence_end(&tokens, 0, form), 4);
+
+        let mut out = Vec::new();
+        encode_styled_symbol_sequence(&tokens, 0, tokens.len(), form, &mut out).unwrap();
+        assert_eq!(out, cells("⠠⠗⠲⠼⠃⠲⠰⠦"));
+
+        let invalid = [EnglishToken::Styled('R', form), EnglishToken::Space];
+        let mut rejected = Vec::new();
+        assert_eq!(
+            encode_styled_symbol_sequence(&invalid, 0, invalid.len(), form, &mut rejected),
+            None
+        );
+    }
+
+    #[test]
+    fn styled_url_and_nested_typeform_helpers_cover_positive_paths() {
+        let underline = super::super::token::Typeform::Underline;
+        let url = [
+            EnglishToken::Styled('h', underline),
+            EnglishToken::Styled('t', underline),
+            EnglishToken::Styled('t', underline),
+            EnglishToken::Styled('p', underline),
+            EnglishToken::Symbol(':'),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Styled('x', underline),
+        ];
+        assert!(styled_underline_url_span(&url, 0, url.len(), underline));
+        assert!(styled_url_before(&url, url.len()));
+
+        let bold_italic = super::super::token::Typeform::BoldItalic;
+        let italic = super::super::token::Typeform::Italic;
+        let nested = [
+            EnglishToken::Styled('a', bold_italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('b', italic),
+            EnglishToken::Styled('c', italic),
+            EnglishToken::Styled('d', italic),
+        ];
+        assert_eq!(
+            nested_typeform_continuation(&nested, 1, bold_italic),
+            Some((nested.len(), italic, super::super::token::Typeform::Bold))
+        );
+    }
+
+    #[test]
+    fn straight_single_quote_helpers_cover_quotation_roles() {
+        let opened = [
+            EnglishToken::Symbol('\''),
+            EnglishToken::Word(vec!['H', 'i']),
+            EnglishToken::Symbol('\''),
+        ];
+        assert!(straight_single_quote_is_matched_quotation(&opened, 0));
+        assert!(matches!(
+            straight_single_quote_role(&opened, 0),
+            SingleQuote::Open
+        ));
+        assert!(matches!(
+            straight_single_quote_role(&opened, 2),
+            SingleQuote::Close
+        ));
+
+        let inner_double_close = [
+            EnglishToken::Symbol('\''),
+            EnglishToken::Word(vec!['H', 'i']),
+            EnglishToken::Symbol('"'),
+            EnglishToken::Symbol(','),
+            EnglishToken::Symbol('\''),
+        ];
+        assert!(straight_single_quote_closes_after_inner_double(
+            &inner_double_close,
+            4
+        ));
+        assert!(straight_single_quote_exchanged(&inner_double_close, 4));
+    }
+
+    #[test]
+    fn encode_rare_document_level_symbol_paths() {
+        let engine = EnglishUebEngine::new();
+
+        assert_eq!(
+            engine.encode(
+                &[EnglishToken::Symbol('-'), EnglishToken::Symbol('-')],
+                false
+            ),
+            Some(cells("⠐⠒⠒⠒"))
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Number(vec!['2']),
+                        EnglishToken::Space,
+                        EnglishToken::Symbol('×'),
+                        EnglishToken::Space,
+                        EnglishToken::Number(vec!['3']),
+                    ],
+                    true,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['H']),
+                        EnglishToken::Symbol('₂'),
+                        EnglishToken::Symbol('+'),
+                        EnglishToken::Word(vec!['O']),
+                        EnglishToken::Symbol('→'),
+                        EnglishToken::Word(vec!['H']),
+                        EnglishToken::Symbol('₂'),
+                        EnglishToken::Word(vec!['O']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('.'),
+                        EnglishToken::Number(vec!['3', '7']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn encode_rare_word_and_spatial_paths() {
+        let engine = EnglishUebEngine::new();
+
+        assert!(
+            engine
+                .encode(
+                    &[EnglishToken::Word(vec!['a']), EnglishToken::Symbol('ₙ'),],
+                    false,
+                )
+                .is_none()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['m', 'a', 's', 's']),
+                        EnglishToken::Symbol('ₛ'),
+                        EnglishToken::Symbol('ᵤ'),
+                        EnglishToken::Symbol('ₙ'),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['A']),
+                        EnglishToken::Symbol('='),
+                        EnglishToken::Word(vec!['b']),
+                        EnglishToken::Word(vec!['C']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('┌'),
+                        EnglishToken::Symbol('─'),
+                        EnglishToken::Symbol('┼'),
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Symbol('─'),
+                        EnglishToken::Symbol('┐'),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Styled('c', super::super::token::Typeform::Italic),
+                        EnglishToken::Styled('h', super::super::token::Typeform::Italic),
+                        EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert_eq!(
+            engine
+                .encode(&[EnglishToken::Number(vec!['4', '2'])], false)
+                .unwrap(),
+            cells("⠼⠙⠃")
+        );
+    }
+
+    #[test]
+    fn encode_rare_spatial_layout_branches() {
+        let engine = EnglishUebEngine::new();
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::WordDivision {
+                            chars: vec!['a', 'b'],
+                            break_at: 1,
+                        },
+                        EnglishToken::Symbol('\t'),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('│'),
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Symbol('│'),
+                        EnglishToken::LineBreak,
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('┐'),
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Symbol('┌'),
+                        EnglishToken::Symbol('─'),
+                        EnglishToken::LineBreak,
+                        EnglishToken::Symbol('╲'),
+                    ],
+                    false,
+                )
+                .is_none()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('╲'),
+                        EnglishToken::Space,
+                        EnglishToken::Space,
+                        EnglishToken::Symbol('│'),
+                        EnglishToken::LineBreak,
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('│'),
+                        EnglishToken::Symbol('╲'),
+                        EnglishToken::Symbol('│'),
+                        EnglishToken::LineBreak,
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn encode_rare_greek_grouping_branches() {
+        let engine = EnglishUebEngine::new();
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['Α', 'Β']),
+                        EnglishToken::Symbol('Γ'),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('Α'),
+                        EnglishToken::Word(vec!['Β', 'Γ']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn rare_helper_branches_cover_case_punctuation_and_styled_contexts() {
+        let mut single = Vec::new();
+        encode_lower_sequence_word(&['A'], &[decode_unicode('⠁')], &mut single).unwrap();
+        assert_eq!(single, cells("⠠⠁"));
+
+        let mut caps = Vec::new();
+        encode_lower_sequence_word(
+            &['A', 'B'],
+            &[decode_unicode('⠁'), decode_unicode('⠃')],
+            &mut caps,
+        )
+        .unwrap();
+        assert_eq!(caps, cells("⠠⠠⠁⠃"));
+
+        assert!(
+            mixed_case_shortform_part(&['g', 'o', 'o', 'd', 'X'], 0, &['g', 'o', 'o', 'd'])
+                .is_some()
+        );
+        assert!(shortform_meets_rule_10_9_4(
+            &['g', 'o', 'o', 'd'],
+            0,
+            &['g', 'o', 'o', 'd'],
+            true
+        ));
+
+        let parenthesized = [
+            EnglishToken::Symbol('('),
+            EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol(')'),
+        ];
+        assert!(parenthesized_foreign_style_before(&parenthesized, 2));
+        assert!(!parenthesized_foreign_style_before(
+            &[
+                EnglishToken::Symbol('('),
+                EnglishToken::Symbol(')'),
+                EnglishToken::Symbol(')'),
+            ],
+            2
+        ));
+
+        let previous_punctuation = [
+            EnglishToken::Word(vec!['H', 'i']),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Symbol(')'),
+            EnglishToken::Symbol('\''),
+        ];
+        assert!(previous_text_skipping_terminal_punctuation(
+            &previous_punctuation,
+            3
+        ));
+        assert!(previous_word_starts_uppercase(&previous_punctuation, 3));
+
+        let styled_neighbors = [
+            EnglishToken::Styled('a', super::super::token::Typeform::Italic),
+            EnglishToken::Space,
+            EnglishToken::Symbol(','),
+            EnglishToken::Space,
+            EnglishToken::Styled('b', super::super::token::Typeform::Italic),
+        ];
+        assert!(punctuation_adjacent_to_styled(&styled_neighbors, 2));
+    }
+
+    #[test]
+    fn rare_helper_branches_cover_lower_sign_and_foreign_word_paths() {
+        assert!(!spell_line_division_in(
+            &[EnglishToken::Word(vec!['o', 'u', 't'])],
+            0,
+            "out"
+        ));
+
+        let enough = [
+            EnglishToken::Word(vec!['e', 'n', 'o', 'u', 'g', 'h']),
+            EnglishToken::Symbol('!'),
+            EnglishToken::Symbol('”'),
+            EnglishToken::Symbol('—'),
+            EnglishToken::Word(vec!['i', 'n']),
+        ];
+        assert!(dash_after_enough_before_in(&enough, 4));
+
+        let quoted_in = [
+            EnglishToken::Word(vec!['i', 'n']),
+            EnglishToken::Symbol('?'),
+            EnglishToken::Symbol('”'),
+            EnglishToken::Symbol('—'),
+            EnglishToken::Word(vec!['i', 'n']),
+        ];
+        assert!(dash_after_quoted_in_before_in(&quoted_in, 4));
+
+        assert!(!space_delimited_syllables_form_word(
+            &[EnglishToken::Word(vec!['a'])],
+            0
+        ));
+        assert!(foreign_en_spells_letters(None, Some(&EnglishToken::Space)));
+        assert!(!styled_word_is_foreign(&['c', 'h']));
+        assert!(!styled_single_word_is_foreign(&['t', 'h']));
+        assert!(styled_word_has_foreign_signal(&['c', 'h', 'a', 'o', 's']));
+    }
+
+    #[test]
+    fn rare_helper_branches_cover_styled_sequences_and_quotes() {
+        let bold = super::super::token::Typeform::Bold;
+        let numeric = [
+            EnglishToken::Styled('1', bold),
+            EnglishToken::Space,
+            EnglishToken::Styled('5', bold),
+        ];
+        assert_eq!(
+            styled_numeric_sequence_end(&numeric, 0, bold),
+            numeric.len()
+        );
+        let mut numeric_out = Vec::new();
+        encode_styled_numeric_sequence(&numeric, 0, numeric.len(), bold, &mut numeric_out).unwrap();
+        assert_eq!(
+            numeric_out,
+            vec![decode_unicode('⠼'), 1, decode_unicode('⠐'), 17]
+        );
+
+        let invalid_numeric = [
+            EnglishToken::Styled('1', bold),
+            EnglishToken::Word(vec!['x']),
+        ];
+        let mut invalid_numeric_out = Vec::new();
+        assert_eq!(
+            encode_styled_numeric_sequence(
+                &invalid_numeric,
+                0,
+                invalid_numeric.len(),
+                bold,
+                &mut invalid_numeric_out,
+            ),
+            None
+        );
+
+        let symbol_tail = [
+            EnglishToken::Styled('R', bold),
+            EnglishToken::Symbol('.'),
+            EnglishToken::LineBreak,
+            EnglishToken::Word(vec!['S']),
+        ];
+        assert!(styled_capital_starts_symbol_sequence(&symbol_tail, 0, 1));
+        assert!(!styled_capital_starts_symbol_sequence(&symbol_tail, 3, 1));
+
+        let adjacent_text = [
+            EnglishToken::Word(vec!['A']),
+            EnglishToken::Symbol('\''),
+            EnglishToken::Word(vec!['B']),
+        ];
+        assert!(matches!(
+            straight_single_quote_role(&adjacent_text, 1),
+            SingleQuote::Apostrophe
+        ));
+    }
+
+    #[test]
+    fn rare_engine_paths_cover_remaining_symbol_and_word_branches() {
+        let engine = EnglishUebEngine::new();
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Symbol('Α'),
+                        EnglishToken::Symbol('Β'),
+                        EnglishToken::Symbol('Γ'),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['Α']),
+                        EnglishToken::Word(vec!['Β', 'Γ']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['α', 'β']),
+                        EnglishToken::Space,
+                        EnglishToken::Word(vec!['π']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['w', 'h', 'e', 'r', 'e']),
+                        EnglishToken::Symbol('\''),
+                        EnglishToken::Word(vec!['e', 'r']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Number(vec!['1']),
+                        EnglishToken::Word(vec!['i', 'n', 's']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+
+        assert!(
+            engine
+                .encode(
+                    &[
+                        EnglishToken::Word(vec!['A']),
+                        EnglishToken::Symbol('='),
+                        EnglishToken::Word(vec!['b', 'C']),
+                    ],
+                    false,
+                )
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn rare_helper_paths_cover_false_and_edge_branches() {
+        assert_eq!(greek_letter_cells_with_caps('λ', false), Some(cells("⠨⠇")));
+        assert_eq!(greek_letter_cells_with_caps('Ξ', true), Some(cells("⠨⠭")));
+        assert_eq!(greek_letter_cells_with_caps('@', false), None);
+
+        assert!(!parenthesized_foreign_style_before(
+            &[EnglishToken::Styled(
+                'a',
+                super::super::token::Typeform::Italic
+            )],
+            1,
+        ));
+
+        assert_eq!(
+            mixed_case_shortform_part(&['b', 'r', 'a', 'i', 'l', 'l', 'e', 'x'], 0, &['b', 'r']),
+            Some((7, cells("⠃⠗⠇")))
+        );
+
+        assert!(styled_prose_double_space(
+            &[
+                EnglishToken::Styled('h', super::super::token::Typeform::Underline),
+                EnglishToken::Styled('t', super::super::token::Typeform::Underline),
+                EnglishToken::Styled('t', super::super::token::Typeform::Underline),
+                EnglishToken::Styled('p', super::super::token::Typeform::Underline),
+                EnglishToken::Symbol(':'),
+                EnglishToken::Symbol('/'),
+                EnglishToken::Symbol('/'),
+                EnglishToken::Styled('x', super::super::token::Typeform::Underline),
+                EnglishToken::Space,
+                EnglishToken::Space,
+                EnglishToken::Word(vec!['n', 'o', 'w']),
+            ],
+            8,
+        ));
+
+        assert_eq!(
+            straight_single_quote_is_matched_quotation(
+                &[
+                    EnglishToken::Symbol('\''),
+                    EnglishToken::Word(vec!['C', 'a', 't']),
+                    EnglishToken::Symbol('\''),
+                ],
+                0,
+            ),
+            true
+        );
+        assert!(!straight_single_quote_is_matched_quotation(
+            &[EnglishToken::Symbol('"')],
+            0,
+        ));
+
+        assert_eq!(
+            previous_word_starts_uppercase(
+                &[
+                    EnglishToken::Word(vec!['C', 'a', 't']),
+                    EnglishToken::Symbol('.'),
+                    EnglishToken::Symbol('\''),
+                ],
+                2,
+            ),
+            true
+        );
+        assert!(straight_single_quote_closes_after_inner_double(
+            &[
+                EnglishToken::Symbol('\''),
+                EnglishToken::Word(vec!['H', 'i']),
+                EnglishToken::Symbol('"'),
+                EnglishToken::Symbol('!'),
+                EnglishToken::Symbol(','),
+                EnglishToken::Symbol('\''),
+            ],
+            5,
+        ));
+    }
+
+    #[test]
+    fn rare_foreign_scope_helpers_cover_remaining_decisions() {
+        let italic = super::super::token::Typeform::Italic;
+        let bold = super::super::token::Typeform::Bold;
+
+        let foreign_code_span = [
+            EnglishToken::Symbol('¿'),
+            EnglishToken::Styled('Q', italic),
+            EnglishToken::Styled('u', italic),
+            EnglishToken::Styled('é', italic),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['s', 'a', 'i', 'd']),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(&foreign_code_span, 1, 4, italic, true, true),
+            Some((super::super::rule_13::AccentCode::Ueb, true))
+        ));
+
+        let whole_foreign = [
+            EnglishToken::Styled('q', italic),
+            EnglishToken::Styled('u', italic),
+            EnglishToken::Styled('é', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('t', italic),
+            EnglishToken::Styled('a', italic),
+            EnglishToken::Styled('l', italic),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(
+                &whole_foreign,
+                0,
+                whole_foreign.len(),
+                italic,
+                false,
+                true
+            ),
+            Some((super::super::rule_13::AccentCode::Foreign, true))
+        ));
+
+        let two_styled_foreign_phrases = [
+            EnglishToken::Styled('q', italic),
+            EnglishToken::Styled('u', italic),
+            EnglishToken::Styled('é', italic),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['m', 'e', 'a', 'n', 's']),
+            EnglishToken::Space,
+            EnglishToken::Styled('o', italic),
+            EnglishToken::Styled('ù', italic),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(&two_styled_foreign_phrases, 0, 3, italic, false, false),
+            Some((super::super::rule_13::AccentCode::Foreign, false))
+        ));
+
+        let lowercase_unrecorded = [
+            EnglishToken::Styled('x', italic),
+            EnglishToken::Styled('y', italic),
+            EnglishToken::Styled('z', italic),
+            EnglishToken::Styled('q', italic),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(
+                &lowercase_unrecorded,
+                0,
+                lowercase_unrecorded.len(),
+                italic,
+                true,
+                false,
+            ),
+            Some((super::super::rule_13::AccentCode::Foreign, false))
+        ));
+
+        let foreign_multi_word_ueb = [
+            EnglishToken::Styled('c', italic),
+            EnglishToken::Styled('a', italic),
+            EnglishToken::Styled('f', italic),
+            EnglishToken::Styled('é', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('n', italic),
+            EnglishToken::Styled('a', italic),
+            EnglishToken::Styled('d', italic),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['s', 'a', 'i', 'd']),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(&foreign_multi_word_ueb, 0, 8, italic, false, false,),
+            Some((super::super::rule_13::AccentCode::Ueb, false))
+        ));
+
+        let unrecorded_pair = [
+            EnglishToken::Styled('x', italic),
+            EnglishToken::Styled('q', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('z', italic),
+            EnglishToken::Styled('v', italic),
+        ];
+        assert!(matches!(
+            styled_passage_foreign_scope(
+                &unrecorded_pair,
+                0,
+                unrecorded_pair.len(),
+                italic,
+                false,
+                false
+            ),
+            Some((super::super::rule_13::AccentCode::Ueb, false))
+        ));
+
+        assert!(!styled_passage_all_caps(
+            &[
+                EnglishToken::Styled('A', bold),
+                EnglishToken::Styled('b', bold),
+            ],
+            0,
+            2,
+            bold,
+        ));
+    }
+
+    #[test]
+    fn rare_quote_and_listing_helpers_cover_remaining_decisions() {
+        assert_eq!(
+            straight_single_quote_role(
+                &[
+                    EnglishToken::Symbol('\''),
+                    EnglishToken::Word(vec!['C', 'a', 't']),
+                    EnglishToken::Symbol('\''),
+                ],
+                0,
+            ),
+            SingleQuote::Open,
+        );
+        assert_eq!(
+            straight_single_quote_role(
+                &[
+                    EnglishToken::Symbol('\''),
+                    EnglishToken::Word(vec!['C', 'a', 't']),
+                    EnglishToken::Symbol('\''),
+                ],
+                2,
+            ),
+            SingleQuote::Close,
+        );
+        assert!(straight_single_quote_closes_after_inner_double(
+            &[
+                EnglishToken::Symbol('\''),
+                EnglishToken::Word(vec!['S', 'i', 'n', 'g']),
+                EnglishToken::Symbol('"'),
+                EnglishToken::Symbol(','),
+                EnglishToken::Symbol('\''),
+            ],
+            4,
+        ));
+        assert!(!previous_word_starts_uppercase(
+            &[EnglishToken::Symbol('.')],
+            1
+        ));
+
+        let mut out = Vec::new();
+        let regex_tokens = [
+            EnglishToken::Symbol('"'),
+            EnglishToken::Symbol('['),
+            EnglishToken::Word(vec!['a', 'Z']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['A']),
+            EnglishToken::Symbol(']'),
+            EnglishToken::Symbol('"'),
+        ];
+        let regex_listing = vec![true; regex_tokens.len()];
+        assert_eq!(
+            regex_char_class_word(&regex_tokens, 2, &['a', 'Z'], &regex_listing, &mut out),
+            Some(false)
+        );
+        out.clear();
+        assert_eq!(
+            regex_char_class_word(&regex_tokens, 4, &['A'], &regex_listing, &mut out),
+            Some(true)
+        );
+        assert!(!out.is_empty());
+        out.clear();
+        let regex_range_tokens = [
+            EnglishToken::Symbol('['),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['a', 'Z']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Symbol(']'),
+        ];
+        assert_eq!(
+            regex_char_class_word(&regex_range_tokens, 2, &['a', 'Z'], &[true; 5], &mut out),
+            Some(true)
+        );
+        assert!(!out.is_empty());
+
+        let url_tokens = [
+            EnglishToken::Word(vec!['a']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['b']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['c']),
+        ];
+        assert!(url_listing_line_continuation_after(
+            &url_tokens,
+            3,
+            &[true; 5],
+        ));
+        assert!(!url_listing_line_continuation_after(
+            &url_tokens,
+            3,
+            &[false; 5],
+        ));
+    }
+
+    #[test]
+    fn rare_document_and_modified_word_helpers_cover_remaining_branches() {
+        let italic = super::super::token::Typeform::Italic;
+        let bold = super::super::token::Typeform::Bold;
+        let underline = super::super::token::Typeform::Underline;
+        let bold_italic = super::super::token::Typeform::BoldItalic;
+
+        let adjacent = [
+            EnglishToken::Styled('c', italic),
+            EnglishToken::Space,
+            EnglishToken::Symbol('?'),
+        ];
+        assert!(punctuation_adjacent_to_styled(&adjacent, 2));
+        assert!(document_any_styled_phrase_has_foreign_letter(&[
+            EnglishToken::Styled('é', italic),
+        ]));
+        assert!(document_all_styled_phrases_are_short_vocabulary(&[
+            EnglishToken::Styled('l', italic),
+            EnglishToken::Styled('o', italic),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Styled('e', italic),
+            EnglishToken::Styled('i', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('d', italic),
+            EnglishToken::Styled('e', italic),
+        ]));
+        assert!(!document_all_styled_phrases_are_short_vocabulary(&[
+            EnglishToken::Styled('T', italic),
+            EnglishToken::Styled('H', italic),
+            EnglishToken::Styled('E', italic),
+        ]));
+
+        assert_eq!(typeform_word_lengths(&[]), Vec::<usize>::new());
+        assert_eq!(
+            typeform_word_lengths(&[
+                EnglishToken::Styled('l', bold),
+                EnglishToken::Symbol('\''),
+                EnglishToken::Styled('o', bold),
+                EnglishToken::Symbol('-'),
+                EnglishToken::Styled('e', bold),
+                EnglishToken::Space,
+                EnglishToken::Word(vec!['x']),
+            ]),
+            vec![3]
+        );
+
+        let mut out = Vec::new();
+        let engine = ContractionEngine::default();
+        encode_modified_word(&engine, &['a', 'é', 'a'], true, true, &mut out)
+            .expect("modified word should encode");
+        assert!(!out.is_empty());
+
+        for (left, right, expected) in [
+            ('e', 'a', '⠂'),
+            ('b', 'b', '⠆'),
+            ('c', 'c', '⠒'),
+            ('f', 'f', '⠖'),
+            ('g', 'g', '⠶'),
+        ] {
+            assert_eq!(
+                middle_lower_pair_cell(left, right),
+                Some(decode_unicode(expected))
+            );
+        }
+        assert_eq!(middle_lower_pair_cell('x', 'x'), None);
+
+        assert!(!styled_url_before(
+            &[
+                EnglishToken::Styled('h', underline),
+                EnglishToken::Word(vec!['x']),
+            ],
+            1,
+        ));
+        assert!(!styled_url_before(
+            &[
+                EnglishToken::Styled('h', underline),
+                EnglishToken::Symbol(':'),
+                EnglishToken::Word(vec!['x']),
+            ],
+            2,
+        ));
+        assert_eq!(
+            nested_typeform_continuation(
+                &[
+                    EnglishToken::Styled('a', bold_italic),
+                    EnglishToken::Space,
+                    EnglishToken::Word(vec!['x']),
+                ],
+                1,
+                bold_italic,
+            ),
+            None
+        );
+        assert!(!styled_underline_url_span(
+            &[
+                EnglishToken::Styled('h', underline),
+                EnglishToken::Word(vec!['x']),
+            ],
+            0,
+            2,
+            underline,
+        ));
+        assert!(styled_letter_needs_grade1(
+            &[
+                EnglishToken::Symbol('('),
+                EnglishToken::Styled('x', italic),
+                EnglishToken::Symbol(')'),
+            ],
+            1,
+            2,
+        ));
+    }
+
+    #[test]
+    fn rare_spacing_bracket_and_symbol_helpers_cover_remaining_branches() {
+        let number_space = [
+            EnglishToken::Number(vec!['1']),
+            EnglishToken::Space,
+            EnglishToken::Number(vec!['2']),
+        ];
+        assert!(is_numeric_space(&number_space, 1));
+        let mut out = Vec::new();
+        assert_eq!(
+            encode_following_number_as_numeric_space(&number_space, 1, &mut out, true),
+            Some(3)
+        );
+        assert!(!out.is_empty());
+
+        let styled_gap = [
+            EnglishToken::Styled('A', super::super::token::Typeform::Underline),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Styled('B', super::super::token::Typeform::Underline),
+        ];
+        assert_eq!(styled_column_gap(&styled_gap, 1), Some(4));
+        let styled_numeric_gap = [
+            EnglishToken::Styled('1', super::super::token::Typeform::Underline),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Styled('2', super::super::token::Typeform::Underline),
+        ];
+        assert_eq!(styled_column_gap(&styled_numeric_gap, 1), None);
+
+        assert!(needs_spatial_grade1_passage(&[
+            EnglishToken::Word(vec!['X']),
+            EnglishToken::Symbol('┼'),
+        ]));
+        assert!(horizontal_run_reaches_arrow(
+            &[
+                EnglishToken::Symbol('═'),
+                EnglishToken::Symbol('═'),
+                EnglishToken::Symbol('↓'),
+            ],
+            0
+        ));
+
+        assert!(continues_across_bracket(
+            &[
+                EnglishToken::Word(vec!['c', 'h', 'i', 'l', 'd']),
+                EnglishToken::Symbol('('),
+                EnglishToken::Word(vec!['i', 's', 'h']),
+            ],
+            0
+        ));
+        assert!(continues_across_bracket(
+            &[
+                EnglishToken::Word(vec!['g', 'o']),
+                EnglishToken::Symbol('\''),
+                EnglishToken::Word(vec!['n']),
+            ],
+            0
+        ));
+
+        let mut symbol_out = Vec::new();
+        encode_styled_nonword_symbol('5', &mut symbol_out).expect("styled digit should encode");
+        assert!(!symbol_out.is_empty());
+        symbol_out.clear();
+        encode_styled_nonword_symbol('?', &mut symbol_out).expect("styled question should encode");
+        assert!(symbol_out.starts_with(&[GRADE1]));
+    }
+
+    #[test]
+    fn rare_syllable_and_spelled_run_helpers_cover_remaining_branches() {
+        let dis_as_ter = [
+            EnglishToken::Word(vec!['d', 'i', 's']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['a', 's']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['t', 'e', 'r']),
+        ];
+        assert!(space_delimited_syllables_form_word(&dis_as_ter, 2));
+        assert!(!spaced_as_contracts(&dis_as_ter, 2));
+
+        assert!(
+            styled_word_count(&[
+                EnglishToken::Styled('l', super::super::token::Typeform::Italic),
+                EnglishToken::Symbol('-'),
+                EnglishToken::Styled('o', super::super::token::Typeform::Italic),
+                EnglishToken::Space,
+                EnglishToken::Styled('x', super::super::token::Typeform::Italic),
+            ]) >= 2
+        );
+        assert!(all_text_is_styled_or_punctuation(&[
+            EnglishToken::Styled('x', super::super::token::Typeform::Italic),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Space,
+        ]));
+        assert!(starts_with_ch_not_pronounced_ch("chaos"));
+        assert!(styled_word_is_foreign(&['c', 'h', 'a', 'o', 's']));
+        assert!(!styled_single_word_is_foreign(&['t', 'h']));
+        assert_eq!(
+            token_typeform(&EnglishToken::Styled(
+                'x',
+                super::super::token::Typeform::Italic
+            )),
+            Some(super::super::token::Typeform::Italic)
+        );
+
+        let spelled = [
+            EnglishToken::Word(vec!['w']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['i']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['n']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['s']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['o', 'm', 'e']),
+        ];
+        assert_eq!(spelled_letter_run(&spelled, 0), Some((0, 6)));
+        assert!(ends_spelled_letter_run_before_word(&spelled, 7));
+        let stutter = [
+            EnglishToken::Word(vec!['s', 'o']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['o']),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(vec!['o']),
+        ];
+        assert!(leading_stutter_prefix(&stutter, 2));
+
+        assert!(stammer_fragment_literal(
+            &[
+                EnglishToken::Word(vec!['c', 'h']),
+                EnglishToken::Symbol('-'),
+                EnglishToken::Word(vec!['a']),
+            ],
+            0,
+            "ch",
+        ));
+        assert!(stammer_fragment_literal(
+            &[
+                EnglishToken::Word(vec!['t', 'h']),
+                EnglishToken::Symbol('.'),
+                EnglishToken::Symbol('.'),
+            ],
+            0,
+            "th",
+        ));
+        assert!(midword_parenthesized_ing(
+            &[
+                EnglishToken::Word(vec!['s']),
+                EnglishToken::Symbol('('),
+                EnglishToken::Word(vec!['i', 'n', 'g']),
+                EnglishToken::Symbol(')'),
+            ],
+            2,
+            "ing",
+        ));
+    }
+
+    #[test]
+    fn rare_encode_loop_spatial_greek_and_typeform_paths_are_reachable() {
+        let engine = EnglishUebEngine::new();
+        let italic = super::super::token::Typeform::Italic;
+
+        let vertical_gap = std::iter::once(EnglishToken::Symbol('│'))
+            .chain(std::iter::repeat_n(EnglishToken::Space, 10))
+            .chain(std::iter::once(EnglishToken::Symbol('│')))
+            .collect::<Vec<_>>();
+        let encoded_vertical_gap = engine.encode(&vertical_gap, false).unwrap();
+        assert!(
+            encoded_vertical_gap
+                .windows(9)
+                .any(|cells| cells == [SPACE; 9])
+        );
+
+        let corner_gap = [EnglishToken::Symbol('─'), EnglishToken::Symbol('┐')]
+            .into_iter()
+            .chain(std::iter::repeat_n(EnglishToken::Space, 5))
+            .chain([
+                EnglishToken::Symbol('┌'),
+                EnglishToken::Symbol('─'),
+                EnglishToken::Symbol('\t'),
+            ])
+            .collect::<Vec<_>>();
+        let encoded_corner_gap = engine.encode(&corner_gap, false).unwrap();
+        assert!(
+            encoded_corner_gap
+                .windows(6)
+                .any(|cells| cells == [SPACE; 6])
+        );
+
+        let diagonal_after_vertical = [EnglishToken::Symbol('│'), EnglishToken::Symbol('╲')];
+        let encoded_diagonal_after_vertical =
+            engine.encode(&diagonal_after_vertical, false).unwrap();
+        assert!(encoded_diagonal_after_vertical.contains(&decode_unicode('⠣')));
+
+        let spatial_arrow = [
+            EnglishToken::Symbol('│'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('↙'),
+        ];
+        let encoded_spatial_arrow = engine.encode(&spatial_arrow, false).unwrap();
+        assert!(
+            encoded_spatial_arrow
+                .windows(2)
+                .any(|window| window == cells("⠳⠜"))
+        );
+
+        let spaced_line_segments = [
+            EnglishToken::Symbol(super::super::rule_16::VARIANT_SPACED_SEGMENT),
+            EnglishToken::Space,
+            EnglishToken::Symbol(super::super::rule_16::VARIANT_SPACED_SEGMENT),
+        ];
+        let encoded_spaced_line_segments = engine.encode(&spaced_line_segments, false).unwrap();
+        assert!(encoded_spaced_line_segments.starts_with(&cells("⠐⠒⠂⠂⠂")));
+
+        let table_word_gap = [
+            EnglishToken::Word(vec!['R', 'o', 'w']),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['A', 'B']),
+        ];
+        let encoded_table_word_gap = engine.encode(&table_word_gap, false).unwrap();
+        assert!(encoded_table_word_gap.contains(&decode_unicode('⠐')));
+
+        let table_number_gap = [
+            EnglishToken::Word(vec!['I', 'n', 'c', 'o', 'm', 'e']),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Number(vec!['1', '2']),
+        ];
+        let encoded_table_number_gap = engine.encode(&table_number_gap, false).unwrap();
+        assert!(encoded_table_number_gap.contains(&decode_unicode('⠐')));
+
+        let styled_gap = [
+            EnglishToken::Styled('A', super::super::token::Typeform::Underline),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Styled('B', super::super::token::Typeform::Underline),
+        ];
+        let encoded_styled_gap = engine.encode(&styled_gap, false).unwrap();
+        assert!(encoded_styled_gap.contains(&SPACE));
+
+        let uppercase_greek_word = [EnglishToken::Word(vec!['Α', 'Β'])];
+        assert!(
+            engine
+                .encode(&uppercase_greek_word, false)
+                .unwrap()
+                .starts_with(&[CAPITAL, CAPITAL])
+        );
+
+        let uppercase_greek_word_then_symbols = [
+            EnglishToken::Word(vec!['Α', 'Β']),
+            EnglishToken::Symbol('Γ'),
+            EnglishToken::Symbol('Δ'),
+        ];
+        assert!(
+            engine
+                .encode(&uppercase_greek_word_then_symbols, false)
+                .unwrap()
+                .starts_with(&[CAPITAL, CAPITAL])
+        );
+
+        let uppercase_greek_symbols = [EnglishToken::Symbol('Α'), EnglishToken::Symbol('Β')];
+        assert!(
+            engine
+                .encode(&uppercase_greek_symbols, false)
+                .unwrap()
+                .starts_with(&[CAPITAL, CAPITAL])
+        );
+
+        let styled_ing = [
+            EnglishToken::Word(vec!['n']),
+            EnglishToken::Styled('i', italic),
+            EnglishToken::Styled('n', italic),
+            EnglishToken::Styled('g', italic),
+        ];
+        let encoded_styled_ing = engine.encode(&styled_ing, false).unwrap();
+        assert!(encoded_styled_ing.contains(&decode_unicode('⠨')));
+
+        let styled_digit = [EnglishToken::Styled('7', italic)];
+        let encoded_styled_digit = engine.encode(&styled_digit, false).unwrap();
+        assert!(encoded_styled_digit.starts_with(&super::super::rule_9::symbol_indicator(italic)));
+
+        let styled_letter_after_number = [
+            EnglishToken::Number(vec!['1']),
+            EnglishToken::Styled('a', italic),
+        ];
+        let encoded_styled_letter_after_number =
+            engine.encode(&styled_letter_after_number, false).unwrap();
+        assert!(encoded_styled_letter_after_number.contains(&GRADE1));
+
+        let styled_word_passage = [
+            EnglishToken::Styled('a', italic),
+            EnglishToken::Styled('b', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('c', italic),
+            EnglishToken::Styled('d', italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('e', italic),
+            EnglishToken::Styled('f', italic),
+        ];
+        let encoded_styled_word_passage = engine.encode(&styled_word_passage, false).unwrap();
+        assert!(encoded_styled_word_passage.contains(&decode_unicode('⠨')));
+
+        let partial_styled_word = [
+            EnglishToken::Styled('m', italic),
+            EnglishToken::Word(vec!['o', 't', 'h', 'e', 'r']),
+        ];
+        let encoded_partial_styled_word = engine.encode(&partial_styled_word, false).unwrap();
+        assert!(encoded_partial_styled_word.contains(&decode_unicode('⠨')));
+
+        let hyphenated_styled_span = [
+            EnglishToken::Styled('o', italic),
+            EnglishToken::Styled('f', italic),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Styled('t', italic),
+            EnglishToken::Styled('h', italic),
+            EnglishToken::Styled('e', italic),
+        ];
+        let encoded_hyphenated_styled_span = engine.encode(&hyphenated_styled_span, false).unwrap();
+        assert!(encoded_hyphenated_styled_span.contains(&decode_unicode('⠤')));
+
+        let underlined_url = [
+            EnglishToken::Styled('h', super::super::token::Typeform::Underline),
+            EnglishToken::Styled('t', super::super::token::Typeform::Underline),
+            EnglishToken::Styled('t', super::super::token::Typeform::Underline),
+            EnglishToken::Styled('p', super::super::token::Typeform::Underline),
+            EnglishToken::Symbol(':'),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Symbol('/'),
+            EnglishToken::Styled('a', super::super::token::Typeform::Underline),
+        ];
+        let encoded_underlined_url = engine.encode(&underlined_url, false).unwrap();
+        assert!(encoded_underlined_url.contains(&decode_unicode('⠓')));
+    }
+
+    #[test]
+    fn rare_mixed_case_internal_caps_path_is_observable() {
+        let engine = EnglishUebEngine::new();
+        let mut out = Vec::new();
+        engine
+            .encode_mixed_case(
+                &['f', 'o', 'u', 'n', 'D', 'A', 't', 'i', 'o', 'n'],
+                true,
+                &mut out,
+            )
+            .unwrap();
+        assert!(out.contains(&CAPITAL));
     }
 }

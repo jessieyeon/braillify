@@ -117,15 +117,7 @@ fn combining_form_seam(word: &str) -> Option<usize> {
 static SEAMS: LazyLock<HashMap<&'static str, Vec<usize>>> = LazyLock::new(|| {
     let mut map: HashMap<&'static str, Vec<usize>> = HashMap::new();
     for line in COMPOUNDS_RAW.lines() {
-        let line = line.trim();
-        if line.is_empty() || line.starts_with('#') {
-            continue;
-        }
-        let Some((word, seams)) = line.split_once('\t') else {
-            continue;
-        };
-        let seams: Vec<usize> = seams.split(',').filter_map(|s| s.parse().ok()).collect();
-        if !word.is_empty() && !seams.is_empty() {
+        if let Some((word, seams)) = parse_compound_line(line) {
             map.insert(word, seams);
         }
     }
@@ -139,6 +131,16 @@ static SEAMS: LazyLock<HashMap<&'static str, Vec<usize>>> = LazyLock::new(|| {
     }
     map
 });
+
+fn parse_compound_line(line: &'static str) -> Option<(&'static str, Vec<usize>)> {
+    let line = line.trim();
+    if line.is_empty() || line.starts_with('#') {
+        return None;
+    }
+    let (word, seams) = line.split_once('\t')?;
+    let seams: Vec<usize> = seams.split(',').filter_map(|s| s.parse().ok()).collect();
+    (!word.is_empty() && !seams.is_empty()).then_some((word, seams))
+}
 
 /// §10.11.1: the compound seams of `word` (lowercase) — char indices where two
 /// components meet — or an empty vec when `word` is not a known compound. The static
@@ -167,6 +169,11 @@ mod tests {
             "{word} should have seam {seam}, got {:?}",
             compound_seams(word)
         );
+    }
+
+    #[test]
+    fn compound_seams_clones_static_table_entry() {
+        assert_eq!(compound_seams(std::hint::black_box("anthill")), vec![3]);
     }
 
     /// Coincidental letter splits that are NOT compounds — and CompoundPiece's bogus
@@ -230,5 +237,20 @@ mod tests {
             None,
             "{word} must not be split by the combining-form rule"
         );
+    }
+
+    #[rstest::rstest]
+    #[case::blank("")]
+    #[case::comment("# comment")]
+    #[case::missing_tab("word 1,2")]
+    #[case::empty_word("\t1,2")]
+    #[case::empty_seams("word\tbad")]
+    fn parser_rejects_non_data_lines(#[case] line: &'static str) {
+        assert_eq!(parse_compound_line(line), None);
+    }
+
+    #[test]
+    fn parser_accepts_valid_data_line() {
+        assert_eq!(parse_compound_line("word\t1,3"), Some(("word", vec![1, 3])));
     }
 }

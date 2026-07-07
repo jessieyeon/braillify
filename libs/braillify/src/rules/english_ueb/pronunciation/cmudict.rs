@@ -100,4 +100,12 @@ mod tests {
         let prons = CmuDictProvider::new().pronunciations("aalborg");
         assert!(prons.len() >= 2, "expected variant pronunciations");
     }
+
+    #[test]
+    fn default_provider_matches_new_provider() {
+        assert_eq!(
+            CmuDictProvider.pronunciations("become"),
+            CmuDictProvider::default().pronunciations("become")
+        );
+    }
 }

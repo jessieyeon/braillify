@@ -117,17 +117,20 @@ pub(crate) fn encode_digital_word(
             continue;
         }
 
-        if ch.is_ascii_digit() {
-            if i > 0 && digital_chars[i - 1].is_ascii_alphabetic() {
-                result.push(decode_unicode('⠐'));
-                result.push(0);
+        match ch {
+            digit if digit.is_ascii_digit() => {
+                if i > 0 && digital_chars[i - 1].is_ascii_alphabetic() {
+                    result.push(decode_unicode('⠐'));
+                    result.push(0);
+                }
+                result.push(decode_unicode('⠼'));
+                while i < digital_chars.len() && digital_chars[i].is_ascii_digit() {
+                    result.push(encode_number(digital_chars[i])?);
+                    i += 1;
+                }
+                continue;
             }
-            result.push(decode_unicode('⠼'));
-            while i < digital_chars.len() && digital_chars[i].is_ascii_digit() {
-                result.push(encode_number(digital_chars[i])?);
-                i += 1;
-            }
-            continue;
+            _ => {}
         }
 
         // line 51 filter restricts ch to alphanumeric + `/#@.:_`. Alphanumerics
@@ -241,8 +244,11 @@ fn encode_digital_english_segment(
         result.extend(cells);
         return Ok(());
     }
-    let mut i = 0usize;
-    while i < lower.len() {
+    let mut i = lower.len() - lower.len();
+    loop {
+        if i >= lower.len() {
+            break;
+        }
         if let Some(m) = best_digital_groupsign(&lower, i) {
             result.extend_from_slice(&m.cells);
             i += m.consumed;
@@ -558,5 +564,72 @@ mod tests {
         let _ = crate::encode("e//f");
         let _ = crate::encode("g_h.i");
         let _ = crate::encode("x_y:z");
+    }
+
+    #[test]
+    fn digital_word_digit_after_letter_inserts_numeric_separator() {
+        let encoded = encode_digital_word("a1", false).expect("a1 should encode");
+        let expected: Vec<u8> = "⠁⠐⠀⠼⠁".chars().map(decode_unicode).collect();
+
+        assert_eq!(encoded, expected);
+    }
+
+    #[test]
+    fn digital_word_starting_digit_enters_digit_branch() {
+        let encoded = encode_digital_word("1a", false).expect("1a should encode");
+        let expected: Vec<u8> = "⠼⠁⠰⠄⠁".chars().map(decode_unicode).collect();
+
+        assert_eq!(encoded, expected);
+    }
+
+    #[test]
+    fn digital_word_digit_after_symbol_enters_digit_branch_without_separator() {
+        let encoded = encode_digital_word("a.1", false).expect("a.1 should encode");
+        let expected: Vec<u8> = "⠁⠲⠼⠁".chars().map(decode_unicode).collect();
+
+        assert_eq!(encoded, expected);
+    }
+
+    #[test]
+    fn digital_word_letters_without_shortform_walk_per_characters() {
+        let encoded = encode_digital_word("abc@def", false).expect("digital word should encode");
+
+        assert!(!encoded.is_empty());
+    }
+
+    #[test]
+    fn digital_english_segment_allows_shortforms_but_walks_non_shortform_letters() {
+        let chars: Vec<char> = std::hint::black_box("xyz").chars().collect();
+        let mut result = Vec::new();
+
+        encode_digital_english_segment(&chars, &mut result, std::hint::black_box(true)).unwrap();
+
+        assert_eq!(
+            result,
+            vec![
+                encode_english('x').unwrap(),
+                encode_english('y').unwrap(),
+                encode_english('z').unwrap()
+            ]
+        );
+    }
+
+    #[test]
+    fn digital_english_segment_without_shortform_walks_from_start() {
+        let chars: Vec<char> = std::hint::black_box("word").chars().collect();
+        let mut result = Vec::new();
+
+        encode_digital_english_segment(&chars, &mut result, false).unwrap();
+
+        assert!(!result.is_empty());
+    }
+
+    #[test]
+    fn digital_english_segment_accepts_empty_component() {
+        let mut result = Vec::new();
+
+        encode_digital_english_segment(&[], &mut result, false).unwrap();
+
+        assert!(result.is_empty());
     }
 }

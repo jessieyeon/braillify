@@ -137,4 +137,25 @@ mod tests {
         let ctx = owned.ctx_at(0);
         let _ = RuleEnglishSymbol.matches(&ctx);
     }
+
+    #[test]
+    fn opening_parenthesis_pushes_symbol_mode() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("(", false);
+        let mut ctx = owned.ctx_at(0);
+
+        let _ = RuleEnglishSymbol.apply(&mut ctx);
+
+        assert!(!ctx.state.parenthesis_stack.is_empty());
+    }
+
+    #[test]
+    fn closing_parenthesis_pops_symbol_mode() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text(")", false);
+        let mut ctx = owned.ctx_at(0);
+        ctx.state.parenthesis_stack.push(true);
+
+        let _ = RuleEnglishSymbol.apply(&mut ctx);
+
+        assert!(ctx.state.parenthesis_stack.is_empty());
+    }
 }

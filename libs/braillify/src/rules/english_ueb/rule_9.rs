@@ -269,6 +269,26 @@ mod tests {
     use super::*;
 
     #[rstest::rstest]
+    #[case::small_cap_a('ᴀ', 'A')]
+    #[case::small_cap_b('ʙ', 'B')]
+    #[case::small_cap_c('ᴄ', 'C')]
+    #[case::small_cap_d('ᴅ', 'D')]
+    #[case::small_cap_f('ꜰ', 'F')]
+    #[case::small_cap_g('ɢ', 'G')]
+    #[case::small_cap_j('ᴊ', 'J')]
+    #[case::small_cap_m('ᴍ', 'M')]
+    #[case::small_cap_w('ᴡ', 'W')]
+    #[case::small_cap_y('ʏ', 'Y')]
+    fn small_caps_decode_as_capitals(#[case] c: char, #[case] expected: char) {
+        assert_eq!(decode_small_cap(c), Some(expected));
+    }
+
+    #[test]
+    fn plain_letter_is_not_small_cap() {
+        assert_eq!(decode_small_cap('A'), None);
+    }
+
+    #[rstest::rstest]
     #[case::bold_upper_a('\u{1D400}', 'A', Typeform::Bold)]
     #[case::bold_lower_b('\u{1D41B}', 'b', Typeform::Bold)]
     #[case::bold_lower_z('\u{1D433}', 'z', Typeform::Bold)]
@@ -277,9 +297,38 @@ mod tests {
     #[case::italic_h_gap('\u{210E}', 'h', Typeform::Italic)]
     #[case::italic_lower_z('\u{1D467}', 'z', Typeform::Italic)]
     #[case::bold_italic_lower_t('\u{1D495}', 't', Typeform::BoldItalic)]
+    #[case::bold_digit_zero('\u{1D7CE}', '0', Typeform::Bold)]
+    #[case::monospace_upper_a('\u{1D670}', 'A', Typeform::Transcriber1)]
+    #[case::monospace_lower_z('\u{1D6A3}', 'z', Typeform::Transcriber1)]
+    #[case::monospace_digit_nine('\u{1D7FF}', '9', Typeform::Transcriber1)]
+    #[case::script_capital_a_math_alpha('\u{1D49C}', 'A', Typeform::Script)]
+    #[case::script_capital_b_letterlike('\u{212C}', 'B', Typeform::Script)]
+    #[case::script_capital_b_range('\u{1D49E}', 'B', Typeform::Script)]
+    #[case::script_capital_c_range('\u{1D49F}', 'C', Typeform::Script)]
+    #[case::script_capital_e_letterlike('\u{2130}', 'E', Typeform::Script)]
+    #[case::script_capital_f_letterlike('\u{2131}', 'F', Typeform::Script)]
+    #[case::script_capital_g_math_alpha('\u{1D4A2}', 'G', Typeform::Script)]
+    #[case::script_capital_h_letterlike('\u{210B}', 'H', Typeform::Script)]
+    #[case::script_capital_i_letterlike('\u{2110}', 'I', Typeform::Script)]
+    #[case::script_capital_h_range('\u{1D4A5}', 'H', Typeform::Script)]
+    #[case::script_capital_i_range('\u{1D4A6}', 'I', Typeform::Script)]
+    #[case::script_capital_l_letterlike('\u{2112}', 'L', Typeform::Script)]
+    #[case::script_capital_m_letterlike('\u{2133}', 'M', Typeform::Script)]
+    #[case::script_capital_j_range('\u{1D4A9}', 'J', Typeform::Script)]
+    #[case::script_capital_m_range('\u{1D4AC}', 'M', Typeform::Script)]
     #[case::script_capital_r_letterlike('\u{211C}', 'R', Typeform::Script)]
+    #[case::script_capital_s_math_alpha('\u{1D4AE}', 'S', Typeform::Script)]
+    #[case::script_capital_z_math_alpha('\u{1D4B5}', 'Z', Typeform::Script)]
+    #[case::script_lower_a_math_alpha('\u{1D4B6}', 'a', Typeform::Script)]
+    #[case::script_lower_d_math_alpha('\u{1D4B9}', 'd', Typeform::Script)]
     #[case::script_lower_o_letterlike('\u{2134}', 'o', Typeform::Script)]
+    #[case::script_lower_e_letterlike('\u{212F}', 'e', Typeform::Script)]
+    #[case::script_lower_f_math_alpha('\u{1D4BB}', 'f', Typeform::Script)]
+    #[case::script_lower_g_letterlike('\u{210A}', 'g', Typeform::Script)]
+    #[case::script_lower_h_math_alpha('\u{1D4BD}', 'h', Typeform::Script)]
+    #[case::script_lower_n_math_alpha('\u{1D4C3}', 'n', Typeform::Script)]
     #[case::script_lower_y_math_alpha('\u{1D4CE}', 'y', Typeform::Script)]
+    #[case::script_lower_z_math_alpha('\u{1D4CF}', 'z', Typeform::Script)]
     fn decodes_styled_letters(#[case] c: char, #[case] base: char, #[case] form: Typeform) {
         assert_eq!(decode_styled(c), Some((base, form)));
     }
@@ -318,5 +367,66 @@ mod tests {
             terminator(Typeform::BoldItalic),
             super::decode_cells("⠘⠄⠨⠄")
         );
+    }
+
+    #[rstest::rstest]
+    #[case::italic_underline(Typeform::ItalicUnderline, "⠨⠆⠸⠆")]
+    #[case::bold_underline(Typeform::BoldUnderline, "⠘⠆⠸⠆")]
+    #[case::bold_italic_underline(Typeform::BoldItalicUnderline, "⠨⠆⠘⠆⠸⠆")]
+    #[case::transcriber_2(Typeform::Transcriber2, "⠘⠼⠆")]
+    #[case::transcriber_3(Typeform::Transcriber3, "⠸⠼⠆")]
+    #[case::transcriber_4(Typeform::Transcriber4, "⠐⠼⠆")]
+    #[case::transcriber_5(Typeform::Transcriber5, "⠨⠼⠆")]
+    fn symbol_indicators_cover_all_typeforms(#[case] form: Typeform, #[case] expected: &str) {
+        assert_eq!(symbol_indicator(form), super::decode_cells(expected));
+    }
+
+    #[rstest::rstest]
+    #[case::italic(Typeform::Italic, "⠨⠄")]
+    #[case::transcriber_1(Typeform::Transcriber1, "⠈⠼⠄")]
+    #[case::bold_underline(Typeform::BoldUnderline, "⠸⠄⠘⠄")]
+    fn terminators_cover_single_and_nested_typeforms(
+        #[case] form: Typeform,
+        #[case] expected: &str,
+    ) {
+        assert_eq!(terminator(form), super::decode_cells(expected));
+    }
+
+    #[rstest::rstest]
+    #[case::letterlike_b(0x212C, Some(1))]
+    #[case::letterlike_e(0x2130, Some(4))]
+    #[case::letterlike_f(0x2131, Some(5))]
+    #[case::math_g(0x1D4A2, Some(6))]
+    #[case::letterlike_h(0x210B, Some(7))]
+    #[case::letterlike_i(0x2110, Some(8))]
+    #[case::range_h(0x1D4A5, Some(7))]
+    #[case::range_i(0x1D4A6, Some(8))]
+    #[case::letterlike_l(0x2112, Some(11))]
+    #[case::letterlike_m(0x2133, Some(12))]
+    #[case::range_j(0x1D4A9, Some(9))]
+    #[case::range_m(0x1D4AC, Some(12))]
+    #[case::letterlike_r_roundhand(0x211B, Some(17))]
+    #[case::letterlike_r_blackletter(0x211C, Some(17))]
+    #[case::range_s(0x1D4AE, Some(18))]
+    #[case::range_z(0x1D4B5, Some(25))]
+    #[case::plain_a('A' as u32, None)]
+    fn script_upper_offset_paths(#[case] cp: u32, #[case] expected: Option<u8>) {
+        assert_eq!(script_upper(cp), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::range_a(0x1D4B6, Some(0))]
+    #[case::range_d(0x1D4B9, Some(3))]
+    #[case::letterlike_e(0x212F, Some(4))]
+    #[case::math_f(0x1D4BB, Some(5))]
+    #[case::letterlike_g(0x210A, Some(6))]
+    #[case::range_h(0x1D4BD, Some(7))]
+    #[case::range_n(0x1D4C3, Some(13))]
+    #[case::letterlike_o(0x2134, Some(14))]
+    #[case::range_p(0x1D4C5, Some(15))]
+    #[case::range_z(0x1D4CF, Some(25))]
+    #[case::plain_a('a' as u32, None)]
+    fn script_lower_offset_paths(#[case] cp: u32, #[case] expected: Option<u8>) {
+        assert_eq!(script_lower(cp), expected);
     }
 }

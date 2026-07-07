@@ -120,12 +120,12 @@ fn be_pron_uses(p: &[Phoneme], consonant_follows: bool) -> bool {
     if p.first().map(|ph| ph.base.as_str()) != Some("B") {
         return false;
     }
-    if p.iter().filter(|ph| ph.is_vowel()).count() < 2 {
-        return false;
-    }
     let Some(idx) = p.iter().position(|ph| ph.is_vowel()) else {
         return false;
     };
+    if p.iter().skip(idx + 1).filter(|ph| ph.is_vowel()).count() < 1 {
+        return false;
+    }
     match p[idx].stress {
         Some(0 | 2) => true,
         Some(1) if TENSE_VOWELS.contains(&p[idx].base.as_str()) => {
@@ -363,6 +363,38 @@ mod tests {
     fn unknown_without_pronunciation() {
         assert_eq!(
             classify(&chars("become"), Prefix::Be, &NoPronunciationProvider),
+            Decision::Unknown
+        );
+    }
+
+    #[test]
+    fn be_pronunciation_rejects_non_b_or_monosyllables() {
+        assert!(!be_pron_uses(
+            &[
+                parse_phoneme("P"),
+                parse_phoneme("IH0"),
+                parse_phoneme("AH1")
+            ],
+            true
+        ));
+        assert!(!be_pron_uses(
+            &[parse_phoneme("B"), parse_phoneme("EH1"), parse_phoneme("D")],
+            true
+        ));
+        assert!(!be_pron_uses(
+            &[parse_phoneme("B"), parse_phoneme("R")],
+            true
+        ));
+    }
+
+    #[test]
+    fn disagreement_between_pronunciations_is_unknown() {
+        let provider = Mock(HashMap::from([(
+            "ambiguous",
+            vec!["K AA1 N S EH0 P T", "K OW1 N"],
+        )]));
+        assert_eq!(
+            classify(&chars("ambiguous"), Prefix::Con, &provider),
             Decision::Unknown
         );
     }

@@ -69,3 +69,21 @@ pub(crate) fn enter_english_if_starting(
         enter_english(state, result);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn enter_english_if_starting_emits_roman_indicator() {
+        let mut state = EncoderState::new(true);
+        let mut result = Vec::new();
+
+        enter_english_if_starting(&mut state, &['a'], true, &mut result);
+
+        assert_eq!(result, vec![ROMAN_INDICATOR]);
+        assert!(state.is_english);
+        assert!(!state.needs_english_continuation);
+        assert!(!state.roman_number_chain);
+    }
+}

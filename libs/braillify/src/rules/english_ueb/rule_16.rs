@@ -117,16 +117,84 @@ mod tests {
 
     #[rstest::rstest]
     #[case::simple('\u{2500}', '⠒')]
+    #[case::upper_left_corner('\u{250C}', '⠒')]
+    #[case::lower_left_corner('\u{2514}', '⠒')]
     #[case::double('\u{2550}', '⠶')]
     #[case::triple('\u{2261}', '⠿')]
+    #[case::vertical('\u{2502}', '⠸')]
+    #[case::left_tee('\u{251C}', '⠸')]
+    #[case::dotted_vertical('\u{250A}', '⠘')]
     #[case::corner_up('\u{2534}', '⠚')]
+    #[case::lower_right_corner('\u{2518}', '⠚')]
     #[case::corner_down('\u{2510}', '⠲')]
+    #[case::top_tee('\u{252C}', '⠲')]
     #[case::crossing_vertical('\u{253C}', '⠺')]
     #[case::crossing_left('\u{2572}', '⠣')]
     #[case::crossing_right('\u{2571}', '⠜')]
+    #[case::diagonal_cross('\u{2573}', '⠜')]
+    #[case::overline('▔', '⠉')]
+    #[case::underline('▁', '⠤')]
+    #[case::rectangle_marker('▭', '⠯')]
     fn line_segments_map(#[case] c: char, #[case] cell: char) {
         assert_eq!(line_segment(c), Some(decode_unicode(cell)));
         assert!(is_line_char(c));
+    }
+
+    #[test]
+    fn rectangle_marker_expands_inside_horizontal_line() {
+        assert_eq!(
+            line_marker_cells('▭'),
+            Some("⠯⠭⠭⠭⠽".chars().map(decode_unicode).collect())
+        );
+        assert_eq!(line_marker_cells('─'), None);
+    }
+
+    #[rstest::rstest]
+    #[case::vertical('\u{2502}', "⠸")]
+    #[case::dotted_vertical('\u{250A}', "⠘")]
+    #[case::left_diagonal('\u{2572}', "⠣")]
+    #[case::right_diagonal('\u{2571}', "⠜")]
+    #[case::left_arrow('←', "⠳⠪")]
+    #[case::down_left_arrow('↙', "⠳⠜")]
+    #[case::up_right_arrow('↗', "⠳⠎")]
+    fn spatial_symbols_map(#[case] c: char, #[case] expected: &str) {
+        assert_eq!(
+            spatial_symbol(c),
+            Some(expected.chars().map(decode_unicode).collect())
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::right_arrow('→', "⠳⠕")]
+    #[case::down_arrow('↓', "⠳⠩")]
+    #[case::left_arrow('←', "⠳⠪")]
+    #[case::down_left_arrow('↙', "⠳⠜")]
+    #[case::up_right_arrow('↗', "⠳⠎")]
+    fn line_arrows_map(#[case] c: char, #[case] expected: &str) {
+        assert_eq!(
+            line_arrow(c),
+            Some(expected.chars().map(decode_unicode).collect())
+        );
+    }
+
+    #[rstest::rstest]
+    #[case::vertical('\u{2502}', true)]
+    #[case::dotted_vertical('\u{250A}', true)]
+    #[case::left_diagonal('\u{2572}', true)]
+    #[case::right_diagonal('\u{2571}', true)]
+    #[case::diagonal_cross('\u{2573}', true)]
+    #[case::horizontal('\u{2500}', false)]
+    #[case::letter('x', false)]
+    fn spatial_segment_predicate_matches_vertical_and_diagonal_segments(
+        #[case] c: char,
+        #[case] expected: bool,
+    ) {
+        assert_eq!(is_spatial_segment(c), expected);
+    }
+
+    #[test]
+    fn unknown_line_arrow_returns_none() {
+        assert_eq!(line_arrow('x'), None);
     }
 
     #[rstest::rstest]

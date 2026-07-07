@@ -115,18 +115,6 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
         Ok(())
     };
 
-    // 영어 어절 직후 IPA 묶음이 이어지면, 영어 종료표(⠲)는 묶음 기호가 새
-    // 컨텍스트를 열기 때문에 불필요하다. 공백 위에 놓인 종료표만 제거한다.
-    fn strip_trailing_english_terminator_before_bracket(out: &mut Vec<u8>) {
-        let mut i = out.len();
-        while i > 0 && out[i - 1] == 0 {
-            i -= 1;
-        }
-        if i > 0 && out[i - 1] == 50 {
-            out.remove(i - 1);
-        }
-    }
-
     // 여는 대괄호: ⠐⠘⠷ = 16, 24, 55 | 닫는 대괄호: ⠘⠾ = 24, 62
     // 여는 빗금: ⠐⠘⠌ = 16, 24, 12 | 닫는 빗금: ⠘⠌ = 24, 12
     let mut chars = text.chars().peekable();
@@ -134,7 +122,7 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
         match ch {
             '[' => {
                 flush_korean(&mut korean_buf, &mut out)?;
-                strip_trailing_english_terminator_before_bracket(&mut out);
+                let _ = remove_trailing_english_terminator(&mut out);
                 out.extend_from_slice(&[16, 24, 55]);
                 bracket_open = true;
             }
@@ -149,7 +137,7 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
                     out.extend_from_slice(&[24, 12]);
                     slash_open = false;
                 } else {
-                    strip_trailing_english_terminator_before_bracket(&mut out);
+                    let _ = remove_trailing_english_terminator(&mut out);
                     out.extend_from_slice(&[16, 24, 12]);
                     slash_open = true;
                 }
@@ -194,6 +182,21 @@ pub(crate) fn encode_ipa(text: &str) -> Result<Vec<u8>, String> {
     }
     flush_korean(&mut korean_buf, &mut out)?;
     Ok(out)
+}
+
+// 영어 어절 직후 IPA 묶음이 이어지면, 영어 종료표(⠲)는 묶음 기호가 새
+// 컨텍스트를 열기 때문에 불필요하다. 공백 위에 놓인 종료표만 제거한다.
+fn remove_trailing_english_terminator(out: &mut Vec<u8>) -> bool {
+    let mut i = out.len();
+    while i > 0 && out[i - 1] == 0 {
+        i -= 1;
+    }
+    if i > 0 && out[i - 1] == 50 {
+        out.remove(i - 1);
+        true
+    } else {
+        false
+    }
 }
 
 /// PDF 제38항 IPA 변환표 — 음운 기호 및 영문자 점자 매핑.
@@ -250,11 +253,85 @@ mod tests {
     #[rstest::rstest]
     #[case::edh('ð', vec![59])]
     #[case::open_o('ɔ', vec![35])]
+    #[case::esh('ʃ', vec![49])]
+    #[case::turned_r('ɹ', vec![60])]
     #[case::primary_stress('ˈ', vec![56, 3])]
+    #[case::secondary_stress('ˌ', vec![56, 6])]
     #[case::fish_hook_r('ɾ', vec![22, 23])]
     #[case::c_wedge('č', vec![3, 8, 38])]
     fn encodes_ueb_14_4_ipa_table_chars(#[case] ch: char, #[case] expected: Vec<u8>) {
         assert_eq!(encode_ipa_char(ch), Some(expected));
+    }
+
+    #[test]
+    fn bracket_open_flushes_prior_korean_and_strips_english_terminator() {
+        let bracket_first = encode_ipa("[θ]").expect("initial IPA bracket should encode");
+        assert!(bracket_first.starts_with(&[16, 24, 55]));
+
+        let korean_before = encode_ipa("한[θ]").expect("Korean before IPA bracket should encode");
+        assert!(korean_before.starts_with(&crate::encode("한").unwrap()));
+        assert!(korean_before.contains(&16));
+
+        let english_before =
+            encode_ipa("word[θ]").expect("English before IPA bracket should encode");
+        assert!(!english_before[..english_before.len() - 3].contains(&50));
+    }
+
+    #[test]
+    fn bracket_open_after_plain_english_flushes_buffer() {
+        let encoded = encode_ipa("word[θ]").expect("English before IPA bracket should encode");
+
+        let bracket_pos = encoded
+            .windows(3)
+            .position(|cells| cells == [16, 24, 55])
+            .expect("opening IPA bracket marker should be present");
+        assert!(bracket_pos > 0);
+    }
+
+    #[test]
+    fn bracket_open_after_buffer_flushes_then_opens_group() {
+        let encoded = encode_ipa("말[θ]").expect("Korean before IPA bracket should encode");
+        let prefix = crate::encode("말").expect("Korean prefix should encode");
+
+        assert!(encoded.starts_with(&prefix));
+        assert_eq!(&encoded[prefix.len()..prefix.len() + 3], &[16, 24, 55]);
+    }
+
+    #[test]
+    fn ipa_group_opening_removes_prior_english_terminator_after_korean_context() {
+        let bracketed = encode_ipa("말 word[θ]").expect("English before IPA bracket should encode");
+        let bracket_pos = bracketed
+            .windows(3)
+            .position(|cells| cells == [16, 24, 55])
+            .expect("opening IPA bracket marker should be present");
+        assert!(!bracketed[..bracket_pos].contains(&50));
+
+        let slashed = encode_ipa("말 word/θ/").expect("English before IPA slash should encode");
+        let slash_pos = slashed
+            .windows(3)
+            .position(|cells| cells == [16, 24, 12])
+            .expect("opening IPA slash marker should be present");
+        assert!(!slashed[..slash_pos].contains(&50));
+    }
+
+    #[test]
+    fn bracket_open_after_english_space_strips_terminator_before_group() {
+        let encoded =
+            encode_ipa("word [θ]").expect("English before spaced IPA bracket should encode");
+        let bracket_pos = encoded
+            .windows(3)
+            .position(|cells| cells == [16, 24, 55])
+            .expect("opening IPA bracket marker should be present");
+
+        assert!(!encoded[..bracket_pos].contains(&50));
+    }
+
+    #[test]
+    fn remove_trailing_english_terminator_skips_spaces_before_remove() {
+        let mut out = vec![1, 50, 0, 0];
+
+        assert!(remove_trailing_english_terminator(&mut out));
+        assert_eq!(out, vec![1, 0, 0]);
     }
 
     #[test]
@@ -272,5 +349,55 @@ mod tests {
         assert!(encode_ipa_char('\u{1F600}').is_none()); // 😀
         // Arbitrary CJK character not in english.
         assert!(encode_ipa_char('한').is_none());
+    }
+
+    #[test]
+    fn plain_text_outside_ipa_group_buffers_until_end() {
+        let input = std::hint::black_box("plain");
+        let encoded = encode_ipa(input).expect("plain text should encode through normal encoder");
+
+        assert_eq!(
+            encoded,
+            crate::encode(input).expect("plain text should encode")
+        );
+    }
+
+    #[test]
+    fn runtime_plain_text_pushes_each_outside_group_char() {
+        let mut input = String::new();
+        input.push(std::hint::black_box('p'));
+        input.push(std::hint::black_box('q'));
+
+        let encoded = encode_ipa(&input).expect("plain runtime text should encode");
+
+        assert_eq!(
+            encoded,
+            crate::encode(&input).expect("plain text should encode")
+        );
+    }
+
+    #[test]
+    fn plain_text_after_ipa_group_buffers_until_final_flush() {
+        let encoded = encode_ipa("[θ]plain").expect("IPA then plain text should encode");
+        let suffix = crate::encode("plain").expect("plain suffix should encode");
+
+        assert!(encoded.ends_with(&suffix));
+    }
+
+    #[test]
+    fn plain_text_outside_slash_group_buffers_between_groups() {
+        let encoded = encode_ipa("/θ/plain").expect("IPA then plain text should encode");
+        let suffix = crate::encode("plain").expect("plain suffix should encode");
+
+        assert!(encoded.ends_with(&suffix));
+    }
+
+    #[test]
+    fn plain_text_between_ipa_groups_buffers_outside_group() {
+        let encoded =
+            encode_ipa("[θ]plain[θ]").expect("plain text between IPA groups should encode");
+        let plain = crate::encode("plain").expect("plain text should encode");
+
+        assert!(encoded.windows(plain.len()).any(|window| window == plain));
     }
 }
