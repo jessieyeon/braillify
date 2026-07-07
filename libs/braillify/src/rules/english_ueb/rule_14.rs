@@ -1077,6 +1077,7 @@ fn encode_non_ueb_runs_if(
     Some(out)
 }
 
+#[cfg(test)]
 fn greek_run_is_code_switch(run: &[char]) -> bool {
     let mut letters = run.iter().copied().filter(|c| is_greek_code_char(*c));
     let Some(first) = letters.next() else {

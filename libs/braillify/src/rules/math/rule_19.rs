@@ -445,7 +445,7 @@ mod tests {
             &mut i,
             &[MathToken::Variable('i')],
             &mut result,
-            &engine,
+            engine,
         )
         .expect("quantifier subscript should encode");
 

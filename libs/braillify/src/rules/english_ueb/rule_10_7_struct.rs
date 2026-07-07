@@ -104,7 +104,7 @@ impl ContractionRule for StructuralInitialContractionRule {
                 && !self.crosses_seam(word, pos, klen)
             {
                 return Some(ContractionMatch {
-                    cells: cells.to_vec(),
+                    cells: vec![cells[0], cells[1]],
                     consumed: klen,
                     priority: 55,
                     // §10.10.1: structurally validated at a component start, so the

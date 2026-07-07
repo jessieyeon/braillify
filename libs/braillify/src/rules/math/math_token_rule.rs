@@ -96,14 +96,13 @@ impl MathTokenEngine {
             let mut handled = false;
             for rule in &self.rules {
                 let _ = rule.name();
-                if rule.matches(tokens, i, &state) {
-                    if let MathTokenResult::Consumed(n) =
+                if rule.matches(tokens, i, &state)
+                    && let MathTokenResult::Consumed(n) =
                         rule.apply(tokens, i, result, &mut state, self)?
-                    {
-                        i += n;
-                        handled = true;
-                        break;
-                    }
+                {
+                    i += n;
+                    handled = true;
+                    break;
                 }
             }
             if !handled {

@@ -11159,33 +11159,27 @@ mod tests {
             8,
         ));
 
-        assert_eq!(
-            straight_single_quote_is_matched_quotation(
-                &[
-                    EnglishToken::Symbol('\''),
-                    EnglishToken::Word(vec!['C', 'a', 't']),
-                    EnglishToken::Symbol('\''),
-                ],
-                0,
-            ),
-            true
-        );
+        assert!(straight_single_quote_is_matched_quotation(
+            &[
+                EnglishToken::Symbol('\''),
+                EnglishToken::Word(vec!['C', 'a', 't']),
+                EnglishToken::Symbol('\''),
+            ],
+            0,
+        ));
         assert!(!straight_single_quote_is_matched_quotation(
             &[EnglishToken::Symbol('"')],
             0,
         ));
 
-        assert_eq!(
-            previous_word_starts_uppercase(
-                &[
-                    EnglishToken::Word(vec!['C', 'a', 't']),
-                    EnglishToken::Symbol('.'),
-                    EnglishToken::Symbol('\''),
-                ],
-                2,
-            ),
-            true
-        );
+        assert!(previous_word_starts_uppercase(
+            &[
+                EnglishToken::Word(vec!['C', 'a', 't']),
+                EnglishToken::Symbol('.'),
+                EnglishToken::Symbol('\''),
+            ],
+            2,
+        ));
         assert!(straight_single_quote_closes_after_inner_double(
             &[
                 EnglishToken::Symbol('\''),
