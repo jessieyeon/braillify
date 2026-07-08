@@ -282,8 +282,9 @@ mod tests {
 
     #[test]
     fn korean_initial_match_finds_initial_contraction() {
-        let chars: Vec<char> = "ever".chars().collect();
-        let got = korean_initial_match(&chars, 0).map(|matched| (matched.cells, matched.consumed));
+        let chars: Vec<char> = std::hint::black_box("ever").chars().collect();
+        let got = korean_initial_match(&chars, std::hint::black_box(0))
+            .map(|matched| (matched.cells, matched.consumed));
 
         assert_eq!(
             got,

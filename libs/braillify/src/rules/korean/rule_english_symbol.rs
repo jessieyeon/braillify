@@ -149,10 +149,18 @@ mod tests {
     }
 
     #[test]
-    fn closing_parenthesis_pops_symbol_mode() {
-        let mut owned = crate::test_helpers::CtxOwned::for_text(")", false);
-        let mut ctx = owned.ctx_at(0);
-        ctx.state.parenthesis_stack.push(true);
+    fn closing_parenthesis_reuses_opening_parenthesis_symbol_mode() {
+        let mut owned = crate::test_helpers::CtxOwned::for_text("()", true);
+        {
+            let mut ctx = owned.ctx_at(0);
+            ctx.state.is_english = true;
+
+            let _ = RuleEnglishSymbol.apply(&mut ctx);
+            assert_eq!(ctx.state.parenthesis_stack.len(), 1);
+        }
+
+        let mut ctx = owned.ctx_at(1);
+        ctx.state.is_english = true;
 
         let _ = RuleEnglishSymbol.apply(&mut ctx);
 

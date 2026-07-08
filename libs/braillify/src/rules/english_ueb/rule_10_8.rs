@@ -106,4 +106,12 @@ mod tests {
             .map(|m| (m.cells, m.consumed));
         assert_eq!(got, expected);
     }
+
+    #[test]
+    fn runtime_start_position_never_uses_final_groupsign() {
+        let word: Vec<char> = std::hint::black_box("tion").chars().collect();
+        let pos = std::hint::black_box(0);
+
+        assert!(FinalGroupsignRule.try_match(&word, pos).is_none());
+    }
 }

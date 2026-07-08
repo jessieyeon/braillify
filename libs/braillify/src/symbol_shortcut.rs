@@ -147,6 +147,21 @@ mod test {
         assert!(is_symbol_char(ch));
     }
 
+    #[rstest::rstest]
+    #[case::enclosed_jamo('㉠')]
+    #[case::currency_dollar('$')]
+    #[case::historical_letter('ㅸ')]
+    #[case::middle_korean_vowel('ㆍ')]
+    #[case::greek_delta('Δ')]
+    #[case::rule_68_square_meter('㎡')]
+    #[case::rule_69_micro('μ')]
+    #[case::arrow_right('→')]
+    #[case::information_at('@')]
+    #[case::placeholder_double_circle('◎')]
+    fn delegated_symbol_predicates_are_symbols(#[case] ch: char) {
+        assert!(is_symbol_char(std::hint::black_box(ch)));
+    }
+
     /// `encode_char_symbol_shortcut` — 기호별 점역 점형 매핑.
     #[rstest::rstest]
     #[case::double_quote('"', vec!['⠦'])]

@@ -1093,6 +1093,32 @@ mod tests {
     }
 
     #[rstest::rstest]
+    #[case::plain_xrightleftharpoons("\\xrightleftharpoons{f}", "f\u{21C4}\u{00A0}")]
+    #[case::prefixed_xrightleftharpoons("A\\xrightleftharpoons{f}", "A\u{00A0}f\u{21C4}\u{00A0}")]
+    #[case::one_sided_right_delimiter("\\left.x\\right.", "x\u{2E29}")]
+    #[case::overset_frown_arc("\\overset{\\frown}{AB}", "\u{2322}AB")]
+    #[case::overset_plain_base("\\overset{x}{AB}", "AB")]
+    #[case::single_letter_command("\\q", "q")]
+    fn structural_commands_strip_to_math_text(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(strip_latex_to_math(input), expected);
+    }
+
+    #[rstest::rstest]
+    #[case::single_zero("x^0", "x⁰")]
+    #[case::single_five("x^5", "x⁵")]
+    #[case::single_six("x^6", "x⁶")]
+    #[case::single_seven("x^7", "x⁷")]
+    #[case::single_eight("x^8", "x⁸")]
+    #[case::single_nine("x^9", "x⁹")]
+    #[case::latex_inside_braced_exponent("x^{\\frac{1}{2}}", "x^{2⁄1}")]
+    #[case::plain_complex_braced_exponent("x^{n+1}", "xⁿ⁺¹")]
+    #[case::nested_braced_exponent("x^{a{b}}", "x^{a{b}}")]
+    #[case::symbol_exponent_fallback("x^*", "x^*")]
+    fn superscript_forms_strip_to_math_text(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(strip_latex_to_math(input), expected);
+    }
+
+    #[rstest::rstest]
     #[case::integer_ratio_base("\\log_{(3}/_{1)}x", "log₍₃/₁₎x")]
     #[case::decimal_base("\\log_{(0}._{2)}x", "log₍₀.₂₎x")]
     #[case::multi_digit_ratio_base("\\log_{(12}/_{34)}x", "log₍₁₂/₃₄₎x")]

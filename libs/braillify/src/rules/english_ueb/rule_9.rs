@@ -333,6 +333,13 @@ mod tests {
         assert_eq!(decode_styled(c), Some((base, form)));
     }
 
+    #[test]
+    fn decodes_runtime_bold_uppercase_letter() {
+        let c = std::hint::black_box('\u{1D400}');
+
+        assert_eq!(decode_styled(c), Some(('A', Typeform::Bold)));
+    }
+
     #[rstest::rstest]
     #[case::plain_ascii('a')]
     #[case::digit('5')]
@@ -351,6 +358,13 @@ mod tests {
             symbol_indicator(form),
             vec![decode_unicode(prefix), decode_unicode('⠆')]
         );
+    }
+
+    #[test]
+    fn symbol_indicator_accepts_runtime_typeform() {
+        let form = std::hint::black_box(Typeform::Italic);
+
+        assert_eq!(symbol_indicator(form), super::decode_cells("⠨⠆"));
     }
 
     #[test]

@@ -164,6 +164,13 @@ mod tests {
         );
     }
 
+    #[test]
+    fn spatial_symbol_accepts_runtime_vertical_segment() {
+        let c = std::hint::black_box('\u{2502}');
+
+        assert_eq!(spatial_symbol(c), Some(vec![decode_unicode('⠸')]));
+    }
+
     #[rstest::rstest]
     #[case::right_arrow('→', "⠳⠕")]
     #[case::down_arrow('↓', "⠳⠩")]

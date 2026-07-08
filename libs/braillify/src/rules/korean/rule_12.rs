@@ -62,22 +62,16 @@ impl BrailleRule for Rule12 {
     }
 
     fn matches(&self, ctx: &RuleContext) -> bool {
-        let Some(korean) = ctx.as_korean() else {
-            return false;
-        };
-        if korean.jong.is_some() {
-            return false;
-        }
-        if !TRIGGERING_VOWELS.contains(&korean.jung) {
-            return false;
-        }
-        let Some(next) = ctx.next_char() else {
-            return false;
-        };
-        let Ok(CharType::Korean(next_k)) = CharType::new(next) else {
-            return false;
-        };
-        next_k.cho == 'ㅇ' && next_k.jung == 'ㅐ'
+        ctx.as_korean().is_some_and(|korean| {
+            korean.jong.is_none()
+                && TRIGGERING_VOWELS.contains(&korean.jung)
+                && ctx.next_char().is_some_and(|next| {
+                    matches!(
+                        CharType::new(next),
+                        Ok(CharType::Korean(next_k)) if next_k.cho == 'ㅇ' && next_k.jung == 'ㅐ'
+                    )
+                })
+        })
     }
 
     fn apply(&self, ctx: &mut RuleContext) -> Result<RuleResult, String> {

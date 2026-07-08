@@ -1023,6 +1023,35 @@ mod coverage_tests {
         );
     }
 
+    #[test]
+    fn repeating_decimal_with_marked_span_splits_prefix_repetend_suffix() {
+        let tokens = parse("12\u{0307}34\u{0307}5");
+
+        assert!(matches!(tokens.as_slice(), [
+            MathToken::Number(prefix),
+            MathToken::MathSymbol('\u{0307}'),
+            MathToken::Number(repetend),
+            MathToken::Number(suffix),
+        ] if prefix == "1" && repetend == "234" && suffix == "5"));
+    }
+
+    #[test]
+    fn plain_runtime_digits_parse_as_single_number() {
+        let input = std::hint::black_box("12345");
+        let tokens = parse(input);
+
+        assert!(matches!(tokens.as_slice(), [MathToken::Number(num)] if num == "12345"));
+    }
+
+    #[rstest::rstest]
+    #[case::unicode_prime("x′")]
+    #[case::ascii_prime("x'")]
+    fn prime_marks_parse_as_prime_token(#[case] input: &str) {
+        let tokens = parse(input);
+
+        assert!(tokens.iter().any(|t| matches!(t, MathToken::Prime)));
+    }
+
     /// Superscript followed by paren with prev FunctionName (line 485
     /// `Some(MathToken::Superscript(_))` after a FunctionName triggers
     /// Grouping bracket kind).
@@ -1104,6 +1133,17 @@ mod coverage_tests {
                 .any(|t| matches!(t, MathToken::MathSymbol('\u{03B1}'))),
             "α must be parsed as MathSymbol; tokens={tokens:?}"
         );
+    }
+
+    #[test]
+    fn runtime_shortcut_symbol_parses_as_math_symbol() {
+        let input = std::hint::black_box("∞");
+        let tokens = parse(input);
+
+        assert!(matches!(
+            tokens.as_slice(),
+            [MathToken::MathSymbol('\u{221E}')]
+        ));
     }
 
     /// Combining math mark NOT consumed by overline-prefix (line 674-682).

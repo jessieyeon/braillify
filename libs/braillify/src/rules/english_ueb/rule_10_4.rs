@@ -66,4 +66,21 @@ mod tests {
             .map(|m| (m.cells[0], m.consumed));
         assert_eq!(got, expected);
     }
+
+    #[test]
+    fn strong_groupsign_rule_matches_direct_call() {
+        let chars: Vec<char> = std::hint::black_box("chapter").chars().collect();
+
+        let got = StrongGroupsignRule.try_match(&chars, 0);
+
+        assert!(matches!(
+            got,
+            Some(ContractionMatch {
+                cells,
+                consumed: 2,
+                priority: 60,
+                ..
+            }) if cells == vec![decode_unicode('⠡')]
+        ));
+    }
 }

@@ -85,4 +85,11 @@ mod tests {
             .map(|m| (m.cells[0], m.consumed));
         assert_eq!(got, expected);
     }
+
+    #[test]
+    fn middle_lower_groupsign_rejects_runtime_word_final_pair() {
+        let chars: Vec<char> = std::hint::black_box("sea").chars().collect();
+
+        assert!(middle_lower_groupsign(&chars, std::hint::black_box(1)).is_none());
+    }
 }

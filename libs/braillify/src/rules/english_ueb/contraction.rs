@@ -221,4 +221,19 @@ mod tests {
 
         assert_eq!(cells, vec![decode_unicode('⠃')]);
     }
+
+    #[test]
+    fn match_longest_accepts_runtime_word_slice() {
+        static MAP: phf::Map<&'static str, u8> = phf::phf_map! {
+            "a" => decode_unicode('⠁'),
+            "ab" => decode_unicode('⠃'),
+        };
+        let word: Vec<char> = std::hint::black_box("abc").chars().collect();
+
+        let matched = match_longest(&word, std::hint::black_box(0), &MAP, 42).unwrap();
+
+        assert_eq!(matched.cells, vec![decode_unicode('⠃')]);
+        assert_eq!(matched.consumed, 2);
+        assert_eq!(matched.priority, 42);
+    }
 }

@@ -475,6 +475,28 @@ mod test {
         }
     }
 
+    #[test]
+    fn supplementary_cjk_planes_classified_as_symbol() {
+        let extension_b = char::from_u32(std::hint::black_box(0x20000)).unwrap();
+        let compatibility_supplement = char::from_u32(std::hint::black_box(0x2F800)).unwrap();
+
+        assert!(matches!(
+            CharType::new(extension_b).unwrap(),
+            CharType::Symbol(_)
+        ));
+        assert!(matches!(
+            CharType::new(compatibility_supplement).unwrap(),
+            CharType::Symbol(_)
+        ));
+    }
+
+    #[test]
+    fn runtime_general_punctuation_classified_as_symbol() {
+        let dash = char::from_u32(std::hint::black_box(0x2014)).unwrap();
+
+        assert!(matches!(CharType::new(dash).unwrap(), CharType::Symbol(_)));
+    }
+
     /// `$` and `\\` should classify as Symbol via the upstream `is_symbol_char`
     /// / `is_math_symbol_char` checks (separate explicit branch removed as dead).
     #[rstest::rstest]

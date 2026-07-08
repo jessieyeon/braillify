@@ -410,6 +410,7 @@ pub(super) fn split_mixed_math_word(
 mod tests {
     use super::*;
     use crate::rules::math::math_token_rule::MathContext;
+    use crate::rules::token::SpaceKind;
 
     /// helpers:235 — `try_encode_math_slice` fallback to `crate::encode` when
     /// math encoder fails. Use `f(~)`: passes `has_function_call` candidacy
@@ -438,6 +439,17 @@ mod tests {
         let result = try_encode_mixed_math_prefix(&prefix, &suffix, MathContext::default());
 
         assert!(result.is_some());
+    }
+
+    #[test]
+    fn adjacent_korean_word_flags_skips_previous_spaces() {
+        let tokens = vec![
+            build_word_token("한글".to_string()),
+            Token::Space(SpaceKind::Regular),
+            Token::PreEncoded(vec![1]),
+        ];
+
+        assert_eq!(adjacent_korean_word_flags(&tokens, 2), (true, false));
     }
 
     #[test]

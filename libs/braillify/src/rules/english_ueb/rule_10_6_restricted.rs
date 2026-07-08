@@ -88,6 +88,15 @@ mod tests {
         assert_eq!(got, expected);
     }
 
+    #[test]
+    fn runtime_be_prefix_uses_restricted_groupsign() {
+        let word = chars(std::hint::black_box("become"));
+        let matched = rule().try_match(&word, std::hint::black_box(0)).unwrap();
+
+        assert_eq!(matched.cells, vec![decode_unicode('⠆')]);
+        assert_eq!(matched.consumed, 2);
+    }
+
     /// The groupsign is word-initial only — no match at a non-zero position.
     #[test]
     fn no_match_off_word_start() {

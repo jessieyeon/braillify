@@ -264,14 +264,13 @@ impl MathTokenRule for MathSymbolRule {
             return Ok(MathTokenResult::Consumed(1));
         }
 
+        let next_for_padding = Self::next_non_space(tokens, index + 1);
+        let next_is_pad_neighbor = rule_2::is_algebraic_neighbor(next_for_padding)
+            || matches!(next_for_padding, Some(MathToken::MathSymbol('\u{00AC}')));
         let should_pad = rule_2::needs_binary_spacing(*c)
             && index > 0
             && rule_2::is_algebraic_neighbor(rule_12::prev_non_space(tokens, index))
-            && (rule_2::is_algebraic_neighbor(Self::next_non_space(tokens, index + 1))
-                || matches!(
-                    Self::next_non_space(tokens, index + 1),
-                    Some(MathToken::MathSymbol('\u{00AC}'))
-                ));
+            && next_is_pad_neighbor;
 
         // PDF 수학 제65항 2~3 — ∴/∵는 앞뒤 두 칸씩 띄어 쓴다.
         // 입력에 Space 토큰이 있으면 +1, 없으면 +2 출력해 합계 2를 맞춘다.
@@ -1072,6 +1071,50 @@ mod tests {
         let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("#C should encode");
 
         assert_eq!(result, vec![56, 57, 38, 32, 9, 52]);
+    }
+
+    #[test]
+    fn quantifier_before_upper_variable_adds_capital_marker_and_spacing() {
+        use super::super::super::math_token_rule::MathContext;
+        use super::super::super::parser::MathToken;
+        let tokens = vec![
+            MathToken::MathSymbol('\u{2200}'),
+            MathToken::UpperVariable('A'),
+            MathToken::Number("1".to_string()),
+        ];
+
+        let result = enc_ctx_attempt(&tokens, MathContext::default()).expect("∀A1 should encode");
+
+        assert!(result.windows(2).any(|window| window == [32, 1]));
+        assert_eq!(result.last().copied(), Some(0));
+    }
+
+    #[test]
+    fn binary_operator_pads_before_negated_upper_variable() {
+        use super::super::super::encoder::math_engine_for_context;
+        use super::super::super::math_token_rule::{
+            MathContext, MathEncodeState, MathTokenResult, MathTokenRule,
+        };
+        use super::super::super::parser::MathToken;
+
+        let tokens = vec![
+            MathToken::Variable('a'),
+            MathToken::MathSymbol('\u{2227}'),
+            MathToken::MathSymbol('\u{00AC}'),
+            MathToken::UpperVariable('B'),
+        ];
+        let ctx = MathContext::default();
+        let mut state = MathEncodeState::with_context(false, ctx);
+        let engine = math_engine_for_context(ctx);
+        let mut result = Vec::new();
+
+        let action = super::MathSymbolRule
+            .apply(&tokens, 1, &mut result, &mut state, engine)
+            .expect("operator should encode");
+
+        assert!(matches!(action, MathTokenResult::Consumed(1)));
+        assert_eq!(result.first().copied(), Some(0));
+        assert!(!state.prev_was_number);
     }
 
     #[test]

@@ -113,15 +113,12 @@ impl ContractionRule for StructuralInitialContractionRule {
                 });
             }
         }
-        if self.part_allowed(word, pos) {
-            return Some(ContractionMatch {
-                cells: vec![decode_unicode('⠐'), decode_unicode('⠏')],
-                consumed: 4,
-                priority: 55,
-                protect_span: true,
-            });
-        }
-        None
+        self.part_allowed(word, pos).then(|| ContractionMatch {
+            cells: vec![decode_unicode('⠐'), decode_unicode('⠏')],
+            consumed: 4,
+            priority: 55,
+            protect_span: true,
+        })
     }
 }
 

@@ -103,9 +103,11 @@ mod tests {
 
     #[test]
     fn default_provider_matches_new_provider() {
+        let default_provider = CmuDictProvider;
+
         assert_eq!(
-            CmuDictProvider.pronunciations("become"),
-            CmuDictProvider.pronunciations("become")
+            default_provider.pronunciations("become"),
+            CmuDictProvider::new().pronunciations("become")
         );
     }
 }

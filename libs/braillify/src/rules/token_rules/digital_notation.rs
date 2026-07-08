@@ -487,6 +487,17 @@ mod tests {
     }
 
     #[test]
+    fn digital_segment_standing_alone_accepts_runtime_right_delimiter() {
+        let chars: Vec<char> = std::hint::black_box("x-y").chars().collect();
+
+        assert!(digital_segment_stands_alone(
+            &chars,
+            std::hint::black_box(0),
+            std::hint::black_box(1)
+        ));
+    }
+
+    #[test]
     fn encode_digital_english_segment_plain_letter() {
         // Single letter — no digraph match → falls to single-letter encode (line 177)
         let chars: Vec<char> = "z".chars().collect();

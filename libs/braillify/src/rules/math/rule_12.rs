@@ -289,13 +289,15 @@ pub fn encode_upper_variable(
 
     let omit_uppercase_indicator = *i == 0 && next_is_membership_symbol(tokens, *i);
 
-    let overline_suffix_single = matches!(
+    let next_is_overline_suffix = matches!(
         tokens.get(*i + 1),
         Some(MathToken::MathSymbol('\u{0304}' | '\u{0305}'))
-    ) && !matches!(
+    );
+    let overline_suffix_continues = matches!(
         tokens.get(*i + 2),
         Some(MathToken::UpperVariable(_) | MathToken::Prime)
     );
+    let overline_suffix_single = next_is_overline_suffix && !overline_suffix_continues;
 
     let logical_upper = logic_context
         && !matches!(

@@ -306,6 +306,16 @@ mod tests {
     }
 
     #[test]
+    fn runtime_plain_word_parses_as_word_token() {
+        let input = std::hint::black_box("hello");
+
+        assert_eq!(
+            parse_english(input),
+            vec![EnglishToken::Word(input.chars().collect())]
+        );
+    }
+
+    #[test]
     fn parses_ueb_word_division_marker_inside_word() {
         let toks = parse_english("ante\nroom");
         assert_eq!(
@@ -367,6 +377,16 @@ mod tests {
     #[test]
     fn empty_input_yields_no_tokens() {
         assert!(parse_english("").is_empty());
+    }
+
+    #[test]
+    fn runtime_small_cap_and_accent_letters_stay_in_word() {
+        let text = std::hint::black_box("ᴅé");
+
+        assert_eq!(
+            parse_english(text),
+            vec![EnglishToken::Word(vec!['D', 'é'])]
+        );
     }
 
     #[test]
