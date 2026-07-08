@@ -13,6 +13,9 @@ default = ["console_error_panic_hook"]
 
 [dependencies]
 wasm-bindgen = "0.2.122"
+# UEB Grade-2 English (CMUdict + hyphenation) is a base dependency of braillify,
+# so it ships even with default-features disabled — the ~3.5 MB table is an
+# accepted trade-off for correct English in the wasm bundle.
 braillify = { path = "../../libs/braillify", default-features = false, features = [
     "wasm",
 ] }
