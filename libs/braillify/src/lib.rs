@@ -1296,7 +1296,6 @@ mod test {
                 let expected_forms = answer_forms
                     .iter()
                     .map(|(_, expected, _)| expected)
-                    .cloned()
                     .map(|expected| expected.trim().replace(" ", "⠀"))
                     .collect::<Vec<_>>();
                 let unicode_forms = answer_forms
