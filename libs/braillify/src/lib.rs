@@ -1130,6 +1130,67 @@ mod test {
         files
     }
 
+    fn testcase_answer_forms(
+        record: &serde_json::Value,
+        filename: &str,
+        line_num: usize,
+    ) -> Vec<(String, String, String)> {
+        if let Some(serde_json::Value::Array(alternatives)) = record.get("alternatives") {
+            return alternatives
+                .iter()
+                .map(|alternative| {
+                    let internal = alternative["internal"].as_str().unwrap_or_else(|| {
+                        panic!(
+                            "'alternatives.internal' 필드를 읽는 중 오류 발생: at {} in {}",
+                            line_num, filename
+                        )
+                    });
+                    let expected = alternative["expected"].as_str().unwrap_or_else(|| {
+                        panic!(
+                            "'alternatives.expected' 필드를 읽는 중 오류 발생: at {} in {}",
+                            line_num, filename
+                        )
+                    });
+                    let unicode = alternative["unicode"].as_str().unwrap_or_else(|| {
+                        panic!(
+                            "'alternatives.unicode' 필드를 읽는 중 오류 발생: at {} in {}",
+                            line_num, filename
+                        )
+                    });
+                    (
+                        internal.to_string(),
+                        expected.to_string(),
+                        unicode.to_string(),
+                    )
+                })
+                .collect();
+        }
+
+        let internal = record["internal"].as_str().unwrap_or_else(|| {
+            panic!(
+                "'internal' 필드를 읽는 중 오류 발생: at {} in {}",
+                line_num, filename
+            )
+        });
+        let expected = record["expected"].as_str().unwrap_or_else(|| {
+            panic!(
+                "'expected' 필드를 읽는 중 오류 발생: at {} in {}",
+                line_num, filename
+            )
+        });
+        let unicode = record["unicode"].as_str().unwrap_or_else(|| {
+            panic!(
+                "'unicode' 필드를 읽는 중 오류 발생: at {} in {}",
+                line_num, filename
+            )
+        });
+        vec![(
+            internal.to_string(),
+            expected.to_string(),
+            unicode.to_string(),
+        )]
+    }
+
     #[test]
     pub fn test_by_testcase() {
         let files = collect_test_files();
@@ -1171,30 +1232,6 @@ mod test {
             let mut file_world_failed = 0;
             let mut file_jeomsarang_total = 0;
             let mut file_jeomsarang_failed = 0;
-            // UEB §10.12.7 — 발음/음절 구분이 불확실한 단어는 규정이 복수 형태를
-            // 모두 허용한다("either form is acceptable"). PDF가 두 허용 형태를
-            // 모두 예제로 수록하므로, 같은 파일 안에 동일 input이 서로 다른
-            // expected로 2회 이상 등재된 경우 그 집합 전체를 "허용 형태들"로
-            // 보고, 인코더 출력이 그중 어느 하나와 일치하면 해당 항목들을 모두
-            // 통과로 처리한다. (fixture 무수정 — 규정 의미론의 하네스 반영)
-            let mut accepted_alternatives: HashMap<&str, Vec<String>> = HashMap::new();
-            for record in &records {
-                let (Some(input), Some(expected)) = (
-                    record.get("input").and_then(|v| v.as_str()),
-                    record.get("expected").and_then(|v| v.as_str()),
-                ) else {
-                    continue;
-                };
-                accepted_alternatives
-                    .entry(input)
-                    .or_default()
-                    .push(expected.trim().replace(" ", "⠀"));
-            }
-            accepted_alternatives.retain(|_, forms| {
-                forms.sort();
-                forms.dedup();
-                forms.len() > 1
-            });
             // (input, note, expected, actual, is_success, world, world_is_success, jeomsarang, jeomsarang_is_success)
             type TestStatusRow = (
                 String,
@@ -1220,9 +1257,12 @@ mod test {
                 // 이미 통과하는 케이스가 limitation으로 표시되면(=stale) 패닉으로 표시한다.
                 if let Some(reason) = record.get("limitation").and_then(|v| v.as_str()) {
                     let input = record["input"].as_str().unwrap_or("");
-                    let expected = record["unicode"].as_str().unwrap_or("");
+                    let expected_values = testcase_answer_forms(record, &filename, line_num)
+                        .into_iter()
+                        .map(|(_, _, unicode)| unicode)
+                        .collect::<Vec<_>>();
                     if let Ok(actual) = crate::encode_to_unicode(input)
-                        && actual == expected
+                        && expected_values.contains(&actual)
                     {
                         panic!(
                             "STALE limitation in {} line {}: input={:?} passes but is marked limitation: {:?}",
@@ -1252,22 +1292,18 @@ mod test {
                 let jeomsarang = record["jeomsarang"].as_str().unwrap_or("").to_string();
                 file_jeomsarang_total += 1;
                 // 테스트 케이스 파일의 숫자 코드에서 앞뒤 공백 제거 후 비교
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap_or_else(|| {
-                        panic!(
-                            "'expected' 필드를 읽는 중 오류 발생: at {} in {}",
-                            line_num, filename
-                        )
-                    })
-                    .trim()
-                    .replace(" ", "⠀");
-                let unicode_braille = record["unicode"].as_str().unwrap_or_else(|| {
-                    panic!(
-                        "'unicode' 필드를 읽는 중 오류 발생: at {} in {}",
-                        line_num, filename
-                    )
-                });
+                let answer_forms = testcase_answer_forms(record, &filename, line_num);
+                let expected_forms = answer_forms
+                    .iter()
+                    .map(|(_, expected, _)| expected)
+                    .map(|expected| expected.trim().replace(" ", "⠀"))
+                    .collect::<Vec<_>>();
+                let unicode_forms = answer_forms
+                    .into_iter()
+                    .map(|(_, _, unicode)| unicode)
+                    .collect::<Vec<_>>();
+                let expected_display = expected_forms.join(" / ");
+                let unicode_display = unicode_forms.join(" / ");
                 // testcase JSON `context` 필드는 `EncodingMode` enum과 1:1 매핑.
                 // input만으로는 모호한 케이스(예: 영문자 "a"가 일반 영자인지 수학 변수인지)는
                 // testcase가 mode를 명시한다. 옛 한글(중세국어)은 input 안 옛 자모/한자가
@@ -1312,11 +1348,7 @@ mod test {
                                 }
                             })
                             .collect::<String>();
-                        // §10.12.7: 동일 input의 복수 허용 형태 중 하나와 일치하면 통과.
-                        let case_matches = actual_str == expected
-                            || accepted_alternatives
-                                .get(input)
-                                .is_some_and(|forms| forms.contains(&actual_str));
+                        let case_matches = expected_forms.contains(&actual_str);
 
                         if !case_matches {
                             failed += 1;
@@ -1325,18 +1357,18 @@ mod test {
                                 filename.to_string(),
                                 line_num + 1,
                                 input.to_string(),
-                                expected.to_string(),
+                                expected_display.clone(),
                                 actual_str.clone(),
                                 braille_expected.clone(),
-                                unicode_braille.to_string(),
+                                unicode_display.clone(),
                             ));
                         }
-                        let world_is_success = !world.is_empty() && world == unicode_braille;
+                        let world_is_success = !world.is_empty() && unicode_forms.contains(&world);
                         if !world_is_success {
                             file_world_failed += 1;
                         }
                         let jeomsarang_is_success =
-                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                            !jeomsarang.is_empty() && unicode_forms.contains(&jeomsarang);
                         if !jeomsarang_is_success {
                             file_jeomsarang_failed += 1;
                         }
@@ -1344,9 +1376,9 @@ mod test {
                         test_status.push((
                             input.to_string(),
                             note.clone(),
-                            unicode_braille.to_string(),
+                            unicode_display.clone(),
                             braille_expected.clone(),
-                            unicode_braille == braille_expected,
+                            case_matches,
                             world.clone(),
                             world_is_success,
                             jeomsarang.clone(),
@@ -1361,18 +1393,18 @@ mod test {
                             filename.to_string(),
                             line_num + 1,
                             input.to_string(),
-                            expected.to_string(),
+                            expected_display.clone(),
                             "".to_string(),
                             e.to_string(),
-                            unicode_braille.to_string(),
+                            unicode_display.clone(),
                         ));
 
-                        let world_is_success = !world.is_empty() && world == unicode_braille;
+                        let world_is_success = !world.is_empty() && unicode_forms.contains(&world);
                         if !world_is_success {
                             file_world_failed += 1;
                         }
                         let jeomsarang_is_success =
-                            !jeomsarang.is_empty() && jeomsarang == unicode_braille;
+                            !jeomsarang.is_empty() && unicode_forms.contains(&jeomsarang);
                         if !jeomsarang_is_success {
                             file_jeomsarang_failed += 1;
                         }
@@ -1380,7 +1412,7 @@ mod test {
                         test_status.push((
                             input.to_string(),
                             note.clone(),
-                            unicode_braille.to_string(),
+                            unicode_display.clone(),
                             e.to_string(),
                             false,
                             world.clone(),
@@ -1581,21 +1613,23 @@ mod test {
             let mut file_total = 0;
             let mut file_passed = 0;
 
-            for record in &records {
+            for (line_num, record) in records.iter().enumerate() {
                 let input = record["input"].as_str().unwrap();
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap()
-                    .trim()
-                    .replace(" ", "⠀");
-                if expected.chars().any(|c| !c.is_ascii_digit()) {
+                let expected_forms = testcase_answer_forms(record, filename, line_num)
+                    .into_iter()
+                    .map(|(_, expected, _)| expected.trim().replace(" ", "⠀"))
+                    .collect::<Vec<_>>();
+                if expected_forms
+                    .iter()
+                    .any(|expected| expected.chars().any(|c| !c.is_ascii_digit()))
+                {
                     continue;
                 }
                 total += 1;
                 file_total += 1;
                 if let Ok(actual) = encode(input) {
                     let actual_str = actual.iter().map(|c| c.to_string()).collect::<String>();
-                    if actual_str == expected {
+                    if expected_forms.contains(&actual_str) {
                         passed += 1;
                         file_passed += 1;
                     }
