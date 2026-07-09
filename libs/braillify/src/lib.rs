@@ -1613,21 +1613,23 @@ mod test {
             let mut file_total = 0;
             let mut file_passed = 0;
 
-            for record in &records {
+            for (line_num, record) in records.iter().enumerate() {
                 let input = record["input"].as_str().unwrap();
-                let expected = record["expected"]
-                    .as_str()
-                    .unwrap()
-                    .trim()
-                    .replace(" ", "⠀");
-                if expected.chars().any(|c| !c.is_ascii_digit()) {
+                let expected_forms = testcase_answer_forms(record, filename, line_num)
+                    .into_iter()
+                    .map(|(_, expected, _)| expected.trim().replace(" ", "⠀"))
+                    .collect::<Vec<_>>();
+                if expected_forms
+                    .iter()
+                    .any(|expected| expected.chars().any(|c| !c.is_ascii_digit()))
+                {
                     continue;
                 }
                 total += 1;
                 file_total += 1;
                 if let Ok(actual) = encode(input) {
                     let actual_str = actual.iter().map(|c| c.to_string()).collect::<String>();
-                    if actual_str == expected {
+                    if expected_forms.contains(&actual_str) {
                         passed += 1;
                         file_passed += 1;
                     }
