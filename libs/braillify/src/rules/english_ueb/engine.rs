@@ -1850,20 +1850,23 @@ fn styled_url_before(tokens: &[EnglishToken], i: usize) -> bool {
     let Some(EnglishToken::Styled(_, form)) = i.checked_sub(1).and_then(|p| tokens.get(p)) else {
         return false;
     };
-    let mut start = i - 1;
+    // Walk left over the styled-URL run (styled letters of `form` plus `:` `/`
+    // `.`), prepending each token's text. The walk itself validates the run, so a
+    // separate re-scan (with an unreachable fallback arm) is unnecessary.
+    let mut text = String::new();
+    let mut start = i;
     while start > 0 {
         match tokens.get(start - 1) {
-            Some(EnglishToken::Styled(_, f)) if *f == *form => start -= 1,
-            Some(EnglishToken::Symbol(':' | '/' | '.')) => start -= 1,
+            Some(EnglishToken::Styled(c, f)) if *f == *form => {
+                let lower: String = c.to_lowercase().collect();
+                text.insert_str(0, &lower);
+                start -= 1;
+            }
+            Some(EnglishToken::Symbol(c @ (':' | '/' | '.'))) => {
+                text.insert(0, *c);
+                start -= 1;
+            }
             _ => break,
-        }
-    }
-    let mut text = String::new();
-    for token in &tokens[start..i] {
-        match token {
-            EnglishToken::Styled(c, f) if *f == *form => text.extend(c.to_lowercase()),
-            EnglishToken::Symbol(c @ (':' | '/' | '.')) => text.push(*c),
-            _ => return false,
         }
     }
     text.starts_with("http://") || text.starts_with("https://") || text.starts_with("www.")
@@ -3423,9 +3426,8 @@ fn repeated_initial_letter_stammer(chars: &[char]) -> bool {
     if chars.len() < 3 {
         return false;
     }
-    let Some(first) = chars.first().map(|c| c.to_ascii_lowercase()) else {
-        return false;
-    };
+    // `chars.len() >= 3` guarantees index 0 exists.
+    let first = chars[0].to_ascii_lowercase();
     if first != 'l' {
         return false;
     }
@@ -3661,10 +3663,9 @@ fn styled_single_word_is_foreign(chars: &[char]) -> bool {
         return true;
     }
     let word: String = chars.iter().flat_map(|c| c.to_lowercase()).collect();
+    // A digraph groupsign (`ch`/`gh`/`sh`/`th`/`wh`) is 2 chars, so it is already
+    // rejected by the `< 3` guard above — no separate digraph check is needed.
     if word.chars().count() < 3 {
-        return false;
-    }
-    if matches!(word.as_str(), "ch" | "gh" | "sh" | "th" | "wh") {
         return false;
     }
     if super::rule_10_1::wordsign(&word).is_some()
@@ -11883,5 +11884,492 @@ mod tests {
             )
             .unwrap();
         assert!(out.contains(&CAPITAL));
+    }
+
+    #[test]
+    fn token_typeform_reports_styled_form_only() {
+        use super::super::token::Typeform;
+        // §9: only a Styled token carries a typeform; structural tokens have none.
+        assert_eq!(
+            token_typeform(&EnglishToken::Styled('a', Typeform::Bold)),
+            Some(Typeform::Bold)
+        );
+        assert_eq!(token_typeform(&EnglishToken::Space), None);
+    }
+
+    #[test]
+    fn token_base_char_extracts_single_char_tokens() {
+        use super::super::token::Typeform;
+        // A styled letter and a one-letter word expose their base char; a
+        // multi-char or structural token does not.
+        assert_eq!(
+            token_base_char(&EnglishToken::Styled('x', Typeform::Italic)),
+            Some('x')
+        );
+        assert_eq!(token_base_char(&EnglishToken::Word(vec!['y'])), Some('y'));
+        assert_eq!(token_base_char(&EnglishToken::Space), None);
+    }
+
+    #[test]
+    fn dash_after_enough_before_in_needs_enough_before_dash() {
+        // §10.6.5 seam: true only when the token two back is `enough`.
+        let with_enough = [
+            EnglishToken::Word("enough".chars().collect()),
+            EnglishToken::Symbol('\u{2014}'),
+        ];
+        assert!(dash_after_enough_before_in(&with_enough, 2));
+        // A dash reached over a bare space (no `enough`) is not the seam.
+        let bare = [EnglishToken::Space, EnglishToken::Symbol('\u{2014}')];
+        assert!(!dash_after_enough_before_in(&bare, 2));
+    }
+
+    #[test]
+    fn dash_after_quoted_in_before_in_requires_quote_then_in() {
+        // A dash not reached through a quotation mark from `in` is not the seam.
+        let bare = [EnglishToken::Space, EnglishToken::Symbol('\u{2014}')];
+        assert!(!dash_after_quoted_in_before_in(&bare, 2));
+    }
+
+    #[test]
+    fn styled_numeric_sequence_end_spans_spaced_digit_groups() {
+        use super::super::token::Typeform;
+        // §9/§11: a styled digit run may include an internal space between two
+        // styled digit groups of the same typeform.
+        let tokens = [
+            EnglishToken::Styled('1', Typeform::Italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('2', Typeform::Italic),
+        ];
+        assert_eq!(styled_numeric_sequence_end(&tokens, 0, Typeform::Italic), 3);
+    }
+
+    #[test]
+    fn document_all_styled_phrases_short_vocabulary_flushes_at_boundaries() {
+        use super::super::token::Typeform;
+        let it = Typeform::Italic;
+        // Short lowercase styled words separated by a space → all short vocabulary.
+        let ok = [
+            EnglishToken::Styled('a', it),
+            EnglishToken::Styled('b', it),
+            EnglishToken::Space,
+            EnglishToken::Styled('c', it),
+        ];
+        assert!(document_all_styled_phrases_are_short_vocabulary(&ok));
+        // A styled word longer than 10 chars fails the flush at the trailing space.
+        let long_then_space: Vec<EnglishToken> = "abcdefghijkl"
+            .chars()
+            .map(|c| EnglishToken::Styled(c, it))
+            .chain([EnglishToken::Space])
+            .collect();
+        assert!(!document_all_styled_phrases_are_short_vocabulary(
+            &long_then_space
+        ));
+        // A non-space/non-symbol token (a Number) after a too-long styled run hits
+        // the catch-all flush arm.
+        let long_then_number: Vec<EnglishToken> = "abcdefghijkl"
+            .chars()
+            .map(|c| EnglishToken::Styled(c, it))
+            .chain([EnglishToken::Number(vec!['1'])])
+            .collect();
+        assert!(!document_all_styled_phrases_are_short_vocabulary(
+            &long_then_number
+        ));
+    }
+
+    #[test]
+    fn encode_following_number_as_numeric_space_needs_a_number() {
+        // Returns None when the next token is not a Number (nothing to encode).
+        let tokens = [EnglishToken::Space];
+        let mut out = Vec::new();
+        assert_eq!(
+            encode_following_number_as_numeric_space(&tokens, 0, &mut out, false),
+            None
+        );
+        assert!(out.is_empty());
+    }
+
+    #[test]
+    fn after_repeated_stammer_prefix_rejects_empty_word() {
+        // An empty lower_word has no first char → not a stammer continuation.
+        let tokens = [EnglishToken::Space];
+        assert!(!after_repeated_stammer_prefix(&tokens, 1, ""));
+    }
+
+    #[test]
+    fn space_delimited_syllables_need_three_words() {
+        // §10.1.4: three space-separated fragments that concatenate to one
+        // recorded word (`dis as ter`) form a word; a missing neighbour does not.
+        let joined = [
+            EnglishToken::Word("dis".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::Word("as".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::Word("ter".chars().collect()),
+        ];
+        assert!(space_delimited_syllables_form_word(&joined, 2));
+        // Current token not a word → false.
+        let curr_missing = [
+            EnglishToken::Word("a".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::Space,
+        ];
+        assert!(!space_delimited_syllables_form_word(&curr_missing, 2));
+        // Following token not a word → false.
+        let next_missing = [
+            EnglishToken::Word("a".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::Word("b".chars().collect()),
+        ];
+        assert!(!space_delimited_syllables_form_word(&next_missing, 2));
+    }
+
+    #[test]
+    fn styled_form_at_reports_typeform_only_for_styled_tokens() {
+        use super::super::token::Typeform;
+        assert_eq!(
+            styled_form_at(&[EnglishToken::Styled('a', Typeform::Bold)], 0),
+            Some(Typeform::Bold)
+        );
+        assert_eq!(styled_form_at(&[EnglishToken::Space], 0), None);
+    }
+
+    #[test]
+    fn leading_stutter_prefix_guards_missing_or_empty_word() {
+        // Reaches the `-` guard but the token at `start` is not a Word.
+        let non_word = [
+            EnglishToken::Word("so".chars().collect()),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Space,
+        ];
+        assert!(!leading_stutter_prefix(&non_word, 2));
+        // The token at `start` is an empty Word (no first char).
+        let empty_word = [
+            EnglishToken::Word("so".chars().collect()),
+            EnglishToken::Symbol('-'),
+            EnglishToken::Word(Vec::new()),
+        ];
+        assert!(!leading_stutter_prefix(&empty_word, 2));
+    }
+
+    #[test]
+    fn ends_spelled_letter_run_before_word_needs_a_hyphen() {
+        // The token at `i` must be a hyphen symbol; anything else → false.
+        assert!(!ends_spelled_letter_run_before_word(
+            &[EnglishToken::Space],
+            0
+        ));
+    }
+
+    #[test]
+    fn token_plain_chars_preserve_word_division_maps_all_token_kinds() {
+        // A space becomes a literal space and a word division inserts a `\n` at
+        // the break index — exercising every arm of the flattener.
+        let tokens = [
+            EnglishToken::Word("ab".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::WordDivision {
+                chars: "cd".chars().collect(),
+                break_at: 1,
+            },
+            EnglishToken::LineBreak,
+        ];
+        assert_eq!(
+            token_plain_chars_preserve_word_division(&tokens),
+            vec!['a', 'b', ' ', 'c', '\n', 'd', '\n']
+        );
+    }
+
+    #[test]
+    fn encode_compact_spatial_example_handles_diagonal_pair() {
+        // §16 compact spatial layout: the `╱╲` diagonal pair renders as a
+        // three-row grade-1 spatial arrangement.
+        let tokens = [EnglishToken::Symbol('╱'), EnglishToken::Symbol('╲')];
+        assert!(encode_compact_spatial_example(&tokens).is_some());
+    }
+
+    #[test]
+    fn styled_column_gap_requires_a_space_at_index() {
+        // §16.5 column gap detection starts at a space; a non-space token → None.
+        let tokens = [EnglishToken::Word("a".chars().collect())];
+        assert_eq!(styled_column_gap(&tokens, 0), None);
+    }
+
+    #[test]
+    fn bibliography_styled_number_title_end_needs_trailing_space_number() {
+        use super::super::token::Typeform;
+        // A bibliography entry (`1.` + styled title) with no following
+        // ` <number>` after the title has no numeric title end.
+        let tokens = [
+            EnglishToken::Number(vec!['1']),
+            EnglishToken::Symbol('.'),
+            EnglishToken::Styled('a', Typeform::Italic),
+        ];
+        assert_eq!(bibliography_styled_number_title_end(&tokens, 3, 2), None);
+    }
+
+    #[test]
+    fn bibliography_title_starts_with_foreign_article_needs_two_words() {
+        // A single-word title cannot open with a foreign article + noun.
+        assert!(!bibliography_title_starts_with_foreign_article(&[vec![
+            'l', 'e'
+        ]]));
+        // `le <noun>` is a French-article title.
+        assert!(bibliography_title_starts_with_foreign_article(&[
+            vec!['l', 'e'],
+            vec!['m', 'o', 't']
+        ]));
+    }
+
+    #[test]
+    fn engine_default_matches_new() {
+        // The `Default` impl delegates to `new`, producing a usable engine.
+        let mut out = Vec::new();
+        EnglishUebEngine::default()
+            .encode_mixed_case(
+                &['f', 'o', 'u', 'n', 'D', 'A', 't', 'i', 'o', 'n'],
+                true,
+                &mut out,
+            )
+            .unwrap();
+        assert!(out.contains(&CAPITAL));
+    }
+
+    #[test]
+    fn push_spatial_char_renders_line_arrow() {
+        // §16 spatial mode: a line arrow (`→`) renders via its two-cell arrow sign.
+        let mut out = Vec::new();
+        assert_eq!(push_spatial_char(&mut out, '→'), Some(()));
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn styled_word_foreign_detects_non_accented_foreign_letter() {
+        // §13: a dot-below foreign letter (`ọ`, U+1ECD) is foreign but not a §4.2
+        // accent, so it is detected as foreign vocabulary / a foreign signal.
+        assert!(styled_word_is_foreign(&['\u{1ECD}']));
+        assert!(styled_word_has_foreign_signal(&['\u{1ECD}']));
+        // A recorded English word is not foreign.
+        assert!(!styled_word_is_foreign(&['c', 'a', 't']));
+    }
+
+    #[test]
+    fn styled_phrase_from_named_place_breaks_without_styled_tail() {
+        use super::super::token::Typeform;
+        // `<styled> and <plain>` after the phrase has no styled continuation to a
+        // `from <Place>`, so it is not a named-place attribution.
+        let tokens = [
+            EnglishToken::Styled('a', Typeform::Italic),
+            EnglishToken::Space,
+            EnglishToken::Word("and".chars().collect()),
+            EnglishToken::Space,
+            EnglishToken::Word("x".chars().collect()),
+        ];
+        assert!(!styled_phrase_from_named_place(&tokens, 1));
+    }
+
+    #[test]
+    fn encode_dispatches_rule_3_14_punctuation_box() {
+        // §3.14 headings box (`┌─┐ / │ ! │ / └─┘`) is a spatial layout the engine
+        // renders directly.
+        let tokens = [
+            EnglishToken::Symbol('┌'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┐'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('│'),
+            EnglishToken::Space,
+            EnglishToken::Symbol('!'),
+            EnglishToken::Space,
+            EnglishToken::Symbol('│'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('└'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┘'),
+        ];
+        assert!(EnglishUebEngine::new().encode(&tokens, false).is_some());
+    }
+
+    #[test]
+    fn encode_dispatches_rule_3_14_letter_grid() {
+        // §3.14 letter grid: two aligned rows of single capitals encode as a grid.
+        let tokens = [
+            EnglishToken::Word(vec!['A']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['B']),
+            EnglishToken::LineBreak,
+            EnglishToken::Word(vec!['C']),
+            EnglishToken::Space,
+            EnglishToken::Word(vec!['D']),
+        ];
+        assert!(EnglishUebEngine::new().encode(&tokens, false).is_some());
+    }
+
+    #[test]
+    fn rule_3_14_punctuation_box_without_headings_is_none() {
+        // §3.14: a box whose middle row carries no heading characters is not a
+        // headings box.
+        let tokens = [
+            EnglishToken::Symbol('┌'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┐'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('│'),
+            EnglishToken::Space,
+            EnglishToken::Space,
+            EnglishToken::Symbol('│'),
+            EnglishToken::LineBreak,
+            EnglishToken::Symbol('└'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('─'),
+            EnglishToken::Symbol('┘'),
+        ];
+        assert_eq!(encode_rule_3_14_punctuation_box(&tokens), None);
+    }
+
+    #[test]
+    fn encode_divided_word_suppressed_caps_path() {
+        // §10.13: a line-divided word encoded inside a §8.4 caps passage
+        // (suppress_caps) skips the per-word capital indicator.
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_divided_word(&['r', 'e', 'a', 'd', 'i', 'n', 'g'], 4, true, &mut out)
+                .is_some()
+        );
+    }
+
+    #[test]
+    fn encode_word_spells_modified_letter_word_literally() {
+        // §4.2.4: a word carrying a diacritic (`maître`) is spelled letter-by-letter
+        // so no groupsign consumes print around the modified letter.
+        let ctx = WordContext {
+            standing_alone: true,
+            upper_usable: false,
+            shortform_usable: false,
+            allow_longer_shortforms: true,
+            lower_usable: false,
+            suppress_caps: false,
+            word_initial: true,
+            restricted_prefix_boundary: true,
+            digit_adjacent: false,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_word(&['m', 'a', 'î', 't', 'r', 'e'], ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn encode_styled_word_handles_single_symbol() {
+        use super::super::token::Typeform;
+        // A one-character styled word that is not a letter encodes as its symbol.
+        let tokens = [EnglishToken::Styled('&', Typeform::Italic)];
+        let ctx = StyledContext {
+            tokens: &tokens,
+            suppress_caps: false,
+            foreign_scope: None,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_styled_word(&['&'], 0, 1, ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn encode_styled_span_rejects_non_styled_interior_token() {
+        use super::super::token::Typeform;
+        // A styled span whose interior carries a bare Space (not styled / symbol /
+        // line break) is not a well-formed multi-segment styled word.
+        let tokens = [
+            EnglishToken::Styled('x', Typeform::Italic),
+            EnglishToken::Space,
+            EnglishToken::Styled('y', Typeform::Italic),
+        ];
+        let ctx = StyledContext {
+            tokens: &tokens,
+            suppress_caps: false,
+            foreign_scope: None,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_styled_span(0, 3, Typeform::Italic, ctx, &mut out)
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn encode_styled_word_encodes_all_digit_word_as_number() {
+        use super::super::token::Typeform;
+        // §6/§9: a styled word made only of digits encodes as a number.
+        let tokens = [
+            EnglishToken::Styled('1', Typeform::Italic),
+            EnglishToken::Styled('2', Typeform::Italic),
+        ];
+        let ctx = StyledContext {
+            tokens: &tokens,
+            suppress_caps: false,
+            foreign_scope: None,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_styled_word(&['1', '2'], 0, 2, ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn encode_styled_span_uses_provided_foreign_scope() {
+        use super::super::token::Typeform;
+        // §13.2.1: when the caller supplies a foreign scope, the span's segments
+        // are encoded uncontracted under that accent code.
+        let tokens = [EnglishToken::Styled('a', Typeform::Italic)];
+        let ctx = StyledContext {
+            tokens: &tokens,
+            suppress_caps: false,
+            foreign_scope: Some((super::super::rule_13::AccentCode::Ueb, false)),
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_styled_span(0, 1, Typeform::Italic, ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn encode_word_acronym_abutting_digit_spells_letters() {
+        // §10.12.1: an all-caps initialism abutting a digit is "used as letters",
+        // each spelled with no contraction.
+        let ctx = WordContext {
+            standing_alone: false,
+            upper_usable: false,
+            shortform_usable: false,
+            allow_longer_shortforms: true,
+            lower_usable: false,
+            suppress_caps: false,
+            word_initial: true,
+            restricted_prefix_boundary: true,
+            digit_adjacent: true,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_word(&['A', 'B'], ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
     }
 }
