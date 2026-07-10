@@ -4244,10 +4244,9 @@ fn push_spatial_char(out: &mut Vec<u8>, c: char) -> Option<()> {
         out.extend([CAPITAL, decode_unicode('⠜')]);
     } else if c == '<' {
         out.extend([CAPITAL, decode_unicode('⠣')]);
-    } else if let Some(cells) = super::rule_16::spatial_symbol(c) {
-        out.extend(cells);
     } else {
-        return None;
+        let cells = super::rule_16::spatial_symbol(c)?;
+        out.extend(cells);
     }
     Some(())
 }
