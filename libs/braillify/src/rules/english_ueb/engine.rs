@@ -10630,6 +10630,16 @@ mod tests {
     }
 
     #[test]
+    fn inner_double_quote_close_requires_an_opening_quote() {
+        let terminal_punctuation = [EnglishToken::Symbol('!'), EnglishToken::Symbol(',')];
+
+        assert!(!straight_single_quote_closes_after_inner_double(
+            &terminal_punctuation,
+            terminal_punctuation.len(),
+        ));
+    }
+
+    #[test]
     fn encode_rare_document_level_symbol_paths() {
         let engine = EnglishUebEngine::new();
 
