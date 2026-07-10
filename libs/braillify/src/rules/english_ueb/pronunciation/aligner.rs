@@ -503,6 +503,17 @@ mod tests {
         assert!(er_unstressed_in(&word, 0, &[phoneme]));
     }
 
+    #[rstest::rstest]
+    #[case::unstressed_er("ER0", true)]
+    #[case::secondary_er("ER2", false)]
+    #[case::bare_r("R", true)]
+    fn er_unstressed_runtime_stress_paths(#[case] token: &str, #[case] expected: bool) {
+        let word = [std::hint::black_box('e'), std::hint::black_box('r')];
+        let phoneme = parse_phoneme(std::hint::black_box(token));
+
+        assert_eq!(er_unstressed_in(&word, 0, &[phoneme]), expected);
+    }
+
     #[test]
     fn er_unstressed_rejects_secondary_stress_and_split_vowel() {
         assert!(!er_unstressed_in(&['e', 'r'], 0, &[ph("ER2")]));
