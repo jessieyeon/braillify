@@ -617,4 +617,11 @@ mod tests {
             expected
         );
     }
+
+    #[test]
+    fn contains_contiguous_rejects_empty_or_oversized_needle() {
+        // An empty needle — like any needle longer than the haystack — is not
+        // contained.
+        assert!(!contains_contiguous(&[], &[]));
+    }
 }

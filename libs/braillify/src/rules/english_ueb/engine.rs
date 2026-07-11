@@ -6583,15 +6583,15 @@ impl EnglishUebEngine {
                     prev_was_number = false;
                     numeric_mode = false;
                 }
-                EnglishToken::Symbol('→' | '↓')
+                EnglishToken::Symbol(arrow @ ('→' | '↓'))
                     if i.checked_sub(1).is_some_and(|p| {
                         matches!(&tokens[p], EnglishToken::Symbol(s) if super::rule_16::is_line_char(*s))
                     }) =>
                 {
-                    out.extend(match &tokens[i] {
-                        EnglishToken::Symbol('→') => [decode_unicode('⠳'), decode_unicode('⠕')],
-                        EnglishToken::Symbol('↓') => [decode_unicode('⠳'), decode_unicode('⠩')],
-                        _ => unreachable!(),
+                    out.extend(if *arrow == '→' {
+                        [decode_unicode('⠳'), decode_unicode('⠕')]
+                    } else {
+                        [decode_unicode('⠳'), decode_unicode('⠩')]
                     });
                     line_mode_active = true;
                     prev_was_number = false;
@@ -12371,5 +12371,59 @@ mod tests {
                 .is_some()
         );
         assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn encodes_middle_english_contraction_in_early_context() {
+        // §12.2/§12.3: with an early-English letter present (`þ`), a Middle-English
+        // spelling (`worlde`) takes its §12 contracted form `⠸⠺⠑`.
+        let out = enc("þe worlde").expect("early-English text should encode");
+        assert!(out.windows(3).any(|w| w == cells("⠸⠺⠑")));
+    }
+
+    #[test]
+    fn encodes_struck_letter_sequence() {
+        // §4.3.1: a run of stroke-overlaid letters (U+0336) encodes as struck text.
+        assert!(enc("a\u{0336}b\u{0336}").is_some());
+    }
+
+    #[test]
+    fn encodes_capitalized_where_before_apostrophe() {
+        // §8/§10.5: a capitalized `Where'…` keeps the `where` groupsign `⠱⠻⠑`
+        // preceded by a capital indicator.
+        let out = enc("Where's").expect("Where's should encode");
+        assert_eq!(out.first(), Some(&CAPITAL));
+        assert!(out.windows(3).any(|w| w == cells("⠱⠻⠑")));
+    }
+
+    #[test]
+    fn encodes_capitalized_enough_before_punctuation_dash() {
+        // §10.5: a capitalized `Enough` before lower punctuation and a dash keeps
+        // the `enough` wordsign `⠢` with a leading capital indicator.
+        let out = enc("Enough!—more").expect("should encode");
+        assert_eq!(out.first(), Some(&CAPITAL));
+        assert!(out.contains(&decode_unicode('⠢')));
+    }
+
+    #[test]
+    fn encodes_styled_letter_a_to_j_after_number_with_grade1() {
+        // §6.5/§9: an italic letter a–j directly after a number takes a grade-1
+        // indicator so `5𝑎` is not misread as a continuation of the number.
+        let out = enc("5\u{1D44E}").expect("should encode");
+        assert!(out.contains(&GRADE1));
+    }
+
+    #[test]
+    fn encodes_uppercase_greek_run_in_english_prose() {
+        // §11: an all-caps Greek run (`ΑΒΓ`) inside English prose encodes with the
+        // §8.4 capitals passage over the Greek letters.
+        assert!(enc("The ΑΒΓ set").is_some());
+    }
+
+    #[test]
+    fn encodes_superscript_after_numeric_base() {
+        // §3.24: a superscript (`³`) directly after a number takes the level
+        // indicator; the numeric base needs no extra grade-1.
+        assert!(enc("row 5³").is_some());
     }
 }

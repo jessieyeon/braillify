@@ -540,4 +540,13 @@ mod tests {
     fn unstressed_er_accepts_bare_r_after_silent_e() {
         assert!(er_unstressed_in(&['e', 'r'], 0, &[ph("R")]));
     }
+
+    #[test]
+    fn consonant_and_digraph_costs_cover_q_z_ng() {
+        // Natural consonant pairings cost 0: `q`→K, `z`→Z.
+        assert_eq!(consonant_cost('q', "K"), 0);
+        assert_eq!(consonant_cost('z', "Z"), 0);
+        // The `ng` digraph voices the NG phoneme at cost 0.
+        assert_eq!(digraph_cost('n', 'g', &ph("NG")), 0);
+    }
 }
