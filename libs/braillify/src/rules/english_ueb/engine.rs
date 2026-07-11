@@ -12470,13 +12470,16 @@ mod tests {
 
     #[test]
     fn encodes_word_with_trailing_combining_acute_on_last_letter() {
-        // §4.2.1: a combining mark printed after a letter (here U+0301 acute on
-        // the final `e` of `cafe`) is placed before that letter in braille, so
-        // the walk routes the `Word` + trailing `Symbol(mark)` pair through
-        // `emit_word_with_modifier_on_last`.
+        // §4.2.1: a combining mark printed after a letter is placed before that
+        // letter in braille, so the walk routes the `Word` + trailing
+        // `Symbol(mark)` pair through `emit_word_with_modifier_on_last`.
+        // `h`+U+0301 has no precomposed form, so NFC keeps the mark a separate
+        // token (unlike `e`+acute, which composes to `é` and takes the accent
+        // path instead).
         let mut expected = Vec::new();
-        emit_word_with_modifier_on_last(&['c', 'a', 'f', 'e'], '\u{0301}', &mut expected).unwrap();
-        assert_eq!(enc("cafe\u{0301}").unwrap(), expected);
+        emit_word_with_modifier_on_last(&['g', 'r', 'a', 'p', 'h'], '\u{0301}', &mut expected)
+            .unwrap();
+        assert_eq!(enc("graph\u{0301}").unwrap(), expected);
     }
 
     #[test]
