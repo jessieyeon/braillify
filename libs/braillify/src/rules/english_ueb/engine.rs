@@ -12467,4 +12467,39 @@ mod tests {
         );
         assert!(!out.is_empty());
     }
+
+    #[test]
+    fn encodes_word_with_trailing_combining_acute_on_last_letter() {
+        // §4.2.1: a combining mark printed after a letter (here U+0301 acute on
+        // the final `e` of `cafe`) is placed before that letter in braille, so
+        // the walk routes the `Word` + trailing `Symbol(mark)` pair through
+        // `emit_word_with_modifier_on_last`.
+        let mut expected = Vec::new();
+        emit_word_with_modifier_on_last(&['c', 'a', 'f', 'e'], '\u{0301}', &mut expected).unwrap();
+        assert_eq!(enc("cafe\u{0301}").unwrap(), expected);
+    }
+
+    #[test]
+    fn encodes_styled_lone_digit_as_typeform_symbol() {
+        // §9/§11: a lone styled non-letter (bold digit `𝟏` = U+1D7CF) takes the
+        // §9 typeform *symbol* indicator followed by the numeric symbol, not the
+        // word indicator path used for styled letters.
+        let mut expected =
+            super::super::rule_9::symbol_indicator(super::super::token::Typeform::Bold);
+        encode_styled_nonword_symbol('1', &mut expected).unwrap();
+        assert_eq!(enc("\u{1D7CF}").unwrap(), expected);
+    }
+
+    #[test]
+    fn encodes_capitalized_enough_before_bracketed_sentence_close() {
+        // §8/§10.5: `(Enough.)` — a capitalized `enough` immediately before a
+        // period and a closing bracket keeps the `enough` wordsign `⠢` with a
+        // leading capital indicator; the lowercase form differs only by that
+        // capital cell.
+        let upper = enc("(Enough.)").expect("should encode");
+        let lower = enc("(enough.)").expect("should encode");
+        assert!(upper.contains(&CAPITAL));
+        assert!(upper.contains(&decode_unicode('⠢')));
+        assert_eq!(upper.len(), lower.len() + 1);
+    }
 }

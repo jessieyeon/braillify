@@ -1159,4 +1159,48 @@ mod tests {
         assert_eq!(notation_cell('@'), None);
         assert_eq!(notation_cells("@").as_deref(), None);
     }
+
+    #[test]
+    fn candidate_moves_offers_early_letter_fallback_for_thorn() {
+        // rule_12 early letters (Old/Middle English `þ` etc.) give the DP a
+        // single-cell fallback move so it never stalls on a non-contractible
+        // letter that still has a §4.1 print form.
+        let word = chars("þ");
+        let moves = candidate_moves(
+            &word,
+            0,
+            &ContractionEngine::default(),
+            false,
+            false,
+            &vec![false; word.len()],
+            &[],
+            None,
+            false,
+            false,
+            false,
+        );
+        assert!(moves.iter().any(|(cells_, consumed, priority)| {
+            *cells_ == cells("⠼⠮") && *consumed == 1 && *priority == u16::MAX
+        }));
+    }
+
+    #[test]
+    fn encode_with_constraints_skips_unreachable_tail_position() {
+        // A trailing character the §4/§10 fallback cannot encode (a CJK ideograph
+        // has no early-letter, accent, or English cell) leaves its DP position
+        // unreachable (`cost == usize::MAX`), so the preceding move is skipped at
+        // the reachability guard and the word fails to contract.
+        let word = chars("a\u{4e00}");
+        let result = encode_with_constraints(
+            &word,
+            &ContractionEngine::default(),
+            false,
+            false,
+            None,
+            false,
+            true,
+            false,
+        );
+        assert_eq!(result, None);
+    }
 }
