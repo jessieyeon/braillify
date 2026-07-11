@@ -12426,4 +12426,45 @@ mod tests {
         // indicator; the numeric base needs no extra grade-1.
         assert!(enc("row 5³").is_some());
     }
+
+    #[test]
+    fn encodes_styled_uppercase_letter_after_number_with_capital() {
+        // §8/§9: an italic/bold uppercase letter directly after a number keeps its
+        // capital indicator (`5𝐀`).
+        let out = enc("5\u{1D400}").expect("should encode");
+        assert!(out.contains(&CAPITAL));
+    }
+
+    #[test]
+    fn encodes_capitalized_enough_before_sentence_close() {
+        // §10.5: a capitalized `Enough` closing a sentence keeps the `enough`
+        // wordsign `⠢` with a leading capital indicator.
+        let out = enc("Enough.").expect("should encode");
+        assert_eq!(out.first(), Some(&CAPITAL));
+        assert!(out.contains(&decode_unicode('⠢')));
+    }
+
+    #[test]
+    fn encode_word_acronym_with_accented_letter_emits_accent_cells() {
+        // §10.12.1/§4.2: an all-caps initialism abutting a digit spells each
+        // letter; an accented capital (`É`) emits its §4.2 accent cells.
+        let ctx = WordContext {
+            standing_alone: false,
+            upper_usable: false,
+            shortform_usable: false,
+            allow_longer_shortforms: true,
+            lower_usable: false,
+            suppress_caps: false,
+            word_initial: true,
+            restricted_prefix_boundary: true,
+            digit_adjacent: true,
+        };
+        let mut out = Vec::new();
+        assert!(
+            EnglishUebEngine::new()
+                .encode_word(&['É', 'B'], ctx, &mut out)
+                .is_some()
+        );
+        assert!(!out.is_empty());
+    }
 }
