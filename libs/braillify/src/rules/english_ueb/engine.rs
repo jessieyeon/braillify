@@ -7047,10 +7047,10 @@ impl EnglishUebEngine {
 		                        continue;
 	                    }
 	                    if matches!(*c, '−' | '=') {
-	                        out.extend(match *c {
-	                            '−' => [decode_unicode('⠐'), decode_unicode('⠤')],
-	                            '=' => [decode_unicode('⠐'), decode_unicode('⠶')],
-	                            _ => unreachable!(),
+	                        out.extend(if *c == '=' {
+	                            [decode_unicode('⠐'), decode_unicode('⠶')]
+	                        } else {
+	                            [decode_unicode('⠐'), decode_unicode('⠤')]
 	                        });
 	                        prev_was_number = false;
 	                        numeric_mode = false;
@@ -7472,17 +7472,15 @@ impl EnglishUebEngine {
                     // punctuation one *passage* indicator + terminator (`⠨⠶…⠨⠄`). A
                     // styled number or a single styled symbol takes a *symbol*
                     // indicator over the whole item. §5.8.1 keeps it before caps.
-                    let mut j = i + 1;
-                    while matches!(tokens.get(j), Some(EnglishToken::Styled(_, f)) if f == form) {
+                    let mut j = i;
+                    let mut chars: Vec<char> = Vec::new();
+                    while let Some(EnglishToken::Styled(c, f)) = tokens.get(j) {
+                        if f != form {
+                            break;
+                        }
+                        chars.push(*c);
                         j += 1;
                     }
-                    let chars: Vec<char> = tokens[i..j]
-	                        .iter()
-	                        .map(|t| match t {
-	                            EnglishToken::Styled(c, _) => *c,
-	                            _ => unreachable!("run is all Styled"),
-	                        })
-                        .collect();
                     if chars.len() == 1
                         && let Some(end) = emit_styled_struck_pair(tokens, i, *form, chars[0], &mut out)
                     {
