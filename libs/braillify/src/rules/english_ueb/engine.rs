@@ -7873,10 +7873,7 @@ impl EnglishUebEngine {
                                 numeric_mode = false;
                                 continue;
                             }
-                            if chars[0].is_ascii_digit() || !chars[0].is_ascii_alphabetic() {
-                                out.extend(super::rule_9::symbol_indicator(*form));
-                                encode_styled_nonword_symbol(chars[0], &mut out)?;
-                            } else if prev_was_number || numeric_mode {
+                            if prev_was_number || numeric_mode {
                                 if chars[0].is_ascii_lowercase() && ('a'..='j').contains(&chars[0]) {
                                     out.push(GRADE1);
                                 }
@@ -12503,6 +12500,18 @@ mod tests {
         let lower = enc("(enough.)").expect("should encode");
         assert!(upper.contains(&CAPITAL));
         assert!(upper.contains(&decode_unicode('⠢')));
+        assert_eq!(upper.len(), lower.len() + 1);
+    }
+
+    #[test]
+    fn encodes_capitalized_in_before_ellipsis() {
+        // §10.5: a capitalized `In` immediately before an ellipsis keeps the
+        // `in` lower groupsign spelled with a leading capital indicator
+        // (`spell_lower_in_for_preference`); the lowercase form differs only by
+        // that capital cell.
+        let upper = enc("In...").expect("should encode");
+        let lower = enc("in...").expect("should encode");
+        assert_eq!(upper.first(), Some(&CAPITAL));
         assert_eq!(upper.len(), lower.len() + 1);
     }
 }

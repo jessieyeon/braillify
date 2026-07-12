@@ -242,9 +242,6 @@ fn encode_with_constraints(
             relax_shortforms,
         ) {
             let next = pos + consumed;
-            if next > n || cost[next] == usize::MAX {
-                continue;
-            }
             let total = cells.len() + cost[next];
             // The preference of the whole remaining path: the best contraction in
             // this move or anything the tail already chose.
@@ -1185,11 +1182,10 @@ mod tests {
     }
 
     #[test]
-    fn encode_with_constraints_skips_unreachable_tail_position() {
-        // A trailing character the §4/§10 fallback cannot encode (a CJK ideograph
-        // has no early-letter, accent, or English cell) leaves its DP position
-        // unreachable (`cost == usize::MAX`), so the preceding move is skipped at
-        // the reachability guard and the word fails to contract.
+    fn encode_with_constraints_returns_none_for_uncontractible_char() {
+        // A character the §4/§10 fallback cannot encode (a CJK ideograph has no
+        // early-letter, accent, or English cell) yields no candidate move at its
+        // DP position, so `best` is None and the whole word fails to contract.
         let word = chars("a\u{4e00}");
         let result = encode_with_constraints(
             &word,
