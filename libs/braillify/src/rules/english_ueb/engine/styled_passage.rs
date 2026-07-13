@@ -1,5 +1,21 @@
 use super::*;
 
+/// §9.7.2: whether the token at `k` keeps extending the current passage word — a
+/// same-`form` styled letter, an attached symbol/line break, or an unstyled
+/// `Word`/`WordDivision` *sandwiched* before another same-`form` letter. Any other
+/// token (a plain trailing word, a different-form run) ends the word.
+fn passage_word_token_continues(
+    t: &EnglishToken,
+    tokens: &[EnglishToken],
+    k: usize,
+    form: super::super::token::Typeform,
+) -> bool {
+    token_typeform(t) == Some(form)
+        || matches!(t, EnglishToken::Symbol(_) | EnglishToken::LineBreak)
+        || (matches!(t, EnglishToken::Word(_) | EnglishToken::WordDivision { .. })
+            && matches!(tokens.get(k + 1).and_then(token_typeform), Some(f) if f == form))
+}
+
 /// §9.x: from the styled run at `i`, count consecutive same-`form` styled words
 /// joined only by spaces/punctuation, and return that count with the passage end
 /// (exclusive) — the last styled run plus any trailing punctuation (so `Cities.`
@@ -70,18 +86,13 @@ pub(super) fn styled_passage_extent(
         // but is part of the print-word. A trailing Word (`h̲ave`) is *not*
         // consumed — that keeps the §9.2.2 symbol-indicator case (`h̲ave`,
         // `e̲nough`, `k̲nowledge`) counting as one styled letter per word.
-        while let Some(t) = tokens.get(k) {
-            match t {
-                t if token_typeform(t) == Some(form) => {
-                    k += 1;
-                    last_styled_end = k;
-                }
-                EnglishToken::Symbol(_) | EnglishToken::LineBreak => k += 1,
-                EnglishToken::Word(_) | EnglishToken::WordDivision { .. } if matches!(tokens.get(k + 1).and_then(token_typeform), Some(f) if f == form) =>
-                {
-                    k += 1;
-                }
-                _ => break,
+        while let Some(t) = tokens
+            .get(k)
+            .filter(|&t| passage_word_token_continues(t, tokens, k, form))
+        {
+            k += 1;
+            if token_typeform(t) == Some(form) {
+                last_styled_end = k;
             }
         }
     }
