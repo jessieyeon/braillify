@@ -283,7 +283,6 @@ pub(super) fn initial_caps_shortform_boundary(chars: &[char]) -> Option<usize> {
 }
 
 /// Document-level UEB Grade-2 encoder.
-
 #[cfg(test)]
 mod tests {
     use super::super::test_support::{cells, enc};

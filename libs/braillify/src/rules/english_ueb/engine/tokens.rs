@@ -494,7 +494,6 @@ pub(super) fn continues_across_bracket(tokens: &[EnglishToken], i: usize) -> boo
 /// Per-word encoding context derived from a word's surrounding tokens: the §2.6
 /// standing-alone status and the §8/§10 boundary flags. Bundled so the word
 /// encoder takes one value instead of a long boolean argument list.
-
 #[cfg(test)]
 mod tests {
     use super::super::test_support::{cells, enc};
