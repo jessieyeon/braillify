@@ -71,8 +71,15 @@ jobs:
           echo 'merge_derives = true' >> .rustfmt.toml
           echo 'use_small_heuristics = "Default"' >> .rustfmt.toml
           cargo fmt
-      - name: Test
-        run: bun run test
+      - name: Test (Rust coverage)
+        timeout-minutes: 20
+        run: bun run test:rust
+      - name: Test (Node)
+        timeout-minutes: 10
+        run: bun run test:node
+      - name: Test (Python)
+        timeout-minutes: 10
+        run: bun run test:python
       - name: Format Rollback
         shell: bash
         run: |
