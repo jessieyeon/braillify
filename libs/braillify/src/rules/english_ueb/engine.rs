@@ -2283,10 +2283,10 @@ fn straight_single_quote_role(tokens: &[EnglishToken], index: usize) -> SingleQu
     if prev_text && !next_text {
         return SingleQuote::Close;
     }
-    if straight_single_quote_closes_after_inner_double(tokens, index) {
-        return SingleQuote::Close;
-    }
-    SingleQuote::Apostrophe
+    // §7.6: reaching here means the quote is matched with `!prev && !next`, which
+    // `straight_single_quote_is_matched_quotation` only accepts via the inner-double
+    // close path — so the role is always Close (the former `Apostrophe` tail was dead).
+    SingleQuote::Close
 }
 
 fn straight_single_quote_is_matched_quotation(tokens: &[EnglishToken], index: usize) -> bool {
@@ -6431,10 +6431,14 @@ impl EnglishUebEngine {
 		                    }
 		                    if straight_single_quote_exchanged(tokens, i) {
 	                        let role = straight_single_quote_role(tokens, i);
-	                        out.push(match role {
-	                            SingleQuote::Open => QUOTE_OPEN,
-	                            SingleQuote::Close => QUOTE_CLOSE,
-	                            SingleQuote::Apostrophe => decode_unicode('⠄'),
+	                        // §7.6: this exchanged-quote branch is only reached with an
+	                        // Open or Close role (straight_single_quote_exchanged returns
+	                        // false for an Apostrophe role), so the former Apostrophe arm
+	                        // was unreachable.
+	                        out.push(if matches!(role, SingleQuote::Open) {
+	                            QUOTE_OPEN
+	                        } else {
+	                            QUOTE_CLOSE
 	                        });
 	                    } else {
 	                        match straight_single_quote_role(tokens, i) {
@@ -8003,10 +8007,6 @@ impl EnglishUebEngine {
         {
             out.extend([GRADE1, decode_unicode('⠄')]);
         }
-        // §9.x: a passage reaching the end of the input still needs its terminator.
-        if let Some((_, form)) = nested_inner_passage {
-            out.extend(super::rule_9::terminator(form));
-        }
         if let Some((_, form, caps, _)) = passage {
             if caps {
                 out.extend([CAPITAL, decode_unicode('⠄')]);
@@ -8580,13 +8580,15 @@ impl EnglishUebEngine {
     }
 
     /// §8.2: encode a mixed-case word by splitting it at each lower→upper boundary
-    /// (the start of a new Title-case / all-caps part) and giving every part its
-    /// own capital indicator (`⠠` Title-case, `⠠⠠` all-caps). Contractions are
-    /// computed per part, but the split is only used when it does **not** change
-    /// them versus the whole word: a part that is itself a capital run + lowercase
-    /// tail (`founDAtion`), or a part whose contraction context differs from the
-    /// whole word (a restricted `dis`/`con`/`be` or a final groupsign that depends
-    /// on word position), returns `None` so the legacy path handles the word.
+    /// (the start of a new Title-case / all-caps part) and at each all-caps→lowercase
+    /// boundary (§8.6.3, so a `⠠⠄` terminator can close a caps word before a lowercase
+    /// tail like `WALKing`). Every part takes its own capital indicator (`⠠` Title-case,
+    /// `⠠⠠` all-caps) and its contractions are computed per part; a 2-letter internal
+    /// caps word (`founDAtion`'s `DA`) keeps each capital before its cell. A leading
+    /// all-caps shortform prefix (`initial_caps_shortform_boundary`) and a CamelCase
+    /// leading uppercase run of at least four letters
+    /// (`camel_title_subunit_after_caps_prefix`, e.g. `BLASTSoundMachine`) are split off
+    /// first and the remainder encoded recursively.
     fn encode_mixed_case(
         &self,
         chars: &[char],
@@ -8765,15 +8767,6 @@ impl EnglishUebEngine {
             return Some(());
         }
         let whole_lower: Vec<char> = chars.iter().flat_map(|c| c.to_lowercase()).collect();
-        // §8.2 mixed-case parts (`WALK`+`ing`) are mid-word continuations, never
-        // word starts, so the §10.4.3 word-initial `ing` rule does not apply here.
-        let whole = super::rule_10_9::encode_with_optional_longer_shortforms(
-            &whole_lower,
-            &self.contractions,
-            false,
-            false,
-            allow_longer_shortforms,
-        );
 
         let mut bounds = vec![0usize];
         for i in 1..chars.len() {
@@ -8794,10 +8787,7 @@ impl EnglishUebEngine {
         bounds.push(chars.len());
 
         let mut buf = Vec::new();
-        let mut concat = Vec::new();
         let mut prev_caps_word = false;
-        let mut has_caps_word_segment = false;
-        let mut has_internal_caps_word_segment = false;
         for w in bounds.windows(2) {
             let seg = &chars[w[0]..w[1]];
             let seg_lower: Vec<char> = seg.iter().flat_map(|c| c.to_lowercase()).collect();
@@ -8857,7 +8847,6 @@ impl EnglishUebEngine {
                     allow_longer_shortforms,
                 )?
             };
-            has_caps_word_segment |= matches!(caps, Caps::Word);
             // §8.6.3: a §8.4 caps word (`⠠⠠`) is terminated by `⠠⠄` before lowercase
             // letters that continue the same word (`ABCs`, `WALKing`, `unSELFish`).
             if prev_caps_word && matches!(caps, Caps::None) {
@@ -8865,12 +8854,10 @@ impl EnglishUebEngine {
                 buf.push(decode_unicode('⠄'));
             }
             if matches!(caps, Caps::Word) && w[0] > 0 && w[1] < chars.len() && seg.len() <= 2 {
-                has_internal_caps_word_segment = true;
                 for cell in &cells {
                     buf.push(CAPITAL);
                     buf.push(*cell);
                 }
-                concat.extend(cells);
                 prev_caps_word = false;
                 continue;
             } else {
@@ -8884,22 +8871,7 @@ impl EnglishUebEngine {
                 }
             }
             buf.extend(&cells);
-            concat.extend(cells);
             prev_caps_word = matches!(caps, Caps::Word);
-        }
-        // §8.2 / §10.12.12: a lower→upper case boundary breaks a contraction that
-        // would span it, so the per-part split is the correct reading (`NorthEast`
-        // → `North`+`East`, not the boundary-spanning `the`; `CliffEdge` → component
-        // `f·f`, not the medial `ff` groupsign). When the split differs from the
-        // whole word it is therefore *preferred* — UNLESS a part is an all-caps run
-        // (`founDAtion`'s `DA`), whose caps pattern and position-sensitive groupsigns
-        // (`tion`) are not yet modelled part-wise: those defer to the legacy path.
-        if whole.as_ref().is_some_and(|whole| concat != *whole)
-            && has_caps_word_segment
-            && !has_internal_caps_word_segment
-            && bounds.len() <= 2
-        {
-            return None;
         }
         out.extend(buf);
         Some(())
@@ -12492,9 +12464,9 @@ mod tests {
     /// styled-number title, inverted-punctuation Spanish styled passages (trailing
     /// period stripped / `styled_passage_foreign_scope` / the §extent `¡` bridge), a
     /// BoldItalic passage continued by an Italic word (`nested_typeform_continuation`),
-    /// and a bibliography foreign-quote all-caps word (`Caps::Word`). Smoke checks: the
-    /// exact cells for such rare inputs are pinned by the testcase suite — here we only
-    /// assert the encoder runs the branch without panicking (no `expected` back-solving).
+    /// and a bibliography foreign-quote all-caps word (`Caps::Word`). These focused
+    /// regression cases assert that supported UEB paths successfully encode, without
+    /// duplicating full-cell expectations (which would be `expected` back-solving).
     #[rstest::rstest]
     #[case::bibliography_styled_number_title(
         "1. \u{1D40B}\u{1D41E} \u{1D40F}\u{1D41E}\u{1D42B}\u{1D41E} 12."
@@ -12512,7 +12484,30 @@ mod tests {
         "He said ¡\u{1D410}\u{1D42E}\u{1D41E}\u{301} \u{1D422}\u{1D41D}\u{1D41E}\u{1D41A} \u{1D41B}\u{1D42E}\u{1D41E}\u{1D427}\u{1D41A}! now"
     )]
     #[case::bibliography_foreign_quote_caps_word("1. \u{1D400} \"QUOI caf\u{E9}\"")]
+    // §8.5.3 all-caps styled passage (three-word `⠠⠠⠠` … `⠠⠄`) and single-styled-word
+    // handler branches: a typeform-prefix contraction (`𝐰𝐨𝐫𝐝`), a hyphen-joined styled
+    // span (`𝑜𝑓-𝑡𝑜`), and a plain word directly followed by a styled `ing` run.
+    #[case::styled_all_caps_passage(
+        "\u{1D400}\u{1D401}\u{1D402} \u{1D403}\u{1D404}\u{1D405} \u{1D406}\u{1D407}\u{1D408}"
+    )]
+    #[case::single_styled_word_prefix_contraction("\u{1D430}\u{1D428}\u{1D42B}\u{1D41D}")]
+    #[case::hyphen_joined_styled_span("\u{1D45C}\u{1D453}-\u{1D461}\u{1D45C}")]
+    #[case::plain_word_then_styled_ing("run\u{1D422}\u{1D427}\u{1D420}")]
+    // A lone multi-char styled word (not a prefix contraction) emits the ordinary
+    // word indicator; three same-form styled words open a passage (is_none/is_some
+    // dispatch across the run).
+    #[case::lone_styled_word_word_indicator("\u{1D41C}\u{1D41A}\u{1D42D}")]
+    #[case::three_italic_words_passage_dispatch(
+        "\u{1D44E}\u{1D44F} \u{1D450}\u{1D451} \u{1D452}\u{1D453}"
+    )]
+    // §8.8.1: a 4+ all-caps prefix (not a shortform) followed by a lowercase run and a
+    // further Title-case subunit takes the `camel_title_subunit_after_caps_prefix` split.
+    #[case::camel_caps_prefix_title_subunit("HTTPSxyzAbc")]
+    #[case::camel_caps_prefix_title_subunit2("WXYZabcDef")]
     fn covers_esoteric_genuine_paths(#[case] input: &str) {
-        let _ = enc(input);
+        assert!(
+            enc(input).is_some(),
+            "genuine UEB path should encode: {input:?}"
+        );
     }
 }
