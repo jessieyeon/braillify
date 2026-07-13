@@ -29,13 +29,13 @@ pub(super) fn document_letters(tokens: &[EnglishToken]) -> Vec<char> {
 }
 
 pub(super) fn document_words(tokens: &[EnglishToken]) -> Vec<Vec<char>> {
-    tokens
-        .iter()
-        .filter_map(|token| match token {
-            EnglishToken::Word(chars) => Some(chars.clone()),
-            _ => None,
-        })
-        .collect()
+    let mut words = Vec::new();
+    for token in tokens {
+        if let EnglishToken::Word(chars) = token {
+            words.push(chars.clone());
+        }
+    }
+    words
 }
 
 /// Prose words for the §13 foreign-passage heuristic: an apostrophe between two

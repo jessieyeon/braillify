@@ -31,11 +31,13 @@ pub(super) fn styled_passage_extent(
         while matches!(tokens.get(k), Some(EnglishToken::LineBreak)) {
             k += 1;
         }
-        if matches!(
+        let starts_with_opening_punctuation = matches!(
             tokens.get(k),
             Some(EnglishToken::Symbol('¿' | '¡' | '«' | '"' | '“' | '('))
-        ) && matches!(tokens.get(k + 1).and_then(token_typeform), Some(f) if f == form)
-        {
+        );
+        let opening_precedes_styled_text =
+            matches!(tokens.get(k + 1).and_then(token_typeform), Some(f) if f == form);
+        if starts_with_opening_punctuation && opening_precedes_styled_text {
             k += 1;
         }
         if words > 0
@@ -229,9 +231,8 @@ pub(super) fn styled_passage_foreign_scope(
 
         let mut word = Vec::new();
         while matches!(tokens.get(k).and_then(token_typeform), Some(f) if f == form) {
-            if let Some(c) = token_base_char(&tokens[k]) {
-                word.push(c);
-            }
+            let c = token_base_char(&tokens[k])?;
+            word.push(c);
             k += 1;
         }
         words.push(word);

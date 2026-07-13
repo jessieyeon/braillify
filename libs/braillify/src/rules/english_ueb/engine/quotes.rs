@@ -92,22 +92,12 @@ pub(super) fn previous_text_skipping_terminal_punctuation(
 pub(super) fn straight_single_quote_role(tokens: &[EnglishToken], index: usize) -> SingleQuote {
     let prev_text = previous_text_skipping_terminal_punctuation(tokens, index);
     let next_text = text_token(tokens.get(index + 1));
-    if prev_text && next_text {
-        return SingleQuote::Apostrophe;
+    match (prev_text, next_text) {
+        (true, true) => SingleQuote::Apostrophe,
+        _ if !straight_single_quote_is_matched_quotation(tokens, index) => SingleQuote::Apostrophe,
+        (false, true) => SingleQuote::Open,
+        (true, false) | (false, false) => SingleQuote::Close,
     }
-    if !straight_single_quote_is_matched_quotation(tokens, index) {
-        return SingleQuote::Apostrophe;
-    }
-    if !prev_text && next_text {
-        return SingleQuote::Open;
-    }
-    if prev_text && !next_text {
-        return SingleQuote::Close;
-    }
-    // §7.6: reaching here means the quote is matched with `!prev && !next`, which
-    // `straight_single_quote_is_matched_quotation` only accepts via the inner-double
-    // close path — so the role is always Close (the former `Apostrophe` tail was dead).
-    SingleQuote::Close
 }
 
 pub(super) fn straight_single_quote_is_matched_quotation(
@@ -189,18 +179,20 @@ pub(super) fn straight_single_quote_exchanged(tokens: &[EnglishToken], index: us
         return false;
     }
     let role = straight_single_quote_role(tokens, index);
-    if matches!(role, SingleQuote::Apostrophe) {
-        return false;
+    match role {
+        SingleQuote::Apostrophe => false,
+        SingleQuote::Open | SingleQuote::Close => {
+            let has_double = tokens
+                .iter()
+                .any(|t| matches!(t, EnglishToken::Symbol('"')));
+            has_double
+                && tokens
+                    .iter()
+                    .filter(|t| matches!(t, EnglishToken::Symbol('\'')))
+                    .count()
+                    >= 2
+        }
     }
-    let has_double = tokens
-        .iter()
-        .any(|t| matches!(t, EnglishToken::Symbol('"')));
-    has_double
-        && tokens
-            .iter()
-            .filter(|t| matches!(t, EnglishToken::Symbol('\'')))
-            .count()
-            >= 2
 }
 
 pub(super) fn double_quote_needs_two_cell(
@@ -614,6 +606,7 @@ mod tests {
             straight_single_quote_role(&adjacent_text, 1),
             SingleQuote::Apostrophe
         ));
+        assert!(!straight_single_quote_exchanged(&adjacent_text, 1));
     }
 
     #[test]

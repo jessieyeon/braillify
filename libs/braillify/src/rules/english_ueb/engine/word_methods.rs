@@ -371,7 +371,10 @@ impl EnglishUebEngine {
             );
             return Some(());
         }
-        let whole_lower: Vec<char> = chars.iter().flat_map(|c| c.to_lowercase()).collect();
+        let mut whole_lower = Vec::new();
+        for c in chars {
+            whole_lower.extend(c.to_lowercase());
+        }
 
         let mut bounds = vec![0usize];
         for i in 1..chars.len() {

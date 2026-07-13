@@ -8,37 +8,81 @@ fn spatial_row_has_earlier_vertical(tokens: &[EnglishToken], i: usize) -> bool {
         .any(|token| matches!(token, EnglishToken::Symbol('│')))
 }
 
+struct SymbolPassageContext<'a> {
+    tokens: &'a [EnglishToken],
+    index: usize,
+    foreign_code: bool,
+    spanish_foreign: bool,
+    foreign_passage: bool,
+}
+
+fn guillemet_styled_passage(
+    context: SymbolPassageContext<'_>,
+    out: &mut Vec<u8>,
+) -> Option<Option<ActiveTypeformPassage>> {
+    if !matches!(context.tokens.get(context.index), Some(EnglishToken::Symbol('«'))) {
+        return Some(None);
+    }
+    let Some(form) = context
+        .tokens
+        .get(context.index + 1)
+        .and_then(token_typeform)
+    else {
+        return Some(None);
+    };
+    let (words, end) = styled_passage_extent(context.tokens, context.index + 1, form);
+    if words < 3 {
+        return Some(None);
+    }
+    out.extend(super::rule_9::passage_indicator(form));
+    out.extend(super::rule_7::encode_punctuation('«')?);
+    let detected_scope = styled_passage_foreign_scope(
+        context.tokens,
+        context.index + 1,
+        end,
+        form,
+        context.foreign_code,
+        context.spanish_foreign,
+    );
+    let scope = match detected_scope {
+        Some(scope) => Some(scope),
+        None if context.foreign_passage => Some((
+            super::rule_13::AccentCode::Foreign,
+            context.spanish_foreign,
+        )),
+        None => None,
+    };
+    Some(Some((end, form, false, scope)))
+}
+
+fn ueb_inverted_punctuation_cells(c: char) -> Vec<u8> {
+    vec![
+        decode_unicode('⠘'),
+        decode_unicode('⠰'),
+        decode_unicode(if c == '¡' { '⠖' } else { '⠦' }),
+    ]
+}
+
 macro_rules! encode_symbol_arm {
     ($engine:expr, $tokens:ident, $out:ident, $prev_was_number:ident, $numeric_mode:ident, $skip_to:ident, $line_mode_active:ident, $passage:ident, $cap_term:ident, $in_passage:ident, $url_listing:ident, $regex_listing:ident, $foreign_code:ident, $spanish_foreign:ident, $foreign_passage:ident, $early_english:ident, $preserve_spatial_newlines:ident, $skip_flattened_line_indent:ident, $numeric_separator_count:ident, $i:ident, $c:ident) => {
 			                {
 			                    $skip_flattened_line_indent = false;
-			                    if *$c == '«'
-			                        && $passage.is_none()
-			                        && let Some(form) = $tokens.get($i + 1).and_then(token_typeform)
+			                    if $passage.is_none()
+			                        && let Some(active_passage) = guillemet_styled_passage(
+			                            SymbolPassageContext {
+			                                tokens: $tokens,
+			                                index: $i,
+			                                foreign_code: $foreign_code,
+			                                spanish_foreign: $spanish_foreign,
+			                                foreign_passage: $foreign_passage,
+			                            },
+			                            &mut $out,
+			                        )?
 			                    {
-			                        let (words, end) = styled_passage_extent($tokens, $i + 1, form);
-			                        if words >= 3 {
-			                            $out.extend(super::rule_9::passage_indicator(form));
-			                            $out.extend(super::rule_7::encode_punctuation(*$c)?);
-			                            let scope = styled_passage_foreign_scope(
-			                                $tokens,
-			                                $i + 1,
-			                                end,
-			                                form,
-			                                $foreign_code,
-			                                $spanish_foreign,
-			                            )
-			                            .or_else(|| {
-			                                $foreign_passage.then_some((
-			                                    super::rule_13::AccentCode::Foreign,
-			                                    $spanish_foreign,
-			                                ))
-			                            });
-			                            $passage = Some((end, form, false, scope));
-			                            $prev_was_number = false;
-			                            $numeric_mode = false;
-			                            continue;
-			                        }
+			                        $passage = Some(active_passage);
+			                        $prev_was_number = false;
+			                        $numeric_mode = false;
+			                        continue;
 			                    }
 			                    if *$c == '~'
 			                        && matches!($tokens.get($i + 1), Some(EnglishToken::Space))
@@ -613,11 +657,7 @@ macro_rules! encode_symbol_arm {
                             ))
                         && punctuation_adjacent_to_styled($tokens, $i);
                     let cells = if ueb_inverted_punctuation {
-                        Some(vec![
-                            decode_unicode('⠘'),
-                            decode_unicode('⠰'),
-                            decode_unicode(if *$c == '¡' { '⠖' } else { '⠦' }),
-                        ])
+                        Some(ueb_inverted_punctuation_cells(*$c))
                     } else if matches!(*$c, '↑' | '↓') {
                         super::rule_3::encode_symbol(*$c)
                     } else {
@@ -673,4 +713,73 @@ macro_rules! encode_symbol_arm {
                     }
                 }
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn guillemet_passage_uses_document_foreign_scope_fallback() {
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Symbol('«'),
+            EnglishToken::Styled('l', form),
+            EnglishToken::Styled('e', form),
+            EnglishToken::Space,
+            EnglishToken::Styled('c', form),
+            EnglishToken::Styled('h', form),
+            EnglishToken::Styled('a', form),
+            EnglishToken::Styled('t', form),
+            EnglishToken::Space,
+            EnglishToken::Styled('e', form),
+            EnglishToken::Styled('s', form),
+            EnglishToken::Styled('t', form),
+        ];
+        let mut out = Vec::new();
+
+        let passage = guillemet_styled_passage(
+            SymbolPassageContext {
+                tokens: &tokens,
+                index: 0,
+                foreign_code: false,
+                spanish_foreign: false,
+                foreign_passage: true,
+            },
+            &mut out,
+        )
+        .flatten();
+
+        assert!(matches!(
+            passage,
+            Some((_, _, false, Some((super::super::rule_13::AccentCode::Foreign, false))))
+        ));
+    }
+
+    #[test]
+    fn guillemet_short_styled_run_does_not_start_passage() {
+        let form = super::super::token::Typeform::Italic;
+        let tokens = [
+            EnglishToken::Symbol('«'),
+            EnglishToken::Styled('s', form),
+            EnglishToken::Styled('a', form),
+            EnglishToken::Styled('l', form),
+            EnglishToken::Styled('u', form),
+            EnglishToken::Styled('t', form),
+        ];
+        let mut out = Vec::new();
+
+        let passage = guillemet_styled_passage(
+            SymbolPassageContext {
+                tokens: &tokens,
+                index: 0,
+                foreign_code: false,
+                spanish_foreign: false,
+                foreign_passage: true,
+            },
+            &mut out,
+        );
+
+        assert_eq!(passage, Some(None));
+    }
 }

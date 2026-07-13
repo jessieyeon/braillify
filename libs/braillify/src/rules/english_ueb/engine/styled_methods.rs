@@ -34,11 +34,9 @@ impl EnglishUebEngine {
             );
         }
         if let Some((accent_code, spanish)) = ctx.foreign_scope {
-            out.extend(super::super::rule_13::encode_uncontracted_word(
-                chars,
-                accent_code,
-                spanish,
-            )?);
+            let cells =
+                super::super::rule_13::encode_uncontracted_word(chars, accent_code, spanish)?;
+            out.extend(cells);
             return Some(());
         }
         if chars.iter().all(|c| c.is_ascii_digit()) {
