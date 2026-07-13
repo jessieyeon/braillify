@@ -404,7 +404,7 @@ impl EnglishUebEngine {
 
 #[cfg(test)]
 mod tests {
-    use super::super::test_support::cells;
+    use super::super::test_support::{cells, enc};
     use super::*;
 
     #[test]
@@ -627,5 +627,10 @@ mod tests {
                 .is_some()
         );
         assert!(!out.is_empty());
+    }
+
+    #[test]
+    fn styled_titlecase_place_phrase_encodes_uncontracted_word() {
+        assert!(enc("\u{1D43A}\u{1D45F}\u{1D452}\u{1D44E}\u{1D461} \u{1D439}\u{1D44E}\u{1D459}\u{1D459}\u{1D460} from Montana").is_some());
     }
 }

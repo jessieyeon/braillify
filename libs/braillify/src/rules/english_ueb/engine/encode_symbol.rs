@@ -717,6 +717,7 @@ macro_rules! encode_symbol_arm {
 
 #[cfg(test)]
 mod tests {
+    use super::test_support::enc;
     use super::*;
 
     #[test]
@@ -781,5 +782,30 @@ mod tests {
         );
 
         assert_eq!(passage, Some(None));
+    }
+
+    #[test]
+    fn guillemet_english_styled_passage_needs_no_foreign_scope() {
+        let input = "He wrote «\u{1D45F}\u{1D452}\u{1D451} \u{1D454}\u{1D45F}\u{1D452}\u{1D452}\u{1D45B} \u{1D44F}\u{1D459}\u{1D462}\u{1D452}";
+        assert!(enc(input).is_some());
+
+        let tokens = super::super::parser::parse_english(input);
+        let mut out = Vec::new();
+        let passage = guillemet_styled_passage(
+            SymbolPassageContext {
+                tokens: &tokens,
+                index: 4,
+                foreign_code: false,
+                spanish_foreign: false,
+                foreign_passage: false,
+            },
+            &mut out,
+        );
+        assert!(matches!(passage, Some(Some((_, _, false, None)))));
+    }
+
+    #[test]
+    fn styled_all_caps_passage_closes_before_plain_prose() {
+        assert!(enc("\u{1D411}\u{1D404}\u{1D403} \u{1D406}\u{1D411}\u{1D404}\u{1D404}\u{1D40D} \u{1D401}\u{1D40B}\u{1D414}\u{1D404} now").is_some());
     }
 }

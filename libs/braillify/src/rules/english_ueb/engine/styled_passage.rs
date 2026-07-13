@@ -631,4 +631,9 @@ mod tests {
             Some((super::super::super::rule_13::AccentCode::Ueb, false))
         );
     }
+
+    #[test]
+    fn styled_passage_spans_a_hyphenated_printed_line_break() {
+        assert!(enc("\u{1D44E}\u{1D44F}- \n\u{1D450}\u{1D451} \u{1D452}\u{1D453}").is_some());
+    }
 }
