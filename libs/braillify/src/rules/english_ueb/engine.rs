@@ -244,38 +244,6 @@ fn emit_styled_struck_pair(
     Some(i + 4)
 }
 
-fn emit_struck_letter_sequence(
-    tokens: &[EnglishToken],
-    i: usize,
-    chars: &[char],
-    out: &mut Vec<u8>,
-) -> Option<usize> {
-    if !matches!(tokens.get(i + 1), Some(EnglishToken::Symbol('\u{0336}'))) {
-        return None;
-    }
-    let mut letters = chars.to_vec();
-    let mut j = i + 2;
-    while let (Some(EnglishToken::Word(next)), Some(EnglishToken::Symbol('\u{0336}'))) =
-        (tokens.get(j), tokens.get(j + 1))
-    {
-        letters.extend(next);
-        j += 2;
-    }
-    if letters.len() < 2 {
-        return None;
-    }
-    let (&first, rest) = letters.split_first()?;
-    push_literal_letter(first, out)?;
-    for &letter in rest {
-        if letter.is_uppercase() {
-            out.push(CAPITAL);
-        }
-        out.extend([decode_unicode('⠘'), decode_unicode('⠖')]);
-        out.push(crate::english::encode_english(letter.to_ascii_lowercase()).ok()?);
-    }
-    Some(j)
-}
-
 fn emit_group_modifier(mark: char, chars: &[char], out: &mut Vec<u8>) -> Option<()> {
     out.extend(combining_modifier_cells(mark)?);
     out.push(decode_unicode('⠣'));
@@ -5509,12 +5477,6 @@ impl EnglishUebEngine {
 				                        out.extend(std::iter::repeat_n(GRADE1, span.indicator_cells));
 				                        grade1_passage = Some(span);
 				                    }
-                    if let Some(end) = emit_struck_letter_sequence(tokens, i, chars, &mut out) {
-                        skip_to = end;
-                        prev_was_number = false;
-                        numeric_mode = false;
-                        continue;
-                    }
 			                    if isolated_shape_circle(tokens, i, chars) {
 		                        out.extend([
 		                            GRADE1,
@@ -6648,13 +6610,11 @@ impl EnglishUebEngine {
 		                    };
 		                    let mut digits = Vec::new();
 		                    let mut letters = Vec::new();
-		                    if let Some((_, first)) = super::rule_3_24::script_digit(*c) {
-		                        digits.push(first);
-		                    } else if let Some((_, letter)) = script_letter(*c) {
-		                        letters.push(letter);
-		                    } else {
-		                        return None;
-		                    }
+	                        if let Some((_, first)) = super::rule_3_24::script_digit(*c) {
+	                            digits.push(first);
+	                        } else if let Some((_, letter)) = script_letter(*c) {
+	                            letters.push(letter);
+	                        }
 			                    let mut j = i + 1;
 			                    while let Some(EnglishToken::Symbol(sc)) = tokens.get(j) {
 		                        if !super::rule_3_24::is_script_char(*sc) {
@@ -6663,8 +6623,8 @@ impl EnglishUebEngine {
 		                        match (super::rule_3_24::script_digit(*sc), script_letter(*sc)) {
 		                            (Some((k, d)), _) if k == kind && letters.is_empty() => digits.push(d),
 		                            (None, Some((k, letter))) if k == kind && digits.is_empty() => letters.push(letter),
-		                            // a mixed-kind or non-digit script char is unsupported.
-		                            _ => return None,
+	                            // a mixed-kind or non-digit script char is unsupported.
+	                            _ => return None,
 			                        }
 			                        j += 1;
 			                    }
@@ -9889,23 +9849,10 @@ mod tests {
     }
 
     #[test]
-    fn emits_ligature_and_struck_letter_helpers() {
+    fn emits_ligature_letter_helper() {
         let mut out = Vec::new();
         emit_ligature_between(&['o'], &['e'], &mut out).unwrap();
         assert_eq!(out, cells("⠕⠘⠖⠑"));
-
-        let tokens = [
-            EnglishToken::Word(vec!['a']),
-            EnglishToken::Symbol('\u{0336}'),
-            EnglishToken::Word(vec!['b']),
-            EnglishToken::Symbol('\u{0336}'),
-        ];
-        let mut struck = Vec::new();
-        assert_eq!(
-            emit_struck_letter_sequence(&tokens, 0, &['a'], &mut struck),
-            Some(4)
-        );
-        assert_eq!(struck, cells("⠁⠘⠖⠃"));
     }
 
     #[rstest::rstest]
@@ -10447,36 +10394,6 @@ mod tests {
         #[case] letter: char,
     ) {
         assert_eq!(script_letter(input), Some((kind, letter)));
-    }
-
-    #[test]
-    fn struck_letter_sequence_helper_covers_short_upper_and_invalid_paths() {
-        let mut short = Vec::new();
-        assert_eq!(
-            emit_struck_letter_sequence(
-                &[
-                    EnglishToken::Word(vec!['a']),
-                    EnglishToken::Symbol('\u{0336}'),
-                ],
-                0,
-                &['a'],
-                &mut short,
-            ),
-            None
-        );
-
-        let tokens = [
-            EnglishToken::Word(vec!['a']),
-            EnglishToken::Symbol('\u{0336}'),
-            EnglishToken::Word(vec!['B']),
-            EnglishToken::Symbol('\u{0336}'),
-        ];
-        let mut out = Vec::new();
-        assert_eq!(
-            emit_struck_letter_sequence(&tokens, 0, &['a'], &mut out),
-            Some(tokens.len())
-        );
-        assert_eq!(out, cells("⠁⠠⠘⠖⠃"));
     }
 
     #[test]
@@ -12511,5 +12428,63 @@ mod tests {
         let lower = enc("in...").expect("should encode");
         assert_eq!(upper.first(), Some(&CAPITAL));
         assert_eq!(upper.len(), lower.len() + 1);
+    }
+
+    #[test]
+    fn encodes_standalone_shortform_collision_with_grade1() {
+        // §8.7: an all-caps word that collides with a multi-letter shortform yet
+        // is NOT itself a pure shortform abbreviation (`BC` shares letters with
+        // the `bc`="because" wordsign) takes a grade-1 indicator before the caps
+        // marker so it reads as literal letters.
+        let out = enc("BC").expect("should encode");
+        assert_eq!(out.first(), Some(&GRADE1));
+    }
+
+    #[test]
+    fn encodes_box_drawing_vertical_tee_opening_line() {
+        // §16.2: a run of 2+ box-drawing chars is horizontal line mode; a `├`
+        // (U+251C) opening the run takes the vertical-tee cells `⠸⠐` before the
+        // following segment.
+        let out = enc("\u{251C}\u{2500}").expect("should encode");
+        assert_eq!(out[..2], [decode_unicode('⠸'), decode_unicode('⠐')]);
+    }
+
+    #[test]
+    fn encodes_box_drawing_rectangle_marker_opening_line() {
+        // §16.2.4: a distinctive rectangle `▭` (U+25AD) opening a box-drawing run
+        // takes its multi-cell §16.2.4 line marker `⠯⠭⠭⠭⠽`.
+        let out = enc("\u{25AD}\u{2500}").expect("should encode");
+        let marker = [
+            decode_unicode('⠯'),
+            decode_unicode('⠭'),
+            decode_unicode('⠭'),
+            decode_unicode('⠭'),
+            decode_unicode('⠽'),
+        ];
+        assert!(out.windows(5).any(|w| w == marker));
+    }
+
+    #[test]
+    fn rejects_script_run_with_mixed_non_digit_trailing_char() {
+        // §3.24: a super/subscript run must be same-kind digits or letters; a
+        // trailing non-digit script char (superscript `²` then superscript `⁻`)
+        // is unsupported, so the whole UEB attempt fails (`None`).
+        assert!(enc("x\u{00B2}\u{207B}").is_none());
+    }
+
+    #[test]
+    fn rejects_script_after_bare_symbol_base() {
+        // §3.24: a super/subscript needs a word/number base; a script char whose
+        // immediate neighbour is a bare symbol (`x(²`) has no valid base, so the
+        // whole UEB attempt fails (`None`).
+        assert!(enc("x(\u{00B2}").is_none());
+    }
+
+    #[test]
+    fn rejects_script_after_period_with_symbol_base() {
+        // §3.24: a script reached across a period needs a word/number before that
+        // period; when the pre-period token is a bare symbol (`x!.²`) the base is
+        // invalid and the UEB attempt fails (`None`).
+        assert!(enc("x!.\u{00B2}").is_none());
     }
 }
