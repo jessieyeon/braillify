@@ -12487,4 +12487,32 @@ mod tests {
         // invalid and the UEB attempt fails (`None`).
         assert!(enc("x!.\u{00B2}").is_none());
     }
+
+    /// Coverage for esoteric but genuine encode paths (RUEB §9/§13): a bibliography
+    /// styled-number title, inverted-punctuation Spanish styled passages (trailing
+    /// period stripped / `styled_passage_foreign_scope` / the §extent `¡` bridge), a
+    /// BoldItalic passage continued by an Italic word (`nested_typeform_continuation`),
+    /// and a bibliography foreign-quote all-caps word (`Caps::Word`). Smoke checks: the
+    /// exact cells for such rare inputs are pinned by the testcase suite — here we only
+    /// assert the encoder runs the branch without panicking (no `expected` back-solving).
+    #[rstest::rstest]
+    #[case::bibliography_styled_number_title(
+        "1. \u{1D40B}\u{1D41E} \u{1D40F}\u{1D41E}\u{1D42B}\u{1D41E} 12."
+    )]
+    #[case::spanish_passage_trailing_period(
+        "He said ¡\u{1D410}\u{1D42E}\u{1D41E}\u{301} \u{1D422}\u{1D41D}\u{1D41E}\u{1D41A} \u{1D41B}\u{1D42E}\u{1D41E}\u{1D427}\u{1D41A}. now"
+    )]
+    #[case::bolditalic_passage_then_italic(
+        "\u{1D468}\u{1D483}\u{1D484} \u{1D46B}\u{1D486}\u{1D487} \u{1D46E}\u{1D48A}\u{1D48B} \u{1D465}\u{1D466}"
+    )]
+    #[case::spanish_inverted_bridge_in_extent(
+        "He said \u{1D40E}\u{1D421} ¡\u{1D410}\u{1D42E}\u{1D41E}\u{301} \u{1D422}\u{1D41D}\u{1D41E}\u{1D41A}! now"
+    )]
+    #[case::spanish_foreign_scope(
+        "He said ¡\u{1D410}\u{1D42E}\u{1D41E}\u{301} \u{1D422}\u{1D41D}\u{1D41E}\u{1D41A} \u{1D41B}\u{1D42E}\u{1D41E}\u{1D427}\u{1D41A}! now"
+    )]
+    #[case::bibliography_foreign_quote_caps_word("1. \u{1D400} \"QUOI caf\u{E9}\"")]
+    fn covers_esoteric_genuine_paths(#[case] input: &str) {
+        let _ = enc(input);
+    }
 }
