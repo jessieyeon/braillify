@@ -8,7 +8,7 @@
     "lint": "oxlint . && cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings",
     "lint:fix": "oxlint . --fix && cargo fmt --all && cargo clippy --workspace --all-targets --fix --allow-dirty --allow-staged -- -D warnings && cargo clippy --workspace --all-targets -- -D warnings",
     "test": "bun run test:rust && bun run test:node && bun run test:python",
-    "test:rust": "cargo tarpaulin --engine llvm --out xml --out stdout --timeout 300 -- --skip test_by_testcase",
+    "test:rust": "bun scripts/test-rust.ts",
     "test:node": "bun test",
     "test:python": "cd py-test && uv run --locked pytest",
     "test:testcase": "cargo test -p braillify test_by_testcase -- --nocapture",
