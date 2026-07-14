@@ -76,7 +76,8 @@ jobs:
         run: bun run test:rust
       - name: Test (Node)
         timeout-minutes: 10
-        run: bun run test:node
+        # Windows에서 중첩된 `bun run`이 테스트 완료 후 간헐적으로 멈추므로 직접 실행한다.
+        run: bun test
       - name: Test (Python)
         timeout-minutes: 10
         run: bun run test:python
