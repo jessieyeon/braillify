@@ -87,7 +87,9 @@ export function MathTrans() {
           blurPlaceholder={
             '수식을 입력하면 이곳에 수학 점자가 표시됩니다.\n예: 사분의 삼 → ⠼⠙⠌⠼⠉'
           }
-          focusPlaceholder="수식을 입력하면 이곳에 수학 점자가 표시됩니다."
+          focusPlaceholder={
+            '수식을 입력하면 이곳에 수학 점자가 표시됩니다.\n예: 사분의 삼 → ⠼⠙⠌⠼⠉'
+          }
           readOnly
           value={braille}
         />

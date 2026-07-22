@@ -89,6 +89,7 @@ export function MathTransInput({
     return () => {
       field.removeEventListener('focusin', show)
       field.removeEventListener('focusout', hide)
+      window.mathVirtualKeyboard.hide()
     }
   }, [ready])
 
