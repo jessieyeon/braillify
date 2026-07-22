@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Flex, Text } from '@devup-ui/react'
+import { Flex, Text } from '@devup-ui/react'
 import type { MathfieldElement } from 'mathlive'
 import { useEffect, useRef, useState } from 'react'
 
@@ -48,25 +48,31 @@ function readArg(latex: string, i: number): [string, number] {
       else if (latex[j] === '}') depth -= 1
       j += 1
     } while (j < latex.length && depth > 0)
-    return [`{${normalizeFracBraces(latex.slice(i + 1, j - 1))}}`, j]
+    // depth === 0 이면 짝이 맞는 '}' 를 j-1 에서 소비한 것이고,
+    // depth > 0 이면 닫는 중괄호 없이 끝난 것이라 내용을 j 까지 살린다.
+    const end = depth === 0 ? j - 1 : j
+    return [`{${normalizeFracBraces(latex.slice(i + 1, end))}}`, j]
   }
   if (latex[i] === '\\') {
     let j = i + 1
     while (j < latex.length && /[a-zA-Z]/.test(latex[j] ?? '')) j += 1
+    // 제어기호(\, \! 등)는 백슬래시 뒤에 글자가 없으므로 기호 한 글자를 포함시킨다.
+    if (j === i + 1 && j < latex.length) j += 1
     return [`{${latex.slice(i, j)}}`, j]
   }
   return [`{${latex[i] ?? ''}}`, i + 1]
 }
 
 export function MathTransInput({
+  latex,
   onLatexChange,
   placeholder,
 }: {
+  latex: string
   onLatexChange: (latex: string) => void
   placeholder: string
 }) {
   const [ready, setReady] = useState(false)
-  const [latex, setLatex] = useState('')
   const fieldRef = useRef<MathfieldElement>(null)
 
   useEffect(() => {
@@ -97,63 +103,67 @@ export function MathTransInput({
   }, [ready])
 
   return (
-    <Flex
-      bg="$containerBackground"
-      borderRadius={['16px', null, null, '30px']}
-      flex="1"
-      flexDirection="column"
-      gap="12px"
-      minH="25dvh"
-      p={['16px', null, null, '40px']}
-      w="100%"
-    >
-      <Box flex="1" pos="relative">
-        {ready && (
-          <math-field
-            ref={fieldRef}
-            math-virtual-keyboard-policy="manual"
-            onInput={(e) => {
-              const value = normalizeFracBraces(
-                (e.target as MathfieldElement).getValue(
-                  'latex-without-placeholders',
-                ),
-              )
-              setLatex(value)
-              onLatexChange(value)
-            }}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              display: 'block',
-              fontSize: '28px',
-              width: '100%',
-            }}
-          />
-        )}
-        {!latex && (
-          <Text
-            color="$text"
-            left="0"
-            opacity={0.5}
-            pointerEvents="none"
-            pos="absolute"
-            top={ready ? '48px' : '0'}
-            typography="braille"
-            whiteSpace="pre-line"
-          >
-            {placeholder}
-          </Text>
-        )}
-      </Box>
-      <Text
-        color="$text"
-        fontFamily="monospace"
-        minH="1.5em"
-        opacity={0.7}
-        wordBreak="break-all"
+    // 바깥 Flex 는 padding 없는 flex 아이템으로, 출력측 TransInput 의 외곽
+    // Flex(flex=1 h=100% w=100%)와 flex-basis 를 동일하게 맞춰 좌우 박스 너비를
+    // 같게 한다. 실제 배경/여백은 안쪽 박스가 담당한다.
+    <Flex flex="1" h="100%" w="100%">
+      <Flex
+        bg="$containerBackground"
+        borderRadius={['16px', null, null, '30px']}
+        cursor="text"
+        flexDirection="column"
+        gap="12px"
+        h="100%"
+        minH="25dvh"
+        onClick={() => fieldRef.current?.focus()}
+        p={['16px', null, null, '40px']}
+        w="100%"
       >
-        {latex ? `LaTeX: $${latex}$` : 'LaTeX가 자동으로 생성됩니다'}
-      </Text>
+        <Flex flex="1" flexDirection="column" gap="8px">
+          {ready && (
+            <math-field
+              ref={fieldRef}
+              math-virtual-keyboard-policy="manual"
+              onInput={(e) =>
+                onLatexChange(
+                  normalizeFracBraces(
+                    (e.target as MathfieldElement).getValue(
+                      'latex-without-placeholders',
+                    ),
+                  ),
+                )
+              }
+              style={{
+                background: 'transparent',
+                border: 'none',
+                display: 'block',
+                fontSize: '28px',
+                width: '100%',
+              }}
+            />
+          )}
+          {!latex && (
+            <Text
+              color="$text"
+              opacity={0.5}
+              pointerEvents="none"
+              typography="braille"
+              whiteSpace="pre-line"
+            >
+              {placeholder}
+            </Text>
+          )}
+        </Flex>
+        <Text
+          color="$text"
+          fontFamily="monospace"
+          minH="1.5em"
+          opacity={0.7}
+          wordBreak="break-all"
+        >
+          {latex ? `LaTeX: $${latex}$` : 'LaTeX가 자동으로 생성됩니다'}
+        </Text>
+      </Flex>
     </Flex>
   )
 }

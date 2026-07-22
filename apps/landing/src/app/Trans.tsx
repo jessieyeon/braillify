@@ -1,7 +1,8 @@
 'use client'
-import { Box, Flex, Image, Text, VStack } from '@devup-ui/react'
+import { Flex, VStack } from '@devup-ui/react'
 import { useEffect, useState } from 'react'
 
+import { DemoArrow, DemoHeading } from './DemoChrome'
 import { TransInput } from './TransInput'
 
 export function Trans() {
@@ -27,26 +28,7 @@ export function Trans() {
 
   return (
     <VStack flex="1" gap={['16px', null, null, '30px']}>
-      <Flex
-        alignItems="flex-start"
-        gap={['10px', null, null, '20px']}
-        justifyContent={['center', null, null, 'flex-start']}
-      >
-        <Box
-          aria-hidden="true"
-          bg="$text"
-          flexShrink={0}
-          h={['20px', null, null, '32px']}
-          maskImage="url(/images/home/finger-point.svg)"
-          maskPosition="center"
-          maskRepeat="no-repeat"
-          maskSize="contain"
-          w={['17px', null, null, '28px']}
-        />
-        <Text color="$text" pos="relative" top="-2px" typography="mainTextSm">
-          직접 입력해 실시간 점자 번역을 체험해보세요!
-        </Text>
-      </Flex>
+      <DemoHeading>직접 입력해 실시간 점자 번역을 체험해보세요!</DemoHeading>
       <Flex
         alignItems="center"
         flexDirection={['column', null, null, 'row']}
@@ -70,23 +52,7 @@ export function Trans() {
           }}
           value={input}
         />
-        <Flex aria-hidden="true">
-          <Image
-            alt=""
-            display={['none', null, null, 'block']}
-            mr="10px"
-            role="presentation"
-            src="/images/home/translate-arrow-circle.svg"
-            w="16px"
-          />
-          <Image
-            alt=""
-            role="presentation"
-            src="/images/home/translate-arrow.svg"
-            transform={['rotate(0deg)', null, null, 'rotate(-90deg)']}
-            w={['16px', null, null, '24px']}
-          />
-        </Flex>
+        <DemoArrow />
         <TransInput
           blurPlaceholder={
             '⠴⠃⠗⠁⠊⠇⠇⠊⠋⠽⠲⠉⠵ ⠚⠒⠈⠮ ⠨⠎⠢⠱⠁⠮ ⠠⠘⠐⠪⠈⠥ ⠣⠒⠨⠻⠨⠹⠪⠐⠥ ⠰⠎⠐⠕⠚⠉⠵ ⠴⠠⠗⠥⠌⠲ ⠈⠕⠘⠒ ⠐⠣⠕⠘⠪⠐⠎⠐⠕⠕⠃⠉⠕⠊⠲\n⠴⠠⠝⠕⠙⠑⠲⠚⠎⠂ ⠠⠺⠑⠃⠠⠁⠎⠎⠑⠍⠃⠇⠽⠂ ⠠⠏⠽⠹⠕⠝⠲ ⠊⠪⠶ ⠊⠣⠜⠶⠚⠒ ⠚⠧⠒⠈⠻⠝⠠⠎ ⠇⠬⠶⠚⠂ ⠠⠍ ⠕⠌⠎⠬⠲\n\n⠨⠎⠢⠱⠁⠚⠈⠥ ⠠⠕⠲⠵ ⠑⠛⠨⠶⠕⠉ ⠊⠒⠎⠐⠮ ⠱⠈⠕⠝ ⠕⠃⠐⠱⠁⠚⠗ ⠨⠕⠁⠨⠎⠃ ⠚⠧⠁⠟⠚⠗⠘⠥⠠⠝⠬⠖'

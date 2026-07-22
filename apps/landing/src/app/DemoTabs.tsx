@@ -1,6 +1,6 @@
 'use client'
-import { Flex, Text, VStack } from '@devup-ui/react'
-import { useState } from 'react'
+import { Box, Flex, Text, VStack } from '@devup-ui/react'
+import { useRef, useState } from 'react'
 
 import { MathTrans } from './MathTrans'
 import { Trans } from './Trans'
@@ -12,8 +12,22 @@ const TABS = [
 
 type DemoMode = (typeof TABS)[number]['key']
 
+const PANEL_ID = 'demo-panel'
+const tabId = (key: DemoMode) => `demo-tab-${key}`
+
 export function DemoTabs() {
   const [mode, setMode] = useState<DemoMode>('korean')
+  const tabRefs = useRef<(HTMLElement | null)[]>([])
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+    e.preventDefault()
+    const dir = e.key === 'ArrowRight' ? 1 : -1
+    const next = (index + dir + TABS.length) % TABS.length
+    setMode(TABS[next].key)
+    tabRefs.current[next]?.focus()
+  }
+
   return (
     <VStack flex="1" gap={['16px', null, null, '30px']} w="100%">
       <Flex
@@ -22,9 +36,13 @@ export function DemoTabs() {
         justifyContent={['center', null, null, 'flex-start']}
         role="tablist"
       >
-        {TABS.map(({ key, label }) => (
+        {TABS.map(({ key, label }, index) => (
           <Text
             key={key}
+            ref={(el: HTMLElement | null) => {
+              tabRefs.current[index] = el
+            }}
+            aria-controls={PANEL_ID}
             aria-selected={mode === key}
             as="button"
             bg={mode === key ? '$text' : 'transparent'}
@@ -32,17 +50,31 @@ export function DemoTabs() {
             borderRadius="9999px"
             color={mode === key ? '$background' : '$text'}
             cursor="pointer"
+            id={tabId(key)}
             onClick={() => setMode(key)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
             px={['20px', null, null, '28px']}
             py={['8px', null, null, '10px']}
             role="tab"
+            tabIndex={mode === key ? 0 : -1}
+            type="button"
             typography="button"
           >
             {label}
           </Text>
         ))}
       </Flex>
-      {mode === 'korean' ? <Trans /> : <MathTrans />}
+      <Box
+        aria-labelledby={tabId(mode)}
+        display="flex"
+        flex="1"
+        flexDirection="column"
+        id={PANEL_ID}
+        role="tabpanel"
+        w="100%"
+      >
+        {mode === 'korean' ? <Trans /> : <MathTrans />}
+      </Box>
     </VStack>
   )
 }
