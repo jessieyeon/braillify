@@ -1,6 +1,6 @@
 'use client'
 
-import { Box } from '@devup-ui/react'
+import { Box, Flex, Text } from '@devup-ui/react'
 import type { MathfieldElement } from 'mathlive'
 import { useEffect, useRef, useState } from 'react'
 
@@ -60,10 +60,13 @@ function readArg(latex: string, i: number): [string, number] {
 
 export function MathTransInput({
   onLatexChange,
+  placeholder,
 }: {
   onLatexChange: (latex: string) => void
+  placeholder: string
 }) {
   const [ready, setReady] = useState(false)
+  const [latex, setLatex] = useState('')
   const fieldRef = useRef<MathfieldElement>(null)
 
   useEffect(() => {
@@ -94,37 +97,64 @@ export function MathTransInput({
   }, [ready])
 
   return (
-    <Box
+    <Flex
       bg="$containerBackground"
       borderRadius={['16px', null, null, '30px']}
-      minH="120px"
+      flex="1"
+      flexDirection="column"
+      gap="12px"
+      h="100%"
+      minH="25dvh"
       p={['16px', null, null, '40px']}
       w="100%"
     >
-      {ready ? (
-        <math-field
-          ref={fieldRef}
-          math-virtual-keyboard-policy="manual"
-          onInput={(e) =>
-            onLatexChange(
-              normalizeFracBraces(
+      <Box flex="1" pos="relative">
+        {ready && (
+          <math-field
+            ref={fieldRef}
+            math-virtual-keyboard-policy="manual"
+            onInput={(e) => {
+              const value = normalizeFracBraces(
                 (e.target as MathfieldElement).getValue(
                   'latex-without-placeholders',
                 ),
-              ),
-            )
-          }
-          style={{
-            background: 'transparent',
-            border: 'none',
-            display: 'block',
-            fontSize: '28px',
-            width: '100%',
-          }}
-        />
-      ) : (
-        <Box minH="40px" />
-      )}
-    </Box>
+              )
+              setLatex(value)
+              onLatexChange(value)
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              display: 'block',
+              fontSize: '28px',
+              width: '100%',
+            }}
+          />
+        )}
+        {!latex && (
+          <Text
+            color="$text"
+            left="0"
+            opacity={0.5}
+            pointerEvents="none"
+            pos="absolute"
+            top={ready ? '48px' : '0'}
+            typography="braille"
+            whiteSpace="pre-line"
+          >
+            {placeholder}
+          </Text>
+        )}
+      </Box>
+      <Text
+        color="$text"
+        fontFamily="monospace"
+        minH="1.5em"
+        opacity={0.7}
+        wordBreak="break-all"
+      >
+        {latex ? `LaTeX: $${latex}$` : 'LaTeX가 자동으로 생성됩니다'}
+      </Text>
+    </Flex>
   )
 }

@@ -51,21 +51,13 @@ export function MathTrans() {
         alignItems="center"
         flexDirection={['column', null, null, 'row']}
         gap={['12px', null, null, '30px']}
+        h={['auto', null, null, '500px']}
         w="100%"
       >
-        <VStack flex="1" gap="12px" w="100%">
-          <MathTransInput onLatexChange={setLatex} />
-          <Text
-            color="$text"
-            fontFamily="monospace"
-            minH="1.5em"
-            opacity={0.7}
-            px={['16px', null, null, '40px']}
-            wordBreak="break-all"
-          >
-            {latex ? `LaTeX: $${latex}$` : 'LaTeX가 자동으로 생성됩니다'}
-          </Text>
-        </VStack>
+        <MathTransInput
+          onLatexChange={setLatex}
+          placeholder="수식을 입력하면 이곳에 수학 점자가 표시됩니다."
+        />
         <Flex aria-hidden="true">
           <Image
             alt=""
@@ -84,12 +76,8 @@ export function MathTrans() {
           />
         </Flex>
         <TransInput
-          blurPlaceholder={
-            '수식을 입력하면 이곳에 수학 점자가 표시됩니다.\n예: 사분의 삼 → ⠼⠙⠌⠼⠉'
-          }
-          focusPlaceholder={
-            '수식을 입력하면 이곳에 수학 점자가 표시됩니다.\n예: 사분의 삼 → ⠼⠙⠌⠼⠉'
-          }
+          blurPlaceholder={'예: 사분의 삼 → ⠼⠙⠌⠼⠉'}
+          focusPlaceholder={'예: 사분의 삼 → ⠼⠙⠌⠼⠉'}
           readOnly
           value={braille}
         />
