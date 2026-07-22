@@ -103,7 +103,6 @@ export function MathTransInput({
       flex="1"
       flexDirection="column"
       gap="12px"
-      h="100%"
       minH="25dvh"
       p={['16px', null, null, '40px']}
       w="100%"
