@@ -5,6 +5,7 @@ import PillButton from '@/components/home/PillButton'
 import IconDiscord from '@/components/icons/IconDiscord'
 import IconKakao from '@/components/icons/IconKakao'
 
+import { MathTrans } from './MathTrans'
 import { Trans } from './Trans'
 
 const SITE_URL = 'https://braillify.kr'
@@ -169,6 +170,9 @@ export default function HomePage() {
           </VStack>
           <Flex maxW="1520px" w="100%">
             <Trans />
+          </Flex>
+          <Flex maxW="1520px" w="100%">
+            <MathTrans />
           </Flex>
         </VStack>
       </Box>
